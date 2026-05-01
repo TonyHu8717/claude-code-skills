@@ -1,157 +1,156 @@
 ---
 name: shellcheck-configuration
-description: Master ShellCheck static analysis configuration and usage for shell script quality. Use when setting up linting infrastructure, fixing code issues, or ensuring script portability.
+description: 掌握 ShellCheck 静态分析配置和使用，提升 Shell 脚本质量。在设置代码检查基础设施、修复代码问题或确保脚本可移植性时使用。
 ---
 
-# ShellCheck Configuration and Static Analysis
+# ShellCheck 配置和静态分析
 
-Comprehensive guidance for configuring and using ShellCheck to improve shell script quality, catch common pitfalls, and enforce best practices through static code analysis.
+配置和使用 ShellCheck 的全面指南，用于提升 Shell 脚本质量、捕获常见陷阱，并通过静态代码分析强制执行最佳实践。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Setting up linting for shell scripts in CI/CD pipelines
-- Analyzing existing shell scripts for issues
-- Understanding ShellCheck error codes and warnings
-- Configuring ShellCheck for specific project requirements
-- Integrating ShellCheck into development workflows
-- Suppressing false positives and configuring rule sets
-- Enforcing consistent code quality standards
-- Migrating scripts to meet quality gates
+- 在 CI/CD 管道中为 Shell 脚本设置代码检查
+- 分析现有 Shell 脚本的问题
+- 理解 ShellCheck 错误代码和警告
+- 为特定项目需求配置 ShellCheck
+- 将 ShellCheck 集成到开发工作流中
+- 抑制误报和配置规则集
+- 强制执行一致的代码质量标准
+- 迁移脚本以满足质量门控
 
-## ShellCheck Fundamentals
+## ShellCheck 基础
 
-### What is ShellCheck?
+### 什么是 ShellCheck？
 
-ShellCheck is a static analysis tool that analyzes shell scripts and detects problematic patterns. It supports:
+ShellCheck 是一个静态分析工具，用于分析 Shell 脚本并检测有问题的模式。它支持：
 
-- Bash, sh, dash, ksh, and other POSIX shells
-- Over 100 different warnings and errors
-- Configuration for target shell and flags
-- Integration with editors and CI/CD systems
+- Bash、sh、dash、ksh 和其他 POSIX Shell
+- 超过 100 种不同的警告和错误
+- 针对目标 Shell 和标志的配置
+- 与编辑器和 CI/CD 系统集成
 
-### Installation
+### 安装
 
 ```bash
-# macOS with Homebrew
+# macOS 使用 Homebrew
 brew install shellcheck
 
 # Ubuntu/Debian
 apt-get install shellcheck
 
-# From source
+# 从源码安装
 git clone https://github.com/koalaman/shellcheck.git
 cd shellcheck
 make build
 make install
 
-# Verify installation
+# 验证安装
 shellcheck --version
 ```
 
-## Configuration Files
+## 配置文件
 
-### .shellcheckrc (Project Level)
+### .shellcheckrc（项目级）
 
-Create `.shellcheckrc` in your project root:
+在项目根目录创建 `.shellcheckrc`：
 
 ```
-# Specify target shell
+# 指定目标 Shell
 shell=bash
 
-# Enable optional checks
+# 启用可选检查
 enable=avoid-nullary-conditions
 enable=require-variable-braces
 
-# Disable specific warnings
+# 禁用特定警告
 disable=SC1091
 disable=SC2086
 ```
 
-### Environment Variables
+### 环境变量
 
 ```bash
-# Set default shell target
+# 设置默认 Shell 目标
 export SHELLCHECK_SHELL=bash
 
-# Enable strict mode
+# 启用严格模式
 export SHELLCHECK_STRICT=true
 
-# Specify configuration file location
+# 指定配置文件位置
 export SHELLCHECK_CONFIG=~/.shellcheckrc
 ```
 
-## Common ShellCheck Error Codes
+## 常见 ShellCheck 错误代码
 
-### SC1000-1099: Parser Errors
+### SC1000-1099：解析器错误
 
 ```bash
-# SC1004: Backslash continuation not followed by newline
+# SC1004: 反斜杠续行后未跟换行符
 echo hello\
-world  # Error - needs line continuation
+world  # 错误 - 需要行续接
 
-# SC1008: Invalid data for operator `=='
-if [[ $var =  "value" ]]; then  # Space before ==
+# SC1008: 运算符 `==' 的数据无效
+if [[ $var =  "value" ]]; then  # == 前有多余空格
     true
 fi
 ```
 
-### SC2000-2099: Shell Issues
+### SC2000-2099：Shell 问题
 
 ```bash
-# SC2009: Consider using pgrep or pidof instead of grep|grep
-ps aux | grep -v grep | grep myprocess  # Use pgrep instead
+# SC2009: 考虑使用 pgrep 或 pidof 代替 grep|grep
+ps aux | grep -v grep | grep myprocess  # 应使用 pgrep
 
-# SC2012: Use `ls` only for viewing. Use `find` for reliable output
-for file in $(ls -la)  # Better: use find or globbing
+# SC2012: `ls` 仅用于查看。使用 `find` 获取可靠输出
+for file in $(ls -la)  # 更好：使用 find 或 globbing
 
-# SC2015: Avoid using && and || instead of if-then-else
-[[ -f "$file" ]] && echo "found" || echo "not found"  # Less clear
+# SC2015: 避免使用 && 和 || 代替 if-then-else
+[[ -f "$file" ]] && echo "found" || echo "not found"  # 不够清晰
 
-# SC2016: Expressions don't expand in single quotes
-echo '$VAR'  # Literal $VAR, not variable expansion
+# SC2016: 单引号中的表达式不会展开
+echo '$VAR'  # 字面 $VAR，不是变量展开
 
-# SC2026: This word is non-standard. Set POSIXLY_CORRECT
-# when using with scripts for other shells
+# SC2026: 此词非标准。在用于其他 Shell 的脚本时设置 POSIXLY_CORRECT
 ```
 
-### SC2100-2199: Quoting Issues
+### SC2100-2199：引号问题
 
 ```bash
-# SC2086: Double quote to prevent globbing and word splitting
-for i in $list; do  # Should be: for i in $list or for i in "$list"
+# SC2086: 使用双引号防止 globbing 和分词
+for i in $list; do  # 应为：for i in $list 或 for i in "$list"
     echo "$i"
 done
 
-# SC2115: Literal tilde in path not expanded. Use $HOME instead
-~/.bashrc  # In strings, use "$HOME/.bashrc"
+# SC2115: 路径中的字面波浪号未展开。使用 $HOME 代替
+~/.bashrc  # 在字符串中，使用 "$HOME/.bashrc"
 
-# SC2181: Check exit code directly with `if`, not indirectly in a list
+# SC2181: 使用 `if` 直接检查退出码，不要间接在列表中检查
 some_command
-if [ $? -eq 0 ]; then  # Better: if some_command; then
+if [ $? -eq 0 ]; then  # 更好：if some_command; then
 
-# SC2206: Quote to prevent word splitting or set IFS
-array=( $items )  # Should use: array=( $items )
+# SC2206: 引用以防止分词或设置 IFS
+array=( $items )  # 应使用：array=( $items )
 ```
 
-### SC3000-3999: POSIX Compliance Issues
+### SC3000-3999：POSIX 合规性问题
 
 ```bash
-# SC3010: In POSIX sh, use 'case' instead of 'cond && foo'
-[[ $var == "value" ]] && do_something  # Not POSIX
+# SC3010: 在 POSIX sh 中，使用 'case' 代替 'cond && foo'
+[[ $var == "value" ]] && do_something  # 非 POSIX
 
-# SC3043: In POSIX sh, use 'local' is undefined
+# SC3043: 在 POSIX sh 中，使用 'local' 是未定义的
 function my_func() {
-    local var=value  # Not POSIX in some shells
+    local var=value  # 在某些 Shell 中非 POSIX
 }
 ```
 
-## Practical Configuration Examples
+## 实际配置示例
 
-### Minimal Configuration (Strict POSIX)
+### 最小配置（严格 POSIX）
 
 ```bash
 #!/bin/bash
-# Configure for maximum portability
+# 配置最大可移植性
 
 shellcheck \
   --shell=sh \
@@ -160,11 +159,11 @@ shellcheck \
   script.sh
 ```
 
-### Development Configuration (Bash with Relaxed Rules)
+### 开发配置（Bash，宽松规则）
 
 ```bash
 #!/bin/bash
-# Configure for Bash development
+# 配置 Bash 开发
 
 shellcheck \
   --shell=bash \
@@ -173,13 +172,13 @@ shellcheck \
   script.sh
 ```
 
-### CI/CD Integration Configuration
+### CI/CD 集成配置
 
 ```bash
 #!/bin/bash
 set -Eeuo pipefail
 
-# Analyze all shell scripts and fail on issues
+# 分析所有 Shell 脚本并在有问题时失败
 find . -type f -name "*.sh" | while read -r script; do
     echo "Checking: $script"
     shellcheck \
@@ -190,29 +189,29 @@ find . -type f -name "*.sh" | while read -r script; do
 done
 ```
 
-### .shellcheckrc for Project
+### 项目 .shellcheckrc
 
 ```
-# Shell dialect to analyze against
+# 要分析的 Shell 方言
 shell=bash
 
-# Enable optional checks
+# 启用可选检查
 enable=avoid-nullary-conditions,require-variable-braces,check-unassigned-uppercase
 
-# Disable specific warnings
-# SC1091: Not following sourced files (many false positives)
+# 禁用特定警告
+# SC1091: 不跟踪源文件（许多误报）
 disable=SC1091
 
-# SC2119: Use function_name instead of function_name -- (arguments)
+# SC2119: 使用 function_name 代替 function_name --（参数）
 disable=SC2119
 
-# External files to source for context
+# 要源入的外部文件以获取上下文
 external-sources=true
 ```
 
-## Integration Patterns
+## 集成模式
 
-### Pre-commit Hook Configuration
+### 预提交钩子配置
 
 ```bash
 #!/bin/bash
@@ -221,7 +220,7 @@ external-sources=true
 #!/bin/bash
 set -e
 
-# Find all shell scripts changed in this commit
+# 查找此提交中更改的所有 Shell 脚本
 git diff --cached --name-only | grep '\.sh$' | while read -r script; do
     echo "Linting: $script"
 
@@ -232,7 +231,7 @@ git diff --cached --name-only | grep '\.sh$' | while read -r script; do
 done
 ```
 
-### GitHub Actions Workflow
+### GitHub Actions 工作流
 
 ```yaml
 name: ShellCheck
@@ -252,7 +251,7 @@ jobs:
           find . -type f -name "*.sh" -exec shellcheck {} \;
 ```
 
-### GitLab CI Pipeline
+### GitLab CI 管道
 
 ```yaml
 shellcheck:
@@ -263,68 +262,68 @@ shellcheck:
   allow_failure: false
 ```
 
-## Handling ShellCheck Violations
+## 处理 ShellCheck 违规
 
-### Suppressing Specific Warnings
+### 抑制特定警告
 
 ```bash
 #!/bin/bash
 
-# Disable warning for entire line
+# 禁用整行的警告
 # shellcheck disable=SC2086
 for file in $(ls -la); do
     echo "$file"
 done
 
-# Disable for entire script
+# 禁用整个脚本的警告
 # shellcheck disable=SC1091,SC2119
 
-# Disable multiple warnings (format varies)
+# 禁用多个警告（格式不同）
 command_that_fails() {
     # shellcheck disable=SC2015
     [ -f "$1" ] && echo "found" || echo "not found"
 }
 
-# Disable specific check for source directive
+# 禁用源指令的特定检查
 # shellcheck source=./helper.sh
 source helper.sh
 ```
 
-### Common Violations and Fixes
+### 常见违规和修复
 
-#### SC2086: Double quote to prevent word splitting
+#### SC2086：使用双引号防止分词
 
 ```bash
-# Problem
+# 问题
 for i in $list; do done
 
-# Solution
-for i in $list; do done  # If $list is already quoted, or
-for i in "${list[@]}"; do done  # If list is an array
+# 解决方案
+for i in $list; do done  # 如果 $list 已引用，或
+for i in "${list[@]}"; do done  # 如果 list 是数组
 ```
 
-#### SC2181: Check exit code directly
+#### SC2181：直接检查退出码
 
 ```bash
-# Problem
+# 问题
 some_command
 if [ $? -eq 0 ]; then
     echo "success"
 fi
 
-# Solution
+# 解决方案
 if some_command; then
     echo "success"
 fi
 ```
 
-#### SC2015: Use if-then instead of && ||
+#### SC2015：使用 if-then 代替 && ||
 
 ```bash
-# Problem
+# 问题
 [ -f "$file" ] && echo "exists" || echo "not found"
 
-# Solution - clearer intent
+# 解决方案 - 更清晰的意图
 if [ -f "$file" ]; then
     echo "exists"
 else
@@ -332,44 +331,44 @@ else
 fi
 ```
 
-#### SC2016: Expressions don't expand in single quotes
+#### SC2016：单引号中的表达式不会展开
 
 ```bash
-# Problem
+# 问题
 echo 'Variable value: $VAR'
 
-# Solution
+# 解决方案
 echo "Variable value: $VAR"
 ```
 
-#### SC2009: Use pgrep instead of grep
+#### SC2009：使用 pgrep 代替 grep
 
 ```bash
-# Problem
+# 问题
 ps aux | grep -v grep | grep myprocess
 
-# Solution
+# 解决方案
 pgrep -f myprocess
 ```
 
-## Performance Optimization
+## 性能优化
 
-### Checking Multiple Files
+### 检查多个文件
 
 ```bash
 #!/bin/bash
 
-# Sequential checking
+# 顺序检查
 for script in *.sh; do
     shellcheck "$script"
 done
 
-# Parallel checking (faster)
+# 并行检查（更快）
 find . -name "*.sh" -print0 | \
     xargs -0 -P 4 -n 1 shellcheck
 ```
 
-### Caching Results
+### 缓存结果
 
 ```bash
 #!/bin/bash
@@ -401,50 +400,50 @@ find . -name "*.sh" | while read -r script; do
 done
 ```
 
-## Output Formats
+## 输出格式
 
-### Default Format
+### 默认格式
 
 ```bash
 shellcheck script.sh
 
-# Output:
+# 输出：
 # script.sh:1:3: warning: foo is referenced but not assigned. [SC2154]
 ```
 
-### GCC Format (for CI/CD)
+### GCC 格式（用于 CI/CD）
 
 ```bash
 shellcheck --format=gcc script.sh
 
-# Output:
+# 输出：
 # script.sh:1:3: warning: foo is referenced but not assigned.
 ```
 
-### JSON Format (for parsing)
+### JSON 格式（用于解析）
 
 ```bash
 shellcheck --format=json script.sh
 
-# Output:
+# 输出：
 # [{"file": "script.sh", "line": 1, "column": 3, "level": "warning", "code": 2154, "message": "..."}]
 ```
 
-### Quiet Format
+### 静默格式
 
 ```bash
 shellcheck --format=quiet script.sh
 
-# Returns non-zero if issues found, no output otherwise
+# 发现问题时返回非零，否则无输出
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Run ShellCheck in CI/CD** - Catch issues before merging
-2. **Configure for your target shell** - Don't analyze bash as sh
-3. **Document exclusions** - Explain why violations are suppressed
-4. **Address violations** - Don't just disable warnings
-5. **Enable strict mode** - Use `--enable=all` with careful exclusions
-6. **Update regularly** - Keep ShellCheck current for new checks
-7. **Use pre-commit hooks** - Catch issues locally before pushing
-8. **Integrate with editors** - Get real-time feedback during development
+1. **在 CI/CD 中运行 ShellCheck** - 在合并前捕获问题
+2. **为您的目标 Shell 配置** - 不要将 bash 分析为 sh
+3. **记录排除项** - 解释为什么抑制违规
+4. **解决违规** - 不要只是禁用警告
+5. **启用严格模式** - 使用 `--enable=all` 并谨慎排除
+6. **定期更新** - 保持 ShellCheck 最新以获取新检查
+7. **使用预提交钩子** - 在推送前本地捕获问题
+8. **与编辑器集成** - 在开发过程中获得实时反馈

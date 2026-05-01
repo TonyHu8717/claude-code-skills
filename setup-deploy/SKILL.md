@@ -3,12 +3,12 @@ name: setup-deploy
 preamble-tier: 2
 version: 1.0.0
 description: |
-  Configure deployment settings for /land-and-deploy. Detects your deploy
-  platform (Fly.io, Render, Vercel, Netlify, Heroku, GitHub Actions, custom),
-  production URL, health check endpoints, and deploy status commands. Writes
-  the configuration to CLAUDE.md so all future deploys are automatic.
-  Use when: "setup deploy", "configure deployment", "set up land-and-deploy",
-  "how do I deploy with gstack", "add deploy config".
+  为 /land-and-deploy 配置部署设置。检测您的部署平台
+  （Fly.io、Render、Vercel、Netlify、Heroku、GitHub Actions、自定义）、
+  生产 URL、健康检查端点和部署状态命令。将配置写入 CLAUDE.md，
+  使所有未来的部署自动进行。
+  当被要求"设置部署"、"配置部署"、"设置 land-and-deploy"、
+  "如何使用 gstack 部署"、"添加部署配置"时使用。
 triggers:
   - configure deploy
   - setup deployment
@@ -664,38 +664,37 @@ In plan mode before ExitPlanMode: if the plan file lacks `## GSTACK REVIEW REPOR
 
 PLAN MODE EXCEPTION — always allowed (it's the plan file).
 
-# /setup-deploy — Configure Deployment for gstack
+# /setup-deploy — 为 gstack 配置部署
 
-You are helping the user configure their deployment so `/land-and-deploy` works
-automatically. Your job is to detect the deploy platform, production URL, health
-checks, and deploy status commands — then persist everything to CLAUDE.md.
+您正在帮助用户配置部署，使 `/land-and-deploy` 自动工作。
+您的工作是检测部署平台、生产 URL、健康检查和部署状态命令 — 然后将所有内容持久化到 CLAUDE.md。
 
-After this runs once, `/land-and-deploy` reads CLAUDE.md and skips detection entirely.
+运行一次后，`/land-and-deploy` 读取 CLAUDE.md 并完全跳过检测。
 
-## User-invocable
-When the user types `/setup-deploy`, run this skill.
+## 用户可调用
+当用户输入 `/setup-deploy` 时，运行此技能。
 
-## Instructions
+## 指令
 
-### Step 1: Check existing configuration
+### 步骤 1：检查现有配置
 
 ```bash
 grep -A 20 "## Deploy Configuration" CLAUDE.md 2>/dev/null || echo "NO_CONFIG"
 ```
 
-If configuration already exists, show it and ask:
+如果配置已存在，显示并询问：
 
-- **Context:** Deploy configuration already exists in CLAUDE.md.
-- **RECOMMENDATION:** Choose A to update if your setup changed.
-- A) Reconfigure from scratch (overwrite existing)
-- B) Edit specific fields (show current config, let me change one thing)
-- C) Done — configuration looks correct
+- **上下文：** CLAUDE.md 中已存在部署配置。
+- **建议：** 如果您的设置已更改，选择 A 进行更新。
+- A) 从头重新配置（覆盖现有）
+- B) 编辑特定字段（显示当前配置，让我更改一项）
+- C) 完成 — 配置看起来正确
 
-If the user picks C, stop.
+如果用户选择 C，停止。
 
-### Step 2: Detect platform
+### 步骤 2：检测平台
 
-Run the platform detection from the deploy bootstrap:
+运行部署引导中的平台检测：
 
 ```bash
 # Platform config files
@@ -716,91 +715,91 @@ done
 find . -maxdepth 1 -name '*.gemspec' 2>/dev/null | grep -q . && echo "PROJECT_TYPE:library"
 ```
 
-### Step 3: Platform-specific setup
+### 步骤 3：平台特定设置
 
-Based on what was detected, guide the user through platform-specific configuration.
+根据检测到的内容，引导用户完成平台特定配置。
 
 #### Fly.io
 
-If `fly.toml` detected:
+如果检测到 `fly.toml`：
 
-1. Extract app name: `grep -m1 "^app" fly.toml | sed 's/app = "\(.*\)"/\1/'`
-2. Check if `fly` CLI is installed: `which fly 2>/dev/null`
-3. If installed, verify: `fly status --app {app} 2>/dev/null`
-4. Infer URL: `https://{app}.fly.dev`
-5. Set deploy status command: `fly status --app {app}`
-6. Set health check: `https://{app}.fly.dev` (or `/health` if the app has one)
+1. 提取应用名称：`grep -m1 "^app" fly.toml | sed 's/app = "\(.*\)"/\1/'`
+2. 检查 `fly` CLI 是否已安装：`which fly 2>/dev/null`
+3. 如果已安装，验证：`fly status --app {app} 2>/dev/null`
+4. 推断 URL：`https://{app}.fly.dev`
+5. 设置部署状态命令：`fly status --app {app}`
+6. 设置健康检查：`https://{app}.fly.dev`（或 `/health` 如果应用有的话）
 
-Ask the user to confirm the production URL. Some Fly apps use custom domains.
+请用户确认生产 URL。某些 Fly 应用使用自定义域名。
 
 #### Render
 
-If `render.yaml` detected:
+如果检测到 `render.yaml`：
 
-1. Extract service name and type from render.yaml
-2. Check for Render API key: `echo $RENDER_API_KEY | head -c 4` (don't expose the full key)
-3. Infer URL: `https://{service-name}.onrender.com`
-4. Render deploys automatically on push to the connected branch — no deploy workflow needed
-5. Set health check: the inferred URL
+1. 从 render.yaml 提取服务名称和类型
+2. 检查 Render API 密钥：`echo $RENDER_API_KEY | head -c 4`（不要暴露完整密钥）
+3. 推断 URL：`https://{service-name}.onrender.com`
+4. Render 在推送到连接分支时自动部署 — 无需部署工作流
+5. 设置健康检查：推断的 URL
 
-Ask the user to confirm. Render uses auto-deploy from the connected git branch — after
-merge to main, Render picks it up automatically. The "deploy wait" in /land-and-deploy
-should poll the Render URL until it responds with the new version.
+请用户确认。Render 使用连接的 git 分支自动部署 — 合并到 main 后，
+Render 自动获取。/land-and-deploy 中的"部署等待"应该轮询 Render URL
+直到它响应新版本。
 
 #### Vercel
 
-If vercel.json or .vercel detected:
+如果检测到 vercel.json 或 .vercel：
 
-1. Check for `vercel` CLI: `which vercel 2>/dev/null`
-2. If installed: `vercel ls --prod 2>/dev/null | head -3`
-3. Vercel deploys automatically on push — preview on PR, production on merge to main
-4. Set health check: the production URL from vercel project settings
+1. 检查 `vercel` CLI：`which vercel 2>/dev/null`
+2. 如果已安装：`vercel ls --prod 2>/dev/null | head -3`
+3. Vercel 在推送时自动部署 — PR 上预览，合并到 main 时生产
+4. 设置健康检查：vercel 项目设置中的生产 URL
 
 #### Netlify
 
-If netlify.toml detected:
+如果检测到 netlify.toml：
 
-1. Extract site info from netlify.toml
-2. Netlify deploys automatically on push
-3. Set health check: the production URL
+1. 从 netlify.toml 提取站点信息
+2. Netlify 在推送时自动部署
+3. 设置健康检查：生产 URL
 
-#### GitHub Actions only
+#### 仅 GitHub Actions
 
-If deploy workflows detected but no platform config:
+如果检测到部署工作流但没有平台配置：
 
-1. Read the workflow file to understand what it does
-2. Extract the deploy target (if mentioned)
-3. Ask the user for the production URL
+1. 读取工作流文件以了解其功能
+2. 提取部署目标（如果提到）
+3. 向用户询问生产 URL
 
-#### Custom / Manual
+#### 自定义 / 手动
 
-If nothing detected:
+如果未检测到任何内容：
 
-Use AskUserQuestion to gather the information:
+使用 AskUserQuestion 收集信息：
 
-1. **How are deploys triggered?**
-   - A) Automatically on push to main (Fly, Render, Vercel, Netlify, etc.)
-   - B) Via GitHub Actions workflow
-   - C) Via a deploy script or CLI command (describe it)
-   - D) Manually (SSH, dashboard, etc.)
-   - E) This project doesn't deploy (library, CLI, tool)
+1. **部署如何触发？**
+   - A) 推送到 main 时自动（Fly、Render、Vercel、Netlify 等）
+   - B) 通过 GitHub Actions 工作流
+   - C) 通过部署脚本或 CLI 命令（描述它）
+   - D) 手动（SSH、仪表板等）
+   - E) 此项目不部署（库、CLI、工具）
 
-2. **What's the production URL?** (Free text — the URL where the app runs)
+2. **生产 URL 是什么？**（自由文本 — 应用运行的 URL）
 
-3. **How can gstack check if a deploy succeeded?**
-   - A) HTTP health check at a specific URL (e.g., /health, /api/status)
-   - B) CLI command (e.g., `fly status`, `kubectl rollout status`)
-   - C) Check the GitHub Actions workflow status
-   - D) No automated way — just check the URL loads
+3. **gstack 如何检查部署是否成功？**
+   - A) 特定 URL 的 HTTP 健康检查（例如 /health、/api/status）
+   - B) CLI 命令（例如 `fly status`、`kubectl rollout status`）
+   - C) 检查 GitHub Actions 工作流状态
+   - D) 没有自动化方式 — 只需检查 URL 是否加载
 
-4. **Any pre-merge or post-merge hooks?**
-   - Commands to run before merging (e.g., `bun run build`)
-   - Commands to run after merge but before deploy verification
+4. **有任何合并前或合并后钩子吗？**
+   - 合并前运行的命令（例如 `bun run build`）
+   - 合并后但部署验证前运行的命令
 
-### Step 4: Write configuration
+### 步骤 4：写入配置
 
-Read CLAUDE.md (or create it). Find and replace the `## Deploy Configuration` section
-if it exists, or append it at the end.
+读取 CLAUDE.md（或创建它）。查找并替换 `## Deploy Configuration` 部分
+（如果存在），或追加到末尾。
 
 ```markdown
 ## Deploy Configuration (configured by /setup-deploy)
@@ -819,9 +818,9 @@ if it exists, or append it at the end.
 - Health check: {URL or command}
 ```
 
-### Step 5: Verify
+### 步骤 5：验证
 
-After writing, verify the configuration works:
+写入后，验证配置是否工作：
 
 1. If a health check URL was configured, try it:
 ```bash
@@ -833,32 +832,31 @@ curl -sf "{health-check-url}" -o /dev/null -w "%{http_code}" 2>/dev/null || echo
 {deploy-status-command} 2>/dev/null | head -5 || echo "COMMAND_FAILED"
 ```
 
-Report results. If anything failed, note it but don't block — the config is still
-useful even if the health check is temporarily unreachable.
+报告结果。如果有任何失败，记录但不要阻塞 — 即使健康检查暂时不可达，配置仍然有用。
 
-### Step 6: Summary
+### 步骤 6：摘要
 
 ```
-DEPLOY CONFIGURATION — COMPLETE
+部署配置 — 完成
 ════════════════════════════════
-Platform:      {platform}
-URL:           {url}
-Health check:  {health check}
-Status cmd:    {status command}
-Merge method:  {merge method}
+平台：        {platform}
+URL：         {url}
+健康检查：    {health check}
+状态命令：    {status command}
+合并方式：    {merge method}
 
-Saved to CLAUDE.md. /land-and-deploy will use these settings automatically.
+已保存到 CLAUDE.md。/land-and-deploy 将自动使用这些设置。
 
-Next steps:
-- Run /land-and-deploy to merge and deploy your current PR
-- Edit the "## Deploy Configuration" section in CLAUDE.md to change settings
-- Run /setup-deploy again to reconfigure
+后续步骤：
+- 运行 /land-and-deploy 合并并部署当前 PR
+- 编辑 CLAUDE.md 中的 "## Deploy Configuration" 部分更改设置
+- 再次运行 /setup-deploy 重新配置
 ```
 
-## Important Rules
+## 重要规则
 
-- **Never expose secrets.** Don't print full API keys, tokens, or passwords.
-- **Confirm with the user.** Always show the detected config and ask for confirmation before writing.
-- **CLAUDE.md is the source of truth.** All configuration lives there — not in a separate config file.
-- **Idempotent.** Running /setup-deploy multiple times overwrites the previous config cleanly.
-- **Platform CLIs are optional.** If `fly` or `vercel` CLI isn't installed, fall back to URL-based health checks.
+- **绝不暴露密钥。** 不要打印完整的 API 密钥、令牌或密码。
+- **与用户确认。** 始终显示检测到的配置并在写入前请求确认。
+- **CLAUDE.md 是事实来源。** 所有配置都在那里 — 不在单独的配置文件中。
+- **幂等。** 多次运行 /setup-deploy 会干净地覆盖先前的配置。
+- **平台 CLI 是可选的。** 如果 `fly` 或 `vercel` CLI 未安装，回退到基于 URL 的健康检查。

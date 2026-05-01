@@ -1,165 +1,165 @@
 ---
 name: omc-doctor
-description: Diagnose and fix oh-my-claudecode installation issues
+description: 诊断和修复 oh-my-claudecode 安装问题
 level: 3
 ---
 
-# Doctor Skill
+# 诊断技能
 
-Note: All `~/.claude/...` paths in this guide respect `CLAUDE_CONFIG_DIR` when that environment variable is set.
+注意：本指南中所有 `~/.claude/...` 路径在设置了 `CLAUDE_CONFIG_DIR` 环境变量时会遵循该变量。
 
-## Task: Run Installation Diagnostics
+## 任务：运行安装诊断
 
-You are the OMC Doctor - diagnose and fix installation issues.
+你是 OMC 医生 - 诊断和修复安装问题。
 
-### Step 1: Check Plugin Version
+### 步骤 1：检查插件版本
 
 ```bash
-# Get installed and latest versions (cross-platform)
+# 获取已安装和最新版本（跨平台）
 node -e "const p=require('path'),f=require('fs'),h=require('os').homedir(),d=process.env.CLAUDE_CONFIG_DIR||p.join(h,'.claude'),b=p.join(d,'plugins','cache','omc','oh-my-claudecode');try{const v=f.readdirSync(b).filter(x=>/^\d/.test(x)).sort((a,c)=>a.localeCompare(c,void 0,{numeric:true}));console.log('Installed:',v.length?v[v.length-1]:'(none)')}catch{console.log('Installed: (none)')}"
 npm view oh-my-claudecode version 2>/dev/null || echo "Latest: (unavailable)"
 ```
 
-**Diagnosis**:
-- If no version installed: CRITICAL - plugin not installed
-- If INSTALLED != LATEST: WARN - outdated plugin
-- If multiple versions exist: WARN - stale cache
+**诊断**：
+- 如果没有安装版本：严重 - 插件未安装
+- 如果已安装 != 最新：警告 - 插件过时
+- 如果存在多个版本：警告 - 缓存过期
 
-### Step 2: Check for Legacy Hooks in settings.json
+### 步骤 2：检查 settings.json 中的遗留钩子
 
-Read both `${CLAUDE_CONFIG_DIR:-~/.claude}/settings.json` (profile-level) and `./.claude/settings.json` (project-level) and check if there's a `"hooks"` key with entries like:
+读取 `${CLAUDE_CONFIG_DIR:-~/.claude}/settings.json`（配置文件级别）和 `./.claude/settings.json`（项目级别），检查是否有 `"hooks"` 键包含如下条目：
 - `bash ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hooks/keyword-detector.sh`
 - `bash ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hooks/persistent-mode.sh`
 - `bash ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hooks/session-start.sh`
 
-**Diagnosis**:
-- If found: CRITICAL - legacy hooks causing duplicates
+**诊断**：
+- 如果找到：严重 - 遗留钩子导致重复
 
-### Step 3: Check for Legacy Bash Hook Scripts
+### 步骤 3：检查遗留的 Bash 钩子脚本
 
 ```bash
 ls -la "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/hooks/*.sh 2>/dev/null
 ```
 
-**Diagnosis**:
-- If `keyword-detector.sh`, `persistent-mode.sh`, `session-start.sh`, or `stop-continuation.sh` exist: WARN - legacy scripts (can cause confusion)
+**诊断**：
+- 如果存在 `keyword-detector.sh`、`persistent-mode.sh`、`session-start.sh` 或 `stop-continuation.sh`：警告 - 遗留脚本（可能导致混淆）
 
-### Step 4: Check CLAUDE.md
+### 步骤 4：检查 CLAUDE.md
 
 ```bash
-# Check if CLAUDE.md exists
+# 检查 CLAUDE.md 是否存在
 ls -la "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/CLAUDE.md 2>/dev/null
 
-# Check for OMC markers (<!-- OMC:START --> is the canonical marker)
+# 检查 OMC 标记（<!-- OMC:START --> 是标准标记）
 grep -q "<!-- OMC:START -->" "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/CLAUDE.md" 2>/dev/null && echo "Has OMC config" || echo "Missing OMC config in CLAUDE.md"
 
-# Check CLAUDE.md (or deterministic companion) version marker and compare with latest installed plugin cache version
+# 检查 CLAUDE.md（或确定性伴侣文件）版本标记，并与最新已安装插件缓存版本比较
 node -e "const p=require('path'),f=require('fs'),h=require('os').homedir(),d=process.env.CLAUDE_CONFIG_DIR||p.join(h,'.claude');const base=p.join(d,'CLAUDE.md');let baseContent='';try{baseContent=f.readFileSync(base,'utf8')}catch{};let candidates=[base];let referenced='';const importMatch=baseContent.match(/CLAUDE-[^ )]*\\.md/);if(importMatch){referenced=p.join(d,importMatch[0]);candidates.push(referenced)}else{const defaultCompanion=p.join(d,'CLAUDE-omc.md');if(f.existsSync(defaultCompanion))candidates.push(defaultCompanion);try{const others=f.readdirSync(d).filter(n=>/^CLAUDE-.*\\.md$/i.test(n)).sort().map(n=>p.join(d,n));for(const o of others){if(candidates.includes(o)===false)candidates.push(o)}}catch{}};let claudeV='(missing)';let claudeSource='(none)';for(const file of candidates){try{const c=f.readFileSync(file,'utf8');const m=c.match(/<!--\\s*OMC:VERSION:([^\\s]+)\\s*-->/i);if(m){claudeV=m[1];claudeSource=file;break}}catch{}};if(claudeV==='(missing)'&&candidates.length>0){claudeV='(missing marker)';claudeSource='scanned deterministic CLAUDE sources';};let pluginV='(none)';try{const b=p.join(d,'plugins','cache','omc','oh-my-claudecode');const v=f.readdirSync(b).filter(x=>/^\\d/.test(x)).sort((a,c)=>a.localeCompare(c,void 0,{numeric:true}));pluginV=v.length?v[v.length-1]:'(none)';}catch{};console.log('CLAUDE.md OMC version:',claudeV);console.log('OMC version source:',claudeSource);console.log('Latest cached plugin version:',pluginV);if(claudeV==='(missing)'||claudeV==='(missing marker)'||pluginV==='(none)'){console.log('VERSION CHECK SKIPPED: missing CLAUDE marker or plugin cache')}else if(claudeV===pluginV){console.log('VERSION MATCH: CLAUDE and plugin cache are aligned')}else{console.log('VERSION DRIFT: CLAUDE.md and plugin versions differ')}"
 
-# Check companion files for file-split pattern (e.g. CLAUDE-omc.md)
+# 检查伴侣文件的文件分割模式（如 CLAUDE-omc.md）
 find "${CLAUDE_CONFIG_DIR:-$HOME/.claude}" -maxdepth 1 -type f -name 'CLAUDE-*.md' -print 2>/dev/null
 while IFS= read -r f; do
   grep -q "<!-- OMC:START -->" "$f" 2>/dev/null && echo "Has OMC config in companion: $f"
 done < <(find "${CLAUDE_CONFIG_DIR:-$HOME/.claude}" -maxdepth 1 -type f -name 'CLAUDE-*.md' -print 2>/dev/null)
 
-# Check if CLAUDE.md references a companion file
+# 检查 CLAUDE.md 是否引用了伴侣文件
 grep -o "CLAUDE-[^ )]*\.md" "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/CLAUDE.md" 2>/dev/null
 ```
 
-**Diagnosis**:
-- If CLAUDE.md missing: CRITICAL - CLAUDE.md not configured
-- If `<!-- OMC:START -->` found in CLAUDE.md: OK
-- If `<!-- OMC:START -->` found in a companion file (e.g. `CLAUDE-omc.md`): OK - file-split pattern detected
-- If no OMC markers in CLAUDE.md or any companion file: WARN - outdated CLAUDE.md
-- If `OMC:VERSION` marker is missing from deterministic CLAUDE source scan (base + referenced companion): WARN - cannot verify CLAUDE.md freshness
-- If `CLAUDE.md OMC version` != `Latest cached plugin version`: WARN - version drift detected (run `omc update` or `omc setup`)
+**诊断**：
+- 如果 CLAUDE.md 缺失：严重 - CLAUDE.md 未配置
+- 如果在 CLAUDE.md 中找到 `<!-- OMC:START -->`：正常
+- 如果在伴侣文件（如 `CLAUDE-omc.md`）中找到 `<!-- OMC:START -->`：正常 - 检测到文件分割模式
+- 如果 CLAUDE.md 或任何伴侣文件中没有 OMC 标记：警告 - CLAUDE.md 过时
+- 如果确定性 CLAUDE 源扫描（基础 + 引用的伴侣文件）中缺少 `OMC:VERSION` 标记：警告 - 无法验证 CLAUDE.md 新鲜度
+- 如果 `CLAUDE.md OMC version` != `Latest cached plugin version`：警告 - 检测到版本漂移（运行 `omc update` 或 `omc setup`）
 
-### Step 5: Check for Stale Plugin Cache
+### 步骤 5：检查过期的插件缓存
 
 ```bash
-# Count versions in cache (cross-platform)
+# 计算缓存中的版本数（跨平台）
 node -e "const p=require('path'),f=require('fs'),h=require('os').homedir(),d=process.env.CLAUDE_CONFIG_DIR||p.join(h,'.claude'),b=p.join(d,'plugins','cache','omc','oh-my-claudecode');try{const v=f.readdirSync(b).filter(x=>/^\d/.test(x));console.log(v.length+' version(s):',v.join(', '))}catch{console.log('0 versions')}"
 ```
 
-**Diagnosis**:
-- If > 1 version: WARN - multiple cached versions (cleanup recommended)
+**诊断**：
+- 如果 > 1 个版本：警告 - 多个缓存版本（建议清理）
 
-### Step 6: Check for Legacy Curl-Installed Content
+### 步骤 6：检查遗留的 Curl 安装内容
 
-Check for legacy agents, commands, and skills installed via curl (before plugin system).
-**Important**: Only flag files whose names match actual plugin-provided names. Do NOT flag user's custom agents/commands/skills that are unrelated to OMC.
+检查通过 curl 安装的遗留代理、命令和技能（在插件系统之前）。
+**重要**：仅标记名称与实际插件提供的名称匹配的文件。不要标记与 OMC 无关的用户自定义代理/命令/技能。
 
 ```bash
-# Check for legacy agents directory
+# 检查遗留代理目录
 ls -la "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/agents/ 2>/dev/null
 
-# Check for legacy commands directory
+# 检查遗留命令目录
 ls -la "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/commands/ 2>/dev/null
 
-# Check for legacy skills directory
+# 检查遗留技能目录
 ls -la "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/skills/ 2>/dev/null
 ```
 
-**Diagnosis**:
-- If `~/.claude/agents/` exists with files matching plugin agent names: WARN - legacy agents (now provided by plugin)
-- If `~/.claude/commands/` exists with files matching plugin command names: WARN - legacy commands (now provided by plugin)
-- If `~/.claude/skills/` exists with files matching plugin skill names: WARN - legacy skills (now provided by plugin)
-- If custom files exist that do NOT match plugin names: OK - these are user custom content, do not flag them
+**诊断**：
+- 如果 `~/.claude/agents/` 存在且文件匹配插件代理名称：警告 - 遗留代理（现在由插件提供）
+- 如果 `~/.claude/commands/` 存在且文件匹配插件命令名称：警告 - 遗留命令（现在由插件提供）
+- 如果 `~/.claude/skills/` 存在且文件匹配插件技能名称：警告 - 遗留技能（现在由插件提供）
+- 如果存在不匹配插件名称的自定义文件：正常 - 这些是用户自定义内容，不要标记
 
-**Known plugin agent names** (check agents/ for these):
-`architect.md`, `document-specialist.md`, `explore.md`, `executor.md`, `debugger.md`, `planner.md`, `analyst.md`, `critic.md`, `verifier.md`, `test-engineer.md`, `designer.md`, `writer.md`, `qa-tester.md`, `scientist.md`, `security-reviewer.md`, `code-reviewer.md`, `git-master.md`, `code-simplifier.md`
+**已知插件代理名称**（检查 agents/ 中是否有这些）：
+`architect.md`、`document-specialist.md`、`explore.md`、`executor.md`、`debugger.md`、`planner.md`、`analyst.md`、`critic.md`、`verifier.md`、`test-engineer.md`、`designer.md`、`writer.md`、`qa-tester.md`、`scientist.md`、`security-reviewer.md`、`code-reviewer.md`、`git-master.md`、`code-simplifier.md`
 
-**Known plugin skill names** (check skills/ for these):
-`ai-slop-cleaner`, `ask`, `autopilot`, `cancel`, `ccg`, `configure-notifications`, `deep-interview`, `deepinit`, `external-context`, `hud`, `learner`, `mcp-setup`, `omc-doctor`, `omc-setup`, `omc-teams`, `plan`, `project-session-manager`, `ralph`, `ralplan`, `release`, `sciomc`, `setup`, `skill`, `team`, `ultraqa`, `ultrawork`, `visual-verdict`, `writer-memory`
+**已知插件技能名称**（检查 skills/ 中是否有这些）：
+`ai-slop-cleaner`、`ask`、`autopilot`、`cancel`、`ccg`、`configure-notifications`、`deep-interview`、`deepinit`、`external-context`、`hud`、`learner`、`mcp-setup`、`omc-doctor`、`omc-setup`、`omc-teams`、`plan`、`project-session-manager`、`ralph`、`ralplan`、`release`、`sciomc`、`setup`、`skill`、`team`、`ultraqa`、`ultrawork`、`visual-verdict`、`writer-memory`
 
-**Known plugin command names** (check commands/ for these):
-`ultrawork.md`, `deepsearch.md`
-
----
-
-## Report Format
-
-After running all checks, output a report:
-
-```
-## OMC Doctor Report
-
-### Summary
-[HEALTHY / ISSUES FOUND]
-
-### Checks
-
-| Check | Status | Details |
-|-------|--------|---------|
-| Plugin Version | OK/WARN/CRITICAL | ... |
-| Legacy Hooks (settings.json) | OK/CRITICAL | ... |
-| Legacy Scripts (~/.claude/hooks/) | OK/WARN | ... |
-| CLAUDE.md | OK/WARN/CRITICAL | ... |
-| Plugin Cache | OK/WARN | ... |
-| Legacy Agents (~/.claude/agents/) | OK/WARN | ... |
-| Legacy Commands (~/.claude/commands/) | OK/WARN | ... |
-| Legacy Skills (~/.claude/skills/) | OK/WARN | ... |
-
-### Issues Found
-1. [Issue description]
-2. [Issue description]
-
-### Recommended Fixes
-[List fixes based on issues]
-```
+**已知插件命令名称**（检查 commands/ 中是否有这些）：
+`ultrawork.md`、`deepsearch.md`
 
 ---
 
-## Auto-Fix (if user confirms)
+## 报告格式
 
-If issues found, ask user: "Would you like me to fix these issues automatically?"
+运行所有检查后，输出报告：
 
-If yes, apply fixes:
+```
+## OMC 诊断报告
 
-### Fix: Legacy Hooks in settings.json
-Remove the `"hooks"` section from `${CLAUDE_CONFIG_DIR:-~/.claude}/settings.json` (keep other settings intact)
+### 摘要
+[健康 / 发现问题]
 
-### Fix: Legacy Bash Scripts
+### 检查
+
+| 检查 | 状态 | 详情 |
+|------|------|------|
+| 插件版本 | 正常/警告/严重 | ... |
+| 遗留钩子（settings.json） | 正常/严重 | ... |
+| 遗留脚本（~/.claude/hooks/） | 正常/警告 | ... |
+| CLAUDE.md | 正常/警告/严重 | ... |
+| 插件缓存 | 正常/警告 | ... |
+| 遗留代理（~/.claude/agents/） | 正常/警告 | ... |
+| 遗留命令（~/.claude/commands/） | 正常/警告 | ... |
+| 遗留技能（~/.claude/skills/） | 正常/警告 | ... |
+
+### 发现的问题
+1. [问题描述]
+2. [问题描述]
+
+### 建议的修复
+[根据问题列出修复方案]
+```
+
+---
+
+## 自动修复（如果用户确认）
+
+如果发现问题，询问用户："您希望我自动修复这些问题吗？"
+
+如果是，应用修复：
+
+### 修复：settings.json 中的遗留钩子
+从 `${CLAUDE_CONFIG_DIR:-~/.claude}/settings.json` 中移除 `"hooks"` 部分（保留其他设置不变）
+
+### 修复：遗留 Bash 脚本
 ```bash
 rm -f "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/hooks/keyword-detector.sh
 rm -f "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/hooks/persistent-mode.sh
@@ -167,45 +167,45 @@ rm -f "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/hooks/session-start.sh
 rm -f "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/hooks/stop-continuation.sh
 ```
 
-### Fix: Outdated Plugin
+### 修复：过时的插件
 ```bash
-# Clear plugin cache (cross-platform)
+# 清除插件缓存（跨平台）
 node -e "const p=require('path'),f=require('fs'),d=process.env.CLAUDE_CONFIG_DIR||p.join(require('os').homedir(),'.claude'),b=p.join(d,'plugins','cache','omc','oh-my-claudecode');try{f.rmSync(b,{recursive:true,force:true});console.log('Plugin cache cleared. Restart Claude Code to fetch latest version.')}catch{console.log('No plugin cache found')}"
 ```
 
-### Fix: Stale Cache (multiple versions)
+### 修复：过期缓存（多个版本）
 ```bash
-# Keep only latest version (cross-platform)
+# 仅保留最新版本（跨平台）
 node -e "const p=require('path'),f=require('fs'),h=require('os').homedir(),d=process.env.CLAUDE_CONFIG_DIR||p.join(h,'.claude'),b=p.join(d,'plugins','cache','omc','oh-my-claudecode');try{const v=f.readdirSync(b).filter(x=>/^\d/.test(x)).sort((a,c)=>a.localeCompare(c,void 0,{numeric:true}));v.slice(0,-1).forEach(x=>f.rmSync(p.join(b,x),{recursive:true,force:true}));console.log('Removed',v.length-1,'old version(s)')}catch(e){console.log('No cache to clean')}"
 ```
 
-### Fix: Missing/Outdated CLAUDE.md
-Fetch latest from GitHub and write to `${CLAUDE_CONFIG_DIR:-~/.claude}/CLAUDE.md`:
+### 修复：缺失/过时的 CLAUDE.md
+从 GitHub 获取最新内容并写入 `${CLAUDE_CONFIG_DIR:-~/.claude}/CLAUDE.md`：
 ```
 WebFetch(url: "https://raw.githubusercontent.com/Yeachan-Heo/oh-my-claudecode/main/docs/CLAUDE.md", prompt: "Return the complete raw markdown content exactly as-is")
 ```
 
-### Fix: Legacy Curl-Installed Content
+### 修复：遗留的 Curl 安装内容
 
-Remove legacy agents, commands, and skills directories (now provided by plugin):
+移除遗留的代理、命令和技能目录（现在由插件提供）：
 
 ```bash
-# Backup first (optional - ask user)
+# 先备份（可选 - 询问用户）
 # mv "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/agents "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/agents.bak
 # mv "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/commands "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/commands.bak
 # mv "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/skills "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/skills.bak
 
-# Or remove directly
+# 或直接删除
 rm -rf "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/agents
 rm -rf "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/commands
 rm -rf "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/skills
 ```
 
-**Note**: Only remove if these contain oh-my-claudecode-related files. If user has custom agents/commands/skills, warn them and ask before removing.
+**注意**：仅在这些包含 oh-my-claudecode 相关文件时才删除。如果用户有自定义代理/命令/技能，请警告他们并在删除前询问。
 
 ---
 
-## Post-Fix
+## 修复后
 
-After applying fixes, inform user:
-> Fixes applied. **Restart Claude Code** for changes to take effect.
+应用修复后，通知用户：
+> 修复已应用。**重启 Claude Code** 以使更改生效。

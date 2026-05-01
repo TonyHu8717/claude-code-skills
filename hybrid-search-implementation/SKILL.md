@@ -1,42 +1,42 @@
 ---
 name: hybrid-search-implementation
-description: Combine vector and keyword search for improved retrieval. Use when implementing RAG systems, building search engines, or when neither approach alone provides sufficient recall.
+description: 结合向量和关键词搜索以提高检索效果。在实现 RAG 系统、构建搜索引擎，或当单一方法无法提供足够召回率时使用。
 ---
 
-# Hybrid Search Implementation
+# 混合搜索实现
 
-Patterns for combining vector similarity and keyword-based search.
+结合向量相似性和基于关键词搜索的模式。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Building RAG systems with improved recall
-- Combining semantic understanding with exact matching
-- Handling queries with specific terms (names, codes)
-- Improving search for domain-specific vocabulary
-- When pure vector search misses keyword matches
+- 构建具有更高召回率的 RAG 系统
+- 结合语义理解和精确匹配
+- 处理包含特定术语的查询（名称、代码）
+- 改善领域特定词汇的搜索
+- 当纯向量搜索遗漏关键词匹配时
 
-## Core Concepts
+## 核心概念
 
-### 1. Hybrid Search Architecture
+### 1. 混合搜索架构
 
 ```
-Query → ┬─► Vector Search ──► Candidates ─┐
-        │                                  │
-        └─► Keyword Search ─► Candidates ─┴─► Fusion ─► Results
+查询 → ┬─► 向量搜索 ──► 候选结果 ─┐
+       │                            │
+       └─► 关键词搜索 ─► 候选结果 ─┴─► 融合 ─► 结果
 ```
 
-### 2. Fusion Methods
+### 2. 融合方法
 
-| Method            | Description              | Best For        |
-| ----------------- | ------------------------ | --------------- |
-| **RRF**           | Reciprocal Rank Fusion   | General purpose |
-| **Linear**        | Weighted sum of scores   | Tunable balance |
-| **Cross-encoder** | Rerank with neural model | Highest quality |
-| **Cascade**       | Filter then rerank       | Efficiency      |
+| 方法              | 描述                         | 最佳适用场景    |
+| ----------------- | ---------------------------- | --------------- |
+| **RRF**           | 倒数排名融合                 | 通用            |
+| **线性**          | 分数加权求和                 | 可调平衡        |
+| **交叉编码器**    | 使用神经模型重排             | 最高质量        |
+| **级联**          | 先过滤再重排                 | 效率优先        |
 
-## Templates
+## 模板
 
-### Template 1: Reciprocal Rank Fusion
+### 模板 1：倒数排名融合
 
 ```python
 from typing import List, Dict, Tuple
@@ -48,15 +48,15 @@ def reciprocal_rank_fusion(
     weights: List[float] = None
 ) -> List[Tuple[str, float]]:
     """
-    Combine multiple ranked lists using RRF.
+    使用 RRF 合并多个排名列表。
 
-    Args:
-        result_lists: List of (doc_id, score) tuples per search method
-        k: RRF constant (higher = more weight to lower ranks)
-        weights: Optional weights per result list
+    参数：
+        result_lists: 每种搜索方法的 (doc_id, score) 元组列表
+        k: RRF 常数（越大 = 低排名权重越高）
+        weights: 每个结果列表的可选权重
 
-    Returns:
-        Fused ranking as (doc_id, score) tuples
+    返回：
+        融合排名的 (doc_id, score) 元组
     """
     if weights is None:
         weights = [1.0] * len(result_lists)
@@ -65,10 +65,10 @@ def reciprocal_rank_fusion(
 
     for result_list, weight in zip(result_lists, weights):
         for rank, (doc_id, _) in enumerate(result_list):
-            # RRF formula: 1 / (k + rank)
+            # RRF 公式：1 / (k + rank)
             scores[doc_id] += weight * (1.0 / (k + rank + 1))
 
-    # Sort by fused score
+    # 按融合分数排序
     return sorted(scores.items(), key=lambda x: x[1], reverse=True)
 
 
@@ -78,14 +78,14 @@ def linear_combination(
     alpha: float = 0.5
 ) -> List[Tuple[str, float]]:
     """
-    Combine results with linear interpolation.
+    使用线性插值合并结果。
 
-    Args:
-        vector_results: (doc_id, similarity_score) from vector search
-        keyword_results: (doc_id, bm25_score) from keyword search
-        alpha: Weight for vector search (1-alpha for keyword)
+    参数：
+        vector_results: 来自向量搜索的 (doc_id, similarity_score)
+        keyword_results: 来自关键词搜索的 (doc_id, bm25_score)
+        alpha: 向量搜索权重（1-alpha 为关键词权重）
     """
-    # Normalize scores to [0, 1]
+    # 将分数归一化到 [0, 1]
     def normalize(results):
         if not results:
             return {}
@@ -97,7 +97,7 @@ def linear_combination(
     vector_scores = normalize(vector_results)
     keyword_scores = normalize(keyword_results)
 
-    # Combine
+    # 合并
     all_docs = set(vector_scores.keys()) | set(keyword_scores.keys())
     combined = {}
 
@@ -109,7 +109,7 @@ def linear_combination(
     return sorted(combined.items(), key=lambda x: x[1], reverse=True)
 ```
 
-### Template 2: PostgreSQL Hybrid Search
+### 模板 2：PostgreSQL 混合搜索
 
 ```python
 import asyncpg
@@ -117,13 +117,13 @@ from typing import List, Dict, Optional
 import numpy as np
 
 class PostgresHybridSearch:
-    """Hybrid search with pgvector and full-text search."""
+    """使用 pgvector 和全文搜索的混合搜索。"""
 
     def __init__(self, pool: asyncpg.Pool):
         self.pool = pool
 
     async def setup_schema(self):
-        """Create tables and indexes."""
+        """创建表和索引。"""
         async with self.pool.acquire() as conn:
             await conn.execute("""
                 CREATE EXTENSION IF NOT EXISTS vector;
@@ -138,11 +138,11 @@ class PostgresHybridSearch:
                     ) STORED
                 );
 
-                -- Vector index (HNSW)
+                -- 向量索引（HNSW）
                 CREATE INDEX IF NOT EXISTS documents_embedding_idx
                 ON documents USING hnsw (embedding vector_cosine_ops);
 
-                -- Full-text index (GIN)
+                -- 全文索引（GIN）
                 CREATE INDEX IF NOT EXISTS documents_fts_idx
                 ON documents USING gin (ts_content);
             """)
@@ -156,12 +156,12 @@ class PostgresHybridSearch:
         filter_metadata: Optional[Dict] = None
     ) -> List[Dict]:
         """
-        Perform hybrid search combining vector and full-text.
+        执行结合向量和全文的混合搜索。
 
-        Uses RRF fusion for combining results.
+        使用 RRF 融合合并结果。
         """
         async with self.pool.acquire() as conn:
-            # Build filter clause
+            # 构建过滤子句
             where_clause = "1=1"
             params = [query_embedding, query, limit * 3]
 
@@ -202,7 +202,7 @@ class PostgresHybridSearch:
                     COALESCE(v.metadata, k.metadata) as metadata,
                     v.vector_score,
                     k.keyword_score,
-                    -- RRF fusion
+                    -- RRF 融合
                     COALESCE(1.0 / (60 + v.vector_rank), 0) * $4::float +
                     COALESCE(1.0 / (60 + k.keyword_rank), 0) * (1 - $4::float) as rrf_score
                 FROM vector_search v
@@ -220,10 +220,10 @@ class PostgresHybridSearch:
         limit: int = 10,
         rerank_candidates: int = 50
     ) -> List[Dict]:
-        """Hybrid search with cross-encoder reranking."""
+        """带交叉编码器重排的混合搜索。"""
         from sentence_transformers import CrossEncoder
 
-        # Get candidates
+        # 获取候选
         candidates = await self.hybrid_search(
             query, query_embedding, limit=rerank_candidates
         )
@@ -231,7 +231,7 @@ class PostgresHybridSearch:
         if not candidates:
             return []
 
-        # Rerank with cross-encoder
+        # 使用交叉编码器重排
         model = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
 
         pairs = [(query, c["content"]) for c in candidates]
@@ -240,19 +240,19 @@ class PostgresHybridSearch:
         for candidate, score in zip(candidates, scores):
             candidate["rerank_score"] = float(score)
 
-        # Sort by rerank score and return top results
+        # 按重排分数排序并返回顶部结果
         reranked = sorted(candidates, key=lambda x: x["rerank_score"], reverse=True)
         return reranked[:limit]
 ```
 
-### Template 3: Elasticsearch Hybrid Search
+### 模板 3：Elasticsearch 混合搜索
 
 ```python
 from elasticsearch import Elasticsearch
 from typing import List, Dict, Optional
 
 class ElasticsearchHybridSearch:
-    """Hybrid search with Elasticsearch and dense vectors."""
+    """使用 Elasticsearch 和稠密向量的混合搜索。"""
 
     def __init__(
         self,
@@ -263,7 +263,7 @@ class ElasticsearchHybridSearch:
         self.index_name = index_name
 
     def create_index(self, vector_dims: int = 1536):
-        """Create index with dense vector and text fields."""
+        """创建包含稠密向量和文本字段的索引。"""
         mapping = {
             "mappings": {
                 "properties": {
@@ -296,15 +296,15 @@ class ElasticsearchHybridSearch:
         filter: Optional[Dict] = None
     ) -> List[Dict]:
         """
-        Hybrid search using Elasticsearch's built-in capabilities.
+        使用 Elasticsearch 内置功能的混合搜索。
         """
-        # Build the hybrid query
+        # 构建混合查询
         search_body = {
             "size": limit,
             "query": {
                 "bool": {
                     "should": [
-                        # Vector search (kNN)
+                        # 向量搜索（kNN）
                         {
                             "script_score": {
                                 "query": {"match_all": {}},
@@ -314,7 +314,7 @@ class ElasticsearchHybridSearch:
                                 }
                             }
                         },
-                        # Text search (BM25)
+                        # 文本搜索（BM25）
                         {
                             "match": {
                                 "content": {
@@ -329,7 +329,7 @@ class ElasticsearchHybridSearch:
             }
         }
 
-        # Add filter if provided
+        # 如果提供了过滤器则添加
         if filter:
             search_body["query"]["bool"]["filter"] = filter
 
@@ -353,7 +353,7 @@ class ElasticsearchHybridSearch:
         window_size: int = 100
     ) -> List[Dict]:
         """
-        Hybrid search using Elasticsearch 8.x RRF.
+        使用 Elasticsearch 8.x RRF 的混合搜索。
         """
         search_body = {
             "size": limit,
@@ -396,7 +396,7 @@ class ElasticsearchHybridSearch:
         ]
 ```
 
-### Template 4: Custom Hybrid RAG Pipeline
+### 模板 4：自定义混合 RAG 管道
 
 ```python
 from typing import List, Dict, Optional, Callable
@@ -407,12 +407,12 @@ class SearchResult:
     id: str
     content: str
     score: float
-    source: str  # "vector", "keyword", "hybrid"
+    source: str  # "vector"、"keyword"、"hybrid"
     metadata: Dict = None
 
 
 class HybridRAGPipeline:
-    """Complete hybrid search pipeline for RAG."""
+    """用于 RAG 的完整混合搜索管道。"""
 
     def __init__(
         self,
@@ -437,24 +437,24 @@ class HybridRAGPipeline:
         filter: Optional[Dict] = None,
         use_rerank: bool = True
     ) -> List[SearchResult]:
-        """Execute hybrid search pipeline."""
+        """执行混合搜索管道。"""
 
-        # Step 1: Get query embedding
+        # 步骤 1：获取查询嵌入
         query_embedding = self.embedder.embed(query)
 
-        # Step 2: Execute parallel searches
+        # 步骤 2：执行并行搜索
         vector_results, keyword_results = await asyncio.gather(
             self._vector_search(query_embedding, top_k * 3, filter),
             self._keyword_search(query, top_k * 3, filter)
         )
 
-        # Step 3: Fuse results
+        # 步骤 3：融合结果
         if self.fusion_method == "rrf":
             fused = self._rrf_fusion(vector_results, keyword_results)
         else:
             fused = self._linear_fusion(vector_results, keyword_results)
 
-        # Step 4: Rerank if enabled
+        # 步骤 4：如果启用则重排
         if use_rerank and self.reranker:
             fused = await self._rerank(query, fused[:top_k * 2])
 
@@ -501,7 +501,7 @@ class HybridRAGPipeline:
         vector_results: List[SearchResult],
         keyword_results: List[SearchResult]
     ) -> List[SearchResult]:
-        """Fuse with RRF."""
+        """使用 RRF 融合。"""
         k = 60
         scores = {}
         content_map = {}
@@ -533,7 +533,7 @@ class HybridRAGPipeline:
         query: str,
         results: List[SearchResult]
     ) -> List[SearchResult]:
-        """Rerank with cross-encoder."""
+        """使用交叉编码器重排。"""
         if not results:
             return results
 
@@ -546,19 +546,19 @@ class HybridRAGPipeline:
         return sorted(results, key=lambda x: x.score, reverse=True)
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该做的
 
-- **Tune weights empirically** - Test on your data
-- **Use RRF for simplicity** - Works well without tuning
-- **Add reranking** - Significant quality improvement
-- **Log both scores** - Helps with debugging
-- **A/B test** - Measure real user impact
+- **凭经验调优权重** - 在你的数据上测试
+- **使用 RRF 以获得简洁性** - 无需调优即可良好工作
+- **添加重排** - 显著提升质量
+- **记录两个分数** - 有助于调试
+- **A/B 测试** - 衡量真实用户影响
 
-### Don'ts
+### 不应该做的
 
-- **Don't assume one size fits all** - Different queries need different weights
-- **Don't skip keyword search** - Handles exact matches better
-- **Don't over-fetch** - Balance recall vs latency
-- **Don't ignore edge cases** - Empty results, single word queries
+- **不要假设一刀切** - 不同查询需要不同权重
+- **不要跳过关键词搜索** - 更好地处理精确匹配
+- **不要过度获取** - 平衡召回率与延迟
+- **不要忽略边界情况** - 空结果、单词查询

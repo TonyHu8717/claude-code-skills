@@ -1,25 +1,25 @@
 ---
 name: gitlab-ci-patterns
-description: Build GitLab CI/CD pipelines with multi-stage workflows, caching, and distributed runners for scalable automation. Use when implementing GitLab CI/CD, optimizing pipeline performance, or setting up automated testing and deployment.
+description: 使用多阶段工作流、缓存和分布式运行器构建可扩展的 GitLab CI/CD 管道。在实现 GitLab CI/CD、优化管道性能或设置自动化测试和部署时使用。
 ---
 
-# GitLab CI Patterns
+# GitLab CI 模式
 
-Comprehensive GitLab CI/CD pipeline patterns for automated testing, building, and deployment.
+用于自动化测试、构建和部署的综合 GitLab CI/CD 管道模式。
 
-## Purpose
+## 目的
 
-Create efficient GitLab CI pipelines with proper stage organization, caching, and deployment strategies.
+使用适当的阶段组织、缓存和部署策略创建高效的 GitLab CI 管道。
 
-## When to Use
+## 何时使用
 
-- Automate GitLab-based CI/CD
-- Implement multi-stage pipelines
-- Configure GitLab Runners
-- Deploy to Kubernetes from GitLab
-- Implement GitOps workflows
+- 自动化基于 GitLab 的 CI/CD
+- 实现多阶段管道
+- 配置 GitLab Runner
+- 从 GitLab 部署到 Kubernetes
+- 实现 GitOps 工作流
 
-## Basic Pipeline Structure
+## 基本管道结构
 
 ```yaml
 stages:
@@ -73,7 +73,7 @@ deploy:
     url: https://app.example.com
 ```
 
-## Docker Build and Push
+## Docker 构建和推送
 
 ```yaml
 build-docker:
@@ -93,7 +93,7 @@ build-docker:
     - tags
 ```
 
-## Multi-Environment Deployment
+## 多环境部署
 
 ```yaml
 .deploy_template: &deploy_template
@@ -130,7 +130,7 @@ deploy:production:
     - main
 ```
 
-## Terraform Pipeline
+## Terraform 管道
 
 ```yaml
 stages:
@@ -178,7 +178,7 @@ apply:
     - main
 ```
 
-## Security Scanning
+## 安全扫描
 
 ```yaml
 include:
@@ -194,10 +194,10 @@ trivy-scan:
   allow_failure: true
 ```
 
-## Caching Strategies
+## 缓存策略
 
 ```yaml
-# Cache node_modules
+# 缓存 node_modules
 build:
   cache:
     key: ${CI_COMMIT_REF_SLUG}
@@ -205,14 +205,14 @@ build:
       - node_modules/
     policy: pull-push
 
-# Global cache
+# 全局缓存
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
     - .cache/
     - vendor/
 
-# Separate cache per job
+# 每个作业独立缓存
 job1:
   cache:
     key: job1-cache
@@ -226,7 +226,7 @@ job2:
       - dist/
 ```
 
-## Dynamic Child Pipelines
+## 动态子管道
 
 ```yaml
 generate-pipeline:
@@ -247,21 +247,21 @@ trigger-child:
 ```
 
 
-## Best Practices
+## 最佳实践
 
-1. **Use specific image tags** (node:20, not node:latest)
-2. **Cache dependencies** appropriately
-3. **Use artifacts** for build outputs
-4. **Implement manual gates** for production
-5. **Use environments** for deployment tracking
-6. **Enable merge request pipelines**
-7. **Use pipeline schedules** for recurring jobs
-8. **Implement security scanning**
-9. **Use CI/CD variables** for secrets
-10. **Monitor pipeline performance**
+1. **使用特定镜像标签**（node:20，而非 node:latest）
+2. **适当缓存依赖**
+3. **使用 artifacts** 存储构建输出
+4. **为生产环境实现手动门**
+5. **使用环境** 进行部署跟踪
+6. **启用合并请求管道**
+7. **使用管道调度** 执行定期作业
+8. **实现安全扫描**
+9. **使用 CI/CD 变量** 存储密钥
+10. **监控管道性能**
 
-## Related Skills
+## 相关技能
 
-- `github-actions-templates` - For GitHub Actions
-- `deployment-pipeline-design` - For architecture
-- `secrets-management` - For secrets handling
+- `github-actions-templates` - 用于 GitHub Actions
+- `deployment-pipeline-design` - 用于管道架构
+- `secrets-management` - 用于密钥处理

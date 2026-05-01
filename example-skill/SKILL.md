@@ -1,84 +1,84 @@
 ---
 name: example-skill
-description: This skill should be used when the user asks to "demonstrate skills", "show skill format", "create a skill template", or discusses skill development patterns. Provides a reference template for creating Claude Code plugin skills.
+description: 当用户要求"演示技能"、"展示技能格式"、"创建技能模板"或讨论技能开发模式时使用此技能。提供创建 Claude Code 插件技能的参考模板。
 version: 1.0.0
 ---
 
-# Example Skill
+# 示例技能
 
-This skill demonstrates the structure and format for Claude Code plugin skills.
+此技能演示了 Claude Code 插件技能的结构和格式。
 
-## Overview
+## 概述
 
-Skills are model-invoked capabilities that Claude autonomously uses based on task context. Unlike commands (user-invoked) or agents (spawned by Claude), skills provide contextual guidance that Claude incorporates into its responses.
+技能是模型调用的能力，Claude 根据任务上下文自主使用。与命令（用户调用）或代理（由 Claude 生成）不同，技能提供上下文指导，Claude 将其纳入回复中。
 
-## When This Skill Applies
+## 此技能适用的时机
 
-This skill activates when the user's request involves:
-- Creating or understanding plugin skills
-- Skill template or reference needs
-- Skill development patterns
+当用户的请求涉及以下内容时，此技能激活：
+- 创建或理解插件技能
+- 技能模板或参考需求
+- 技能开发模式
 
-## Skill Structure
+## 技能结构
 
-### Required Files
-
-```
-skills/
-└── skill-name/
-    └── SKILL.md          # Main skill definition (required)
-```
-
-### Optional Supporting Files
+### 必需文件
 
 ```
 skills/
 └── skill-name/
-    ├── SKILL.md          # Main skill definition
-    ├── README.md         # Additional documentation
-    ├── references/       # Reference materials
+    └── SKILL.md          # 主技能定义（必需）
+```
+
+### 可选支持文件
+
+```
+skills/
+└── skill-name/
+    ├── SKILL.md          # 主技能定义
+    ├── README.md         # 附加文档
+    ├── references/       # 参考资料
     │   └── patterns.md
-    ├── examples/         # Example files
+    ├── examples/         # 示例文件
     │   └── sample.md
-    └── scripts/          # Helper scripts
+    └── scripts/          # 辅助脚本
         └── helper.sh
 ```
 
-## Frontmatter Options
+## Frontmatter 选项
 
-Skills support these frontmatter fields:
+技能支持以下 frontmatter 字段：
 
-- **name** (required): Skill identifier
-- **description** (required): Trigger conditions - describe when Claude should use this skill
-- **version** (optional): Semantic version number
-- **license** (optional): License information or reference
+- **name**（必需）：技能标识符
+- **description**（必需）：触发条件 - 描述 Claude 何时应使用此技能
+- **version**（可选）：语义版本号
+- **license**（可选）：许可证信息或引用
 
-## Writing Effective Descriptions
+## 编写有效的描述
 
-The description field is crucial - it tells Claude when to invoke the skill.
+description 字段至关重要 - 它告诉 Claude 何时调用该技能。
 
-**Good description patterns:**
+**良好的描述模式：**
 ```yaml
-description: This skill should be used when the user asks to "specific phrase", "another phrase", mentions "keyword", or discusses topic-area.
+description: 当用户要求"具体短语"、"另一个短语"、提到"关键词"或讨论主题领域时，应使用此技能。
 ```
 
-**Include:**
-- Specific trigger phrases users might say
-- Keywords that indicate relevance
-- Topic areas the skill covers
+**包含：**
+- 用户可能说的具体触发短语
+- 表示相关性的关键词
+- 技能涵盖的主题领域
 
-## Skill Content Guidelines
+## 技能内容指南
 
-1. **Clear purpose**: State what the skill helps with
-2. **When to use**: Define activation conditions
-3. **Structured guidance**: Organize information logically
-4. **Actionable instructions**: Provide concrete steps
-5. **Examples**: Include practical examples when helpful
+1. **明确目的**：说明技能帮助的内容
+2. **使用时机**：定义激活条件
+3. **结构化指导**：逻辑地组织信息
+4. **可操作的指令**：提供具体步骤
+5. **示例**：在有帮助时包含实际示例
 
-## Best Practices
+## 最佳实践
 
-- Keep skills focused on a single domain
-- Write descriptions that clearly indicate when to activate
-- Include reference materials in subdirectories for complex skills
-- Test that the skill activates for expected queries
-- Avoid overlap with other skills' trigger conditions
+- 保持技能专注于单一领域
+- 编写清晰指示何时激活的描述
+- 对于复杂技能，在子目录中包含参考资料
+- 测试技能是否能对预期查询激活
+- 避免与其他技能的触发条件重叠

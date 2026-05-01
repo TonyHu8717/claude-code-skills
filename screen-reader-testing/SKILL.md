@@ -1,390 +1,390 @@
 ---
 name: screen-reader-testing
-description: Test web applications with screen readers including VoiceOver, NVDA, and JAWS. Use when validating screen reader compatibility, debugging accessibility issues, or ensuring assistive technology support.
+description: 使用屏幕阅读器（包括 VoiceOver、NVDA 和 JAWS）测试 Web 应用程序。在验证屏幕阅读器兼容性、调试辅助功能问题或确保辅助技术支持时使用。
 ---
 
-# Screen Reader Testing
+# 屏幕阅读器测试
 
-Practical guide to testing web applications with screen readers for comprehensive accessibility validation.
+使用屏幕阅读器测试 Web 应用程序的实用指南，用于综合辅助功能验证。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Validating screen reader compatibility
-- Testing ARIA implementations
-- Debugging assistive technology issues
-- Verifying form accessibility
-- Testing dynamic content announcements
-- Ensuring navigation accessibility
+- 验证屏幕阅读器兼容性
+- 测试 ARIA 实现
+- 调试辅助技术问题
+- 验证表单辅助功能
+- 测试动态内容公告
+- 确保导航辅助功能
 
-## Core Concepts
+## 核心概念
 
-### 1. Major Screen Readers
+### 1. 主要屏幕阅读器
 
-| Screen Reader | Platform  | Browser        | Usage |
-| ------------- | --------- | -------------- | ----- |
-| **VoiceOver** | macOS/iOS | Safari         | ~15%  |
-| **NVDA**      | Windows   | Firefox/Chrome | ~31%  |
-| **JAWS**      | Windows   | Chrome/IE      | ~40%  |
-| **TalkBack**  | Android   | Chrome         | ~10%  |
-| **Narrator**  | Windows   | Edge           | ~4%   |
+| 屏幕阅读器    | 平台      | 浏览器         | 使用率 |
+| ------------- | --------- | -------------- | ------ |
+| **VoiceOver** | macOS/iOS | Safari         | ~15%   |
+| **NVDA**      | Windows   | Firefox/Chrome | ~31%   |
+| **JAWS**      | Windows   | Chrome/IE      | ~40%   |
+| **TalkBack**  | Android   | Chrome         | ~10%   |
+| **Narrator**  | Windows   | Edge           | ~4%    |
 
-### 2. Testing Priority
-
-```
-Minimum Coverage:
-1. NVDA + Firefox (Windows)
-2. VoiceOver + Safari (macOS)
-3. VoiceOver + Safari (iOS)
-
-Comprehensive Coverage:
-+ JAWS + Chrome (Windows)
-+ TalkBack + Chrome (Android)
-+ Narrator + Edge (Windows)
-```
-
-### 3. Screen Reader Modes
-
-| Mode               | Purpose                | When Used         |
-| ------------------ | ---------------------- | ----------------- |
-| **Browse/Virtual** | Read content           | Default reading   |
-| **Focus/Forms**    | Interact with controls | Filling forms     |
-| **Application**    | Custom widgets         | ARIA applications |
-
-## VoiceOver (macOS)
-
-### Setup
+### 2. 测试优先级
 
 ```
-Enable: System Preferences → Accessibility → VoiceOver
-Toggle: Cmd + F5
-Quick Toggle: Triple-press Touch ID
+最低覆盖：
+1. NVDA + Firefox（Windows）
+2. VoiceOver + Safari（macOS）
+3. VoiceOver + Safari（iOS）
+
+综合覆盖：
++ JAWS + Chrome（Windows）
++ TalkBack + Chrome（Android）
++ Narrator + Edge（Windows）
 ```
 
-### Essential Commands
+### 3. 屏幕阅读器模式
+
+| 模式               | 用途                | 使用场景         |
+| ------------------ | ------------------- | ---------------- |
+| **Browse/Virtual** | 阅读内容            | 默认阅读         |
+| **Focus/Forms**    | 与控件交互          | 填写表单         |
+| **Application**    | 自定义小部件        | ARIA 应用        |
+
+## VoiceOver（macOS）
+
+### 设置
 
 ```
-Navigation:
-VO = Ctrl + Option (VoiceOver modifier)
-
-VO + Right Arrow   Next element
-VO + Left Arrow    Previous element
-VO + Shift + Down  Enter group
-VO + Shift + Up    Exit group
-
-Reading:
-VO + A             Read all from cursor
-Ctrl               Stop speaking
-VO + B             Read current paragraph
-
-Interaction:
-VO + Space         Activate element
-VO + Shift + M     Open menu
-Tab                Next focusable element
-Shift + Tab        Previous focusable element
-
-Rotor (VO + U):
-Navigate by: Headings, Links, Forms, Landmarks
-Left/Right Arrow   Change rotor category
-Up/Down Arrow      Navigate within category
-Enter              Go to item
-
-Web Specific:
-VO + Cmd + H       Next heading
-VO + Cmd + J       Next form control
-VO + Cmd + L       Next link
-VO + Cmd + T       Next table
+启用：系统偏好设置 → 辅助功能 → VoiceOver
+切换：Cmd + F5
+快速切换：三次按 Touch ID
 ```
 
-### Testing Checklist
+### 基本命令
+
+```
+导航：
+VO = Ctrl + Option（VoiceOver 修饰键）
+
+VO + 右箭头        下一个元素
+VO + 左箭头        上一个元素
+VO + Shift + 下    进入组
+VO + Shift + 上    退出组
+
+阅读：
+VO + A             从光标位置全部朗读
+Ctrl               停止朗读
+VO + B             朗读当前段落
+
+交互：
+VO + Space         激活元素
+VO + Shift + M     打开菜单
+Tab                下一个可聚焦元素
+Shift + Tab        上一个可聚焦元素
+
+转子（VO + U）：
+导航方式：标题、链接、表单、地标
+左/右箭头          更改转子类别
+上/下箭头          在类别内导航
+Enter              跳转到项目
+
+Web 特定：
+VO + Cmd + H       下一个标题
+VO + Cmd + J       下一个表单控件
+VO + Cmd + L       下一个链接
+VO + Cmd + T       下一个表格
+```
+
+### 测试检查清单
 
 ```markdown
-## VoiceOver Testing Checklist
+## VoiceOver 测试检查清单
 
-### Page Load
+### 页面加载
 
-- [ ] Page title announced
-- [ ] Main landmark found
-- [ ] Skip link works
+- [ ] 页面标题已公告
+- [ ] 找到主地标
+- [ ] 跳转链接有效
 
-### Navigation
+### 导航
 
-- [ ] All headings discoverable via rotor
-- [ ] Heading levels logical (H1 → H2 → H3)
-- [ ] Landmarks properly labeled
-- [ ] Skip links functional
+- [ ] 所有标题可通过转子发现
+- [ ] 标题级别逻辑正确（H1 → H2 → H3）
+- [ ] 地标正确标记
+- [ ] 跳转链接功能正常
 
-### Links & Buttons
+### 链接和按钮
 
-- [ ] Link purpose clear
-- [ ] Button actions described
-- [ ] New window/tab announced
+- [ ] 链接目的清晰
+- [ ] 按钮操作已描述
+- [ ] 新窗口/标签页已公告
 
-### Forms
+### 表单
 
-- [ ] All labels read with inputs
-- [ ] Required fields announced
-- [ ] Error messages read
-- [ ] Instructions available
-- [ ] Focus moves to errors
+- [ ] 所有标签与输入关联朗读
+- [ ] 必填字段已公告
+- [ ] 错误消息已朗读
+- [ ] 说明可用
+- [ ] 焦点移动到错误处
 
-### Dynamic Content
+### 动态内容
 
-- [ ] Alerts announced immediately
-- [ ] Loading states communicated
-- [ ] Content updates announced
-- [ ] Modals trap focus correctly
+- [ ] 警报立即公告
+- [ ] 加载状态已传达
+- [ ] 内容更新已公告
+- [ ] 模态框正确捕获焦点
 
-### Tables
+### 表格
 
-- [ ] Headers associated with cells
-- [ ] Table navigation works
-- [ ] Complex tables have captions
+- [ ] 标题与单元格关联
+- [ ] 表格导航有效
+- [ ] 复杂表格有标题
 ```
 
-### Common Issues & Fixes
+### 常见问题和修复
 
 ```html
-<!-- Issue: Button not announcing purpose -->
+<!-- 问题：按钮未公告用途 -->
 <button><svg>...</svg></button>
 
-<!-- Fix -->
-<button aria-label="Close dialog"><svg aria-hidden="true">...</svg></button>
+<!-- 修复 -->
+<button aria-label="关闭对话框"><svg aria-hidden="true">...</svg></button>
 
-<!-- Issue: Dynamic content not announced -->
-<div id="results">New results loaded</div>
+<!-- 问题：动态内容未公告 -->
+<div id="results">已加载新结果</div>
 
-<!-- Fix -->
-<div id="results" role="status" aria-live="polite">New results loaded</div>
+<!-- 修复 -->
+<div id="results" role="status" aria-live="polite">已加载新结果</div>
 
-<!-- Issue: Form error not read -->
+<!-- 问题：表单错误未朗读 -->
 <input type="email" />
-<span class="error">Invalid email</span>
+<span class="error">无效邮箱</span>
 
-<!-- Fix -->
+<!-- 修复 -->
 <input type="email" aria-invalid="true" aria-describedby="email-error" />
-<span id="email-error" role="alert">Invalid email</span>
+<span id="email-error" role="alert">无效邮箱</span>
 ```
 
-## NVDA (Windows)
+## NVDA（Windows）
 
-### Setup
-
-```
-Download: nvaccess.org
-Start: Ctrl + Alt + N
-Stop: Insert + Q
-```
-
-### Essential Commands
+### 设置
 
 ```
-Navigation:
-Insert = NVDA modifier
-
-Down Arrow         Next line
-Up Arrow           Previous line
-Tab                Next focusable
-Shift + Tab        Previous focusable
-
-Reading:
-NVDA + Down Arrow  Say all
-Ctrl               Stop speech
-NVDA + Up Arrow    Current line
-
-Headings:
-H                  Next heading
-Shift + H          Previous heading
-1-6                Heading level 1-6
-
-Forms:
-F                  Next form field
-B                  Next button
-E                  Next edit field
-X                  Next checkbox
-C                  Next combo box
-
-Links:
-K                  Next link
-U                  Next unvisited link
-V                  Next visited link
-
-Landmarks:
-D                  Next landmark
-Shift + D          Previous landmark
-
-Tables:
-T                  Next table
-Ctrl + Alt + Arrows Navigate cells
-
-Elements List (NVDA + F7):
-Shows all links, headings, form fields, landmarks
+下载：nvaccess.org
+启动：Ctrl + Alt + N
+停止：Insert + Q
 ```
 
-### Browse vs Focus Mode
+### 基本命令
 
 ```
-NVDA automatically switches modes:
-- Browse Mode: Arrow keys navigate content
-- Focus Mode: Arrow keys control interactive elements
+导航：
+Insert = NVDA 修饰键
 
-Manual switch: NVDA + Space
+下箭头             下一行
+上箭头             上一行
+Tab                下一个可聚焦元素
+Shift + Tab        上一个可聚焦元素
 
-Watch for:
-- "Browse mode" announcement when navigating
-- "Focus mode" when entering form fields
-- Application role forces forms mode
+阅读：
+NVDA + 下箭头      全部朗读
+Ctrl               停止朗读
+NVDA + 上箭头      当前行
+
+标题：
+H                  下一个标题
+Shift + H          上一个标题
+1-6                标题级别 1-6
+
+表单：
+F                  下一个表单字段
+B                  下一个按钮
+E                  下一个编辑字段
+X                  下一个复选框
+C                  下一个组合框
+
+链接：
+K                  下一个链接
+U                  下一个未访问链接
+V                  下一个已访问链接
+
+地标：
+D                  下一个地标
+Shift + D          上一个地标
+
+表格：
+T                  下一个表格
+Ctrl + Alt + 箭头  导航单元格
+
+元素列表（NVDA + F7）：
+显示所有链接、标题、表单字段、地标
 ```
 
-### Testing Script
+### 浏览模式 vs 焦点模式
+
+```
+NVDA 自动切换模式：
+- 浏览模式：箭头键导航内容
+- 焦点模式：箭头键控制交互元素
+
+手动切换：NVDA + Space
+
+注意：
+- 导航时听到"浏览模式"公告
+- 进入表单字段时听到"焦点模式"
+- application 角色强制表单模式
+```
+
+### 测试脚本
 
 ```markdown
-## NVDA Test Script
+## NVDA 测试脚本
 
-### Initial Load
+### 初始加载
 
-1. Navigate to page
-2. Let page finish loading
-3. Press Insert + Down to read all
-4. Note: Page title, main content identified?
+1. 导航到页面
+2. 等待页面加载完成
+3. 按 Insert + Down 全部朗读
+4. 注意：页面标题、主内容是否已识别？
 
-### Landmark Navigation
+### 地标导航
 
-1. Press D repeatedly
-2. Check: All main areas reachable?
-3. Check: Landmarks properly labeled?
+1. 反复按 D
+2. 检查：所有主要区域可达？
+3. 检查：地标正确标记？
 
-### Heading Navigation
+### 标题导航
 
-1. Press Insert + F7 → Headings
-2. Check: Logical heading structure?
-3. Press H to navigate headings
-4. Check: All sections discoverable?
+1. 按 Insert + F7 → 标题
+2. 检查：标题结构逻辑正确？
+3. 按 H 导航标题
+4. 检查：所有部分可发现？
 
-### Form Testing
+### 表单测试
 
-1. Press F to find first form field
-2. Check: Label read?
-3. Fill in invalid data
-4. Submit form
-5. Check: Errors announced?
-6. Check: Focus moved to error?
+1. 按 F 查找第一个表单字段
+2. 检查：标签已朗读？
+3. 填写无效数据
+4. 提交表单
+5. 检查：错误已公告？
+6. 检查：焦点移动到错误处？
 
-### Interactive Elements
+### 交互元素
 
-1. Tab through all interactive elements
-2. Check: Each announces role and state
-3. Activate buttons with Enter/Space
-4. Check: Result announced?
+1. Tab 遍历所有交互元素
+2. 检查：每个都公告角色和状态
+3. 用 Enter/Space 激活按钮
+4. 检查：结果已公告？
 
-### Dynamic Content
+### 动态内容
 
-1. Trigger content update
-2. Check: Change announced?
-3. Open modal
-4. Check: Focus trapped?
-5. Close modal
-6. Check: Focus returns?
+1. 触发内容更新
+2. 检查：变更已公告？
+3. 打开模态框
+4. 检查：焦点被捕获？
+5. 关闭模态框
+6. 检查：焦点返回？
 ```
 
-## JAWS (Windows)
+## JAWS（Windows）
 
-### Essential Commands
-
-```
-Start: Desktop shortcut or Ctrl + Alt + J
-Virtual Cursor: Auto-enabled in browsers
-
-Navigation:
-Arrow keys         Navigate content
-Tab                Next focusable
-Insert + Down      Read all
-Ctrl               Stop speech
-
-Quick Keys:
-H                  Next heading
-T                  Next table
-F                  Next form field
-B                  Next button
-G                  Next graphic
-L                  Next list
-;                  Next landmark
-
-Forms Mode:
-Enter              Enter forms mode
-Numpad +           Exit forms mode
-F5                 List form fields
-
-Lists:
-Insert + F7        Link list
-Insert + F6        Heading list
-Insert + F5        Form field list
-
-Tables:
-Ctrl + Alt + Arrows Table navigation
-```
-
-## TalkBack (Android)
-
-### Setup
+### 基本命令
 
 ```
-Enable: Settings → Accessibility → TalkBack
-Toggle: Hold both volume buttons 3 seconds
+启动：桌面快捷方式或 Ctrl + Alt + J
+虚拟光标：在浏览器中自动启用
+
+导航：
+箭头键             导航内容
+Tab                下一个可聚焦元素
+Insert + Down      全部朗读
+Ctrl               停止朗读
+
+快捷键：
+H                  下一个标题
+T                  下一个表格
+F                  下一个表单字段
+B                  下一个按钮
+G                  下一个图形
+L                  下一个列表
+;                  下一个地标
+
+表单模式：
+Enter              进入表单模式
+Numpad +           退出表单模式
+F5                 列出表单字段
+
+列表：
+Insert + F7        链接列表
+Insert + F6        标题列表
+Insert + F5        表单字段列表
+
+表格：
+Ctrl + Alt + 箭头  表格导航
 ```
 
-### Gestures
+## TalkBack（Android）
+
+### 设置
 
 ```
-Explore: Drag finger across screen
-Next: Swipe right
-Previous: Swipe left
-Activate: Double tap
-Scroll: Two finger swipe
-
-Reading Controls (swipe up then right):
-- Headings
-- Links
-- Controls
-- Characters
-- Words
-- Lines
-- Paragraphs
+启用：设置 → 辅助功能 → TalkBack
+切换：同时按住两个音量键 3 秒
 ```
 
-## Common Test Scenarios
+### 手势
 
-### 1. Modal Dialog
+```
+探索：在屏幕上拖动手指
+下一个：向右滑动
+上一个：向左滑动
+激活：双击
+滚动：双指滑动
+
+阅读控制（先向上再向右滑动）：
+- 标题
+- 链接
+- 控件
+- 字符
+- 单词
+- 行
+- 段落
+```
+
+## 常见测试场景
+
+### 1. 模态对话框
 
 ```html
-<!-- Accessible modal structure -->
+<!-- 无障碍模态框结构 -->
 <div
   role="dialog"
   aria-modal="true"
   aria-labelledby="dialog-title"
   aria-describedby="dialog-desc"
 >
-  <h2 id="dialog-title">Confirm Delete</h2>
-  <p id="dialog-desc">This action cannot be undone.</p>
-  <button>Cancel</button>
-  <button>Delete</button>
+  <h2 id="dialog-title">确认删除</h2>
+  <p id="dialog-desc">此操作无法撤销。</p>
+  <button>取消</button>
+  <button>删除</button>
 </div>
 ```
 
 ```javascript
-// Focus management
+// 焦点管理
 function openModal(modal) {
-  // Store last focused element
+  // 存储最后聚焦的元素
   lastFocus = document.activeElement;
 
-  // Move focus to modal
+  // 将焦点移到模态框
   modal.querySelector("h2").focus();
 
-  // Trap focus
+  // 捕获焦点
   modal.addEventListener("keydown", trapFocus);
 }
 
 function closeModal(modal) {
-  // Return focus
+  // 返回焦点
   lastFocus.focus();
 }
 
@@ -411,40 +411,40 @@ function trapFocus(e) {
 }
 ```
 
-### 2. Live Regions
+### 2. 实时区域
 
 ```html
-<!-- Status messages (polite) -->
+<!-- 状态消息（礼貌） -->
 <div role="status" aria-live="polite" aria-atomic="true">
-  <!-- Content updates will be announced after current speech -->
+  <!-- 内容更新将在当前朗读后公告 -->
 </div>
 
-<!-- Alerts (assertive) -->
+<!-- 警报（强制） -->
 <div role="alert" aria-live="assertive">
-  <!-- Content updates interrupt current speech -->
+  <!-- 内容更新会打断当前朗读 -->
 </div>
 
-<!-- Progress updates -->
+<!-- 进度更新 -->
 <div
   role="progressbar"
   aria-valuenow="75"
   aria-valuemin="0"
   aria-valuemax="100"
-  aria-label="Upload progress"
+  aria-label="上传进度"
 ></div>
 
-<!-- Log (additions only) -->
+<!-- 日志（仅添加） -->
 <div role="log" aria-live="polite" aria-relevant="additions">
-  <!-- New messages announced, removals not -->
+  <!-- 新消息公告，移除不公告 -->
 </div>
 ```
 
-### 3. Tab Interface
+### 3. 标签页界面
 
 ```html
-<div role="tablist" aria-label="Product information">
+<div role="tablist" aria-label="产品信息">
   <button role="tab" id="tab-1" aria-selected="true" aria-controls="panel-1">
-    Description
+    描述
   </button>
   <button
     role="tab"
@@ -453,21 +453,21 @@ function trapFocus(e) {
     aria-controls="panel-2"
     tabindex="-1"
   >
-    Reviews
+    评价
   </button>
 </div>
 
 <div role="tabpanel" id="panel-1" aria-labelledby="tab-1">
-  Product description content...
+  产品描述内容...
 </div>
 
 <div role="tabpanel" id="panel-2" aria-labelledby="tab-2" hidden>
-  Reviews content...
+  评价内容...
 </div>
 ```
 
 ```javascript
-// Tab keyboard navigation
+// 标签页键盘导航
 tablist.addEventListener("keydown", (e) => {
   const tabs = [...tablist.querySelectorAll('[role="tab"]')];
   const index = tabs.indexOf(document.activeElement);
@@ -496,10 +496,10 @@ tablist.addEventListener("keydown", (e) => {
 });
 ```
 
-## Debugging Tips
+## 调试技巧
 
 ```javascript
-// Log what screen reader sees
+// 记录屏幕阅读器看到的内容
 function logAccessibleName(element) {
   const computed = window.getComputedStyle(element);
   console.log({
@@ -519,20 +519,20 @@ function logAccessibleName(element) {
 }
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该做的
 
-- **Test with actual screen readers** - Not just simulators
-- **Use semantic HTML first** - ARIA is supplemental
-- **Test in browse and focus modes** - Different experiences
-- **Verify focus management** - Especially for SPAs
-- **Test keyboard only first** - Foundation for SR testing
+- **使用真实屏幕阅读器测试** — 不仅仅是模拟器
+- **优先使用语义 HTML** — ARIA 是补充
+- **在浏览和焦点模式下测试** — 不同的体验
+- **验证焦点管理** — 特别是对于 SPA
+- **先测试纯键盘** — 屏幕阅读器测试的基础
 
-### Don'ts
+### 不应该做的
 
-- **Don't assume one SR is enough** - Test multiple
-- **Don't ignore mobile** - Growing user base
-- **Don't test only happy path** - Test error states
-- **Don't skip dynamic content** - Most common issues
-- **Don't rely on visual testing** - Different experience
+- **不要假设一种屏幕阅读器足够** — 测试多种
+- **不要忽略移动端** — 用户群在增长
+- **不要只测试快乐路径** — 测试错误状态
+- **不要跳过动态内容** — 最常见的问题
+- **不要依赖视觉测试** — 不同的体验

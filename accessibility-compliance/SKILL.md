@@ -1,80 +1,80 @@
 ---
 name: accessibility-compliance
-description: Implement WCAG 2.2 compliant interfaces with mobile accessibility, inclusive design patterns, and assistive technology support. Use when auditing accessibility, implementing ARIA patterns, building for screen readers, or ensuring inclusive user experiences.
+description: 实现符合 WCAG 2.2 的界面，包含移动无障碍、包容性设计模式和辅助技术支持。在审计无障碍性、实现 ARIA 模式、为屏幕阅读器构建或确保包容性用户体验时使用。
 ---
 
-# Accessibility Compliance
+# 无障碍合规
 
-Master accessibility implementation to create inclusive experiences that work for everyone, including users with disabilities.
+掌握无障碍实现，创建对所有人都适用的包容性体验，包括残障用户。
 
-## When to Use This Skill
+## 使用场景
 
-- Implementing WCAG 2.2 Level AA or AAA compliance
-- Building screen reader accessible interfaces
-- Adding keyboard navigation to interactive components
-- Implementing focus management and focus trapping
-- Creating accessible forms with proper labeling
-- Supporting reduced motion and high contrast preferences
-- Building mobile accessibility features (iOS VoiceOver, Android TalkBack)
-- Conducting accessibility audits and fixing violations
+- 实现 WCAG 2.2 AA 级或 AAA 级合规
+- 构建屏幕阅读器可访问的界面
+- 为交互组件添加键盘导航
+- 实现焦点管理和焦点捕获
+- 创建带有正确标签的无障碍表单
+- 支持减少动画和高对比度偏好
+- 构建移动无障碍功能（iOS VoiceOver、Android TalkBack）
+- 进行无障碍审计并修复违规
 
-## Core Capabilities
+## 核心能力
 
-### 1. WCAG 2.2 Guidelines
+### 1. WCAG 2.2 指南
 
-- Perceivable: Content must be presentable in different ways
-- Operable: Interface must be navigable with keyboard and assistive tech
-- Understandable: Content and operation must be clear
-- Robust: Content must work with current and future assistive technologies
+- 可感知：内容必须能以不同方式呈现
+- 可操作：界面必须可通过键盘和辅助技术导航
+- 可理解：内容和操作必须清晰
+- 健壮性：内容必须兼容当前和未来的辅助技术
 
-### 2. ARIA Patterns
+### 2. ARIA 模式
 
-- Roles: Define element purpose (button, dialog, navigation)
-- States: Indicate current condition (expanded, selected, disabled)
-- Properties: Describe relationships and additional info (labelledby, describedby)
-- Live regions: Announce dynamic content changes
+- 角色：定义元素用途（按钮、对话框、导航）
+- 状态：指示当前条件（展开、选中、禁用）
+- 属性：描述关系和附加信息（labelledby、describedby）
+- 实时区域：宣布动态内容变更
 
-### 3. Keyboard Navigation
+### 3. 键盘导航
 
-- Focus order and tab sequence
-- Focus indicators and visible focus states
-- Keyboard shortcuts and hotkeys
-- Focus trapping for modals and dialogs
+- 焦点顺序和 Tab 序列
+- 焦点指示器和可见焦点状态
+- 键盘快捷键和热键
+- 模态框和对话框的焦点捕获
 
-### 4. Screen Reader Support
+### 4. 屏幕阅读器支持
 
-- Semantic HTML structure
-- Alternative text for images
-- Proper heading hierarchy
-- Skip links and landmarks
+- 语义化 HTML 结构
+- 图片的替代文本
+- 正确的标题层次结构
+- 跳转链接和地标
 
-### 5. Mobile Accessibility
+### 5. 移动无障碍
 
-- Touch target sizing (44x44dp minimum)
-- VoiceOver and TalkBack compatibility
-- Gesture alternatives
-- Dynamic Type support
+- 触摸目标尺寸（最小 44x44dp）
+- VoiceOver 和 TalkBack 兼容性
+- 手势替代方案
+- 动态字体支持
 
-## Quick Reference
+## 快速参考
 
-### WCAG 2.2 Success Criteria Checklist
+### WCAG 2.2 成功标准清单
 
-| Level | Criterion | Description                                          |
-| ----- | --------- | ---------------------------------------------------- |
-| A     | 1.1.1     | Non-text content has text alternatives               |
-| A     | 1.3.1     | Info and relationships programmatically determinable |
-| A     | 2.1.1     | All functionality keyboard accessible                |
-| A     | 2.4.1     | Skip to main content mechanism                       |
-| AA    | 1.4.3     | Contrast ratio 4.5:1 (text), 3:1 (large text)        |
-| AA    | 1.4.11    | Non-text contrast 3:1                                |
-| AA    | 2.4.7     | Focus visible                                        |
-| AA    | 2.5.8     | Target size minimum 24x24px (NEW in 2.2)             |
-| AAA   | 1.4.6     | Enhanced contrast 7:1                                |
-| AAA   | 2.5.5     | Target size minimum 44x44px                          |
+| 级别 | 标准 | 描述 |
+| ---- | ---- | ---- |
+| A | 1.1.1 | 非文本内容有文本替代 |
+| A | 1.3.1 | 信息和关系可通过程序确定 |
+| A | 2.1.1 | 所有功能可键盘访问 |
+| A | 2.4.1 | 跳转到主内容机制 |
+| AA | 1.4.3 | 对比度 4.5:1（文本）、3:1（大文本） |
+| AA | 1.4.11 | 非文本对比度 3:1 |
+| AA | 2.4.7 | 焦点可见 |
+| AA | 2.5.8 | 目标尺寸最小 24x24px（2.2 新增） |
+| AAA | 1.4.6 | 增强对比度 7:1 |
+| AAA | 2.5.5 | 目标尺寸最小 44x44px |
 
-## Key Patterns
+## 关键模式
 
-### Pattern 1: Accessible Button
+### 模式 1：无障碍按钮
 
 ```tsx
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -91,16 +91,16 @@ function AccessibleButton({
 }: ButtonProps) {
   return (
     <button
-      // Disable when loading
+      // 加载时禁用
       disabled={disabled || isLoading}
-      // Announce loading state to screen readers
+      // 向屏幕阅读器宣布加载状态
       aria-busy={isLoading}
-      // Describe the button's current state
+      // 描述按钮的当前状态
       aria-disabled={disabled || isLoading}
       className={cn(
-        // Visible focus ring
+        // 可见焦点环
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-        // Minimum touch target size (44x44px)
+        // 最小触摸目标尺寸（44x44px）
         "min-h-[44px] min-w-[44px]",
         variant === "primary" && "bg-primary text-primary-foreground",
         (disabled || isLoading) && "opacity-50 cursor-not-allowed",
@@ -120,7 +120,7 @@ function AccessibleButton({
 }
 ```
 
-### Pattern 2: Accessible Modal Dialog
+### 模式 2：无障碍模态对话框
 
 ```tsx
 import * as React from "react";
@@ -137,7 +137,7 @@ function AccessibleDialog({ isOpen, onClose, title, children }: DialogProps) {
   const titleId = React.useId();
   const descriptionId = React.useId();
 
-  // Close on Escape key
+  // 按 Escape 键关闭
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) {
@@ -148,7 +148,7 @@ function AccessibleDialog({ isOpen, onClose, title, children }: DialogProps) {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Prevent body scroll when open
+  // 打开时阻止 body 滚动
   React.useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -167,14 +167,14 @@ function AccessibleDialog({ isOpen, onClose, title, children }: DialogProps) {
       aria-labelledby={titleId}
       aria-describedby={descriptionId}
     >
-      {/* Backdrop */}
+      {/* 背景遮罩 */}
       <div
         className="fixed inset-0 bg-black/50"
         aria-hidden="true"
         onClick={onClose}
       />
 
-      {/* Focus trap container */}
+      {/* 焦点捕获容器 */}
       <FocusTrap>
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <div className="bg-background rounded-lg shadow-lg max-w-md w-full p-6">
@@ -197,7 +197,7 @@ function AccessibleDialog({ isOpen, onClose, title, children }: DialogProps) {
 }
 ```
 
-### Pattern 3: Accessible Form
+### 模式 3：无障碍表单
 
 ```tsx
 function AccessibleForm() {
@@ -205,7 +205,7 @@ function AccessibleForm() {
 
   return (
     <form aria-describedby="form-errors" noValidate>
-      {/* Error summary for screen readers */}
+      {/* 屏幕阅读器的错误摘要 */}
       {Object.keys(errors).length > 0 && (
         <div
           id="form-errors"
@@ -228,7 +228,7 @@ function AccessibleForm() {
         </div>
       )}
 
-      {/* Required field with error */}
+      {/* 必填字段带错误 */}
       <div className="space-y-2">
         <label htmlFor="email" className="block font-medium">
           Email address
@@ -269,7 +269,7 @@ function AccessibleForm() {
 }
 ```
 
-### Pattern 4: Skip Navigation Link
+### 模式 4：跳转导航链接
 
 ```tsx
 function SkipLink() {
@@ -277,7 +277,7 @@ function SkipLink() {
     <a
       href="#main-content"
       className={cn(
-        // Hidden by default, visible on focus
+        // 默认隐藏，聚焦时可见
         "sr-only focus:not-sr-only",
         "focus:absolute focus:top-4 focus:left-4 focus:z-50",
         "focus:bg-background focus:px-4 focus:py-2 focus:rounded-md",
@@ -289,7 +289,7 @@ function SkipLink() {
   );
 }
 
-// In layout
+// 在布局中
 function Layout({ children }) {
   return (
     <>
@@ -305,7 +305,7 @@ function Layout({ children }) {
 }
 ```
 
-### Pattern 5: Live Region for Announcements
+### 模式 5：实时区域公告
 
 ```tsx
 function useAnnounce() {
@@ -313,7 +313,7 @@ function useAnnounce() {
 
   const announce = React.useCallback(
     (text: string, priority: "polite" | "assertive" = "polite") => {
-      setMessage(""); // Clear first to ensure re-announcement
+      setMessage(""); // 先清除以确保重新公告
       setTimeout(() => setMessage(text), 100);
     },
     [],
@@ -333,7 +333,7 @@ function useAnnounce() {
   return { announce, Announcer };
 }
 
-// Usage
+// 用法
 function SearchResults({ results, isLoading }) {
   const { announce, Announcer } = useAnnounce();
 
@@ -352,10 +352,10 @@ function SearchResults({ results, isLoading }) {
 }
 ```
 
-## Color Contrast Requirements
+## 颜色对比度要求
 
 ```typescript
-// Contrast ratio utilities
+// 对比度工具函数
 function getContrastRatio(foreground: string, background: string): number {
   const fgLuminance = getLuminance(foreground);
   const bgLuminance = getLuminance(background);
@@ -364,49 +364,49 @@ function getContrastRatio(foreground: string, background: string): number {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-// WCAG requirements
+// WCAG 要求
 const CONTRAST_REQUIREMENTS = {
-  // Normal text (<18pt or <14pt bold)
+  // 普通文本（<18pt 或 <14pt 粗体）
   normalText: {
     AA: 4.5,
     AAA: 7,
   },
-  // Large text (>=18pt or >=14pt bold)
+  // 大文本（>=18pt 或 >=14pt 粗体）
   largeText: {
     AA: 3,
     AAA: 4.5,
   },
-  // UI components and graphics
+  // UI 组件和图形
   uiComponents: {
     AA: 3,
   },
 };
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Use Semantic HTML**: Prefer native elements over ARIA when possible
-2. **Test with Real Users**: Include people with disabilities in user testing
-3. **Keyboard First**: Design interactions to work without a mouse
-4. **Don't Disable Focus Styles**: Style them, don't remove them
-5. **Provide Text Alternatives**: All non-text content needs descriptions
-6. **Support Zoom**: Content should work at 200% zoom
-7. **Announce Changes**: Use live regions for dynamic content
-8. **Respect Preferences**: Honor prefers-reduced-motion and prefers-contrast
+1. **使用语义化 HTML**：尽可能优先使用原生元素而非 ARIA
+2. **用真实用户测试**：在用户测试中包含残障人士
+3. **键盘优先**：设计无需鼠标即可操作的交互
+4. **不要禁用焦点样式**：可以美化，但不要移除
+5. **提供文本替代**：所有非文本内容都需要描述
+6. **支持缩放**：内容应在 200% 缩放下正常工作
+7. **宣布变更**：对动态内容使用实时区域
+8. **尊重偏好**：遵循 prefers-reduced-motion 和 prefers-contrast
 
-## Common Issues
+## 常见问题
 
-- **Missing alt text**: Images without descriptions
-- **Poor color contrast**: Text hard to read against background
-- **Keyboard traps**: Focus stuck in component
-- **Missing labels**: Form inputs without associated labels
-- **Auto-playing media**: Content that plays without user initiation
-- **Inaccessible custom controls**: Recreating native functionality poorly
-- **Missing skip links**: No way to bypass repetitive content
-- **Focus order issues**: Tab order doesn't match visual order
+- **缺少 alt 文本**：图片没有描述
+- **颜色对比度差**：文本在背景下难以阅读
+- **键盘陷阱**：焦点卡在组件中
+- **缺少标签**：表单输入没有关联标签
+- **自动播放媒体**：未经用户发起就播放的内容
+- **不可访问的自定义控件**：拙劣地重建原生功能
+- **缺少跳转链接**：无法绕过重复内容
+- **焦点顺序问题**：Tab 顺序与视觉顺序不匹配
 
-## Testing Tools
+## 测试工具
 
-- **Automated**: axe DevTools, WAVE, Lighthouse
-- **Manual**: VoiceOver (macOS/iOS), NVDA/JAWS (Windows), TalkBack (Android)
-- **Simulators**: NoCoffee (vision), Silktide (various disabilities)
+- **自动化**：axe DevTools、WAVE、Lighthouse
+- **手动**：VoiceOver（macOS/iOS）、NVDA/JAWS（Windows）、TalkBack（Android）
+- **模拟器**：NoCoffee（视力）、Silktide（各类残障）

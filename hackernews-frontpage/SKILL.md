@@ -1,6 +1,6 @@
 ---
 name: hackernews-frontpage
-description: Scrape the Hacker News front page (titles, points, comment counts).
+description: 抓取 Hacker News 首页（标题、分数、评论数）。
 host: news.ycombinator.com
 trusted: true
 source: human
@@ -13,13 +13,11 @@ triggers:
   - latest hacker news stories
 ---
 
-# Hacker News front-page scraper
+# Hacker News 首页抓取器
 
-Scrapes the Hacker News (`news.ycombinator.com`) front page and returns the
-top 30 stories as JSON. Each story has its rank, title, link URL, point count,
-and comment count.
+抓取 Hacker News（`news.ycombinator.com`）首页并返回前 30 条热门文章的 JSON 数据。每篇文章包含排名、标题、链接 URL、分数和评论数。
 
-## Usage
+## 用法
 
 ```
 $ $B skill run hackernews-frontpage
@@ -32,21 +30,15 @@ $ $B skill run hackernews-frontpage
 }
 ```
 
-## How it works
+## 工作原理
 
-1. Navigates to `https://news.ycombinator.com` via the daemon.
-2. Reads the page HTML.
-3. Parses each story row (HN's stable `tr.athing` structure) into a typed
-   `Story` record.
-4. Emits a single JSON document on stdout.
+1. 通过守护进程导航到 `https://news.ycombinator.com`。
+2. 读取页面 HTML。
+3. 将每篇文章行（HN 稳定的 `tr.athing` 结构）解析为类型化的 `Story` 记录。
+4. 在标准输出上输出单个 JSON 文档。
 
-## Why this is the reference skill
+## 为什么这是参考技能
 
-`hackernews-frontpage` is the smallest interesting browser-skill: no auth,
-stable HTML, deterministic output, file-fixture-friendly. Every Phase 1
-component (SDK, scoped tokens, three-tier lookup, spawn lifecycle) is
-exercised by `$B skill run hackernews-frontpage` and the bundled
-`script.test.ts`.
+`hackernews-frontpage` 是最小且有趣的浏览器技能：无需认证、HTML 结构稳定、输出确定性、文件夹具友好。每个第一阶段组件（SDK、作用域令牌、三层查找、生成生命周期）都通过 `$B skill run hackernews-frontpage` 和捆绑的 `script.test.ts` 进行测试。
 
-When the HN HTML rotates and our selectors break, the test fails against the
-captured fixture before users notice. That's the point.
+当 HTML 结构变化导致选择器失效时，测试会在用户注意到之前对捕获的夹具失败。这就是其意义所在。

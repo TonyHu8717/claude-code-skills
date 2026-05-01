@@ -1,57 +1,57 @@
 ---
 name: helm-chart-scaffolding
-description: Design, organize, and manage Helm charts for templating and packaging Kubernetes applications with reusable configurations. Use when creating Helm charts, packaging Kubernetes applications, or implementing templated deployments.
+description: 设计、组织和管理 Helm chart，用于模板化和打包 Kubernetes 应用，支持可复用配置。在创建 Helm chart、打包 Kubernetes 应用或实现模板化部署时使用。
 ---
 
-# Helm Chart Scaffolding
+# Helm Chart 脚手架
 
-Comprehensive guidance for creating, organizing, and managing Helm charts for packaging and deploying Kubernetes applications.
+创建、组织和管理 Helm chart 以打包和部署 Kubernetes 应用的综合指南。
 
-## Purpose
+## 目的
 
-This skill provides step-by-step instructions for building production-ready Helm charts, including chart structure, templating patterns, values management, and validation strategies.
+本技能提供构建生产就绪 Helm chart 的分步指南，包括 chart 结构、模板模式、值管理和验证策略。
 
-## When to Use This Skill
+## 何时使用此技能
 
-Use this skill when you need to:
+在以下情况下使用此技能：
 
-- Create new Helm charts from scratch
-- Package Kubernetes applications for distribution
-- Manage multi-environment deployments with Helm
-- Implement templating for reusable Kubernetes manifests
-- Set up Helm chart repositories
-- Follow Helm best practices and conventions
+- 从零创建新的 Helm chart
+- 打包 Kubernetes 应用以进行分发
+- 使用 Helm 管理多环境部署
+- 为可复用的 Kubernetes 清单实现模板化
+- 设置 Helm chart 仓库
+- 遵循 Helm 最佳实践和约定
 
-## Helm Overview
+## Helm 概述
 
-**Helm** is the package manager for Kubernetes that:
+**Helm** 是 Kubernetes 的包管理器，它可以：
 
-- Templates Kubernetes manifests for reusability
-- Manages application releases and rollbacks
-- Handles dependencies between charts
-- Provides version control for deployments
-- Simplifies configuration management across environments
+- 为 Kubernetes 清单提供模板化以实现复用
+- 管理应用发布和回滚
+- 处理 chart 之间的依赖
+- 为部署提供版本控制
+- 简化跨环境的配置管理
 
-## Step-by-Step Workflow
+## 分步工作流
 
-### 1. Initialize Chart Structure
+### 1. 初始化 Chart 结构
 
-**Create new chart:**
+**创建新 chart：**
 
 ```bash
 helm create my-app
 ```
 
-**Standard chart structure:**
+**标准 chart 结构：**
 
 ```
 my-app/
-├── Chart.yaml           # Chart metadata
-├── values.yaml          # Default configuration values
-├── charts/              # Chart dependencies
-├── templates/           # Kubernetes manifest templates
-│   ├── NOTES.txt       # Post-install notes
-│   ├── _helpers.tpl    # Template helpers
+├── Chart.yaml           # Chart 元数据
+├── values.yaml          # 默认配置值
+├── charts/              # Chart 依赖
+├── templates/           # Kubernetes 清单模板
+│   ├── NOTES.txt       # 安装后说明
+│   ├── _helpers.tpl    # 模板辅助函数
 │   ├── deployment.yaml
 │   ├── service.yaml
 │   ├── ingress.yaml
@@ -59,44 +59,44 @@ my-app/
 │   ├── hpa.yaml
 │   └── tests/
 │       └── test-connection.yaml
-└── .helmignore         # Files to ignore
+└── .helmignore         # 忽略的文件
 ```
 
-### 2. Configure Chart.yaml
+### 2. 配置 Chart.yaml
 
-**Chart metadata defines the package:**
+**Chart 元数据定义包：**
 
 ```yaml
 apiVersion: v2
 name: my-app
 description: A Helm chart for My Application
 type: application
-version: 1.0.0 # Chart version
-appVersion: "2.1.0" # Application version
+version: 1.0.0 # Chart 版本
+appVersion: "2.1.0" # 应用版本
 
-# Keywords for chart discovery
+# 用于 chart 发现的关键词
 keywords:
   - web
   - api
   - backend
 
-# Maintainer information
+# 维护者信息
 maintainers:
   - name: DevOps Team
     email: devops@example.com
     url: https://github.com/example/my-app
 
-# Source code repository
+# 源代码仓库
 sources:
   - https://github.com/example/my-app
 
-# Homepage
+# 主页
 home: https://example.com
 
-# Chart icon
+# Chart 图标
 icon: https://example.com/icon.png
 
-# Dependencies
+# 依赖
 dependencies:
   - name: postgresql
     version: "12.0.0"
@@ -108,29 +108,29 @@ dependencies:
     condition: redis.enabled
 ```
 
-**Reference:** See `assets/Chart.yaml.template` for complete example
+**参考：** 完整示例见 `assets/Chart.yaml.template`
 
-### 3. Design values.yaml Structure
+### 3. 设计 values.yaml 结构
 
-**Organize values hierarchically:**
+**层级组织值：**
 
 ```yaml
-# Image configuration
+# 镜像配置
 image:
   repository: myapp
   tag: "1.0.0"
   pullPolicy: IfNotPresent
 
-# Number of replicas
+# 副本数
 replicaCount: 3
 
-# Service configuration
+# 服务配置
 service:
   type: ClusterIP
   port: 80
   targetPort: 8080
 
-# Ingress configuration
+# Ingress 配置
 ingress:
   enabled: false
   className: nginx
@@ -140,7 +140,7 @@ ingress:
         - path: /
           pathType: Prefix
 
-# Resources
+# 资源
 resources:
   requests:
     memory: "256Mi"
@@ -149,24 +149,24 @@ resources:
     memory: "512Mi"
     cpu: "500m"
 
-# Autoscaling
+# 自动扩缩
 autoscaling:
   enabled: false
   minReplicas: 2
   maxReplicas: 10
   targetCPUUtilizationPercentage: 80
 
-# Environment variables
+# 环境变量
 env:
   - name: LOG_LEVEL
     value: "info"
 
-# ConfigMap data
+# ConfigMap 数据
 configMap:
   data:
     APP_MODE: production
 
-# Dependencies
+# 依赖
 postgresql:
   enabled: true
   auth:
@@ -177,13 +177,13 @@ redis:
   enabled: false
 ```
 
-**Reference:** See `assets/values.yaml.template` for complete structure
+**参考：** 完整结构见 `assets/values.yaml.template`
 
-### 4. Create Template Files
+### 4. 创建模板文件
 
-**Use Go templating with Helm functions:**
+**使用 Go 模板和 Helm 函数：**
 
-**templates/deployment.yaml:**
+**templates/deployment.yaml：**
 
 ```yaml
 apiVersion: apps/v1
@@ -217,20 +217,20 @@ spec:
           {{- toYaml .Values.env | nindent 12 }}
 ```
 
-### 5. Create Template Helpers
+### 5. 创建模板辅助函数
 
-**templates/\_helpers.tpl:**
+**templates/\_helpers.tpl：**
 
 ```yaml
 {{/*
-Expand the name of the chart.
+展开 chart 名称。
 */}}
 {{- define "my-app.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
-Create a default fully qualified app name.
+创建默认的完整应用名称。
 */}}
 {{- define "my-app.fullname" -}}
 {{- if .Values.fullnameOverride }}
@@ -246,7 +246,7 @@ Create a default fully qualified app name.
 {{- end }}
 
 {{/*
-Common labels
+通用标签
 */}}
 {{- define "my-app.labels" -}}
 helm.sh/chart: {{ include "my-app.chart" . }}
@@ -258,7 +258,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
-Selector labels
+选择器标签
 */}}
 {{- define "my-app.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "my-app.name" . }}
@@ -266,9 +266,9 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 ```
 
-### 6. Manage Dependencies
+### 6. 管理依赖
 
-**Add dependencies in Chart.yaml:**
+**在 Chart.yaml 中添加依赖：**
 
 ```yaml
 dependencies:
@@ -278,14 +278,14 @@ dependencies:
     condition: postgresql.enabled
 ```
 
-**Update dependencies:**
+**更新依赖：**
 
 ```bash
 helm dependency update
 helm dependency build
 ```
 
-**Override dependency values:**
+**覆盖依赖值：**
 
 ```yaml
 # values.yaml
@@ -301,28 +301,28 @@ postgresql:
       size: 10Gi
 ```
 
-### 7. Test and Validate
+### 7. 测试和验证
 
-**Validation commands:**
+**验证命令：**
 
 ```bash
-# Lint the chart
+# 检查 chart
 helm lint my-app/
 
-# Dry-run installation
+# 试运行安装
 helm install my-app ./my-app --dry-run --debug
 
-# Template rendering
+# 模板渲染
 helm template my-app ./my-app
 
-# Template with values
+# 使用值文件渲染模板
 helm template my-app ./my-app -f values-prod.yaml
 
-# Show computed values
+# 显示计算后的值
 helm show values ./my-app
 ```
 
-**Validation script:**
+**验证脚本：**
 
 ```bash
 #!/bin/bash
@@ -340,29 +340,29 @@ helm template test-release . --validate
 echo "All validations passed!"
 ```
 
-**Reference:** See `scripts/validate-chart.sh`
+**参考：** 见 `scripts/validate-chart.sh`
 
-### 8. Package and Distribute
+### 8. 打包和分发
 
-**Package the chart:**
+**打包 chart：**
 
 ```bash
 helm package my-app/
-# Creates: my-app-1.0.0.tgz
+# 创建：my-app-1.0.0.tgz
 ```
 
-**Create chart repository:**
+**创建 chart 仓库：**
 
 ```bash
-# Create index
+# 创建索引
 helm repo index .
 
-# Upload to repository
-# AWS S3 example
+# 上传到仓库
+# AWS S3 示例
 aws s3 sync . s3://my-helm-charts/ --exclude "*" --include "*.tgz" --include "index.yaml"
 ```
 
-**Use the chart:**
+**使用 chart：**
 
 ```bash
 helm repo add my-repo https://charts.example.com
@@ -370,19 +370,19 @@ helm repo update
 helm install my-app my-repo/my-app
 ```
 
-### 9. Multi-Environment Configuration
+### 9. 多环境配置
 
-**Environment-specific values files:**
+**环境特定的值文件：**
 
 ```
 my-app/
-├── values.yaml          # Defaults
-├── values-dev.yaml      # Development
-├── values-staging.yaml  # Staging
-└── values-prod.yaml     # Production
+├── values.yaml          # 默认值
+├── values-dev.yaml      # 开发环境
+├── values-staging.yaml  # 预发布环境
+└── values-prod.yaml     # 生产环境
 ```
 
-**values-prod.yaml:**
+**values-prod.yaml：**
 
 ```yaml
 replicaCount: 5
@@ -418,15 +418,15 @@ postgresql:
       size: 100Gi
 ```
 
-**Install with environment:**
+**使用环境安装：**
 
 ```bash
 helm install my-app ./my-app -f values-prod.yaml --namespace production
 ```
 
-### 10. Implement Hooks and Tests
+### 10. 实现钩子和测试
 
-**Pre-install hook:**
+**安装前钩子：**
 
 ```yaml
 # templates/pre-install-job.yaml
@@ -448,7 +448,7 @@ spec:
       restartPolicy: Never
 ```
 
-**Test connection:**
+**连接测试：**
 
 ```yaml
 # templates/tests/test-connection.yaml
@@ -467,15 +467,15 @@ spec:
   restartPolicy: Never
 ```
 
-**Run tests:**
+**运行测试：**
 
 ```bash
 helm test my-app
 ```
 
-## Common Patterns
+## 常见模式
 
-### Pattern 1: Conditional Resources
+### 模式 1：条件资源
 
 ```yaml
 {{- if .Values.ingress.enabled }}
@@ -488,7 +488,7 @@ spec:
 {{- end }}
 ```
 
-### Pattern 2: Iterating Over Lists
+### 模式 2：遍历列表
 
 ```yaml
 env:
@@ -498,7 +498,7 @@ env:
 {{- end }}
 ```
 
-### Pattern 3: Including Files
+### 模式 3：包含文件
 
 ```yaml
 data:
@@ -506,7 +506,7 @@ data:
     {{- .Files.Get "config/application.yaml" | nindent 4 }}
 ```
 
-### Pattern 4: Global Values
+### 模式 4：全局值
 
 ```yaml
 global:
@@ -514,39 +514,39 @@ global:
   imagePullSecrets:
     - name: regcred
 
-# Use in templates:
+# 在模板中使用：
 image: {{ .Values.global.imageRegistry }}/{{ .Values.image.repository }}
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Use semantic versioning** for chart and app versions
-2. **Document all values** in values.yaml with comments
-3. **Use template helpers** for repeated logic
-4. **Validate charts** before packaging
-5. **Pin dependency versions** explicitly
-6. **Use conditions** for optional resources
-7. **Follow naming conventions** (lowercase, hyphens)
-8. **Include NOTES.txt** with usage instructions
-9. **Add labels** consistently using helpers
-10. **Test installations** in all environments
+1. **使用语义化版本** 为 chart 和应用版本
+2. **记录所有值** 在 values.yaml 中添加注释
+3. **使用模板辅助函数** 处理重复逻辑
+4. **打包前验证 chart**
+5. **明确固定依赖版本**
+6. **使用条件** 处理可选资源
+7. **遵循命名约定**（小写、连字符）
+8. **包含 NOTES.txt** 提供使用说明
+9. **使用辅助函数一致地添加标签**
+10. **在所有环境中测试安装**
 
-## Troubleshooting
+## 故障排除
 
-**Template rendering errors:**
+**模板渲染错误：**
 
 ```bash
 helm template my-app ./my-app --debug
 ```
 
-**Dependency issues:**
+**依赖问题：**
 
 ```bash
 helm dependency update
 helm dependency list
 ```
 
-**Installation failures:**
+**安装失败：**
 
 ```bash
 helm install my-app ./my-app --dry-run --debug
@@ -554,7 +554,7 @@ kubectl get events --sort-by='.lastTimestamp'
 ```
 
 
-## Related Skills
+## 相关技能
 
-- `k8s-manifest-generator` - For creating base Kubernetes manifests
-- `gitops-workflow` - For automated Helm chart deployments
+- `k8s-manifest-generator` - 用于创建基础 Kubernetes 清单
+- `gitops-workflow` - 用于自动化 Helm chart 部署

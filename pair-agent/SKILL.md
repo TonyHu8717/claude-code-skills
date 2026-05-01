@@ -2,13 +2,12 @@
 name: pair-agent
 version: 0.1.0
 description: |
-  Pair a remote AI agent with your browser. One command generates a setup key and
-  prints instructions the other agent can follow to connect. Works with OpenClaw,
-  Hermes, Codex, Cursor, or any agent that can make HTTP requests. The remote agent
-  gets its own tab with scoped access (read+write by default, admin on request).
-  Use when asked to "pair agent", "connect agent", "share browser", "remote browser",
-  "let another agent use my browser", or "give browser access". (gstack)
-  Voice triggers (speech-to-text aliases): "pair agent", "connect agent", "share my browser", "remote browser access".
+  将远程 AI 代理与你的浏览器配对。一条命令生成设置密钥并打印另一代理可遵循的连接指令。
+  支持 OpenClaw、Hermes、Codex、Cursor 或任何能发起 HTTP 请求的代理。远程代理获得自己的标签页，
+  具有范围访问权限（默认读写，可请求管理员权限）。
+  当用户要求"配对代理"、"连接代理"、"共享浏览器"、"远程浏览器"、"让另一个代理使用我的浏览器"
+  或"给予浏览器访问权限"时使用。(gstack)
+  语音触发词（语音转文字别名）："pair agent"、"connect agent"、"share my browser"、"remote browser access"。
 triggers:
   - pair with agent
   - connect remote agent
@@ -679,30 +678,28 @@ In plan mode before ExitPlanMode: if the plan file lacks `## GSTACK REVIEW REPOR
 
 PLAN MODE EXCEPTION — always allowed (it's the plan file).
 
-# /pair-agent — Share Your Browser With Another AI Agent
+# /pair-agent — 与另一个 AI 代理共享你的浏览器
 
-You're sitting in Claude Code with a browser running. You also have another AI agent
-open (OpenClaw, Hermes, Codex, Cursor, whatever). You want that other agent to be
-able to browse the web using YOUR browser. This skill makes that happen.
+你在 Claude Code 中运行着一个浏览器。你还有另一个 AI 代理打开着
+（OpenClaw、Hermes、Codex、Cursor，随便什么）。你想让那个代理能够
+使用你的浏览器浏览网页。此技能让它实现。
 
-## How it works
+## 工作原理
 
-Your gstack browser runs a local HTTP server. This skill creates a one-time setup key,
-prints a block of instructions, and you paste those instructions into the other agent.
-The other agent exchanges the key for a session token, creates its own tab, and starts
-browsing. Each agent gets its own tab. They can't mess with each other's tabs.
+你的 gstack 浏览器运行一个本地 HTTP 服务器。此技能创建一个一次性设置密钥，
+打印一段指令块，你将这些指令粘贴到另一个代理中。代理用密钥换取会话令牌，
+创建自己的标签页，开始浏览。每个代理获得自己的标签页。它们不能干扰彼此的标签页。
 
-The setup key expires in 5 minutes and can only be used once. If it leaks, it's dead
-before anyone can abuse it. The session token lasts 24 hours.
+设置密钥在 5 分钟后过期，只能使用一次。如果泄露，在任何人滥用之前就已失效。
+会话令牌持续 24 小时。
 
-**Same machine:** If the other agent is on the same machine (like OpenClaw running
-locally), you can skip the copy-paste ceremony and write the credentials directly to
-the agent's config directory.
+**同一台机器：** 如果另一个代理在同一台机器上（如本地运行的 OpenClaw），
+你可以跳过复制粘贴仪式，直接将凭据写入代理的配置目录。
 
-**Remote:** If the other agent is on a different machine, you need an ngrok tunnel.
-The skill will tell you if one is needed and how to set it up.
+**远程：** 如果另一个代理在不同的机器上，你需要 ngrok 隧道。
+技能会告诉你是否需要以及如何设置。
 
-## SETUP (run this check BEFORE any browse command)
+## 设置（在任何浏览命令之前运行此检查）
 
 ```bash
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
@@ -716,10 +713,10 @@ else
 fi
 ```
 
-If `NEEDS_SETUP`:
-1. Tell the user: "gstack browse needs a one-time build (~10 seconds). OK to proceed?" Then STOP and wait.
-2. Run: `cd <SKILL_DIR> && ./setup`
-3. If `bun` is not installed:
+如果 `NEEDS_SETUP`：
+1. 告诉用户："gstack browse 需要一次性构建（约 10 秒）。可以继续吗？"然后停止并等待。
+2. 运行：`cd <SKILL_DIR> && ./setup`
+3. 如果 `bun` 未安装：
    ```bash
    if ! command -v bun >/dev/null 2>&1; then
      BUN_VERSION="1.3.10"
@@ -738,26 +735,25 @@ If `NEEDS_SETUP`:
    fi
    ```
 
-## Step 1: Check prerequisites
+## 步骤 1：检查前置条件
 
 ```bash
 $B status 2>/dev/null
 ```
 
-If the browse server is not running, start it:
+如果浏览服务器未运行，启动它：
 
 ```bash
 $B goto about:blank
 ```
 
-This ensures the server is up and healthy before pairing.
+这确保服务器在配对之前已启动且健康。
 
-## Step 2: Ask what they want
+## 步骤 2：询问他们想要什么
 
-Use AskUserQuestion:
+使用 AskUserQuestion：
 
-> Which agent do you want to pair with your browser? This determines the
-> instructions format and where credentials get written.
+> 你想将哪个代理与你的浏览器配对？这决定了指令格式和凭据写入位置。
 
 Options:
 - A) OpenClaw (local or remote)
@@ -773,27 +769,26 @@ Based on the answer, set `TARGET_HOST`:
 - D → `claude`
 - E → generic (no host-specific config)
 
-## Step 3: Local or remote?
+## 步骤 3：本地还是远程？
 
-Use AskUserQuestion:
+使用 AskUserQuestion：
 
-> Is the other agent running on this same machine, or on a different machine/server?
+> 另一个代理是在同一台机器上运行，还是在不同的机器/服务器上？
 >
-> **Same machine** skips the copy-paste ceremony. Credentials are written directly to
-> the agent's config directory. No tunnel needed.
+> **同一台机器** 跳过复制粘贴仪式。凭据直接写入代理的配置目录。无需隧道。
 >
-> **Different machine** generates a setup key and instruction block. If ngrok is
-> installed, the tunnel starts automatically. If not, I'll walk you through setup.
+> **不同机器** 生成设置密钥和指令块。如果 ngrok 已安装，隧道自动启动。
+> 如果没有，我会引导你完成设置。
 >
-> RECOMMENDATION: Choose A if the agent is local. It's instant, no copy-paste needed.
+> 推荐：如果代理是本地的，选择 A。即时完成，无需复制粘贴。
 
 Options:
 - A) Same machine (write credentials directly)
 - B) Different machine (generate instruction block for copy-paste)
 
-## Step 4: Execute pairing
+## 步骤 4：执行配对
 
-### If same machine (option A):
+### 如果同一台机器（选项 A）：
 
 Run pair-agent with --local flag:
 
@@ -810,145 +805,140 @@ config file that was written. Try asking it to navigate to a URL."
 If it fails (host not found, write permission error), show the error and suggest
 using the generic remote flow instead.
 
-### If different machine (option B):
+### 如果不同机器（选项 B）：
 
-First, detect ngrok status:
+首先，检测 ngrok 状态：
 
 ```bash
 which ngrok 2>/dev/null && echo "NGROK_INSTALLED" || echo "NGROK_NOT_INSTALLED"
 ngrok config check 2>/dev/null && echo "NGROK_AUTHED" || echo "NGROK_NOT_AUTHED"
 ```
 
-**If ngrok is installed and authed:** Just run the command. The CLI will auto-detect
-ngrok, start the tunnel, and print the instruction block with the tunnel URL:
+**如果 ngrok 已安装且已认证：** 直接运行命令。CLI 会自动检测
+ngrok，启动隧道，并打印带有隧道 URL 的指令块：
 
 ```bash
 $B pair-agent --client TARGET_HOST
 ```
 
-If the user also needs admin access (JS execution, cookies, storage):
+如果用户还需要管理员访问权限（JS 执行、cookie、存储）：
 
 ```bash
 $B pair-agent --admin --client TARGET_HOST
 ```
 
-**CRITICAL: You MUST output the full instruction block to the user.** The command
-prints everything between ═══ lines. Copy the ENTIRE block verbatim into your
-response so the user can copy-paste it into their other agent. Do NOT summarize it,
-do NOT skip it, do NOT just say "here's the output." The user needs to SEE the block
-to copy it. Output it inside a markdown code block so it's easy to select and copy.
+**关键：你必须向用户输出完整的指令块。** 命令
+打印 ═══ 行之间的所有内容。将整个块原样复制到你的
+回复中，以便用户可以复制粘贴到他们的其他代理中。不要总结它，
+不要跳过它，不要只说"这是输出"。用户需要看到块
+才能复制它。在 markdown 代码块中输出它，以便于选择和复制。
 
-Then tell the user:
-"Copy the block above and paste it into your other agent's chat. The setup key
-expires in 5 minutes."
+然后告诉用户：
+"复制上面的块并粘贴到你的其他代理的聊天中。设置密钥
+在 5 分钟内过期。"
 
-**If ngrok is installed but NOT authed:** Walk the user through authentication:
+**如果 ngrok 已安装但未认证：** 引导用户完成认证：
 
-Tell the user:
-"ngrok is installed but not logged in. Let's fix that:
+告诉用户：
+"ngrok 已安装但未登录。让我们修复：
 
-1. Go to https://dashboard.ngrok.com/get-started/your-authtoken
-2. Copy your auth token
-3. Come back here and I'll run the auth command for you."
+1. 前往 https://dashboard.ngrok.com/get-started/your-authtoken
+2. 复制你的认证令牌
+3. 回到这里，我会为你运行认证命令。"
 
-STOP here and wait for the user to provide their auth token.
+在此停止，等待用户提供他们的认证令牌。
 
-When they provide it, run:
+当他们提供时，运行：
 ```bash
 ngrok config add-authtoken THEIR_TOKEN
 ```
 
-Then retry `$B pair-agent --client TARGET_HOST`.
+然后重试 `$B pair-agent --client TARGET_HOST`。
 
-**If ngrok is NOT installed:** Walk the user through installation:
+**如果 ngrok 未安装：** 引导用户完成安装：
 
-Tell the user:
-"To connect a remote agent, we need ngrok (a tunnel that exposes your local
-browser to the internet securely).
+告诉用户：
+"要连接远程代理，我们需要 ngrok（一个将你的本地
+浏览器安全暴露到互联网的隧道）。
 
-1. Go to https://ngrok.com and sign up (free tier works)
-2. Install ngrok:
-   - macOS: `brew install ngrok`
-   - Linux: `snap install ngrok` or download from ngrok.com/download
-3. Auth it: `ngrok config add-authtoken YOUR_TOKEN`
-   (get your token from https://dashboard.ngrok.com/get-started/your-authtoken)
-4. Come back here and run `/pair-agent` again."
+1. 前往 https://ngrok.com 注册（免费层即可）
+2. 安装 ngrok：
+   - macOS：`brew install ngrok`
+   - Linux：`snap install ngrok` 或从 ngrok.com/download 下载
+3. 认证：`ngrok config add-authtoken YOUR_TOKEN`
+   （从 https://dashboard.ngrok.com/get-started/your-authtoken 获取你的令牌）
+4. 回到这里再次运行 `/pair-agent`。"
 
-STOP here. Wait for the user to install ngrok and re-invoke.
+在此停止。等待用户安装 ngrok 并重新调用。
 
-## Step 5: Verify connection
+## 步骤 5：验证连接
 
-After the user pastes the instructions into the other agent, wait a moment then check:
+用户将指令粘贴到其他代理后，稍等片刻然后检查：
 
 ```bash
 $B status
 ```
 
-Look for the connected agent in the status output. If it appears, tell the user:
-"The remote agent is connected and has its own tab. You'll see its activity in the
-side panel if you have GStack Browser open."
+在状态输出中查找已连接的代理。如果出现，告诉用户：
+"远程代理已连接并有自己的标签页。如果你打开了 GStack Browser，你会在
+侧面板中看到它的活动。"
 
-## What the remote agent can do
+## 远程代理能做什么
 
-With default (read+write) access:
-- Navigate to URLs, click elements, fill forms, take screenshots
-- Read page content (text, HTML, snapshot)
-- Create new tabs (each agent gets its own)
-- Cannot execute arbitrary JavaScript, read cookies, or access storage
+默认（读+写）访问权限下：
+- 导航到 URL，点击元素，填写表单，截取屏幕截图
+- 读取页面内容（文本、HTML、快照）
+- 创建新标签页（每个代理有自己的标签页）
+- 无法执行任意 JavaScript、读取 cookie 或访问存储
 
-With admin access (--admin flag):
-- Everything above, plus JS execution, cookie access, storage access
-- Use sparingly. Only for agents you fully trust.
+管理员访问权限（--admin 标志）下：
+- 以上所有，加上 JS 执行、cookie 访问、存储访问
+- 谨慎使用。仅用于你完全信任的代理。
 
-## Troubleshooting
+## 故障排除
 
-**"Tab not owned by your agent"** — The remote agent tried to interact with a tab
-it didn't create. Tell it to run `newtab` first to get its own tab.
+**"Tab not owned by your agent"** — 远程代理尝试与它未创建的标签页交互。告诉它先运行 `newtab` 获取自己的标签页。
 
-**"Domain not allowed"** — The token has domain restrictions. Re-pair with broader
-domain access or no domain restrictions.
+**"Domain not allowed"** — 令牌有域限制。使用更广泛的域访问或无域限制重新配对。
 
-**"Rate limit exceeded"** — The agent is sending > 10 requests/second. It should
-wait for the Retry-After header and slow down.
+**"Rate limit exceeded"** — 代理发送 > 10 请求/秒。它应该等待 Retry-After 头并减速。
 
-**"Token expired"** — The 24-hour session expired. Run `/pair-agent` again to
-generate a new setup key.
+**"Token expired"** — 24 小时会话已过期。再次运行 `/pair-agent` 生成新的设置密钥。
 
-**Agent can't reach the server** — If remote, check the ngrok tunnel is running
-(`$B status`). If local, check the browse server is running.
+**代理无法访问服务器** — 如果是远程的，检查 ngrok 隧道是否正在运行（`$B status`）。如果是本地的，检查浏览服务器是否正在运行。
 
-## Platform-specific notes
+## 平台特定说明
 
 ### OpenClaw / AlphaClaw
 
-OpenClaw agents use the `exec` tool instead of `Bash`. The instruction block uses
-`exec curl` syntax which OpenClaw understands natively. When using `--local openclaw`,
-credentials are written to `~/.openclaw/skills/gstack/browse-remote.json`.
+OpenClaw 代理使用 `exec` 工具而不是 `Bash`。指令块使用
+OpenClaw 原生理解的 `exec curl` 语法。使用 `--local openclaw` 时，
+凭据写入 `~/.openclaw/skills/gstack/browse-remote.json`。
 
 
 ### Codex
 
-Codex agents can execute shell commands via `codex exec`. The instruction block's
-curl commands work directly. When using `--local codex`, credentials are written
-to `~/.codex/skills/gstack/browse-remote.json`.
+Codex 代理可以通过 `codex exec` 执行 shell 命令。指令块的
+curl 命令直接工作。使用 `--local codex` 时，凭据写入
+`~/.codex/skills/gstack/browse-remote.json`。
 
 ### Cursor
 
-Cursor's AI can run terminal commands. The instruction block works as-is.
-When using `--local cursor`, credentials are written to
-`~/.cursor/skills/gstack/browse-remote.json`.
+Cursor 的 AI 可以运行终端命令。指令块按原样工作。
+使用 `--local cursor` 时，凭据写入
+`~/.cursor/skills/gstack/browse-remote.json`。
 
-## Revoking access
+## 撤销访问
 
-To disconnect a specific agent:
+断开特定代理：
 
 ```bash
 $B tunnel revoke AGENT_NAME
 ```
 
-To disconnect all agents and rotate the root token:
+断开所有代理并轮换根令牌：
 
 ```bash
-# This invalidates ALL scoped tokens immediately
+# 这会立即使所有作用域令牌失效
 $B tunnel rotate
 ```

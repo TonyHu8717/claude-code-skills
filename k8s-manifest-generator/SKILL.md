@@ -1,56 +1,56 @@
 ---
 name: k8s-manifest-generator
-description: Create production-ready Kubernetes manifests for Deployments, Services, ConfigMaps, and Secrets following best practices and security standards. Use when generating Kubernetes YAML manifests, creating K8s resources, or implementing production-grade Kubernetes configurations.
+description: 创建生产就绪的 Kubernetes 清单，包括 Deployment、Service、ConfigMap 和 Secret，遵循最佳实践和安全标准。在生成 Kubernetes YAML 清单、创建 K8s 资源或实现生产级 Kubernetes 配置时使用。
 ---
 
-# Kubernetes Manifest Generator
+# Kubernetes 清单生成器
 
-Step-by-step guidance for creating production-ready Kubernetes manifests including Deployments, Services, ConfigMaps, Secrets, and PersistentVolumeClaims.
+创建生产就绪 Kubernetes 清单的分步指南，包括 Deployment、Service、ConfigMap、Secret 和 PersistentVolumeClaim。
 
-## Purpose
+## 目的
 
-This skill provides comprehensive guidance for generating well-structured, secure, and production-ready Kubernetes manifests following cloud-native best practices and Kubernetes conventions.
+本技能提供生成结构良好、安全且生产就绪的 Kubernetes 清单的综合指南，遵循云原生最佳实践和 Kubernetes 约定。
 
-## When to Use This Skill
+## 何时使用此技能
 
-Use this skill when you need to:
+在以下情况下使用此技能：
 
-- Create new Kubernetes Deployment manifests
-- Define Service resources for network connectivity
-- Generate ConfigMap and Secret resources for configuration management
-- Create PersistentVolumeClaim manifests for stateful workloads
-- Follow Kubernetes best practices and naming conventions
-- Implement resource limits, health checks, and security contexts
-- Design manifests for multi-environment deployments
+- 创建新的 Kubernetes Deployment 清单
+- 定义 Service 资源以实现网络连接
+- 生成 ConfigMap 和 Secret 资源以进行配置管理
+- 为有状态工作负载创建 PersistentVolumeClaim 清单
+- 遵循 Kubernetes 最佳实践和命名约定
+- 实现资源限制、健康检查和安全上下文
+- 设计多环境部署的清单
 
-## Step-by-Step Workflow
+## 分步工作流
 
-### 1. Gather Requirements
+### 1. 收集需求
 
-**Understand the workload:**
+**了解工作负载：**
 
-- Application type (stateless/stateful)
-- Container image and version
-- Environment variables and configuration needs
-- Storage requirements
-- Network exposure requirements (internal/external)
-- Resource requirements (CPU, memory)
-- Scaling requirements
-- Health check endpoints
+- 应用类型（无状态/有状态）
+- 容器镜像和版本
+- 环境变量和配置需求
+- 存储需求
+- 网络暴露需求（内部/外部）
+- 资源需求（CPU、内存）
+- 扩缩需求
+- 健康检查端点
 
-**Questions to ask:**
+**需要询问的问题：**
 
-- What is the application name and purpose?
-- What container image and tag will be used?
-- Does the application need persistent storage?
-- What ports does the application expose?
-- Are there any secrets or configuration files needed?
-- What are the CPU and memory requirements?
-- Does the application need to be exposed externally?
+- 应用名称和用途是什么？
+- 使用什么容器镜像和标签？
+- 应用是否需要持久存储？
+- 应用暴露哪些端口？
+- 是否需要任何密钥或配置文件？
+- CPU 和内存需求是什么？
+- 应用是否需要对外暴露？
 
-### 2. Create Deployment Manifest
+### 2. 创建 Deployment 清单
 
-**Follow this structure:**
+**遵循此结构：**
 
 ```yaml
 apiVersion: apps/v1
@@ -107,22 +107,22 @@ spec:
                 name: <app-name>-secret
 ```
 
-**Best practices to apply:**
+**应用的最佳实践：**
 
-- Always set resource requests and limits
-- Implement both liveness and readiness probes
-- Use specific image tags (never `:latest`)
-- Apply security context for non-root users
-- Use labels for organization and selection
-- Set appropriate replica count based on availability needs
+- 始终设置资源请求和限制
+- 实现存活和就绪探针
+- 使用特定的镜像标签（绝不使用 `:latest`）
+- 为非 root 用户应用安全上下文
+- 使用标签进行组织和选择
+- 根据可用性需求设置适当的副本数
 
-**Reference:** See `references/deployment-spec.md` for detailed deployment options
+**参考：** 详细部署选项见 `references/deployment-spec.md`
 
-### 3. Create Service Manifest
+### 3. 创建 Service 清单
 
-**Choose the appropriate Service type:**
+**选择适当的 Service 类型：**
 
-**ClusterIP (internal only):**
+**ClusterIP（仅内部）：**
 
 ```yaml
 apiVersion: v1
@@ -143,7 +143,7 @@ spec:
       protocol: TCP
 ```
 
-**LoadBalancer (external access):**
+**LoadBalancer（外部访问）：**
 
 ```yaml
 apiVersion: v1
@@ -166,11 +166,11 @@ spec:
       protocol: TCP
 ```
 
-**Reference:** See `references/service-spec.md` for service types and networking
+**参考：** Service 类型和网络详情见 `references/service-spec.md`
 
-### 4. Create ConfigMap
+### 4. 创建 ConfigMap
 
-**For application configuration:**
+**用于应用配置：**
 
 ```yaml
 apiVersion: v1
@@ -182,26 +182,26 @@ data:
   APP_MODE: production
   LOG_LEVEL: info
   DATABASE_HOST: db.example.com
-  # For config files
+  # 用于配置文件
   app.properties: |
     server.port=8080
     server.host=0.0.0.0
     logging.level=INFO
 ```
 
-**Best practices:**
+**最佳实践：**
 
-- Use ConfigMaps for non-sensitive data only
-- Organize related configuration together
-- Use meaningful names for keys
-- Consider using one ConfigMap per component
-- Version ConfigMaps when making changes
+- 仅对非敏感数据使用 ConfigMap
+- 将相关配置组织在一起
+- 使用有意义的键名
+- 考虑每个组件使用一个 ConfigMap
+- 更改时对 ConfigMap 进行版本控制
 
-**Reference:** See `assets/configmap-template.yaml` for examples
+**参考：** 示例见 `assets/configmap-template.yaml`
 
-### 5. Create Secret
+### 5. 创建 Secret
 
-**For sensitive data:**
+**用于敏感数据：**
 
 ```yaml
 apiVersion: v1
@@ -213,7 +213,7 @@ type: Opaque
 stringData:
   DATABASE_PASSWORD: "changeme"
   API_KEY: "secret-api-key"
-  # For certificate files
+  # 用于证书文件
   tls.crt: |
     -----BEGIN CERTIFICATE-----
     ...
@@ -224,17 +224,17 @@ stringData:
     -----END PRIVATE KEY-----
 ```
 
-**Security considerations:**
+**安全考虑：**
 
-- Never commit secrets to Git in plain text
-- Use Sealed Secrets, External Secrets Operator, or Vault
-- Rotate secrets regularly
-- Use RBAC to limit secret access
-- Consider using Secret type: `kubernetes.io/tls` for TLS secrets
+- 绝不将密钥以明文提交到 Git
+- 使用 Sealed Secrets、External Secrets Operator 或 Vault
+- 定期轮换密钥
+- 使用 RBAC 限制密钥访问
+- 考虑对 TLS 密钥使用 Secret 类型：`kubernetes.io/tls`
 
-### 6. Create PersistentVolumeClaim (if needed)
+### 6. 创建 PersistentVolumeClaim（如需要）
 
-**For stateful applications:**
+**用于有状态应用：**
 
 ```yaml
 apiVersion: v1
@@ -251,7 +251,7 @@ spec:
       storage: 10Gi
 ```
 
-**Mount in Deployment:**
+**在 Deployment 中挂载：**
 
 ```yaml
 spec:
@@ -268,17 +268,17 @@ spec:
             claimName: <app-name>-data
 ```
 
-**Storage considerations:**
+**存储考虑：**
 
-- Choose appropriate StorageClass for performance needs
-- Use ReadWriteOnce for single-pod access
-- Use ReadWriteMany for multi-pod shared storage
-- Consider backup strategies
-- Set appropriate retention policies
+- 根据性能需求选择适当的 StorageClass
+- 对单 Pod 访问使用 ReadWriteOnce
+- 对多 Pod 共享存储使用 ReadWriteMany
+- 考虑备份策略
+- 设置适当的保留策略
 
-### 7. Apply Security Best Practices
+### 7. 应用安全最佳实践
 
-**Add security context to Deployment:**
+**在 Deployment 中添加安全上下文：**
 
 ```yaml
 spec:
@@ -300,18 +300,18 @@ spec:
                 - ALL
 ```
 
-**Security checklist:**
+**安全清单：**
 
-- [ ] Run as non-root user
-- [ ] Drop all capabilities
-- [ ] Use read-only root filesystem
-- [ ] Disable privilege escalation
-- [ ] Set seccomp profile
-- [ ] Use Pod Security Standards
+- [ ] 以非 root 用户运行
+- [ ] 丢弃所有能力
+- [ ] 使用只读根文件系统
+- [ ] 禁用特权提升
+- [ ] 设置 seccomp 配置文件
+- [ ] 使用 Pod 安全标准
 
-### 8. Add Labels and Annotations
+### 8. 添加标签和注解
 
-**Standard labels (recommended):**
+**标准标签（推荐）：**
 
 ```yaml
 metadata:
@@ -324,7 +324,7 @@ metadata:
     app.kubernetes.io/managed-by: kubectl
 ```
 
-**Useful annotations:**
+**有用的注解：**
 
 ```yaml
 metadata:
@@ -336,11 +336,11 @@ metadata:
     prometheus.io/path: "/metrics"
 ```
 
-### 9. Organize Multi-Resource Manifests
+### 9. 组织多资源清单
 
-**File organization options:**
+**文件组织选项：**
 
-**Option 1: Single file with `---` separator**
+**选项 1：使用 `---` 分隔符的单文件**
 
 ```yaml
 # app-name.yaml
@@ -362,7 +362,7 @@ kind: Service
 ...
 ```
 
-**Option 2: Separate files**
+**选项 2：独立文件**
 
 ```
 manifests/
@@ -373,7 +373,7 @@ manifests/
 └── pvc.yaml
 ```
 
-**Option 3: Kustomize structure**
+**选项 3：Kustomize 结构**
 
 ```
 base/
@@ -388,147 +388,147 @@ overlays/
     └── kustomization.yaml
 ```
 
-### 10. Validate and Test
+### 10. 验证和测试
 
-**Validation steps:**
+**验证步骤：**
 
 ```bash
-# Dry-run validation
+# 试运行验证
 kubectl apply -f manifest.yaml --dry-run=client
 
-# Server-side validation
+# 服务端验证
 kubectl apply -f manifest.yaml --dry-run=server
 
-# Validate with kubeval
+# 使用 kubeval 验证
 kubeval manifest.yaml
 
-# Validate with kube-score
+# 使用 kube-score 验证
 kube-score score manifest.yaml
 
-# Check with kube-linter
+# 使用 kube-linter 检查
 kube-linter lint manifest.yaml
 ```
 
-**Testing checklist:**
+**测试清单：**
 
-- [ ] Manifest passes dry-run validation
-- [ ] All required fields are present
-- [ ] Resource limits are reasonable
-- [ ] Health checks are configured
-- [ ] Security context is set
-- [ ] Labels follow conventions
-- [ ] Namespace exists or is created
+- [ ] 清单通过试运行验证
+- [ ] 所有必需字段都存在
+- [ ] 资源限制合理
+- [ ] 健康检查已配置
+- [ ] 安全上下文已设置
+- [ ] 标签遵循约定
+- [ ] 命名空间存在或已创建
 
-## Common Patterns
+## 常见模式
 
-### Pattern 1: Simple Stateless Web Application
+### 模式 1：简单无状态 Web 应用
 
-**Use case:** Standard web API or microservice
+**用例：** 标准 Web API 或微服务
 
-**Components needed:**
+**所需组件：**
 
-- Deployment (3 replicas for HA)
+- Deployment（3 副本实现高可用）
 - ClusterIP Service
-- ConfigMap for configuration
-- Secret for API keys
-- HorizontalPodAutoscaler (optional)
+- ConfigMap 用于配置
+- Secret 用于 API 密钥
+- HorizontalPodAutoscaler（可选）
 
-**Reference:** See `assets/deployment-template.yaml`
+**参考：** 见 `assets/deployment-template.yaml`
 
-### Pattern 2: Stateful Database Application
+### 模式 2：有状态数据库应用
 
-**Use case:** Database or persistent storage application
+**用例：** 数据库或持久存储应用
 
-**Components needed:**
+**所需组件：**
 
-- StatefulSet (not Deployment)
+- StatefulSet（而非 Deployment）
 - Headless Service
-- PersistentVolumeClaim template
-- ConfigMap for DB configuration
-- Secret for credentials
+- PersistentVolumeClaim 模板
+- ConfigMap 用于数据库配置
+- Secret 用于凭据
 
-### Pattern 3: Background Job or Cron
+### 模式 3：后台任务或 Cron
 
-**Use case:** Scheduled tasks or batch processing
+**用例：** 定时任务或批处理
 
-**Components needed:**
+**所需组件：**
 
-- CronJob or Job
-- ConfigMap for job parameters
-- Secret for credentials
-- ServiceAccount with RBAC
+- CronJob 或 Job
+- ConfigMap 用于任务参数
+- Secret 用于凭据
+- 带 RBAC 的 ServiceAccount
 
-### Pattern 4: Multi-Container Pod
+### 模式 4：多容器 Pod
 
-**Use case:** Application with sidecar containers
+**用例：** 带边车容器的应用
 
-**Components needed:**
+**所需组件：**
 
-- Deployment with multiple containers
-- Shared volumes between containers
-- Init containers for setup
-- Service (if needed)
+- 包含多个容器的 Deployment
+- 容器间共享卷
+- 用于设置的 Init 容器
+- Service（如需要）
 
-## Templates
+## 模板
 
-The following templates are available in the `assets/` directory:
+以下模板可在 `assets/` 目录中找到：
 
-- `deployment-template.yaml` - Standard deployment with best practices
-- `service-template.yaml` - Service configurations (ClusterIP, LoadBalancer, NodePort)
-- `configmap-template.yaml` - ConfigMap examples with different data types
-- `secret-template.yaml` - Secret examples (to be generated, not committed)
-- `pvc-template.yaml` - PersistentVolumeClaim templates
+- `deployment-template.yaml` - 遵循最佳实践的标准部署
+- `service-template.yaml` - Service 配置（ClusterIP、LoadBalancer、NodePort）
+- `configmap-template.yaml` - 不同数据类型的 ConfigMap 示例
+- `secret-template.yaml` - Secret 示例（应生成，不要提交）
+- `pvc-template.yaml` - PersistentVolumeClaim 模板
 
-## Reference Documentation
+## 参考文档
 
-- `references/deployment-spec.md` - Detailed Deployment specification
-- `references/service-spec.md` - Service types and networking details
+- `references/deployment-spec.md` - 详细 Deployment 规范
+- `references/service-spec.md` - Service 类型和网络详情
 
-## Best Practices Summary
+## 最佳实践总结
 
-1. **Always set resource requests and limits** - Prevents resource starvation
-2. **Implement health checks** - Ensures Kubernetes can manage your application
-3. **Use specific image tags** - Avoid unpredictable deployments
-4. **Apply security contexts** - Run as non-root, drop capabilities
-5. **Use ConfigMaps and Secrets** - Separate config from code
-6. **Label everything** - Enables filtering and organization
-7. **Follow naming conventions** - Use standard Kubernetes labels
-8. **Validate before applying** - Use dry-run and validation tools
-9. **Version your manifests** - Keep in Git with version control
-10. **Document with annotations** - Add context for other developers
+1. **始终设置资源请求和限制** - 防止资源饥饿
+2. **实现健康检查** - 确保 Kubernetes 可以管理你的应用
+3. **使用特定的镜像标签** - 避免不可预测的部署
+4. **应用安全上下文** - 以非 root 运行，丢弃能力
+5. **使用 ConfigMap 和 Secret** - 将配置与代码分离
+6. **为所有资源添加标签** - 启用过滤和组织
+7. **遵循命名约定** - 使用标准 Kubernetes 标签
+8. **应用前验证** - 使用试运行和验证工具
+9. **对清单进行版本控制** - 保存在 Git 中进行版本管理
+10. **使用注解记录** - 为其他开发者添加上下文
 
-## Troubleshooting
+## 故障排除
 
-**Pods not starting:**
+**Pod 未启动：**
 
-- Check image pull errors: `kubectl describe pod <pod-name>`
-- Verify resource availability: `kubectl get nodes`
-- Check events: `kubectl get events --sort-by='.lastTimestamp'`
+- 检查镜像拉取错误：`kubectl describe pod <pod-name>`
+- 验证资源可用性：`kubectl get nodes`
+- 检查事件：`kubectl get events --sort-by='.lastTimestamp'`
 
-**Service not accessible:**
+**Service 无法访问：**
 
-- Verify selector matches pod labels: `kubectl get endpoints <service-name>`
-- Check service type and port configuration
-- Test from within cluster: `kubectl run debug --rm -it --image=busybox -- sh`
+- 验证选择器匹配 Pod 标签：`kubectl get endpoints <service-name>`
+- 检查 Service 类型和端口配置
+- 从集群内测试：`kubectl run debug --rm -it --image=busybox -- sh`
 
-**ConfigMap/Secret not loading:**
+**ConfigMap/Secret 未加载：**
 
-- Verify names match in Deployment
-- Check namespace
-- Ensure resources exist: `kubectl get configmap,secret`
+- 验证 Deployment 中的名称匹配
+- 检查命名空间
+- 确保资源存在：`kubectl get configmap,secret`
 
-## Next Steps
+## 后续步骤
 
-After creating manifests:
+创建清单后：
 
-1. Store in Git repository
-2. Set up CI/CD pipeline for deployment
-3. Consider using Helm or Kustomize for templating
-4. Implement GitOps with ArgoCD or Flux
-5. Add monitoring and observability
+1. 存储在 Git 仓库中
+2. 设置 CI/CD 管道进行部署
+3. 考虑使用 Helm 或 Kustomize 进行模板化
+4. 使用 ArgoCD 或 Flux 实现 GitOps
+5. 添加监控和可观测性
 
-## Related Skills
+## 相关技能
 
-- `helm-chart-scaffolding` - For templating and packaging
-- `gitops-workflow` - For automated deployments
-- `k8s-security-policies` - For advanced security configurations
+- `helm-chart-scaffolding` - 用于模板化和打包
+- `gitops-workflow` - 用于自动化部署
+- `k8s-security-policies` - 用于高级安全配置

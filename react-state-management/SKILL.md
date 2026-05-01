@@ -1,45 +1,45 @@
 ---
 name: react-state-management
-description: Master modern React state management with Redux Toolkit, Zustand, Jotai, and React Query. Use when setting up global state, managing server state, or choosing between state management solutions.
+description: 掌握现代 React 状态管理，包括 Redux Toolkit、Zustand、Jotai 和 React Query。在设置全局状态、管理服务器状态或选择状态管理方案时使用。
 ---
 
-# React State Management
+# React 状态管理
 
-Comprehensive guide to modern React state management patterns, from local component state to global stores and server state synchronization.
+现代 React 状态管理模式综合指南，涵盖从本地组件状态到全局存储和服务器状态同步。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Setting up global state management in a React app
-- Choosing between Redux Toolkit, Zustand, or Jotai
-- Managing server state with React Query or SWR
-- Implementing optimistic updates
-- Debugging state-related issues
-- Migrating from legacy Redux to modern patterns
+- 在 React 应用中设置全局状态管理
+- 在 Redux Toolkit、Zustand 或 Jotai 之间做选择
+- 使用 React Query 或 SWR 管理服务器状态
+- 实现乐观更新
+- 调试状态相关问题
+- 从旧版 Redux 迁移到现代模式
 
-## Core Concepts
+## 核心概念
 
-### 1. State Categories
+### 1. 状态分类
 
-| Type             | Description                  | Solutions                     |
+| 类型             | 描述                  | 解决方案                     |
 | ---------------- | ---------------------------- | ----------------------------- |
-| **Local State**  | Component-specific, UI state | useState, useReducer          |
-| **Global State** | Shared across components     | Redux Toolkit, Zustand, Jotai |
-| **Server State** | Remote data, caching         | React Query, SWR, RTK Query   |
-| **URL State**    | Route parameters, search     | React Router, nuqs            |
-| **Form State**   | Input values, validation     | React Hook Form, Formik       |
+| **本地状态**  | 组件特定，UI 状态 | useState, useReducer          |
+| **全局状态** | 跨组件共享     | Redux Toolkit, Zustand, Jotai |
+| **服务器状态** | 远程数据，缓存         | React Query, SWR, RTK Query   |
+| **URL 状态**    | 路由参数，搜索     | React Router, nuqs            |
+| **表单状态**   | 输入值，验证     | React Hook Form, Formik       |
 
-### 2. Selection Criteria
+### 2. 选择标准
 
 ```
-Small app, simple state → Zustand or Jotai
-Large app, complex state → Redux Toolkit
-Heavy server interaction → React Query + light client state
-Atomic/granular updates → Jotai
+小型应用，简单状态 → Zustand 或 Jotai
+大型应用，复杂状态 → Redux Toolkit
+大量服务器交互 → React Query + 轻量客户端状态
+原子化/细粒度更新 → Jotai
 ```
 
-## Quick Start
+## 快速开始
 
-### Zustand (Simplest)
+### Zustand（最简单）
 
 ```typescript
 // store/useStore.ts
@@ -69,7 +69,7 @@ export const useStore = create<AppState>()(
   )
 )
 
-// Usage in component
+// 在组件中使用
 function Header() {
   const { user, theme, toggleTheme } = useStore()
   return (
@@ -81,9 +81,9 @@ function Header() {
 }
 ```
 
-## Patterns
+## 模式
 
-### Pattern 1: Redux Toolkit with TypeScript
+### 模式 1：Redux Toolkit 与 TypeScript
 
 ```typescript
 // store/index.ts
@@ -108,7 +108,7 @@ export const store = configureStore({
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
-// Typed hooks
+// 类型化 hooks
 export const useAppDispatch: () => AppDispatch = useDispatch;
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 ```
@@ -182,7 +182,7 @@ export const { setUser, clearUser } = userSlice.actions;
 export default userSlice.reducer;
 ```
 
-### Pattern 2: Zustand with Slices (Scalable)
+### 模式 2：Zustand 切片模式（可扩展）
 
 ```typescript
 // store/slices/createUserSlice.ts
@@ -196,7 +196,7 @@ export interface UserSlice {
 }
 
 export const createUserSlice: StateCreator<
-  UserSlice & CartSlice, // Combined store type
+  UserSlice & CartSlice, // 组合存储类型
   [],
   [],
   UserSlice
@@ -209,7 +209,7 @@ export const createUserSlice: StateCreator<
   },
   logout: () => {
     set({ user: null, isAuthenticated: false });
-    // Can access other slices
+    // 可以访问其他切片
     // get().clearCart()
   },
 });
@@ -226,28 +226,28 @@ export const useStore = create<StoreState>()((...args) => ({
   ...createCartSlice(...args),
 }));
 
-// Selective subscriptions (prevents unnecessary re-renders)
+// 选择性订阅（防止不必要的重新渲染）
 export const useUser = () => useStore((state) => state.user);
 export const useCart = () => useStore((state) => state.cart);
 ```
 
-### Pattern 3: Jotai for Atomic State
+### 模式 3：Jotai 原子状态
 
 ```typescript
 // atoms/userAtoms.ts
 import { atom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 
-// Basic atom
+// 基本原子
 export const userAtom = atom<User | null>(null)
 
-// Derived atom (computed)
+// 派生原子（计算值）
 export const isAuthenticatedAtom = atom((get) => get(userAtom) !== null)
 
-// Atom with localStorage persistence
+// 带 localStorage 持久化的原子
 export const themeAtom = atomWithStorage<'light' | 'dark'>('theme', 'light')
 
-// Async atom
+// 异步原子
 export const userProfileAtom = atom(async (get) => {
   const user = get(userAtom)
   if (!user) return null
@@ -255,18 +255,18 @@ export const userProfileAtom = atom(async (get) => {
   return response.json()
 })
 
-// Write-only atom (action)
+// 只写原子（操作）
 export const logoutAtom = atom(null, (get, set) => {
   set(userAtom, null)
   set(cartAtom, [])
   localStorage.removeItem('token')
 })
 
-// Usage
+// 使用
 function Profile() {
   const [user] = useAtom(userAtom)
   const [, logout] = useAtom(logoutAtom)
-  const [profile] = useAtom(userProfileAtom) // Suspense-enabled
+  const [profile] = useAtom(userProfileAtom) // 支持 Suspense
 
   return (
     <Suspense fallback={<Skeleton />}>
@@ -276,13 +276,13 @@ function Profile() {
 }
 ```
 
-### Pattern 4: React Query for Server State
+### 模式 4：React Query 管理服务器状态
 
 ```typescript
 // hooks/useUsers.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-// Query keys factory
+// 查询键工厂
 export const userKeys = {
   all: ["users"] as const,
   lists: () => [...userKeys.all, "list"] as const,
@@ -291,56 +291,56 @@ export const userKeys = {
   detail: (id: string) => [...userKeys.details(), id] as const,
 };
 
-// Fetch hook
+// 获取 hook
 export function useUsers(filters: UserFilters) {
   return useQuery({
     queryKey: userKeys.list(filters),
     queryFn: () => fetchUsers(filters),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 30 * 60 * 1000, // 30 minutes (formerly cacheTime)
+    staleTime: 5 * 60 * 1000, // 5 分钟
+    gcTime: 30 * 60 * 1000, // 30 分钟（原 cacheTime）
   });
 }
 
-// Single user hook
+// 单个用户 hook
 export function useUser(id: string) {
   return useQuery({
     queryKey: userKeys.detail(id),
     queryFn: () => fetchUser(id),
-    enabled: !!id, // Don't fetch if no id
+    enabled: !!id, // 无 id 时不获取
   });
 }
 
-// Mutation with optimistic update
+// 带乐观更新的变更
 export function useUpdateUser() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: updateUser,
     onMutate: async (newUser) => {
-      // Cancel outgoing refetches
+      // 取消进行中的重新获取
       await queryClient.cancelQueries({
         queryKey: userKeys.detail(newUser.id),
       });
 
-      // Snapshot previous value
+      // 快照之前的值
       const previousUser = queryClient.getQueryData(
         userKeys.detail(newUser.id),
       );
 
-      // Optimistically update
+      // 乐观更新
       queryClient.setQueryData(userKeys.detail(newUser.id), newUser);
 
       return { previousUser };
     },
     onError: (err, newUser, context) => {
-      // Rollback on error
+      // 出错时回滚
       queryClient.setQueryData(
         userKeys.detail(newUser.id),
         context?.previousUser,
       );
     },
     onSettled: (data, error, variables) => {
-      // Refetch after mutation
+      // 变更后重新获取
       queryClient.invalidateQueries({
         queryKey: userKeys.detail(variables.id),
       });
@@ -349,10 +349,10 @@ export function useUpdateUser() {
 }
 ```
 
-### Pattern 5: Combining Client + Server State
+### 模式 5：组合客户端 + 服务器状态
 
 ```typescript
-// Zustand for client state
+// Zustand 管理客户端状态
 const useUIStore = create<UIState>((set) => ({
   sidebarOpen: true,
   modal: null,
@@ -361,7 +361,7 @@ const useUIStore = create<UIState>((set) => ({
   closeModal: () => set({ modal: null }),
 }))
 
-// React Query for server state
+// React Query 管理服务器状态
 function Dashboard() {
   const { sidebarOpen, toggleSidebar } = useUIStore()
   const { data: users, isLoading } = useUsers({ active: true })
@@ -381,30 +381,30 @@ function Dashboard() {
 }
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 推荐
 
-- **Colocate state** - Keep state as close to where it's used as possible
-- **Use selectors** - Prevent unnecessary re-renders with selective subscriptions
-- **Normalize data** - Flatten nested structures for easier updates
-- **Type everything** - Full TypeScript coverage prevents runtime errors
-- **Separate concerns** - Server state (React Query) vs client state (Zustand)
+- **就近放置状态** - 将状态保持在尽可能靠近使用它的地方
+- **使用选择器** - 通过选择性订阅防止不必要的重新渲染
+- **规范化数据** - 扁平化嵌套结构以便更轻松地更新
+- **全面类型化** - 完整的 TypeScript 覆盖防止运行时错误
+- **关注点分离** - 服务器状态（React Query）vs 客户端状态（Zustand）
 
-### Don'ts
+### 避免
 
-- **Don't over-globalize** - Not everything needs to be in global state
-- **Don't duplicate server state** - Let React Query manage it
-- **Don't mutate directly** - Always use immutable updates
-- **Don't store derived data** - Compute it instead
-- **Don't mix paradigms** - Pick one primary solution per category
+- **不要过度全局化** - 不是所有东西都需要放在全局状态中
+- **不要重复服务器状态** - 让 React Query 管理它
+- **不要直接变更** - 始终使用不可变更新
+- **不要存储派生数据** - 而是计算它
+- **不要混合范式** - 每个类别选择一个主要方案
 
-## Migration Guides
+## 迁移指南
 
-### From Legacy Redux to RTK
+### 从旧版 Redux 迁移到 RTK
 
 ```typescript
-// Before (legacy Redux)
+// 之前（旧版 Redux）
 const ADD_TODO = "ADD_TODO";
 const addTodo = (text) => ({ type: ADD_TODO, payload: text });
 function todosReducer(state = [], action) {
@@ -416,13 +416,13 @@ function todosReducer(state = [], action) {
   }
 }
 
-// After (Redux Toolkit)
+// 之后（Redux Toolkit）
 const todosSlice = createSlice({
   name: "todos",
   initialState: [],
   reducers: {
     addTodo: (state, action: PayloadAction<string>) => {
-      // Immer allows "mutations"
+      // Immer 允许"变更"
       state.push({ text: action.payload, completed: false });
     },
   },

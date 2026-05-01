@@ -1,28 +1,28 @@
 ---
 name: javascript-testing-patterns
-description: Implement comprehensive testing strategies using Jest, Vitest, and Testing Library for unit tests, integration tests, and end-to-end testing with mocking, fixtures, and test-driven development. Use when writing JavaScript/TypeScript tests, setting up test infrastructure, or implementing TDD/BDD workflows.
+description: 使用 Jest、Vitest 和 Testing Library 实现全面的测试策略，包括单元测试、集成测试和端到端测试，支持 mock、fixture 和测试驱动开发。在编写 JavaScript/TypeScript 测试、设置测试基础设施或实现 TDD/BDD 工作流时使用。
 ---
 
-# JavaScript Testing Patterns
+# JavaScript 测试模式
 
-Comprehensive guide for implementing robust testing strategies in JavaScript/TypeScript applications using modern testing frameworks and best practices.
+使用现代测试框架和最佳实践在 JavaScript/TypeScript 应用程序中实现健壮测试策略的综合指南。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Setting up test infrastructure for new projects
-- Writing unit tests for functions and classes
-- Creating integration tests for APIs and services
-- Implementing end-to-end tests for user flows
-- Mocking external dependencies and APIs
-- Testing React, Vue, or other frontend components
-- Implementing test-driven development (TDD)
-- Setting up continuous testing in CI/CD pipelines
+- 为新项目设置测试基础设施
+- 为函数和类编写单元测试
+- 为 API 和服务创建集成测试
+- 为用户流程实现端到端测试
+- Mock 外部依赖和 API
+- 测试 React、Vue 或其他前端组件
+- 实现测试驱动开发（TDD）
+- 在 CI/CD 管道中设置持续测试
 
-## Testing Frameworks
+## 测试框架
 
-### Jest - Full-Featured Testing Framework
+### Jest - 全功能测试框架
 
-**Setup:**
+**设置：**
 
 ```typescript
 // jest.config.ts
@@ -52,9 +52,9 @@ const config: Config = {
 export default config;
 ```
 
-### Vitest - Fast, Vite-Native Testing
+### Vitest - 快速、Vite 原生测试
 
-**Setup:**
+**设置：**
 
 ```typescript
 // vitest.config.ts
@@ -74,9 +74,9 @@ export default defineConfig({
 });
 ```
 
-## Unit Testing Patterns
+## 单元测试模式
 
-### Pattern 1: Testing Pure Functions
+### 模式 1：测试纯函数
 
 ```typescript
 // utils/calculator.ts
@@ -127,7 +127,7 @@ describe("Calculator", () => {
 });
 ```
 
-### Pattern 2: Testing Classes
+### 模式 2：测试类
 
 ```typescript
 // services/user.service.ts
@@ -209,7 +209,7 @@ describe("UserService", () => {
 });
 ```
 
-### Pattern 3: Testing Async Functions
+### 模式 3：测试异步函数
 
 ```typescript
 // services/api.service.ts
@@ -236,7 +236,7 @@ export class ApiService {
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ApiService } from "./api.service";
 
-// Mock fetch globally
+// 全局 mock fetch
 global.fetch = vi.fn();
 
 describe("ApiService", () => {
@@ -296,9 +296,9 @@ describe("ApiService", () => {
 });
 ```
 
-## Mocking Patterns
+## Mock 模式
 
-### Pattern 1: Mocking Modules
+### 模式 1：Mock 模块
 
 ```typescript
 // services/email.service.ts
@@ -360,7 +360,7 @@ describe("EmailService", () => {
 });
 ```
 
-### Pattern 2: Dependency Injection for Testing
+### 模式 2：依赖注入测试
 
 ```typescript
 // services/user.service.ts
@@ -381,7 +381,7 @@ export class UserService {
   }
 
   async createUser(userData: CreateUserDTO): Promise<User> {
-    // Business logic here
+    // 业务逻辑
     const user = { id: generateId(), ...userData };
     return this.userRepository.create(user);
   }
@@ -437,7 +437,7 @@ describe("UserService", () => {
 });
 ```
 
-### Pattern 3: Spying on Functions
+### 模式 3：监视函数
 
 ```typescript
 // utils/logger.ts
@@ -452,7 +452,7 @@ import { logger } from "../utils/logger";
 export class OrderService {
   async processOrder(orderId: string): Promise<void> {
     logger.info(`Processing order ${orderId}`);
-    // Process order logic
+    // 处理订单逻辑
     logger.info(`Order ${orderId} processed successfully`);
   }
 }
@@ -485,21 +485,21 @@ describe("OrderService", () => {
 });
 ```
 
-## Integration Testing
+## 集成测试
 
-Integration tests verify real database operations and HTTP endpoints using `supertest` and a test database instance. Always truncate tables in `beforeEach` and tear down in `afterAll`.
+集成测试使用 `supertest` 和测试数据库实例验证真实的数据库操作和 HTTP 端点。始终在 `beforeEach` 中截断表，在 `afterAll` 中清理。
 
-For full API integration test examples (supertest + PostgreSQL) and database repository integration tests, see [references/advanced-testing-patterns.md](references/advanced-testing-patterns.md).
+完整的 API 集成测试示例（supertest + PostgreSQL）和数据库仓库集成测试，请参见 [references/advanced-testing-patterns.md](references/advanced-testing-patterns.md)。
 
-## Frontend Testing with Testing Library
+## 使用 Testing Library 进行前端测试
 
-Test React components by rendering them and querying by role, placeholder, or test ID. Test hooks with `renderHook` + `act`. Prefer semantic queries (`getByRole`, `getByPlaceholderText`) over `data-testid`.
+通过渲染 React 组件并按角色、占位符或 test ID 查询来测试它们。使用 `renderHook` + `act` 测试 hooks。优先使用语义查询（`getByRole`、`getByPlaceholderText`）而非 `data-testid`。
 
-For complete React component test examples (UserForm, hooks with `renderHook`/`act`), see [references/advanced-testing-patterns.md](references/advanced-testing-patterns.md).
+完整的 React 组件测试示例（UserForm、使用 `renderHook`/`act` 的 hooks），请参见 [references/advanced-testing-patterns.md](references/advanced-testing-patterns.md)。
 
-## Test Fixtures and Factories
+## 测试 Fixture 和工厂
 
-Use `@faker-js/faker` to generate realistic test data factories. Factories accept optional `overrides` so tests can set only the fields they care about:
+使用 `@faker-js/faker` 生成逼真的测试数据工厂。工厂接受可选的 `overrides`，以便测试只需设置关心的字段：
 
 ```typescript
 // tests/fixtures/user.fixture.ts
@@ -516,22 +516,22 @@ export function createUserFixture(overrides?: Partial<User>): User {
 }
 ```
 
-For snapshot testing, coverage configuration, test organization patterns, promise testing, and timer mocking, see [references/advanced-testing-patterns.md](references/advanced-testing-patterns.md).
+快照测试、覆盖率配置、测试组织模式、Promise 测试和定时器 mock，请参见 [references/advanced-testing-patterns.md](references/advanced-testing-patterns.md)。
 
-## Best Practices
+## 最佳实践
 
-1. **Follow AAA Pattern**: Arrange, Act, Assert
-2. **One assertion per test**: Or logically related assertions
-3. **Descriptive test names**: Should describe what is being tested
-4. **Use beforeEach/afterEach**: For setup and teardown
-5. **Mock external dependencies**: Keep tests isolated
-6. **Test edge cases**: Not just happy paths
-7. **Avoid implementation details**: Test behavior, not implementation
-8. **Use test factories**: For consistent test data
-9. **Keep tests fast**: Mock slow operations
-10. **Write tests first (TDD)**: When possible
-11. **Maintain test coverage**: Aim for 80%+ coverage
-12. **Use TypeScript**: For type-safe tests
-13. **Test error handling**: Not just success cases
-14. **Use data-testid sparingly**: Prefer semantic queries
-15. **Clean up after tests**: Prevent test pollution
+1. **遵循 AAA 模式**：准备（Arrange）、执行（Act）、断言（Assert）
+2. **每个测试一个断言**：或逻辑相关的断言
+3. **描述性测试名称**：应描述正在测试的内容
+4. **使用 beforeEach/afterEach**：用于设置和清理
+5. **Mock 外部依赖**：保持测试隔离
+6. **测试边界情况**：不只是正常路径
+7. **避免实现细节**：测试行为，而非实现
+8. **使用测试工厂**：确保一致的测试数据
+9. **保持测试快速**：Mock 慢速操作
+10. **先写测试（TDD）**：尽可能这样做
+11. **维护测试覆盖率**：目标 80%+ 覆盖率
+12. **使用 TypeScript**：实现类型安全的测试
+13. **测试错误处理**：不只是成功场景
+14. **谨慎使用 data-testid**：优先使用语义查询
+15. **测试后清理**：防止测试污染

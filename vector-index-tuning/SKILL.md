@@ -1,55 +1,55 @@
 ---
 name: vector-index-tuning
-description: Optimize vector index performance for latency, recall, and memory. Use when tuning HNSW parameters, selecting quantization strategies, or scaling vector search infrastructure.
+description: 优化向量索引性能，包括延迟、召回率和内存。适用于调优 HNSW 参数、选择量化策略或扩展向量搜索基础设施。
 ---
 
-# Vector Index Tuning
+# 向量索引调优
 
-Guide to optimizing vector indexes for production performance.
+优化向量索引以获得生产性能的指南。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Tuning HNSW parameters
-- Implementing quantization
-- Optimizing memory usage
-- Reducing search latency
-- Balancing recall vs speed
-- Scaling to billions of vectors
+- 调优 HNSW 参数
+- 实现量化
+- 优化内存使用
+- 降低搜索延迟
+- 平衡召回率与速度
+- 扩展到数十亿向量
 
-## Core Concepts
+## 核心概念
 
-### 1. Index Type Selection
+### 1. 索引类型选择
 
 ```
-Data Size           Recommended Index
+数据大小           推荐索引
 ────────────────────────────────────────
-< 10K vectors  →    Flat (exact search)
+< 10K 向量  →    Flat（精确搜索）
 10K - 1M       →    HNSW
-1M - 100M      →    HNSW + Quantization
-> 100M         →    IVF + PQ or DiskANN
+1M - 100M      →    HNSW + 量化
+> 100M         →    IVF + PQ 或 DiskANN
 ```
 
-### 2. HNSW Parameters
+### 2. HNSW 参数
 
-| Parameter          | Default | Effect                                               |
+| 参数          | 默认值 | 效果                                               |
 | ------------------ | ------- | ---------------------------------------------------- |
-| **M**              | 16      | Connections per node, ↑ = better recall, more memory |
-| **efConstruction** | 100     | Build quality, ↑ = better index, slower build        |
-| **efSearch**       | 50      | Search quality, ↑ = better recall, slower search     |
+| **M**              | 16      | 每个节点的连接数，↑ = 更好的召回率，更多内存 |
+| **efConstruction** | 100     | 构建质量，↑ = 更好的索引，更慢的构建        |
+| **efSearch**       | 50      | 搜索质量，↑ = 更好的召回率，更慢的搜索     |
 
-### 3. Quantization Types
+### 3. 量化类型
 
 ```
-Full Precision (FP32): 4 bytes × dimensions
-Half Precision (FP16): 2 bytes × dimensions
-INT8 Scalar:           1 byte × dimensions
-Product Quantization:  ~32-64 bytes total
-Binary:                dimensions/8 bytes
+全精度 (FP32): 4 字节 × 维度
+半精度 (FP16): 2 字节 × 维度
+INT8 标量:           1 字节 × 维度
+乘积量化:  ~32-64 字节总计
+二进制:                维度/8 字节
 ```
 
-## Templates
+## 模板
 
-### Template 1: HNSW Parameter Tuning
+### 模板 1：HNSW 参数调优
 
 ```python
 import numpy as np
@@ -64,7 +64,7 @@ def benchmark_hnsw_parameters(
     ef_construction_values: List[int] = [64, 128, 256],
     ef_search_values: List[int] = [32, 64, 128, 256]
 ) -> List[dict]:
-    """Benchmark different HNSW configurations."""
+    """对不同的 HNSW 配置进行基准测试。"""
     import hnswlib
 
     results = []
@@ -73,7 +73,7 @@ def benchmark_hnsw_parameters(
 
     for m in m_values:
         for ef_construction in ef_construction_values:
-            # Build index
+            # 构建索引
             index = hnswlib.Index(space='cosine', dim=dim)
             index.init_index(max_elements=n, M=m, ef_construction=ef_construction)
 
@@ -81,21 +81,21 @@ def benchmark_hnsw_parameters(
             index.add_items(vectors)
             build_time = time.time() - build_start
 
-            # Get memory usage
+            # 获取内存使用
             memory_bytes = index.element_count * (
-                dim * 4 +  # Vector storage
-                m * 2 * 4  # Graph edges (approximate)
+                dim * 4 +  # 向量存储
+                m * 2 * 4  # 图边（近似）
             )
 
             for ef_search in ef_search_values:
                 index.set_ef(ef_search)
 
-                # Measure search
+                # 测量搜索
                 search_start = time.time()
                 labels, distances = index.knn_query(queries, k=10)
                 search_time = time.time() - search_start
 
-                # Calculate recall
+                # 计算召回率
                 recall = calculate_recall(labels, ground_truth, k=10)
 
                 results.append({
@@ -112,7 +112,7 @@ def benchmark_hnsw_parameters(
 
 
 def calculate_recall(predictions: np.ndarray, ground_truth: np.ndarray, k: int) -> float:
-    """Calculate recall@k."""
+    """计算 recall@k。"""
     correct = 0
     for pred, truth in zip(predictions, ground_truth):
         correct += len(set(pred[:k]) & set(truth[:k]))
@@ -125,9 +125,9 @@ def recommend_hnsw_params(
     max_latency_ms: float = 10,
     available_memory_gb: float = 8
 ) -> dict:
-    """Recommend HNSW parameters based on requirements."""
+    """根据需求推荐 HNSW 参数。"""
 
-    # Base recommendations
+    # 基础推荐
     if num_vectors < 100_000:
         m = 16
         ef_construction = 100
@@ -138,7 +138,7 @@ def recommend_hnsw_params(
         m = 48
         ef_construction = 256
 
-    # Adjust ef_search based on recall target
+    # 根据召回率目标调整 ef_search
     if target_recall >= 0.99:
         ef_search = 256
     elif target_recall >= 0.95:
@@ -150,18 +150,18 @@ def recommend_hnsw_params(
         "M": m,
         "ef_construction": ef_construction,
         "ef_search": ef_search,
-        "notes": f"Estimated for {num_vectors:,} vectors, {target_recall:.0%} recall"
+        "notes": f"预估 {num_vectors:,} 个向量，{target_recall:.0%} 召回率"
     }
 ```
 
-### Template 2: Quantization Strategies
+### 模板 2：量化策略
 
 ```python
 import numpy as np
 from typing import Optional
 
 class VectorQuantizer:
-    """Quantization strategies for vector compression."""
+    """向量压缩的量化策略。"""
 
     @staticmethod
     def scalar_quantize_int8(
@@ -169,13 +169,13 @@ class VectorQuantizer:
         min_val: Optional[float] = None,
         max_val: Optional[float] = None
     ) -> Tuple[np.ndarray, dict]:
-        """Scalar quantization to INT8."""
+        """标量量化到 INT8。"""
         if min_val is None:
             min_val = vectors.min()
         if max_val is None:
             max_val = vectors.max()
 
-        # Scale to 0-255 range
+        # 缩放到 0-255 范围
         scale = 255.0 / (max_val - min_val)
         quantized = np.clip(
             np.round((vectors - min_val) * scale),
@@ -190,7 +190,7 @@ class VectorQuantizer:
         quantized: np.ndarray,
         params: dict
     ) -> np.ndarray:
-        """Dequantize INT8 vectors."""
+        """反量化 INT8 向量。"""
         return quantized.astype(np.float32) / params["scale"] + params["min_val"]
 
     @staticmethod
@@ -199,7 +199,7 @@ class VectorQuantizer:
         n_subvectors: int = 8,
         n_centroids: int = 256
     ) -> Tuple[np.ndarray, dict]:
-        """Product quantization for aggressive compression."""
+        """乘积量化用于激进压缩。"""
         from sklearn.cluster import KMeans
 
         n, dim = vectors.shape
@@ -227,11 +227,11 @@ class VectorQuantizer:
 
     @staticmethod
     def binary_quantize(vectors: np.ndarray) -> np.ndarray:
-        """Binary quantization (sign of each dimension)."""
-        # Convert to binary: positive = 1, negative = 0
+        """二进制量化（每个维度的符号）。"""
+        # 转换为二进制：正数 = 1，负数 = 0
         binary = (vectors > 0).astype(np.uint8)
 
-        # Pack bits into bytes
+        # 将位打包为字节
         n, dim = vectors.shape
         packed_dim = (dim + 7) // 8
 
@@ -251,25 +251,25 @@ def estimate_memory_usage(
     index_type: str = "hnsw",
     hnsw_m: int = 16
 ) -> dict:
-    """Estimate memory usage for different configurations."""
+    """估算不同配置的内存使用。"""
 
-    # Vector storage
+    # 向量存储
     bytes_per_dimension = {
         "fp32": 4,
         "fp16": 2,
         "int8": 1,
-        "pq": 0.05,  # Approximate
+        "pq": 0.05,  # 近似
         "binary": 0.125
     }
 
     vector_bytes = num_vectors * dimensions * bytes_per_dimension[quantization]
 
-    # Index overhead
+    # 索引开销
     if index_type == "hnsw":
-        # Each node has ~M*2 edges, each edge is 4 bytes (int32)
+        # 每个节点有 ~M*2 条边，每条边 4 字节（int32）
         index_bytes = num_vectors * hnsw_m * 2 * 4
     elif index_type == "ivf":
-        # Inverted lists + centroids
+        # 倒排列表 + 聚类中心
         index_bytes = num_vectors * 8 + 65536 * dimensions * 4
     else:
         index_bytes = 0
@@ -284,7 +284,7 @@ def estimate_memory_usage(
     }
 ```
 
-### Template 3: Qdrant Index Configuration
+### 模板 3：Qdrant 索引配置
 
 ```python
 from qdrant_client import QdrantClient
@@ -295,11 +295,11 @@ def create_optimized_collection(
     collection_name: str,
     vector_size: int,
     num_vectors: int,
-    optimize_for: str = "balanced"  # "recall", "speed", "memory"
+    optimize_for: str = "balanced"  # "recall"、"speed"、"memory"
 ) -> None:
-    """Create collection with optimized settings."""
+    """创建带优化设置的集合。"""
 
-    # HNSW configuration based on optimization target
+    # 基于优化目标的 HNSW 配置
     hnsw_configs = {
         "recall": models.HnswConfigDiff(m=32, ef_construct=256),
         "speed": models.HnswConfigDiff(m=16, ef_construct=64),
@@ -307,9 +307,9 @@ def create_optimized_collection(
         "memory": models.HnswConfigDiff(m=8, ef_construct=64)
     }
 
-    # Quantization configuration
+    # 量化配置
     quantization_configs = {
-        "recall": None,  # No quantization for max recall
+        "recall": None,  # 最大召回率不使用量化
         "speed": models.ScalarQuantization(
             scalar=models.ScalarQuantizationConfig(
                 type=models.ScalarType.INT8,
@@ -332,7 +332,7 @@ def create_optimized_collection(
         )
     }
 
-    # Optimizer configuration
+    # 优化器配置
     optimizer_configs = {
         "recall": models.OptimizersConfigDiff(
             indexing_threshold=10000,
@@ -348,7 +348,7 @@ def create_optimized_collection(
         ),
         "memory": models.OptimizersConfigDiff(
             indexing_threshold=50000,
-            memmap_threshold=10000  # Use disk sooner
+            memmap_threshold=10000  # 更早使用磁盘
         )
     }
 
@@ -369,15 +369,15 @@ def tune_search_parameters(
     collection_name: str,
     target_recall: float = 0.95
 ) -> dict:
-    """Tune search parameters for target recall."""
+    """为目标召回率调优搜索参数。"""
 
-    # Search parameter recommendations
+    # 搜索参数推荐
     if target_recall >= 0.99:
         search_params = models.SearchParams(
             hnsw_ef=256,
             exact=False,
             quantization=models.QuantizationSearchParams(
-                ignore=True,  # Don't use quantization for search
+                ignore=True,  # 搜索时不使用量化
                 rescore=True
             )
         )
@@ -404,7 +404,7 @@ def tune_search_parameters(
     return search_params
 ```
 
-### Template 4: Performance Monitoring
+### 模板 4：性能监控
 
 ```python
 import time
@@ -422,7 +422,7 @@ class SearchMetrics:
 
 
 class VectorSearchMonitor:
-    """Monitor vector search performance."""
+    """监控向量搜索性能。"""
 
     def __init__(self, ground_truth_fn=None):
         self.latencies = []
@@ -436,7 +436,7 @@ class VectorSearchMonitor:
         k: int = 10,
         num_iterations: int = 100
     ) -> SearchMetrics:
-        """Benchmark search performance."""
+        """对搜索性能进行基准测试。"""
         latencies = []
 
         for _ in range(num_iterations):
@@ -448,7 +448,7 @@ class VectorSearchMonitor:
 
         latencies = np.array(latencies)
         total_queries = num_iterations * len(query_vectors)
-        total_time = sum(latencies) / 1000  # seconds
+        total_time = sum(latencies) / 1000  # 秒
 
         return SearchMetrics(
             latency_p50_ms=np.percentile(latencies, 50),
@@ -459,7 +459,7 @@ class VectorSearchMonitor:
         )
 
     def _calculate_recall(self, search_fn, queries: np.ndarray, k: int) -> float:
-        """Calculate recall against ground truth."""
+        """根据真实值计算召回率。"""
         if not self.ground_truth_fn:
             return 0
 
@@ -480,7 +480,7 @@ def profile_index_build(
     vectors: np.ndarray,
     batch_sizes: List[int] = [1000, 10000, 50000]
 ) -> dict:
-    """Profile index build performance."""
+    """分析索引构建性能。"""
     results = {}
 
     for batch_size in batch_sizes:
@@ -499,19 +499,19 @@ def profile_index_build(
     return results
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该做的
 
-- **Benchmark with real queries** - Synthetic may not represent production
-- **Monitor recall continuously** - Can degrade with data drift
-- **Start with defaults** - Tune only when needed
-- **Use quantization** - Significant memory savings
-- **Consider tiered storage** - Hot/cold data separation
+- **使用真实查询进行基准测试** - 合成数据可能不代表生产环境
+- **持续监控召回率** - 数据漂移可能导致退化
+- **从默认值开始** - 仅在需要时调优
+- **使用量化** - 显著节省内存
+- **考虑分层存储** - 热/冷数据分离
 
-### Don'ts
+### 不应该做的
 
-- **Don't over-optimize early** - Profile first
-- **Don't ignore build time** - Index updates have cost
-- **Don't forget reindexing** - Plan for maintenance
-- **Don't skip warming** - Cold indexes are slow
+- **不要过早过度优化** - 先分析
+- **不要忽略构建时间** - 索引更新有成本
+- **不要忘记重建索引** - 规划维护
+- **不要跳过预热** - 冷索引很慢

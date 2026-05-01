@@ -1,40 +1,40 @@
 ---
 name: python-resilience
-description: Python resilience patterns including automatic retries, exponential backoff, timeouts, and fault-tolerant decorators. Use when adding retry logic, implementing timeouts, building fault-tolerant services, or handling transient failures.
+description: Python 弹性模式，包括自动重试、指数退避、超时和容错装饰器。在添加重试逻辑、实现超时、构建容错服务或处理瞬态故障时使用。
 ---
 
-# Python Resilience Patterns
+# Python 弹性模式
 
-Build fault-tolerant Python applications that gracefully handle transient failures, network issues, and service outages. Resilience patterns keep systems running when dependencies are unreliable.
+构建能够优雅处理瞬态故障、网络问题和服务中断的容错 Python 应用程序。弹性模式在依赖不可靠时保持系统运行。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Adding retry logic to external service calls
-- Implementing timeouts for network operations
-- Building fault-tolerant microservices
-- Handling rate limiting and backpressure
-- Creating infrastructure decorators
-- Designing circuit breakers
+- 为外部服务调用添加重试逻辑
+- 为网络操作实现超时
+- 构建容错微服务
+- 处理速率限制和背压
+- 创建基础设施装饰器
+- 设计断路器
 
-## Core Concepts
+## 核心概念
 
-### 1. Transient vs Permanent Failures
+### 1. 瞬态 vs 永久故障
 
-Retry transient errors (network timeouts, temporary service issues). Don't retry permanent errors (invalid credentials, bad requests).
+重试瞬态错误（网络超时、临时服务问题）。不要重试永久错误（无效凭据、错误请求）。
 
-### 2. Exponential Backoff
+### 2. 指数退避
 
-Increase wait time between retries to avoid overwhelming recovering services.
+增加重试之间的等待时间，以避免压垮正在恢复的服务。
 
-### 3. Jitter
+### 3. 抖动
 
-Add randomness to backoff to prevent thundering herd when many clients retry simultaneously.
+为退避添加随机性，以防止许多客户端同时重试时的惊群效应。
 
-### 4. Bounded Retries
+### 4. 有界重试
 
-Cap both attempt count and total duration to prevent infinite retry loops.
+限制尝试次数和总持续时间，以防止无限重试循环。
 
-## Quick Start
+## 快速开始
 
 ```python
 from tenacity import retry, stop_after_attempt, wait_exponential_jitter
@@ -47,11 +47,11 @@ def call_external_service(request: dict) -> dict:
     return httpx.post("https://api.example.com", json=request).json()
 ```
 
-## Fundamental Patterns
+## 基础模式
 
-### Pattern 1: Basic Retry with Tenacity
+### 模式 1：使用 Tenacity 的基本重试
 
-Use the `tenacity` library for production-grade retry logic. For simpler cases, consider built-in retry functionality or a lightweight custom implementation.
+使用 `tenacity` 库实现生产级重试逻辑。对于更简单的情况，考虑使用内置重试功能或轻量级自定义实现。
 
 ```python
 from tenacity import (
@@ -76,13 +76,13 @@ def fetch_data(url: str) -> dict:
     return response.json()
 ```
 
-### Pattern 2: Retry Only Appropriate Errors
+### 模式 2：仅重试适当的错误
 
-Whitelist specific transient exceptions. Never retry:
+白名单特定的瞬态异常。永远不要重试：
 
-- `ValueError`, `TypeError` - These are bugs, not transient issues
-- `AuthenticationError` - Invalid credentials won't become valid
-- HTTP 4xx errors (except 429) - Client errors are permanent
+- `ValueError`、`TypeError` - 这些是 bug，不是瞬态问题
+- `AuthenticationError` - 无效凭据不会变得有效
+- HTTP 4xx 错误（除 429 外）- 客户端错误是永久的
 
 ```python
 from tenacity import retry, retry_if_exception_type
@@ -106,9 +106,9 @@ def resilient_api_call(endpoint: str) -> dict:
     return httpx.get(endpoint, timeout=10).json()
 ```
 
-### Pattern 3: HTTP Status Code Retries
+### 模式 3：HTTP 状态码重试
 
-Retry specific HTTP status codes that indicate transient issues.
+重试指示瞬态问题的特定 HTTP 状态码。
 
 ```python
 from tenacity import retry, retry_if_result, stop_after_attempt
@@ -130,9 +130,9 @@ def http_request(method: str, url: str, **kwargs) -> httpx.Response:
     return httpx.request(method, url, timeout=30, **kwargs)
 ```
 
-### Pattern 4: Combined Exception and Status Retry
+### 模式 4：组合异常和状态重试
 
-Handle both network exceptions and HTTP status codes.
+同时处理网络异常和 HTTP 状态码。
 
 ```python
 from tenacity import (
@@ -177,11 +177,11 @@ def robust_http_call(
     return httpx.request(method, url, timeout=30, **kwargs)
 ```
 
-## Advanced Patterns
+## 高级模式
 
-### Pattern 5: Logging Retry Attempts
+### 模式 5：记录重试尝试
 
-Track retry behavior for debugging and alerting.
+跟踪重试行为用于调试和告警。
 
 ```python
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -210,9 +210,9 @@ def call_with_logging(request: dict) -> dict:
     ...
 ```
 
-### Pattern 6: Timeout Decorator
+### 模式 6：超时装饰器
 
-Create reusable timeout decorators for consistent timeout handling.
+创建可复用的超时装饰器以实现一致的超时处理。
 
 ```python
 import asyncio
@@ -241,9 +241,9 @@ async def fetch_with_timeout(url: str) -> dict:
         return response.json()
 ```
 
-### Pattern 7: Cross-Cutting Concerns via Decorators
+### 模式 7：通过装饰器处理横切关注点
 
-Stack decorators to separate infrastructure from business logic.
+堆叠装饰器以将基础设施与业务逻辑分离。
 
 ```python
 from functools import wraps
@@ -280,9 +280,9 @@ async def fetch_user_data(user_id: str) -> dict:
     ...
 ```
 
-### Pattern 8: Dependency Injection for Testability
+### 模式 8：依赖注入以实现可测试性
 
-Pass infrastructure components through constructors for easy testing.
+通过构造函数传递基础设施组件以便于测试。
 
 ```python
 from dataclasses import dataclass
@@ -328,9 +328,9 @@ service = UserService(
 )
 ```
 
-### Pattern 9: Fail-Safe Defaults
+### 模式 9：安全失败默认值
 
-Degrade gracefully when non-critical operations fail.
+当非关键操作失败时优雅降级。
 
 ```python
 from typing import TypeVar
@@ -362,15 +362,15 @@ async def get_recommendations(user_id: str) -> list[str]:
     ...
 ```
 
-## Best Practices Summary
+## 最佳实践总结
 
-1. **Retry only transient errors** - Don't retry bugs or authentication failures
-2. **Use exponential backoff** - Give services time to recover
-3. **Add jitter** - Prevent thundering herd from synchronized retries
-4. **Cap total duration** - `stop_after_attempt(5) | stop_after_delay(60)`
-5. **Log every retry** - Silent retries hide systemic problems
-6. **Use decorators** - Keep retry logic separate from business logic
-7. **Inject dependencies** - Make infrastructure testable
-8. **Set timeouts everywhere** - Every network call needs a timeout
-9. **Fail gracefully** - Return cached/default values for non-critical paths
-10. **Monitor retry rates** - High retry rates indicate underlying issues
+1. **仅重试瞬态错误** - 不要重试 bug 或认证失败
+2. **使用指数退避** - 给服务时间恢复
+3. **添加抖动** - 防止同步重试导致的惊群效应
+4. **限制总持续时间** - `stop_after_attempt(5) | stop_after_delay(60)`
+5. **记录每次重试** - 静默重试会隐藏系统性问题
+6. **使用装饰器** - 将重试逻辑与业务逻辑分离
+7. **注入依赖** - 使基础设施可测试
+8. **到处设置超时** - 每个网络调用都需要超时
+9. **优雅失败** - 为非关键路径返回缓存/默认值
+10. **监控重试率** - 高重试率表示潜在问题

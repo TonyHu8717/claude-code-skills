@@ -1,42 +1,42 @@
 ---
 name: memory-forensics
-description: Master memory forensics techniques including memory acquisition, process analysis, and artifact extraction using Volatility and related tools. Use when analyzing memory dumps, investigating incidents, or performing malware analysis from RAM captures.
+description: 掌握内存取证技术，包括内存获取、进程分析和使用 Volatility 及相关工具进行工件提取。当分析内存转储、调查事件或从 RAM 捕获中进行恶意软件分析时使用。
 ---
 
-# Memory Forensics
+# 内存取证
 
-Comprehensive techniques for acquiring, analyzing, and extracting artifacts from memory dumps for incident response and malware analysis.
+用于事件响应和恶意软件分析的内存转储获取、分析和工件提取的全面技术。
 
-## Memory Acquisition
+## 内存获取
 
-### Live Acquisition Tools
+### 在线获取工具
 
 #### Windows
 
 ```powershell
-# WinPmem (Recommended)
+# WinPmem（推荐）
 winpmem_mini_x64.exe memory.raw
 
 # DumpIt
 DumpIt.exe
 
 # Belkasoft RAM Capturer
-# GUI-based, outputs raw format
+# 基于 GUI，输出 raw 格式
 
 # Magnet RAM Capture
-# GUI-based, outputs raw format
+# 基于 GUI，输出 raw 格式
 ```
 
 #### Linux
 
 ```bash
-# LiME (Linux Memory Extractor)
+# LiME（Linux 内存提取器）
 sudo insmod lime.ko "path=/tmp/memory.lime format=lime"
 
-# /dev/mem (limited, requires permissions)
+# /dev/mem（有限，需要权限）
 sudo dd if=/dev/mem of=memory.raw bs=1M
 
-# /proc/kcore (ELF format)
+# /proc/kcore（ELF 格式）
 sudo cp /proc/kcore memory.elf
 ```
 
@@ -46,259 +46,259 @@ sudo cp /proc/kcore memory.elf
 # osxpmem
 sudo ./osxpmem -o memory.raw
 
-# MacQuisition (commercial)
+# MacQuisition（商业工具）
 ```
 
-### Virtual Machine Memory
+### 虚拟机内存
 
 ```bash
-# VMware: .vmem file is raw memory
+# VMware：.vmem 文件即为原始内存
 cp vm.vmem memory.raw
 
-# VirtualBox: Use debug console
+# VirtualBox：使用调试控制台
 vboxmanage debugvm "VMName" dumpvmcore --filename memory.elf
 
 # QEMU
 virsh dump <domain> memory.raw --memory-only
 
 # Hyper-V
-# Checkpoint contains memory state
+# 检查点包含内存状态
 ```
 
-## Volatility 3 Framework
+## Volatility 3 框架
 
-### Installation and Setup
+### 安装和设置
 
 ```bash
-# Install Volatility 3
+# 安装 Volatility 3
 pip install volatility3
 
-# Install symbol tables (Windows)
-# Download from https://downloads.volatilityfoundation.org/volatility3/symbols/
+# 安装符号表（Windows）
+# 从 https://downloads.volatilityfoundation.org/volatility3/symbols/ 下载
 
-# Basic usage
+# 基本用法
 vol -f memory.raw <plugin>
 
-# With symbol path
+# 带符号路径
 vol -f memory.raw -s /path/to/symbols windows.pslist
 ```
 
-### Essential Plugins
+### 核心插件
 
-#### Process Analysis
+#### 进程分析
 
 ```bash
-# List processes
+# 列出进程
 vol -f memory.raw windows.pslist
 
-# Process tree (parent-child relationships)
+# 进程树（父子关系）
 vol -f memory.raw windows.pstree
 
-# Hidden process detection
+# 隐藏进程检测
 vol -f memory.raw windows.psscan
 
-# Process memory dumps
+# 进程内存转储
 vol -f memory.raw windows.memmap --pid <PID> --dump
 
-# Process environment variables
+# 进程环境变量
 vol -f memory.raw windows.envars --pid <PID>
 
-# Command line arguments
+# 命令行参数
 vol -f memory.raw windows.cmdline
 ```
 
-#### Network Analysis
+#### 网络分析
 
 ```bash
-# Network connections
+# 网络连接
 vol -f memory.raw windows.netscan
 
-# Network connection state
+# 网络连接状态
 vol -f memory.raw windows.netstat
 ```
 
-#### DLL and Module Analysis
+#### DLL 和模块分析
 
 ```bash
-# Loaded DLLs per process
+# 每个进程加载的 DLL
 vol -f memory.raw windows.dlllist --pid <PID>
 
-# Find hidden/injected DLLs
+# 查找隐藏/注入的 DLL
 vol -f memory.raw windows.ldrmodules
 
-# Kernel modules
+# 内核模块
 vol -f memory.raw windows.modules
 
-# Module dumps
+# 模块转储
 vol -f memory.raw windows.moddump --pid <PID>
 ```
 
-#### Memory Injection Detection
+#### 内存注入检测
 
 ```bash
-# Detect code injection
+# 检测代码注入
 vol -f memory.raw windows.malfind
 
-# VAD (Virtual Address Descriptor) analysis
+# VAD（虚拟地址描述符）分析
 vol -f memory.raw windows.vadinfo --pid <PID>
 
-# Dump suspicious memory regions
+# 转储可疑内存区域
 vol -f memory.raw windows.vadyarascan --yara-rules rules.yar
 ```
 
-#### Registry Analysis
+#### 注册表分析
 
 ```bash
-# List registry hives
+# 列出注册表配置单元
 vol -f memory.raw windows.registry.hivelist
 
-# Print registry key
+# 打印注册表键
 vol -f memory.raw windows.registry.printkey --key "Software\Microsoft\Windows\CurrentVersion\Run"
 
-# Dump registry hive
+# 转储注册表配置单元
 vol -f memory.raw windows.registry.hivescan --dump
 ```
 
-#### File System Artifacts
+#### 文件系统工件
 
 ```bash
-# Scan for file objects
+# 扫描文件对象
 vol -f memory.raw windows.filescan
 
-# Dump files from memory
+# 从内存转储文件
 vol -f memory.raw windows.dumpfiles --pid <PID>
 
-# MFT analysis
+# MFT 分析
 vol -f memory.raw windows.mftscan
 ```
 
-### Linux Analysis
+### Linux 分析
 
 ```bash
-# Process listing
+# 进程列表
 vol -f memory.raw linux.pslist
 
-# Process tree
+# 进程树
 vol -f memory.raw linux.pstree
 
-# Bash history
+# Bash 历史
 vol -f memory.raw linux.bash
 
-# Network connections
+# 网络连接
 vol -f memory.raw linux.sockstat
 
-# Loaded kernel modules
+# 已加载的内核模块
 vol -f memory.raw linux.lsmod
 
-# Mount points
+# 挂载点
 vol -f memory.raw linux.mount
 
-# Environment variables
+# 环境变量
 vol -f memory.raw linux.envars
 ```
 
-### macOS Analysis
+### macOS 分析
 
 ```bash
-# Process listing
+# 进程列表
 vol -f memory.raw mac.pslist
 
-# Process tree
+# 进程树
 vol -f memory.raw mac.pstree
 
-# Network connections
+# 网络连接
 vol -f memory.raw mac.netstat
 
-# Kernel extensions
+# 内核扩展
 vol -f memory.raw mac.lsmod
 ```
 
-## Analysis Workflows
+## 分析工作流
 
-### Malware Analysis Workflow
+### 恶意软件分析工作流
 
 ```bash
-# 1. Initial process survey
+# 1. 初始进程概览
 vol -f memory.raw windows.pstree > processes.txt
 vol -f memory.raw windows.pslist > pslist.txt
 
-# 2. Network connections
+# 2. 网络连接
 vol -f memory.raw windows.netscan > network.txt
 
-# 3. Detect injection
+# 3. 检测注入
 vol -f memory.raw windows.malfind > malfind.txt
 
-# 4. Analyze suspicious processes
+# 4. 分析可疑进程
 vol -f memory.raw windows.dlllist --pid <PID>
 vol -f memory.raw windows.handles --pid <PID>
 
-# 5. Dump suspicious executables
+# 5. 转储可疑可执行文件
 vol -f memory.raw windows.pslist --pid <PID> --dump
 
-# 6. Extract strings from dumps
+# 6. 从转储中提取字符串
 strings -a pid.<PID>.exe > strings.txt
 
-# 7. YARA scanning
+# 7. YARA 扫描
 vol -f memory.raw windows.yarascan --yara-rules malware.yar
 ```
 
-### Incident Response Workflow
+### 事件响应工作流
 
 ```bash
-# 1. Timeline of events
+# 1. 事件时间线
 vol -f memory.raw windows.timeliner > timeline.csv
 
-# 2. User activity
+# 2. 用户活动
 vol -f memory.raw windows.cmdline
 vol -f memory.raw windows.consoles
 
-# 3. Persistence mechanisms
+# 3. 持久化机制
 vol -f memory.raw windows.registry.printkey \
     --key "Software\Microsoft\Windows\CurrentVersion\Run"
 
-# 4. Services
+# 4. 服务
 vol -f memory.raw windows.svcscan
 
-# 5. Scheduled tasks
+# 5. 计划任务
 vol -f memory.raw windows.scheduled_tasks
 
-# 6. Recent files
+# 6. 最近文件
 vol -f memory.raw windows.filescan | grep -i "recent"
 ```
 
-## Data Structures
+## 数据结构
 
-### Windows Process Structures
+### Windows 进程结构
 
 ```c
-// EPROCESS (Executive Process)
+// EPROCESS（执行进程）
 typedef struct _EPROCESS {
-    KPROCESS Pcb;                    // Kernel process block
+    KPROCESS Pcb;                    // 内核进程块
     EX_PUSH_LOCK ProcessLock;
     LARGE_INTEGER CreateTime;
     LARGE_INTEGER ExitTime;
     // ...
-    LIST_ENTRY ActiveProcessLinks;   // Doubly-linked list
+    LIST_ENTRY ActiveProcessLinks;   // 双向链表
     ULONG_PTR UniqueProcessId;       // PID
     // ...
-    PEB* Peb;                        // Process Environment Block
+    PEB* Peb;                        // 进程环境块
     // ...
 } EPROCESS;
 
-// PEB (Process Environment Block)
+// PEB（进程环境块）
 typedef struct _PEB {
     BOOLEAN InheritedAddressSpace;
     BOOLEAN ReadImageFileExecOptions;
-    BOOLEAN BeingDebugged;           // Anti-debug check
+    BOOLEAN BeingDebugged;           // 反调试检查
     // ...
-    PVOID ImageBaseAddress;          // Base address of executable
-    PPEB_LDR_DATA Ldr;              // Loader data (DLL list)
+    PVOID ImageBaseAddress;          // 可执行文件基地址
+    PPEB_LDR_DATA Ldr;              // 加载器数据（DLL 列表）
     PRTL_USER_PROCESS_PARAMETERS ProcessParameters;
     // ...
 } PEB;
 ```
 
-### VAD (Virtual Address Descriptor)
+### VAD（虚拟地址描述符）
 
 ```c
 typedef struct _MMVAD {
@@ -314,87 +314,87 @@ typedef struct _MMVAD {
     PFILE_OBJECT FileObject;
 } MMVAD;
 
-// Memory protection flags
+// 内存保护标志
 #define PAGE_EXECUTE           0x10
 #define PAGE_EXECUTE_READ      0x20
 #define PAGE_EXECUTE_READWRITE 0x40
 #define PAGE_EXECUTE_WRITECOPY 0x80
 ```
 
-## Detection Patterns
+## 检测模式
 
-### Process Injection Indicators
+### 进程注入指标
 
 ```python
-# Malfind indicators
-# - PAGE_EXECUTE_READWRITE protection (suspicious)
-# - MZ header in non-image VAD region
-# - Shellcode patterns at allocation start
+# Malfind 指标
+# - PAGE_EXECUTE_READWRITE 保护（可疑）
+# - 非镜像 VAD 区域中的 MZ 头
+# - 分配起始处的 Shellcode 模式
 
-# Common injection techniques
-# 1. Classic DLL Injection
+# 常见注入技术
+# 1. 经典 DLL 注入
 #    - VirtualAllocEx + WriteProcessMemory + CreateRemoteThread
 
-# 2. Process Hollowing
-#    - CreateProcess (SUSPENDED) + NtUnmapViewOfSection + WriteProcessMemory
+# 2. 进程镂空
+#    - CreateProcess（SUSPENDED）+ NtUnmapViewOfSection + WriteProcessMemory
 
-# 3. APC Injection
-#    - QueueUserAPC targeting alertable threads
+# 3. APC 注入
+#    - QueueUserAPC 目标为可告警线程
 
-# 4. Thread Execution Hijacking
+# 4. 线程执行劫持
 #    - SuspendThread + SetThreadContext + ResumeThread
 ```
 
-### Rootkit Detection
+### Rootkit 检测
 
 ```bash
-# Compare process lists
+# 比较进程列表
 vol -f memory.raw windows.pslist > pslist.txt
 vol -f memory.raw windows.psscan > psscan.txt
-diff pslist.txt psscan.txt  # Hidden processes
+diff pslist.txt psscan.txt  # 隐藏进程
 
-# Check for DKOM (Direct Kernel Object Manipulation)
+# 检查 DKOM（直接内核对象操作）
 vol -f memory.raw windows.callbacks
 
-# Detect hooked functions
-vol -f memory.raw windows.ssdt  # System Service Descriptor Table
+# 检测钩子函数
+vol -f memory.raw windows.ssdt  # 系统服务描述符表
 
-# Driver analysis
+# 驱动分析
 vol -f memory.raw windows.driverscan
 vol -f memory.raw windows.driverirp
 ```
 
-### Credential Extraction
+### 凭据提取
 
 ```bash
-# Dump hashes (requires hivelist first)
+# 转储哈希（需要先运行 hivelist）
 vol -f memory.raw windows.hashdump
 
-# LSA secrets
+# LSA 机密
 vol -f memory.raw windows.lsadump
 
-# Cached domain credentials
+# 缓存的域凭据
 vol -f memory.raw windows.cachedump
 
-# Mimikatz-style extraction
-# Requires specific plugins/tools
+# Mimikatz 风格提取
+# 需要特定插件/工具
 ```
 
-## YARA Integration
+## YARA 集成
 
-### Writing Memory YARA Rules
+### 编写内存 YARA 规则
 
 ```yara
 rule Suspicious_Injection
 {
     meta:
-        description = "Detects common injection shellcode"
+        description = "检测常见注入 shellcode"
 
     strings:
-        // Common shellcode patterns
+        // 常见 shellcode 模式
         $mz = { 4D 5A }
-        $shellcode1 = { 55 8B EC 83 EC }  // Function prologue
-        $api_hash = { 68 ?? ?? ?? ?? 68 ?? ?? ?? ?? E8 }  // Push hash, call
+        $shellcode1 = { 55 8B EC 83 EC }  // 函数序言
+        $api_hash = { 68 ?? ?? ?? ?? 68 ?? ?? ?? ?? E8 }  // 压入哈希，调用
 
     condition:
         $mz at 0 or any of ($shellcode*)
@@ -403,7 +403,7 @@ rule Suspicious_Injection
 rule Cobalt_Strike_Beacon
 {
     meta:
-        description = "Detects Cobalt Strike beacon in memory"
+        description = "检测内存中的 Cobalt Strike beacon"
 
     strings:
         $config = { 00 01 00 01 00 02 }
@@ -415,69 +415,69 @@ rule Cobalt_Strike_Beacon
 }
 ```
 
-### Scanning Memory
+### 扫描内存
 
 ```bash
-# Scan all process memory
+# 扫描所有进程内存
 vol -f memory.raw windows.yarascan --yara-rules rules.yar
 
-# Scan specific process
+# 扫描特定进程
 vol -f memory.raw windows.yarascan --yara-rules rules.yar --pid 1234
 
-# Scan kernel memory
+# 扫描内核内存
 vol -f memory.raw windows.yarascan --yara-rules rules.yar --kernel
 ```
 
-## String Analysis
+## 字符串分析
 
-### Extracting Strings
+### 提取字符串
 
 ```bash
-# Basic string extraction
+# 基本字符串提取
 strings -a memory.raw > all_strings.txt
 
-# Unicode strings
+# Unicode 字符串
 strings -el memory.raw >> all_strings.txt
 
-# Targeted extraction from process dump
+# 从进程转储中定向提取
 vol -f memory.raw windows.memmap --pid 1234 --dump
 strings -a pid.1234.dmp > process_strings.txt
 
-# Pattern matching
+# 模式匹配
 grep -E "(https?://|[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})" all_strings.txt
 ```
 
-### FLOSS for Obfuscated Strings
+### FLOSS 用于混淆字符串
 
 ```bash
-# FLOSS extracts obfuscated strings
+# FLOSS 提取混淆字符串
 floss malware.exe > floss_output.txt
 
-# From memory dump
+# 从内存转储
 floss pid.1234.dmp
 ```
 
-## Best Practices
+## 最佳实践
 
-### Acquisition Best Practices
+### 获取最佳实践
 
-1. **Minimize footprint**: Use lightweight acquisition tools
-2. **Document everything**: Record time, tool, and hash of capture
-3. **Verify integrity**: Hash memory dump immediately after capture
-4. **Chain of custody**: Maintain proper forensic handling
+1. **最小化足迹**：使用轻量级获取工具
+2. **记录一切**：记录时间、工具和捕获的哈希值
+3. **验证完整性**：捕获后立即计算内存转储的哈希值
+4. **监管链**：维护正确的取证处理流程
 
-### Analysis Best Practices
+### 分析最佳实践
 
-1. **Start broad**: Get overview before deep diving
-2. **Cross-reference**: Use multiple plugins for same data
-3. **Timeline correlation**: Correlate memory findings with disk/network
-4. **Document findings**: Keep detailed notes and screenshots
-5. **Validate results**: Verify findings through multiple methods
+1. **从广到深**：先获取概览再深入分析
+2. **交叉引用**：对相同数据使用多个插件
+3. **时间线关联**：将内存发现与磁盘/网络关联
+4. **记录发现**：保留详细笔记和截图
+5. **验证结果**：通过多种方法验证发现
 
-### Common Pitfalls
+### 常见陷阱
 
-- **Stale data**: Memory is volatile, analyze promptly
-- **Incomplete dumps**: Verify dump size matches expected RAM
-- **Symbol issues**: Ensure correct symbol files for OS version
-- **Smear**: Memory may change during acquisition
-- **Encryption**: Some data may be encrypted in memory
+- **过时数据**：内存是易失的，应及时分析
+- **不完整转储**：验证转储大小与预期 RAM 匹配
+- **符号问题**：确保符号文件与操作系统版本匹配
+- **涂抹**：获取期间内存可能发生变化
+- **加密**：某些数据在内存中可能是加密的

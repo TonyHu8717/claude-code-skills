@@ -1,29 +1,29 @@
 ---
 name: solidity-security
-description: Master smart contract security best practices to prevent common vulnerabilities and implement secure Solidity patterns. Use when writing smart contracts, auditing existing contracts, or implementing security measures for blockchain applications.
+description: 掌握智能合约安全最佳实践，预防常见漏洞并实现安全的 Solidity 模式。在编写智能合约、审计现有合约或为区块链应用程序实现安全措施时使用。
 ---
 
-# Solidity Security
+# Solidity 安全
 
-Master smart contract security best practices, vulnerability prevention, and secure Solidity development patterns.
+掌握智能合约安全最佳实践、漏洞预防和安全的 Solidity 开发模式。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Writing secure smart contracts
-- Auditing existing contracts for vulnerabilities
-- Implementing secure DeFi protocols
-- Preventing reentrancy, overflow, and access control issues
-- Optimizing gas usage while maintaining security
-- Preparing contracts for professional audits
-- Understanding common attack vectors
+- 编写安全的智能合约
+- 审计现有合约的漏洞
+- 实现安全的 DeFi 协议
+- 预防重入、溢出和访问控制问题
+- 在保持安全性的同时优化 gas 使用
+- 为专业审计准备合约
+- 了解常见攻击向量
 
-## Critical Vulnerabilities
+## 关键漏洞
 
-### 1. Reentrancy
+### 1. 重入攻击
 
-Attacker calls back into your contract before state is updated.
+攻击者在状态更新之前回调您的合约。
 
-**Vulnerable Code:**
+**漏洞代码：**
 
 ```solidity
 // VULNERABLE TO REENTRANCY
@@ -42,7 +42,7 @@ contract VulnerableBank {
 }
 ```
 
-**Secure Pattern (Checks-Effects-Interactions):**
+**安全模式（检查-效果-交互）：**
 
 ```solidity
 contract SecureBank {
@@ -62,7 +62,7 @@ contract SecureBank {
 }
 ```
 
-**Alternative: ReentrancyGuard**
+**替代方案：ReentrancyGuard**
 
 ```solidity
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
@@ -82,9 +82,9 @@ contract SecureBank is ReentrancyGuard {
 }
 ```
 
-### 2. Integer Overflow/Underflow
+### 2. 整数溢出/下溢
 
-**Vulnerable Code (Solidity < 0.8.0):**
+**漏洞代码（Solidity < 0.8.0）：**
 
 ```solidity
 // VULNERABLE
@@ -99,7 +99,7 @@ contract VulnerableToken {
 }
 ```
 
-**Secure Pattern (Solidity >= 0.8.0):**
+**安全模式（Solidity >= 0.8.0）：**
 
 ```solidity
 // Solidity 0.8+ has built-in overflow/underflow checks
@@ -114,7 +114,7 @@ contract SecureToken {
 }
 ```
 
-**For Solidity < 0.8.0, use SafeMath:**
+**对于 Solidity < 0.8.0，使用 SafeMath：**
 
 ```solidity
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -130,9 +130,9 @@ contract SecureToken {
 }
 ```
 
-### 3. Access Control
+### 3. 访问控制
 
-**Vulnerable Code:**
+**漏洞代码：**
 
 ```solidity
 // VULNERABLE: Anyone can call critical functions
@@ -146,7 +146,7 @@ contract VulnerableContract {
 }
 ```
 
-**Secure Pattern:**
+**安全模式：**
 
 ```solidity
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -172,9 +172,9 @@ contract RoleBasedContract {
 }
 ```
 
-### 4. Front-Running
+### 4. 抢先交易
 
-**Vulnerable:**
+**漏洞：**
 
 ```solidity
 // VULNERABLE TO FRONT-RUNNING
@@ -188,7 +188,7 @@ contract VulnerableDEX {
 }
 ```
 
-**Mitigation:**
+**缓解措施：**
 
 ```solidity
 contract SecureDEX {
@@ -214,9 +214,9 @@ contract SecureDEX {
 }
 ```
 
-## Security Best Practices
+## 安全最佳实践
 
-### Checks-Effects-Interactions Pattern
+### 检查-效果-交互模式
 
 ```solidity
 contract SecurePattern {
@@ -237,7 +237,7 @@ contract SecurePattern {
 }
 ```
 
-### Pull Over Push Pattern
+### 拉取优于推送模式
 
 ```solidity
 // Prefer this (pull)
@@ -268,7 +268,7 @@ contract RiskyPayment {
 }
 ```
 
-### Input Validation
+### 输入验证
 
 ```solidity
 contract SecureContract {
@@ -286,7 +286,7 @@ contract SecureContract {
 }
 ```
 
-### Emergency Stop (Circuit Breaker)
+### 紧急停止（断路器）
 
 ```solidity
 import "@openzeppelin/contracts/security/Pausable.sol";
@@ -306,9 +306,9 @@ contract EmergencyStop is Pausable, Ownable {
 }
 ```
 
-## Gas Optimization
+## Gas 优化
 
-### Use `uint256` Instead of Smaller Types
+### 使用 `uint256` 而非更小的类型
 
 ```solidity
 // More gas efficient
@@ -330,7 +330,7 @@ contract GasInefficient {
 }
 ```
 
-### Pack Storage Variables
+### 打包存储变量
 
 ```solidity
 // Gas efficient (3 variables in 1 slot)
@@ -350,7 +350,7 @@ contract UnpackedStorage {
 }
 ```
 
-### Use `calldata` Instead of `memory` for Function Arguments
+### 使用 `calldata` 替代 `memory` 作为函数参数
 
 ```solidity
 contract GasOptimized {
@@ -366,7 +366,7 @@ contract GasOptimized {
 }
 ```
 
-### Use Events for Data Storage (When Appropriate)
+### 使用事件进行数据存储（适当时）
 
 ```solidity
 contract EventStorage {
@@ -380,32 +380,32 @@ contract EventStorage {
 }
 ```
 
-## Common Vulnerabilities Checklist
+## 常见漏洞检查清单
 
 ```solidity
 // Security Checklist Contract
 contract SecurityChecklist {
     /**
-     * [ ] Reentrancy protection (ReentrancyGuard or CEI pattern)
-     * [ ] Integer overflow/underflow (Solidity 0.8+ or SafeMath)
-     * [ ] Access control (Ownable, roles, modifiers)
-     * [ ] Input validation (require statements)
-     * [ ] Front-running mitigation (commit-reveal if applicable)
-     * [ ] Gas optimization (packed storage, calldata)
-     * [ ] Emergency stop mechanism (Pausable)
-     * [ ] Pull over push pattern for payments
-     * [ ] No delegatecall to untrusted contracts
-     * [ ] No tx.origin for authentication (use msg.sender)
-     * [ ] Proper event emission
-     * [ ] External calls at end of function
-     * [ ] Check return values of external calls
-     * [ ] No hardcoded addresses
-     * [ ] Upgrade mechanism (if proxy pattern)
+     * [ ] 重入保护（ReentrancyGuard 或 CEI 模式）
+     * [ ] 整数溢出/下溢（Solidity 0.8+ 或 SafeMath）
+     * [ ] 访问控制（Ownable、角色、修饰符）
+     * [ ] 输入验证（require 语句）
+     * [ ] 抢先交易缓解（如适用则使用 commit-reveal）
+     * [ ] Gas 优化（打包存储、calldata）
+     * [ ] 紧急停止机制（Pausable）
+     * [ ] 支付使用拉取优于推送模式
+     * [ ] 不对不信任的合约使用 delegatecall
+     * [ ] 不使用 tx.origin 进行认证（使用 msg.sender）
+     * [ ] 正确的事件发射
+     * [ ] 外部调用放在函数末尾
+     * [ ] 检查外部调用的返回值
+     * [ ] 无硬编码地址
+     * [ ] 升级机制（如果是代理模式）
      */
 }
 ```
 
-## Testing for Security
+## 安全测试
 
 ```javascript
 // Hardhat test example
@@ -454,7 +454,7 @@ describe("Security Tests", function () {
 });
 ```
 
-## Audit Preparation
+## 审计准备
 
 ```solidity
 contract WellDocumentedContract {

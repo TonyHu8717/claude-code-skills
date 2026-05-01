@@ -1,35 +1,35 @@
 ---
 name: linkerd-patterns
-description: Implement Linkerd service mesh patterns for lightweight, security-focused service mesh deployments. Use when setting up Linkerd, configuring traffic policies, or implementing zero-trust networking with minimal overhead.
+description: 实现 Linkerd 服务网格模式，用于轻量级、安全优先的服务网格部署。在设置 Linkerd、配置流量策略或以最小开销实现零信任网络时使用。
 ---
 
-# Linkerd Patterns
+# Linkerd 模式
 
-Production patterns for Linkerd service mesh - the lightweight, security-first service mesh for Kubernetes.
+Linkerd 服务网格的生产模式——面向 Kubernetes 的轻量级、安全优先服务网格。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Setting up a lightweight service mesh
-- Implementing automatic mTLS
-- Configuring traffic splits for canary deployments
-- Setting up service profiles for per-route metrics
-- Implementing retries and timeouts
-- Multi-cluster service mesh
+- 设置轻量级服务网格
+- 实现自动 mTLS
+- 配置金丝雀部署的流量分割
+- 设置服务配置文件以获取每路由指标
+- 实现重试和超时
+- 多集群服务网格
 
-## Core Concepts
+## 核心概念
 
-### 1. Linkerd Architecture
+### 1. Linkerd 架构
 
 ```
 ┌─────────────────────────────────────────────┐
-│                Control Plane                 │
+│                控制平面                       │
 │  ┌─────────┐ ┌──────────┐ ┌──────────────┐ │
 │  │ destiny │ │ identity │ │ proxy-inject │ │
 │  └─────────┘ └──────────┘ └──────────────┘ │
 └─────────────────────────────────────────────┘
                       │
 ┌─────────────────────────────────────────────┐
-│                 Data Plane                   │
+│                 数据平面                      │
 │  ┌─────┐    ┌─────┐    ┌─────┐             │
 │  │proxy│────│proxy│────│proxy│             │
 │  └─────┘    └─────┘    └─────┘             │
@@ -40,43 +40,43 @@ Production patterns for Linkerd service mesh - the lightweight, security-first s
 └─────────────────────────────────────────────┘
 ```
 
-### 2. Key Resources
+### 2. 关键资源
 
-| Resource                | Purpose                              |
+| 资源 | 用途 |
 | ----------------------- | ------------------------------------ |
-| **ServiceProfile**      | Per-route metrics, retries, timeouts |
-| **TrafficSplit**        | Canary deployments, A/B testing      |
-| **Server**              | Define server-side policies          |
-| **ServerAuthorization** | Access control policies              |
+| **ServiceProfile** | 每路由指标、重试、超时 |
+| **TrafficSplit** | 金丝雀部署、A/B 测试 |
+| **Server** | 定义服务端策略 |
+| **ServerAuthorization** | 访问控制策略 |
 
-## Templates
+## 模板
 
-### Template 1: Mesh Installation
+### 模板 1：网格安装
 
 ```bash
-# Install CLI
+# 安装 CLI
 curl --proto '=https' --tlsv1.2 -sSfL https://run.linkerd.io/install | sh
 
-# Validate cluster
+# 验证集群
 linkerd check --pre
 
-# Install CRDs
+# 安装 CRD
 linkerd install --crds | kubectl apply -f -
 
-# Install control plane
+# 安装控制平面
 linkerd install | kubectl apply -f -
 
-# Verify installation
+# 验证安装
 linkerd check
 
-# Install viz extension (optional)
+# 安装可视化扩展（可选）
 linkerd viz install | kubectl apply -f -
 ```
 
-### Template 2: Inject Namespace
+### 模板 2：注入命名空间
 
 ```yaml
-# Automatic injection for namespace
+# 命名空间自动注入
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -84,7 +84,7 @@ metadata:
   annotations:
     linkerd.io/inject: enabled
 ---
-# Or inject specific deployment
+# 或注入特定 Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -98,7 +98,7 @@ spec:
         linkerd.io/inject: enabled
 ```
 
-### Template 3: Service Profile with Retries
+### 模板 3：带重试的服务配置文件
 
 ```yaml
 apiVersion: linkerd.io/v1alpha2
@@ -123,7 +123,7 @@ spec:
       condition:
         method: POST
         pathRegex: /api/users
-      # POST not retryable by default
+      # POST 默认不可重试
       isRetryable: false
     - name: GET /api/users/{id}
       condition:
@@ -137,7 +137,7 @@ spec:
     ttl: 10s
 ```
 
-### Template 4: Traffic Split (Canary)
+### 模板 4：流量分割（金丝雀）
 
 ```yaml
 apiVersion: split.smi-spec.io/v1alpha1
@@ -154,10 +154,10 @@ spec:
       weight: 100m # 10%
 ```
 
-### Template 5: Server Authorization Policy
+### 模板 5：服务器授权策略
 
 ```yaml
-# Define the server
+# 定义服务器
 apiVersion: policy.linkerd.io/v1beta1
 kind: Server
 metadata:
@@ -170,7 +170,7 @@ spec:
   port: http
   proxyProtocol: HTTP/1
 ---
-# Allow traffic from specific clients
+# 允许来自特定客户端的流量
 apiVersion: policy.linkerd.io/v1beta1
 kind: ServerAuthorization
 metadata:
@@ -185,7 +185,7 @@ spec:
         - name: frontend
           namespace: my-namespace
 ---
-# Allow unauthenticated traffic (e.g., from ingress)
+# 允许未认证流量（如来自 ingress 的流量）
 apiVersion: policy.linkerd.io/v1beta1
 kind: ServerAuthorization
 metadata:
@@ -200,7 +200,7 @@ spec:
       - cidr: 10.0.0.0/8
 ```
 
-### Template 6: HTTPRoute for Advanced Routing
+### 模板 6：HTTPRoute 高级路由
 
 ```yaml
 apiVersion: policy.linkerd.io/v1beta2
@@ -234,72 +234,72 @@ spec:
           port: 8080
 ```
 
-### Template 7: Multi-cluster Setup
+### 模板 7：多集群设置
 
 ```bash
-# On each cluster, install with cluster credentials
+# 在每个集群上，使用集群凭据安装
 linkerd multicluster install | kubectl apply -f -
 
-# Link clusters
+# 链接集群
 linkerd multicluster link --cluster-name west \
   --api-server-address https://west.example.com:6443 \
   | kubectl apply -f -
 
-# Export a service to other clusters
+# 将服务导出到其他集群
 kubectl label svc/my-service mirror.linkerd.io/exported=true
 
-# Verify cross-cluster connectivity
+# 验证跨集群连接
 linkerd multicluster check
 linkerd multicluster gateways
 ```
 
-## Monitoring Commands
+## 监控命令
 
 ```bash
-# Live traffic view
+# 实时流量视图
 linkerd viz top deploy/my-app
 
-# Per-route metrics
+# 每路由指标
 linkerd viz routes deploy/my-app
 
-# Check proxy status
+# 检查代理状态
 linkerd viz stat deploy -n my-namespace
 
-# View service dependencies
+# 查看服务依赖
 linkerd viz edges deploy -n my-namespace
 
-# Dashboard
+# 仪表盘
 linkerd viz dashboard
 ```
 
-## Debugging
+## 调试
 
 ```bash
-# Check injection status
+# 检查注入状态
 linkerd check --proxy -n my-namespace
 
-# View proxy logs
+# 查看代理日志
 kubectl logs deploy/my-app -c linkerd-proxy
 
-# Debug identity/TLS
+# 调试身份/TLS
 linkerd identity -n my-namespace
 
-# Tap traffic (live)
+# 抓取流量（实时）
 linkerd viz tap deploy/my-app --to deploy/my-backend
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该做的
 
-- **Enable mTLS everywhere** - It's automatic with Linkerd
-- **Use ServiceProfiles** - Get per-route metrics and retries
-- **Set retry budgets** - Prevent retry storms
-- **Monitor golden metrics** - Success rate, latency, throughput
+- **到处启用 mTLS** - Linkerd 自动处理
+- **使用 ServiceProfile** - 获取每路由指标和重试
+- **设置重试预算** - 防止重试风暴
+- **监控黄金指标** - 成功率、延迟、吞吐量
 
-### Don'ts
+### 不应该做的
 
-- **Don't skip check** - Always run `linkerd check` after changes
-- **Don't over-configure** - Linkerd defaults are sensible
-- **Don't ignore ServiceProfiles** - They unlock advanced features
-- **Don't forget timeouts** - Set appropriate values per route
+- **不要跳过 check** - 更改后始终运行 `linkerd check`
+- **不要过度配置** - Linkerd 默认值是合理的
+- **不要忽略 ServiceProfile** - 它们解锁高级功能
+- **不要忘记超时** - 为每条路由设置适当的值

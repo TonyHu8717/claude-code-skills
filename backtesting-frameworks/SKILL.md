@@ -1,70 +1,70 @@
 ---
 name: backtesting-frameworks
-description: Build robust backtesting systems for trading strategies with proper handling of look-ahead bias, survivorship bias, and transaction costs. Use when developing trading algorithms, validating strategies, or building backtesting infrastructure.
+description: 构建稳健的回测系统，正确处理前视偏差、幸存者偏差和交易成本。用于开发交易算法、验证策略或构建回测基础设施时使用。
 ---
 
-# Backtesting Frameworks
+# 回测框架
 
-Build robust, production-grade backtesting systems that avoid common pitfalls and produce reliable strategy performance estimates.
+构建稳健的、生产级的回测系统，避免常见陷阱并产生可靠的策略性能估计。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Developing trading strategy backtests
-- Building backtesting infrastructure
-- Validating strategy performance
-- Avoiding common backtesting biases
-- Implementing walk-forward analysis
-- Comparing strategy alternatives
+- 开发交易策略回测
+- 构建回测基础设施
+- 验证策略性能
+- 避免常见的回测偏差
+- 实现前进分析
+- 比较策略方案
 
-## Core Concepts
+## 核心概念
 
-### 1. Backtesting Biases
+### 1. 回测偏差
 
-| Bias             | Description               | Mitigation              |
+| 偏差 | 描述 | 缓解措施 |
 | ---------------- | ------------------------- | ----------------------- |
-| **Look-ahead**   | Using future information  | Point-in-time data      |
-| **Survivorship** | Only testing on survivors | Use delisted securities |
-| **Overfitting**  | Curve-fitting to history  | Out-of-sample testing   |
-| **Selection**    | Cherry-picking strategies | Pre-registration        |
-| **Transaction**  | Ignoring trading costs    | Realistic cost models   |
+| **前视偏差** | 使用未来信息 | 时间点数据 |
+| **幸存者偏差** | 仅对幸存者进行测试 | 使用已退市证券 |
+| **过拟合** | 对历史数据进行曲线拟合 | 样本外测试 |
+| **选择偏差** | 挑选策略 | 预注册 |
+| **交易成本偏差** | 忽略交易成本 | 真实成本模型 |
 
-### 2. Proper Backtest Structure
+### 2. 正确的回测结构
 
 ```
-Historical Data
+历史数据
       │
       ▼
 ┌─────────────────────────────────────────┐
-│              Training Set               │
-│  (Strategy Development & Optimization)  │
+│              训练集                       │
+│  （策略开发与优化）                        │
 └─────────────────────────────────────────┘
       │
       ▼
 ┌─────────────────────────────────────────┐
-│             Validation Set              │
-│  (Parameter Selection, No Peeking)      │
+│              验证集                       │
+│  （参数选择，不可偷看）                     │
 └─────────────────────────────────────────┘
       │
       ▼
 ┌─────────────────────────────────────────┐
-│               Test Set                  │
-│  (Final Performance Evaluation)         │
+│              测试集                       │
+│  （最终性能评估）                          │
 └─────────────────────────────────────────┘
 ```
 
-### 3. Walk-Forward Analysis
+### 3. 前进分析
 
 ```
-Window 1: [Train──────][Test]
-Window 2:     [Train──────][Test]
-Window 3:         [Train──────][Test]
-Window 4:             [Train──────][Test]
-                                     ─────▶ Time
+窗口 1: [训练──────][测试]
+窗口 2:     [训练──────][测试]
+窗口 3:         [训练──────][测试]
+窗口 4:             [训练──────][测试]
+                                     ─────▶ 时间
 ```
 
-## Implementation Patterns
+## 实现模式
 
-### Pattern 1: Event-Driven Backtester
+### 模式 1：事件驱动回测器
 
 ```python
 from abc import ABC, abstractmethod
@@ -173,7 +173,7 @@ class SimpleExecutionModel(ExecutionModel):
         if order.order_type == OrderType.MARKET:
             base_price = Decimal(str(bar["open"]))
 
-            # Apply slippage
+            # 应用滑点
             slippage_mult = 1 + (self.slippage_bps / 10000)
             if order.side == OrderSide.BUY:
                 fill_price = base_price * Decimal(str(slippage_mult))
@@ -207,11 +207,11 @@ class Backtester:
         self.trades: List[Fill] = []
 
     def run(self, data: pd.DataFrame) -> pd.DataFrame:
-        """Run backtest on OHLCV data with DatetimeIndex."""
+        """在带有 DatetimeIndex 的 OHLCV 数据上运行回测。"""
         pending_orders: List[Order] = []
 
         for timestamp, bar in data.iterrows():
-            # Execute pending orders at today's prices
+            # 以今天的价格执行待处理订单
             for order in pending_orders:
                 fill = self.execution_model.execute(order, bar)
                 if fill:
@@ -221,12 +221,12 @@ class Backtester:
 
             pending_orders.clear()
 
-            # Get current prices for equity calculation
+            # 获取当前价格用于权益计算
             prices = {data.index.name or "default": Decimal(str(bar["close"]))}
             equity = self.portfolio.get_equity(prices)
             self.equity_curve.append((timestamp, float(equity)))
 
-            # Generate new orders for next bar
+            # 为下一个 K 线生成新订单
             new_orders = self.strategy.on_bar(timestamp, data.loc[:timestamp])
             pending_orders.extend(new_orders)
 
@@ -239,7 +239,7 @@ class Backtester:
         return equity_df
 ```
 
-### Pattern 2: Vectorized Backtester (Fast)
+### 模式 2：向量化回测器（快速）
 
 ```python
 import pandas as pd
@@ -247,7 +247,7 @@ import numpy as np
 from typing import Callable, Dict, Any
 
 class VectorizedBacktester:
-    """Fast vectorized backtester for simple strategies."""
+    """用于简单策略的快速向量化回测器。"""
 
     def __init__(
         self,
@@ -265,31 +265,31 @@ class VectorizedBacktester:
         signal_func: Callable[[pd.DataFrame], pd.Series]
     ) -> Dict[str, Any]:
         """
-        Run backtest with signal function.
+        使用信号函数运行回测。
 
-        Args:
-            prices: DataFrame with 'close' column
-            signal_func: Function that returns position signals (-1, 0, 1)
+        参数:
+            prices: 包含 'close' 列的 DataFrame
+            signal_func: 返回持仓信号的函数 (-1, 0, 1)
 
-        Returns:
-            Dictionary with results
+        返回:
+            包含结果的字典
         """
-        # Generate signals (shifted to avoid look-ahead)
+        # 生成信号（移位以避免前视偏差）
         signals = signal_func(prices).shift(1).fillna(0)
 
-        # Calculate returns
+        # 计算收益
         returns = prices["close"].pct_change()
 
-        # Calculate strategy returns with costs
+        # 计算含成本的策略收益
         position_changes = signals.diff().abs()
         trading_costs = position_changes * (self.commission + self.slippage)
 
         strategy_returns = signals * returns - trading_costs
 
-        # Build equity curve
+        # 构建权益曲线
         equity = (1 + strategy_returns).cumprod() * self.initial_capital
 
-        # Calculate metrics
+        # 计算指标
         results = {
             "equity": equity,
             "returns": strategy_returns,
@@ -304,18 +304,18 @@ class VectorizedBacktester:
         returns: pd.Series,
         equity: pd.Series
     ) -> Dict[str, float]:
-        """Calculate performance metrics."""
+        """计算性能指标。"""
         total_return = (equity.iloc[-1] / self.initial_capital) - 1
         annual_return = (1 + total_return) ** (252 / len(returns)) - 1
         annual_vol = returns.std() * np.sqrt(252)
         sharpe = annual_return / annual_vol if annual_vol > 0 else 0
 
-        # Drawdown
+        # 回撤
         rolling_max = equity.cummax()
         drawdown = (equity - rolling_max) / rolling_max
         max_drawdown = drawdown.min()
 
-        # Win rate
+        # 胜率
         winning_days = (returns > 0).sum()
         total_days = (returns != 0).sum()
         win_rate = winning_days / total_days if total_days > 0 else 0
@@ -330,18 +330,18 @@ class VectorizedBacktester:
             "num_trades": int((returns != 0).sum())
         }
 
-# Example usage
+# 示例用法
 def momentum_signal(prices: pd.DataFrame, lookback: int = 20) -> pd.Series:
-    """Simple momentum strategy: long when price > SMA, else flat."""
+    """简单动量策略：价格 > SMA 时做多，否则空仓。"""
     sma = prices["close"].rolling(lookback).mean()
     return (prices["close"] > sma).astype(int)
 
-# Run backtest
+# 运行回测
 # backtester = VectorizedBacktester()
 # results = backtester.run(price_data, lambda p: momentum_signal(p, 50))
 ```
 
-### Pattern 3: Walk-Forward Optimization
+### 模式 3：前进优化
 
 ```python
 from typing import Callable, Dict, List, Tuple, Any
@@ -350,7 +350,7 @@ import numpy as np
 from itertools import product
 
 class WalkForwardOptimizer:
-    """Walk-forward analysis with anchored or rolling windows."""
+    """使用锚定或滚动窗口的前进分析。"""
 
     def __init__(
         self,
@@ -360,11 +360,11 @@ class WalkForwardOptimizer:
         n_splits: int = None
     ):
         """
-        Args:
-            train_period: Number of bars in training window
-            test_period: Number of bars in test window
-            anchored: If True, training always starts from beginning
-            n_splits: Number of train/test splits (auto-calculated if None)
+        参数:
+            train_period: 训练窗口中的 K 线数量
+            test_period: 测试窗口中的 K 线数量
+            anchored: 如果为 True，训练始终从头开始
+            n_splits: 训练/测试分割数（如果为 None 则自动计算）
         """
         self.train_period = train_period
         self.test_period = test_period
@@ -375,7 +375,7 @@ class WalkForwardOptimizer:
         self,
         data: pd.DataFrame
     ) -> List[Tuple[pd.DataFrame, pd.DataFrame]]:
-        """Generate train/test splits."""
+        """生成训练/测试分割。"""
         splits = []
         n = len(data)
 
@@ -410,29 +410,29 @@ class WalkForwardOptimizer:
         metric: str = "sharpe_ratio"
     ) -> Dict[str, Any]:
         """
-        Run walk-forward optimization.
+        运行前进优化。
 
-        Args:
-            data: Full dataset
-            strategy_func: Function(data, **params) -> results dict
-            param_grid: Parameter combinations to test
-            metric: Metric to optimize
+        参数:
+            data: 完整数据集
+            strategy_func: 函数(data, **params) -> 结果字典
+            param_grid: 要测试的参数组合
+            metric: 要优化的指标
 
-        Returns:
-            Combined results from all test periods
+        返回:
+            所有测试周期的合并结果
         """
         splits = self.generate_splits(data)
         all_results = []
         optimal_params_history = []
 
         for i, (train_data, test_data) in enumerate(splits):
-            # Optimize on training data
+            # 在训练数据上优化
             best_params, best_metric = self._grid_search(
                 train_data, strategy_func, param_grid, metric
             )
             optimal_params_history.append(best_params)
 
-            # Test with optimal params
+            # 使用最优参数进行测试
             test_results = strategy_func(test_data, **best_params)
             test_results["split"] = i
             test_results["params"] = best_params
@@ -454,11 +454,11 @@ class WalkForwardOptimizer:
         param_grid: Dict[str, List],
         metric: str
     ) -> Tuple[Dict, float]:
-        """Grid search for best parameters."""
+        """网格搜索最优参数。"""
         best_params = None
         best_metric = -np.inf
 
-        # Generate all parameter combinations
+        # 生成所有参数组合
         param_names = list(param_grid.keys())
         param_values = list(param_grid.values())
 
@@ -476,12 +476,12 @@ class WalkForwardOptimizer:
         self,
         results: List[Dict]
     ) -> pd.Series:
-        """Combine equity curves from all test periods."""
+        """合并所有测试周期的权益曲线。"""
         combined = pd.concat([r["equity"] for r in results])
         return combined
 ```
 
-### Pattern 4: Monte Carlo Analysis
+### 模式 4：蒙特卡洛分析
 
 ```python
 import numpy as np
@@ -489,7 +489,7 @@ import pandas as pd
 from typing import Dict, List
 
 class MonteCarloAnalyzer:
-    """Monte Carlo simulation for strategy robustness."""
+    """用于策略稳健性的蒙特卡洛模拟。"""
 
     def __init__(self, n_simulations: int = 1000, confidence: float = 0.95):
         self.n_simulations = n_simulations
@@ -501,14 +501,14 @@ class MonteCarloAnalyzer:
         n_periods: int = None
     ) -> np.ndarray:
         """
-        Bootstrap simulation by resampling returns.
+        通过重采样收益进行自举模拟。
 
-        Args:
-            returns: Historical returns series
-            n_periods: Length of each simulation (default: same as input)
+        参数:
+            returns: 历史收益序列
+            n_periods: 每次模拟的长度（默认：与输入相同）
 
-        Returns:
-            Array of shape (n_simulations, n_periods)
+        返回:
+            形状为 (n_simulations, n_periods) 的数组
         """
         if n_periods is None:
             n_periods = len(returns)
@@ -516,7 +516,7 @@ class MonteCarloAnalyzer:
         simulations = np.zeros((self.n_simulations, n_periods))
 
         for i in range(self.n_simulations):
-            # Resample with replacement
+            # 有放回重采样
             simulated_returns = np.random.choice(
                 returns.values,
                 size=n_periods,
@@ -530,7 +530,7 @@ class MonteCarloAnalyzer:
         self,
         returns: pd.Series
     ) -> Dict[str, float]:
-        """Analyze drawdown distribution via simulation."""
+        """通过模拟分析回撤分布。"""
         simulations = self.bootstrap_returns(returns)
 
         max_drawdowns = []
@@ -556,7 +556,7 @@ class MonteCarloAnalyzer:
         returns: pd.Series,
         holding_periods: List[int] = [21, 63, 126, 252]
     ) -> Dict[int, float]:
-        """Calculate probability of loss over various holding periods."""
+        """计算不同持有期的亏损概率。"""
         results = {}
 
         for period in holding_periods:
@@ -575,7 +575,7 @@ class MonteCarloAnalyzer:
         returns: pd.Series,
         periods: int = 252
     ) -> Dict[str, float]:
-        """Calculate confidence interval for future returns."""
+        """计算未来收益的置信区间。"""
         simulations = self.bootstrap_returns(returns, periods)
         total_returns = (1 + simulations).prod(axis=1) - 1
 
@@ -590,35 +590,35 @@ class MonteCarloAnalyzer:
         }
 ```
 
-## Performance Metrics
+## 性能指标
 
 ```python
 def calculate_metrics(returns: pd.Series, rf_rate: float = 0.02) -> Dict[str, float]:
-    """Calculate comprehensive performance metrics."""
-    # Annualization factor (assuming daily returns)
+    """计算全面的性能指标。"""
+    # 年化因子（假设日收益）
     ann_factor = 252
 
-    # Basic metrics
+    # 基本指标
     total_return = (1 + returns).prod() - 1
     annual_return = (1 + total_return) ** (ann_factor / len(returns)) - 1
     annual_vol = returns.std() * np.sqrt(ann_factor)
 
-    # Risk-adjusted returns
+    # 风险调整收益
     sharpe = (annual_return - rf_rate) / annual_vol if annual_vol > 0 else 0
 
-    # Sortino (downside deviation)
+    # Sortino（下行偏差）
     downside_returns = returns[returns < 0]
     downside_vol = downside_returns.std() * np.sqrt(ann_factor)
     sortino = (annual_return - rf_rate) / downside_vol if downside_vol > 0 else 0
 
-    # Calmar ratio
+    # Calmar 比率
     equity = (1 + returns).cumprod()
     rolling_max = equity.cummax()
     drawdowns = (equity - rolling_max) / rolling_max
     max_drawdown = drawdowns.min()
     calmar = annual_return / abs(max_drawdown) if max_drawdown != 0 else 0
 
-    # Win rate and profit factor
+    # 胜率和盈亏比
     wins = returns[returns > 0]
     losses = returns[returns < 0]
     win_rate = len(wins) / len(returns[returns != 0]) if len(returns[returns != 0]) > 0 else 0
@@ -638,20 +638,20 @@ def calculate_metrics(returns: pd.Series, rf_rate: float = 0.02) -> Dict[str, fl
     }
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该做的
 
-- **Use point-in-time data** - Avoid look-ahead bias
-- **Include transaction costs** - Realistic estimates
-- **Test out-of-sample** - Always reserve data
-- **Use walk-forward** - Not just train/test
-- **Monte Carlo analysis** - Understand uncertainty
+- **使用时间点数据** - 避免前视偏差
+- **包含交易成本** - 真实估计
+- **样本外测试** - 始终保留数据
+- **使用前进分析** - 不仅仅是训练/测试
+- **蒙特卡洛分析** - 理解不确定性
 
-### Don'ts
+### 不应该做的
 
-- **Don't overfit** - Limit parameters
-- **Don't ignore survivorship** - Include delisted
-- **Don't use adjusted data carelessly** - Understand adjustments
-- **Don't optimize on full history** - Reserve test set
-- **Don't ignore capacity** - Market impact matters
+- **不要过拟合** - 限制参数数量
+- **不要忽略幸存者偏差** - 包含已退市的证券
+- **不要随意使用调整后数据** - 理解调整方式
+- **不要在完整历史上优化** - 保留测试集
+- **不要忽略容量** - 市场影响很重要

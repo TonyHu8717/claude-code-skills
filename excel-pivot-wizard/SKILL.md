@@ -1,13 +1,12 @@
 ---
 name: excel-pivot-wizard
 description: |
-  Generates pivot tables and charts from raw data using natural language commands.
-  Targets business analysts and data teams working in Excel.
-  Use when asked to create a pivot table, summarize data by category, analyze sales
-  by region, show revenue breakdowns, or build cross-tab analyses.
-  Trigger with "create a pivot table", "summarize by category", "sales by region",
-  or "show breakdown by".
-  Make sure to use whenever the user needs data summarization or pivot analysis in Excel.
+  使用自然语言命令从原始数据生成数据透视表和图表。
+  面向在 Excel 中工作的业务分析师和数据团队。
+  当要求创建数据透视表、按类别汇总数据、按区域分析销售、
+  显示收入分解或构建交叉表分析时使用。
+  使用"创建数据透视表"、"按类别汇总"、"按区域销售"或"显示分解"触发。
+  确保在用户需要 Excel 中的数据汇总或透视分析时使用。
 allowed-tools: "Read,Write,Edit,Glob,Grep,Bash(npx:*),AskUserQuestion"
 model: inherit
 version: "2.0.0"
@@ -17,142 +16,140 @@ compatible-with: claude-code
 tags: [pivot-table, data-analysis, excel, business-intelligence, reporting]
 ---
 
-# Excel Pivot Wizard
+# Excel 透视表向导
 
-## Table of Contents
-- [Overview](#overview) — [Prerequisites](#prerequisites) — [Instructions](#instructions) — [Output](#output) — [Examples](#examples) — [Error Handling](#error-handling) — [Resources](#resources)
+## 目录
+- [概述](#概述) — [先决条件](#先决条件) — [指令](#指令) — [输出](#输出) — [示例](#示例) — [错误处理](#错误处理) — [资源](#资源)
 
-## Overview
+## 概述
 
-Creates pivot tables and visualizations from raw data using natural language commands.
-Automates the full workflow from data inspection to formatted pivot tables with charts,
-calculated fields, and conditional formatting so analysts can produce polished reports
-without manual Excel work.
+使用自然语言命令从原始数据创建数据透视表和可视化。自动执行从数据检查到格式化数据透视表的完整工作流，
+包含图表、计算字段和条件格式，使分析师无需手动 Excel 工作即可生成精炼的报告。
 
-## Prerequisites
+## 先决条件
 
 - Node.js 18+
-- `@negokaz/excel-mcp-server` MCP server configured
+- 已配置 `@negokaz/excel-mcp-server` MCP 服务器
 - Claude Code 1.0+
-- Source data in `.xlsx` format accessible locally
+- 本地可访问的 `.xlsx` 格式源数据
 
-## Instructions
+## 指令
 
-### Step 1: Understand the Data
+### 步骤 1：理解数据
 
-Read the source Excel file and identify:
-- Column names and data types
-- Data grain (transaction-level, daily summary, etc.)
-- Which fields are dimensions (group by) vs measures (aggregate)
-- Row count and date range
+读取源 Excel 文件并识别：
+- 列名和数据类型
+- 数据粒度（交易级别、每日汇总等）
+- 哪些字段是维度（分组依据）vs 度量（聚合）
+- 行数和日期范围
 
-If unclear, use AskUserQuestion to clarify what each column represents, what fields should be aggregated vs grouped, and what aggregation function to use (sum, average, count).
+如果不清晰，使用 AskUserQuestion 澄清每列代表什么、哪些字段应聚合 vs 分组、以及使用什么聚合函数（求和、平均、计数）。
 
-### Step 2: Interpret the Request
+### 步骤 2：解读请求
 
-Parse natural language into pivot table structure:
+将自然语言解析为数据透视表结构：
 
-| Request | Rows | Columns | Values |
+| 请求 | 行 | 列 | 值 |
 |---------|------|---------|--------|
-| "Show sales by region" | Region | -- | Sum of Sales |
-| "Sales by region and month" | Region | Month | Sum of Sales |
-| "Average order value by segment" | Segment | -- | Avg of Order Value |
-| "Count orders by category and rep" | Category | Sales Rep | Count of Orders |
+| "按区域显示销售" | 区域 | -- | 销售总和 |
+| "按区域和月份的销售" | 区域 | 月份 | 销售总和 |
+| "按细分的平均订单价值" | 细分 | -- | 订单价值平均 |
+| "按类别和代表计数订单" | 类别 | 销售代表 | 订单计数 |
 
-### Step 3: Build the Pivot Table
+### 步骤 3：构建数据透视表
 
-Use the Excel MCP server to:
-1. Create pivot table on a new sheet
-2. Set row fields (one or more dimensions)
-3. Set column fields if cross-tabulation requested
-4. Set value fields with correct aggregation (sum, average, count, min, max)
-5. Add subtotals and grand totals
-6. Sort largest to smallest by default (chronological for dates)
+使用 Excel MCP 服务器：
+1. 在新工作表上创建数据透视表
+2. 设置行字段（一个或多个维度）
+3. 如果需要交叉表则设置列字段
+4. 设置值字段及正确的聚合（求和、平均、计数、最小、最大）
+5. 添加小计和总计
+6. 默认按从大到小排序（日期按时间顺序）
 
-### Step 4: Add Enhancements
+### 步骤 4：添加增强
 
-**Calculated Fields** (if applicable): Profit Margin %, Growth %, % of Total.
+**计算字段**（如适用）：利润率 %、增长率 %、占总计百分比。
 
-**Conditional Formatting:** Top 10% dark green, bottom 10% dark red, color gradient for heatmap.
+**条件格式：** 前 10% 深绿色，后 10% 深红色，热力图颜色渐变。
 
-**Sorting:** Largest to smallest by default, chronological for date fields.
+**排序：** 默认从大到小，日期字段按时间顺序。
 
-### Step 5: Create Visualization
+### 步骤 5：创建可视化
 
-Choose chart type based on analysis pattern:
+根据分析模式选择图表类型：
 
-| Pattern | Chart Type |
+| 模式 | 图表类型 |
 |---------|-----------|
-| Comparisons across categories | Column/bar chart |
-| Trends over time | Line chart |
-| Composition/share | Pie/donut chart |
-| Correlations | Scatter plot |
-| Multiple metrics | Combo chart (column + line) |
+| 跨类别比较 | 柱状图/条形图 |
+| 随时间趋势 | 折线图 |
+| 组成/份额 | 饼图/环形图 |
+| 相关性 | 散点图 |
+| 多指标 | 组合图（柱状 + 折线） |
 
-### Step 6: Format Professionally
+### 步骤 6：专业格式化
 
-- Currency: $1,250,000 or $1.25M
-- Counts: thousands separator (2,000)
-- Percentages: 1 decimal place (35.0%)
-- Bold headers, freeze top row and left column
-- Alternating row colors for readability
+- 货币：$1,250,000 或 $1.25M
+- 计数：千位分隔符（2,000）
+- 百分比：1 位小数（35.0%）
+- 粗体标题，冻结首行和首列
+- 交替行颜色提高可读性
 
-### Step 7: Return Results
+### 步骤 7：返回结果
 
-Report summary of what the pivot table shows, top 3-5 key insights, specific numbers for standout findings, suggested follow-up analyses, and offer to add slicers, filters, or drill-downs.
+报告数据透视表显示内容的摘要、前 3-5 个关键洞察、突出发现的具体数字、建议的后续分析，并提供添加切片器、筛选器或钻取的选项。
 
-## Output
+## 输出
 
-- `.xlsx` file with new pivot table sheet(s) added to the source workbook
-- Chart visualization matching the analysis pattern
-- Summary text with top insights and key numbers
-- Suggestions for follow-up analysis
+- `.xlsx` 文件，在源工作簿中添加新的数据透视表工作表
+- 匹配分析模式的图表可视化
+- 包含关键洞察和关键数字的摘要文本
+- 后续分析建议
 
-## Examples
+## 示例
 
-### Single Dimension Summary
+### 单维度汇总
 
 ```
-User: "Show total sales by region"
+用户："按区域显示总销售"
 
-Output:
-| Region    | Total Sales |
+输出：
+| 区域    | 总销售 |
 |-----------|-------------|
-| West      | $1,450,000  |
-| Northeast | $1,250,000  |
-| Midwest   | $1,100,000  |
-| Southeast | $980,000    |
-| Total     | $4,780,000  |
+| 西部      | $1,450,000  |
+| 东北 | $1,250,000  |
+| 中西部   | $1,100,000  |
+| 东南 | $980,000    |
+| 合计     | $4,780,000  |
 
-Insight: West leads at 30.3% of total sales.
+洞察：西部领先，占总销售的 30.3%。
 ```
 
-### Cross-Tabulation
+### 交叉表
 
 ```
-User: "Sales by region and product category"
+用户："按区域和产品类别的销售"
 
-Output: 4x3 grid with row/column totals.
-Insight: West + Electronics = highest cell at $550K.
+输出：4x3 网格，包含行/列总计。
+洞察：西部 + 电子产品 = 最高单元格 $550K。
 ```
 
-## Error Handling
+## 错误处理
 
-| Scenario | Response |
+| 场景 | 响应 |
 |----------|----------|
-| No numeric columns found | Ask user which field to aggregate |
-| Ambiguous dimension field | List options and ask user to choose |
-| Too many categories (>50 rows) | Suggest Top N or grouping approach |
-| Missing data in key columns | Report % missing, offer to exclude nulls |
-| Date field not recognized | Ask user to confirm date column and format |
+| 未找到数字列 | 询问用户要聚合哪个字段 |
+| 模糊的维度字段 | 列出选项并请用户选择 |
+| 类别太多（>50 行） | 建议 Top N 或分组方法 |
+| 关键列中缺失数据 | 报告缺失百分比，提供排除空值选项 |
+| 未识别日期字段 | 请用户确认日期列和格式 |
 
-## Edge Cases
+## 边缘情况
 
-- If data has no headers, infer from content or ask user
-- If user asks for "breakdown" without specifying metric, default to count
-- If multiple numeric columns exist, ask which to aggregate
-- If data spans multiple sheets, ask which sheet to analyze
+- 如果数据没有标题，从内容推断或询问用户
+- 如果用户要求"分解"但未指定指标，默认为计数
+- 如果存在多个数字列，询问要聚合哪个
+- 如果数据跨越多个工作表，询问要分析哪个工作表
 
-## Resources
+## 资源
 
-- ${CLAUDE_SKILL_DIR}/references/REFERENCE.md - Pivot table best practices, chart selection guide
+- ${CLAUDE_SKILL_DIR}/references/REFERENCE.md - 数据透视表最佳实践、图表选择指南

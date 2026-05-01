@@ -1,390 +1,390 @@
 ---
 name: postmortem-writing
-description: Write effective blameless postmortems with root cause analysis, timelines, and action items. Use when conducting incident reviews, writing postmortem documents, or improving incident response processes.
+description: 编写有效的无责事后分析报告，包含根本原因分析、时间线和行动项。在进行事件审查、编写事后分析文档或改进事件响应流程时使用。
 ---
 
-# Postmortem Writing
+# 事后分析写作
 
-Comprehensive guide to writing effective, blameless postmortems that drive organizational learning and prevent incident recurrence.
+编写有效的、无责的事后分析报告的综合指南，推动组织学习并防止事件再次发生。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Conducting post-incident reviews
-- Writing postmortem documents
-- Facilitating blameless postmortem meetings
-- Identifying root causes and contributing factors
-- Creating actionable follow-up items
-- Building organizational learning culture
+- 进行事后审查
+- 编写事后分析文档
+- 主持无责事后分析会议
+- 识别根本原因和促成因素
+- 创建可操作的后续事项
+- 建立组织学习文化
 
-## Core Concepts
+## 核心概念
 
-### 1. Blameless Culture
+### 1. 无责文化
 
-| Blame-Focused            | Blameless                         |
-| ------------------------ | --------------------------------- |
-| "Who caused this?"       | "What conditions allowed this?"   |
-| "Someone made a mistake" | "The system allowed this mistake" |
-| Punish individuals       | Improve systems                   |
-| Hide information         | Share learnings                   |
-| Fear of speaking up      | Psychological safety              |
+| 以责备为中心           | 无责                              |
+| ---------------------- | --------------------------------- |
+| "谁造成的？"           | "什么条件允许了这种情况？"        |
+| "有人犯了错误"         | "系统允许了这个错误"              |
+| 惩罚个人               | 改进系统                          |
+| 隐藏信息               | 分享学习                          |
+| 害怕发言               | 心理安全                          |
 
-### 2. Postmortem Triggers
+### 2. 事后分析触发条件
 
-- SEV1 or SEV2 incidents
-- Customer-facing outages > 15 minutes
-- Data loss or security incidents
-- Near-misses that could have been severe
-- Novel failure modes
-- Incidents requiring unusual intervention
+- SEV1 或 SEV2 事件
+- 面向客户的中断超过 15 分钟
+- 数据丢失或安全事件
+- 可能很严重的未遂事件
+- 新颖的故障模式
+- 需要异常干预的事件
 
-## Quick Start
+## 快速开始
 
-### Postmortem Timeline
+### 事后分析时间线
 
 ```
-Day 0: Incident occurs
-Day 1-2: Draft postmortem document
-Day 3-5: Postmortem meeting
-Day 5-7: Finalize document, create tickets
-Week 2+: Action item completion
-Quarterly: Review patterns across incidents
+第 0 天：事件发生
+第 1-2 天：起草事后分析文档
+第 3-5 天：事后分析会议
+第 5-7 天：定稿文档，创建工单
+第 2 周+：完成行动项
+每季度：审查跨事件的模式
 ```
 
-## Templates
+## 模板
 
-### Template 1: Standard Postmortem
+### 模板 1：标准事后分析
 
 ```markdown
-# Postmortem: [Incident Title]
+# 事后分析：[事件标题]
 
-**Date**: 2024-01-15
-**Authors**: @alice, @bob
-**Status**: Draft | In Review | Final
-**Incident Severity**: SEV2
-**Incident Duration**: 47 minutes
+**日期**：2024-01-15
+**作者**：@alice、@bob
+**状态**：草稿 | 审阅中 | 定稿
+**事件严重级别**：SEV2
+**事件持续时间**：47 分钟
 
-## Executive Summary
+## 执行摘要
 
-On January 15, 2024, the payment processing service experienced a 47-minute outage affecting approximately 12,000 customers. The root cause was a database connection pool exhaustion triggered by a configuration change in deployment v2.3.4. The incident was resolved by rolling back to v2.3.3 and increasing connection pool limits.
+2024 年 1 月 15 日，支付处理服务经历了一次 47 分钟的中断，影响了约 12,000 名客户。根本原因是部署 v2.3.4 中的配置更改触发了数据库连接池耗尽。通过回滚到 v2.3.3 并增加连接池限制解决了该事件。
 
-**Impact**:
+**影响**：
 
-- 12,000 customers unable to complete purchases
-- Estimated revenue loss: $45,000
-- 847 support tickets created
-- No data loss or security implications
+- 12,000 名客户无法完成购买
+- 估计收入损失：$45,000
+- 创建了 847 个支持工单
+- 无数据丢失或安全影响
 
-## Timeline (All times UTC)
+## 时间线（所有时间为 UTC）
 
-| Time  | Event                                           |
+| 时间  | 事件                                            |
 | ----- | ----------------------------------------------- |
-| 14:23 | Deployment v2.3.4 completed to production       |
-| 14:31 | First alert: `payment_error_rate > 5%`          |
-| 14:33 | On-call engineer @alice acknowledges alert      |
-| 14:35 | Initial investigation begins, error rate at 23% |
-| 14:41 | Incident declared SEV2, @bob joins              |
-| 14:45 | Database connection exhaustion identified       |
-| 14:52 | Decision to rollback deployment                 |
-| 14:58 | Rollback to v2.3.3 initiated                    |
-| 15:10 | Rollback complete, error rate dropping          |
-| 15:18 | Service fully recovered, incident resolved      |
+| 14:23 | 部署 v2.3.4 完成到生产环境                      |
+| 14:31 | 首个警报：`payment_error_rate > 5%`             |
+| 14:33 | 值班工程师 @alice 确认警报                      |
+| 14:35 | 开始初步调查，错误率为 23%                      |
+| 14:41 | 事件宣布为 SEV2，@bob 加入                      |
+| 14:45 | 识别出数据库连接耗尽                            |
+| 14:52 | 决定回滚部署                                    |
+| 14:58 | 开始回滚到 v2.3.3                               |
+| 15:10 | 回滚完成，错误率下降                            |
+| 15:18 | 服务完全恢复，事件解决                          |
 
-## Root Cause Analysis
+## 根本原因分析
 
-### What Happened
+### 发生了什么
 
-The v2.3.4 deployment included a change to the database query pattern that inadvertently removed connection pooling for a frequently-called endpoint. Each request opened a new database connection instead of reusing pooled connections.
+v2.3.4 部署包含了一个对数据库查询模式的更改，无意中移除了一个频繁调用端点的连接池。每个请求都打开一个新的数据库连接，而不是重用池中的连接。
 
-### Why It Happened
+### 为什么会发生
 
-1. **Proximate Cause**: Code change in `PaymentRepository.java` replaced pooled `DataSource` with direct `DriverManager.getConnection()` calls.
+1. **直接原因**：`PaymentRepository.java` 中的代码更改将池化的 `DataSource` 替换为直接的 `DriverManager.getConnection()` 调用。
 
-2. **Contributing Factors**:
-   - Code review did not catch the connection handling change
-   - No integration tests specifically for connection pool behavior
-   - Staging environment has lower traffic, masking the issue
-   - Database connection metrics alert threshold was too high (90%)
+2. **促成因素**：
+   - 代码审查未捕获连接处理的更改
+   - 没有针对连接池行为的集成测试
+   - 预发布环境流量较低，掩盖了问题
+   - 数据库连接指标警报阈值过高（90%）
 
-3. **5 Whys Analysis**:
-   - Why did the service fail? → Database connections exhausted
-   - Why were connections exhausted? → Each request opened new connection
-   - Why did each request open new connection? → Code bypassed connection pool
-   - Why did code bypass connection pool? → Developer unfamiliar with codebase patterns
-   - Why was developer unfamiliar? → No documentation on connection management patterns
+3. **5 个为什么分析**：
+   - 为什么服务失败？→ 数据库连接耗尽
+   - 为什么连接耗尽？→ 每个请求都打开新连接
+   - 为什么每个请求都打开新连接？→ 代码绕过了连接池
+   - 为什么代码绕过了连接池？→ 开发者不熟悉代码库模式
+   - 为什么不熟悉？→ 没有关于连接管理模式的文档
 
-### System Diagram
+### 系统图
 ```
 
-[Client] → [Load Balancer] → [Payment Service] → [Database]
+[客户端] → [负载均衡器] → [支付服务] → [数据库]
 ↓
-Connection Pool (broken)
+连接池（损坏）
 ↓
-Direct connections (cause)
+直接连接（原因）
 
 ```
 
-## Detection
+## 检测
 
-### What Worked
-- Error rate alert fired within 8 minutes of deployment
-- Grafana dashboard clearly showed connection spike
-- On-call response was swift (2 minute acknowledgment)
+### 什么有效
+- 错误率警报在部署后 8 分钟内触发
+- Grafana 仪表板清楚地显示了连接峰值
+- 值班响应迅速（2 分钟确认）
 
-### What Didn't Work
-- Database connection metric alert threshold too high
-- No deployment-correlated alerting
-- Canary deployment would have caught this earlier
+### 什么无效
+- 数据库连接指标警报阈值过高
+- 没有部署关联的警报
+- 金丝雀部署可以更早发现此问题
 
-### Detection Gap
-The deployment completed at 14:23, but the first alert didn't fire until 14:31 (8 minutes). A deployment-aware alert could have detected the issue faster.
+### 检测差距
+部署在 14:23 完成，但首个警报直到 14:31 才触发（8 分钟）。部署感知警报可以更快地检测到问题。
 
-## Response
+## 响应
 
-### What Worked
-- On-call engineer quickly identified database as the issue
-- Rollback decision was made decisively
-- Clear communication in incident channel
+### 什么有效
+- 值班工程师迅速识别出数据库是问题所在
+- 回滚决策果断
+- 事件通道中的沟通清晰
 
-### What Could Be Improved
-- Took 10 minutes to correlate issue with recent deployment
-- Had to manually check deployment history
-- Rollback took 12 minutes (could be faster)
+### 可改进之处
+- 花了 10 分钟将问题与最近的部署关联
+- 必须手动检查部署历史
+- 回滚耗时 12 分钟（可以更快）
 
-## Impact
+## 影响
 
-### Customer Impact
-- 12,000 unique customers affected
-- Average impact duration: 35 minutes
-- 847 support tickets (23% of affected users)
-- Customer satisfaction score dropped 12 points
+### 客户影响
+- 12,000 名独立客户受影响
+- 平均影响持续时间：35 分钟
+- 847 个支持工单（23% 的受影响用户）
+- 客户满意度得分下降 12 分
 
-### Business Impact
-- Estimated revenue loss: $45,000
-- Support cost: ~$2,500 (agent time)
-- Engineering time: ~8 person-hours
+### 业务影响
+- 估计收入损失：$45,000
+- 支持成本：约 $2,500（代理时间）
+- 工程时间：约 8 人时
 
-### Technical Impact
-- Database primary experienced elevated load
-- Some replica lag during incident
-- No permanent damage to systems
+### 技术影响
+- 数据库主节点经历高负载
+- 事件期间部分副本延迟
+- 系统无永久性损坏
 
-## Lessons Learned
+## 经验教训
 
-### What Went Well
-1. Alerting detected the issue before customer reports
-2. Team collaborated effectively under pressure
-3. Rollback procedure worked smoothly
-4. Communication was clear and timely
+### 做得好的方面
+1. 警报在客户报告之前检测到问题
+2. 团队在压力下有效协作
+3. 回滚过程顺利
+4. 沟通清晰及时
 
-### What Went Wrong
-1. Code review missed critical change
-2. Test coverage gap for connection pooling
-3. Staging environment doesn't reflect production traffic
-4. Alert thresholds were not tuned properly
+### 做得不好的方面
+1. 代码审查遗漏了关键更改
+2. 连接池的测试覆盖缺口
+3. 预发布环境不反映生产流量
+4. 警报阈值未正确调优
 
-### Where We Got Lucky
-1. Incident occurred during business hours with full team available
-2. Database handled the load without failing completely
-3. No other incidents occurred simultaneously
+### 运气好的方面
+1. 事件发生在工作时间，全团队可用
+2. 数据库在没有完全失败的情况下处理了负载
+3. 没有同时发生其他事件
 
-## Action Items
+## 行动项
 
-| Priority | Action | Owner | Due Date | Ticket |
-|----------|--------|-------|----------|--------|
-| P0 | Add integration test for connection pool behavior | @alice | 2024-01-22 | ENG-1234 |
-| P0 | Lower database connection alert threshold to 70% | @bob | 2024-01-17 | OPS-567 |
-| P1 | Document connection management patterns | @alice | 2024-01-29 | DOC-89 |
-| P1 | Implement deployment-correlated alerting | @bob | 2024-02-05 | OPS-568 |
-| P2 | Evaluate canary deployment strategy | @charlie | 2024-02-15 | ENG-1235 |
-| P2 | Load test staging with production-like traffic | @dave | 2024-02-28 | QA-123 |
+| 优先级 | 行动                               | 负责人   | 截止日期   | 工单     |
+| ------ | ---------------------------------- | -------- | ---------- | -------- |
+| P0     | 添加连接池行为的集成测试           | @alice   | 2024-01-22 | ENG-1234 |
+| P0     | 将数据库连接警报阈值降低到 70%     | @bob     | 2024-01-17 | OPS-567  |
+| P1     | 记录连接管理模式                   | @alice   | 2024-01-29 | DOC-89   |
+| P1     | 实现部署关联的警报                 | @bob     | 2024-02-05 | OPS-568  |
+| P2     | 评估金丝雀部署策略                 | @charlie | 2024-02-15 | ENG-1235 |
+| P2     | 使用类生产流量进行负载测试         | @dave    | 2024-02-28 | QA-123   |
 
-## Appendix
+## 附录
 
-### Supporting Data
+### 支持数据
 
-#### Error Rate Graph
-[Link to Grafana dashboard snapshot]
+#### 错误率图表
+[链接到 Grafana 仪表板快照]
 
-#### Database Connection Graph
-[Link to metrics]
+#### 数据库连接图表
+[链接到指标]
 
-### Related Incidents
-- 2023-11-02: Similar connection issue in User Service (POSTMORTEM-42)
+### 相关事件
+- 2023-11-02：用户服务中的类似连接问题（POSTMORTEM-42）
 
-### References
-- [Connection Pool Best Practices](internal-wiki/connection-pools)
-- [Deployment Runbook](internal-wiki/deployment-runbook)
+### 参考资料
+- [连接池最佳实践](internal-wiki/connection-pools)
+- [部署运行手册](internal-wiki/deployment-runbook)
 ```
 
-### Template 2: 5 Whys Analysis
+### 模板 2：5 个为什么分析
 
 ```markdown
-# 5 Whys Analysis: [Incident]
+# 5 个为什么分析：[事件]
 
-## Problem Statement
+## 问题陈述
 
-Payment service experienced 47-minute outage due to database connection exhaustion.
+支付服务因数据库连接耗尽经历 47 分钟中断。
 
-## Analysis
+## 分析
 
-### Why #1: Why did the service fail?
+### 为什么 #1：为什么服务失败？
 
-**Answer**: Database connections were exhausted, causing all new requests to fail.
+**答案**：数据库连接耗尽，导致所有新请求失败。
 
-**Evidence**: Metrics showed connection count at 100/100 (max), with 500+ pending requests.
-
----
-
-### Why #2: Why were database connections exhausted?
-
-**Answer**: Each incoming request opened a new database connection instead of using the connection pool.
-
-**Evidence**: Code diff shows direct `DriverManager.getConnection()` instead of pooled `DataSource`.
+**证据**：指标显示连接数为 100/100（最大值），有 500+ 个待处理请求。
 
 ---
 
-### Why #3: Why did the code bypass the connection pool?
+### 为什么 #2：为什么数据库连接耗尽？
 
-**Answer**: A developer refactored the repository class and inadvertently changed the connection acquisition method.
+**答案**：每个传入请求都打开一个新的数据库连接，而不是使用连接池。
 
-**Evidence**: PR #1234 shows the change, made while fixing a different bug.
-
----
-
-### Why #4: Why wasn't this caught in code review?
-
-**Answer**: The reviewer focused on the functional change (the bug fix) and didn't notice the infrastructure change.
-
-**Evidence**: Review comments only discuss business logic.
+**证据**：代码差异显示直接使用 `DriverManager.getConnection()` 而不是池化的 `DataSource`。
 
 ---
 
-### Why #5: Why isn't there a safety net for this type of change?
+### 为什么 #3：为什么代码绕过了连接池？
 
-**Answer**: We lack automated tests that verify connection pool behavior and lack documentation about our connection patterns.
+**答案**：开发者重构了仓库类，无意中更改了连接获取方法。
 
-**Evidence**: Test suite has no tests for connection handling; wiki has no article on database connections.
+**证据**：PR #1234 显示了此更改，是在修复另一个 bug 时进行的。
 
-## Root Causes Identified
+---
 
-1. **Primary**: Missing automated tests for infrastructure behavior
-2. **Secondary**: Insufficient documentation of architectural patterns
-3. **Tertiary**: Code review checklist doesn't include infrastructure considerations
+### 为什么 #4：为什么代码审查没有发现这个问题？
 
-## Systemic Improvements
+**答案**：审查者专注于功能更改（bug 修复），没有注意到基础设施更改。
 
-| Root Cause    | Improvement                       | Type       |
-| ------------- | --------------------------------- | ---------- |
-| Missing tests | Add infrastructure behavior tests | Prevention |
-| Missing docs  | Document connection patterns      | Prevention |
-| Review gaps   | Update review checklist           | Detection  |
-| No canary     | Implement canary deployments      | Mitigation |
+**证据**：审查评论仅讨论业务逻辑。
+
+---
+
+### 为什么 #5：为什么没有针对此类更改的安全网？
+
+**答案**：我们缺少验证连接池行为的自动化测试，也缺少关于连接模式的文档。
+
+**证据**：测试套件没有连接处理测试；wiki 没有关于数据库连接的文章。
+
+## 识别的根本原因
+
+1. **主要**：缺少基础设施行为的自动化测试
+2. **次要**：架构模式文档不足
+3. **第三**：代码审查清单不包括基础设施考虑
+
+## 系统性改进
+
+| 根本原因     | 改进措施                     | 类型     |
+| ------------ | ---------------------------- | -------- |
+| 缺少测试     | 添加基础设施行为测试         | 预防     |
+| 缺少文档     | 记录连接模式                 | 预防     |
+| 审查漏洞     | 更新审查清单                 | 检测     |
+| 没有金丝雀   | 实现金丝雀部署               | 缓解     |
 ```
 
-### Template 3: Quick Postmortem (Minor Incidents)
+### 模板 3：快速事后分析（小型事件）
 
 ```markdown
-# Quick Postmortem: [Brief Title]
+# 快速事后分析：[简要标题]
 
-**Date**: 2024-01-15 | **Duration**: 12 min | **Severity**: SEV3
+**日期**：2024-01-15 | **持续时间**：12 分钟 | **严重级别**：SEV3
 
-## What Happened
+## 发生了什么
 
-API latency spiked to 5s due to cache miss storm after cache flush.
+由于缓存刷新后的缓存未命中风暴，API 延迟飙升至 5 秒。
 
-## Timeline
+## 时间线
 
-- 10:00 - Cache flush initiated for config update
-- 10:02 - Latency alerts fire
-- 10:05 - Identified as cache miss storm
-- 10:08 - Enabled cache warming
-- 10:12 - Latency normalized
+- 10:00 - 为配置更新启动缓存刷新
+- 10:02 - 延迟警报触发
+- 10:05 - 识别为缓存未命中风暴
+- 10:08 - 启用缓存预热
+- 10:12 - 延迟恢复正常
 
-## Root Cause
+## 根本原因
 
-Full cache flush for minor config update caused thundering herd.
+为小型配置更新进行完全缓存刷新导致了惊群效应。
 
-## Fix
+## 修复
 
-- Immediate: Enabled cache warming
-- Long-term: Implement partial cache invalidation (ENG-999)
+- 立即：启用缓存预热
+- 长期：实现部分缓存失效（ENG-999）
 
-## Lessons
+## 教训
 
-Don't full-flush cache in production; use targeted invalidation.
+不要在生产中完全刷新缓存；使用定向失效。
 ```
 
-## Facilitation Guide
+## 主持指南
 
-### Running a Postmortem Meeting
+### 主持事后分析会议
 
 ```markdown
-## Meeting Structure (60 minutes)
+## 会议结构（60 分钟）
 
-### 1. Opening (5 min)
+### 1. 开场（5 分钟）
 
-- Remind everyone of blameless culture
-- "We're here to learn, not to blame"
-- Review meeting norms
+- 提醒大家无责文化
+- "我们在这里是为了学习，不是为了责备"
+- 回顾会议规范
 
-### 2. Timeline Review (15 min)
+### 2. 时间线审查（15 分钟）
 
-- Walk through events chronologically
-- Ask clarifying questions
-- Identify gaps in timeline
+- 按时间顺序浏览事件
+- 提出澄清性问题
+- 识别时间线中的空白
 
-### 3. Analysis Discussion (20 min)
+### 3. 分析讨论（20 分钟）
 
-- What failed?
-- Why did it fail?
-- What conditions allowed this?
-- What would have prevented it?
+- 什么失败了？
+- 为什么失败？
+- 什么条件允许了这种情况？
+- 什么可以预防它？
 
-### 4. Action Items (15 min)
+### 4. 行动项（15 分钟）
 
-- Brainstorm improvements
-- Prioritize by impact and effort
-- Assign owners and due dates
+- 头脑风暴改进措施
+- 按影响和工作量排优先级
+- 分配负责人和截止日期
 
-### 5. Closing (5 min)
+### 5. 总结（5 分钟）
 
-- Summarize key learnings
-- Confirm action item owners
-- Schedule follow-up if needed
+- 总结关键学习
+- 确认行动项负责人
+- 如需要安排后续会议
 
-## Facilitation Tips
+## 主持技巧
 
-- Keep discussion on track
-- Redirect blame to systems
-- Encourage quiet participants
-- Document dissenting views
-- Time-box tangents
+- 保持讨论在正轨上
+- 将责备转向系统
+- 鼓励安静的参与者
+- 记录不同意见
+- 为离题设定时间限制
 ```
 
-## Anti-Patterns to Avoid
+## 应避免的反模式
 
-| Anti-Pattern            | Problem                    | Better Approach                 |
-| ----------------------- | -------------------------- | ------------------------------- |
-| **Blame game**          | Shuts down learning        | Focus on systems                |
-| **Shallow analysis**    | Doesn't prevent recurrence | Ask "why" 5 times               |
-| **No action items**     | Waste of time              | Always have concrete next steps |
-| **Unrealistic actions** | Never completed            | Scope to achievable tasks       |
-| **No follow-up**        | Actions forgotten          | Track in ticketing system       |
+| 反模式             | 问题               | 更好的方法               |
+| ------------------ | ------------------ | ------------------------ |
+| **责备游戏**       | 阻碍学习           | 关注系统                 |
+| **浅层分析**       | 无法防止再次发生   | 问"为什么" 5 次         |
+| **没有行动项**     | 浪费时间           | 始终有具体的后续步骤     |
+| **不切实际的行动** | 永远无法完成       | 范围限定为可实现的任务   |
+| **没有后续**       | 行动被遗忘         | 在工单系统中跟踪         |
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 推荐做法
 
-- **Start immediately** - Memory fades fast
-- **Be specific** - Exact times, exact errors
-- **Include graphs** - Visual evidence
-- **Assign owners** - No orphan action items
-- **Share widely** - Organizational learning
+- **立即开始** - 记忆消退很快
+- **具体** - 确切的时间、确切的错误
+- **包含图表** - 视觉证据
+- **分配负责人** - 不要有孤立的行动项
+- **广泛分享** - 组织学习
 
-### Don'ts
+### 避免做法
 
-- **Don't name and shame** - Ever
-- **Don't skip small incidents** - They reveal patterns
-- **Don't make it a blame doc** - That kills learning
-- **Don't create busywork** - Actions should be meaningful
-- **Don't skip follow-up** - Verify actions completed
+- **不要点名批评** - 永远不要
+- **不要跳过小型事件** - 它们揭示模式
+- **不要使其成为责备文档** - 那会扼杀学习
+- **不要创建无意义的工作** - 行动应该有意义
+- **不要跳过后续** - 验证行动已完成

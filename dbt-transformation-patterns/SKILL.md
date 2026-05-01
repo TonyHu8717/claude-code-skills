@@ -1,44 +1,44 @@
 ---
 name: dbt-transformation-patterns
-description: Master dbt (data build tool) for analytics engineering with model organization, testing, documentation, and incremental strategies. Use when building data transformations, creating data models, or implementing analytics engineering best practices.
+description: 掌握 dbt（数据构建工具）用于分析工程，包括模型组织、测试、文档和增量策略。在构建数据转换、创建数据模型或实施分析工程最佳实践时使用。
 ---
 
-# dbt Transformation Patterns
+# dbt 转换模式
 
-Production-ready patterns for dbt (data build tool) including model organization, testing strategies, documentation, and incremental processing.
+dbt（数据构建工具）的生产就绪模式，包括模型组织、测试策略、文档和增量处理。
 
-## When to Use This Skill
+## 使用场景
 
-- Building data transformation pipelines with dbt
-- Organizing models into staging, intermediate, and marts layers
-- Implementing data quality tests
-- Creating incremental models for large datasets
-- Documenting data models and lineage
-- Setting up dbt project structure
+- 使用 dbt 构建数据转换管道
+- 将模型组织为 staging、intermediate 和 marts 层
+- 实施数据质量测试
+- 为大型数据集创建增量模型
+- 记录数据模型和血缘关系
+- 设置 dbt 项目结构
 
-## Core Concepts
+## 核心概念
 
-### 1. Model Layers (Medallion Architecture)
+### 1. 模型层（奖牌架构）
 
 ```
-sources/          Raw data definitions
+sources/          原始数据定义
     ↓
-staging/          1:1 with source, light cleaning
+staging/          与源 1:1 对应，轻度清洗
     ↓
-intermediate/     Business logic, joins, aggregations
+intermediate/     业务逻辑、连接、聚合
     ↓
-marts/            Final analytics tables
+marts/            最终分析表
 ```
 
-### 2. Naming Conventions
+### 2. 命名规范
 
-| Layer        | Prefix         | Example                       |
+| 层        | 前缀         | 示例                       |
 | ------------ | -------------- | ----------------------------- |
 | Staging      | `stg_`         | `stg_stripe__payments`        |
 | Intermediate | `int_`         | `int_payments_pivoted`        |
 | Marts        | `dim_`, `fct_` | `dim_customers`, `fct_orders` |
 
-## Quick Start
+## 快速开始
 
 ```yaml
 # dbt_project.yml
@@ -68,7 +68,7 @@ models:
 ```
 
 ```
-# Project structure
+# 项目结构
 models/
 ├── staging/
 │   ├── stripe/
@@ -91,9 +91,9 @@ models/
         └── fct_revenue.sql
 ```
 
-## Patterns
+## 模式
 
-### Pattern 1: Source Definitions
+### 模式 1：源定义
 
 ```yaml
 # models/staging/stripe/_stripe__sources.yml
@@ -101,7 +101,7 @@ version: 2
 
 sources:
   - name: stripe
-    description: Raw Stripe data loaded via Fivetran
+    description: 通过 Fivetran 加载的原始 Stripe 数据
     database: raw
     schema: stripe
     loader: fivetran
@@ -111,20 +111,20 @@ sources:
       error_after: { count: 24, period: hour }
     tables:
       - name: customers
-        description: Stripe customer records
+        description: Stripe 客户记录
         columns:
           - name: id
-            description: Primary key
+            description: 主键
             tests:
               - unique
               - not_null
           - name: email
-            description: Customer email
+            description: 客户邮箱
           - name: created
-            description: Account creation timestamp
+            description: 账户创建时间戳
 
       - name: payments
-        description: Stripe payment transactions
+        description: Stripe 支付交易
         columns:
           - name: id
             tests:
@@ -138,7 +138,7 @@ sources:
                   field: id
 ```
 
-### Pattern 2: Staging Models
+### 模式 2：Staging 模型
 
 ```sql
 -- models/staging/stripe/stg_stripe__customers.sql
@@ -151,14 +151,14 @@ renamed as (
         -- ids
         id as customer_id,
 
-        -- strings
+        -- 字符串
         lower(email) as email,
         name as customer_name,
 
-        -- timestamps
+        -- 时间戳
         created as created_at,
 
-        -- metadata
+        -- 元数据
         _fivetran_synced as _loaded_at
 
     from source
@@ -192,17 +192,17 @@ renamed as (
         customer_id,
         invoice_id,
 
-        -- amounts (convert cents to dollars)
+        -- 金额（分转换为元）
         amount / 100.0 as amount,
         amount_refunded / 100.0 as amount_refunded,
 
-        -- status
+        -- 状态
         status as payment_status,
 
-        -- timestamps
+        -- 时间戳
         created as created_at,
 
-        -- metadata
+        -- 元数据
         _fivetran_synced as _loaded_at
 
     from source
@@ -211,7 +211,7 @@ renamed as (
 select * from renamed
 ```
 
-### Pattern 3: Intermediate Models
+### 模式 3：Intermediate 模型
 
 ```sql
 -- models/intermediate/finance/int_payments_pivoted_to_customer.sql
@@ -249,7 +249,7 @@ from customers
 left join payment_summary using (customer_id)
 ```
 
-### Pattern 4: Mart Models (Dimensions and Facts)
+### 模式 4：Mart 模型（维度和事实）
 
 ```sql
 -- models/marts/core/dim_customers.sql
@@ -281,37 +281,37 @@ order_summary as (
 
 final as (
     select
-        -- surrogate key
+        -- 代理键
         {{ dbt_utils.generate_surrogate_key(['customers.customer_id']) }} as customer_key,
 
-        -- natural key
+        -- 自然键
         customers.customer_id,
 
-        -- attributes
+        -- 属性
         customers.email,
         customers.customer_created_at,
 
-        -- payment metrics
+        -- 支付指标
         customers.total_payments,
         customers.successful_payments,
         customers.lifetime_value,
         customers.first_payment_at,
         customers.last_payment_at,
 
-        -- order metrics
+        -- 订单指标
         coalesce(order_summary.total_orders, 0) as total_orders,
         coalesce(order_summary.total_order_value, 0) as total_order_value,
         order_summary.first_order_at,
         order_summary.last_order_at,
 
-        -- calculated fields
+        -- 计算字段
         case
             when customers.lifetime_value >= 1000 then 'high'
             when customers.lifetime_value >= 100 then 'medium'
             else 'low'
         end as customer_tier,
 
-        -- timestamps
+        -- 时间戳
         current_timestamp as _loaded_at
 
     from customers
@@ -345,17 +345,17 @@ customers as (
 
 final as (
     select
-        -- keys
+        -- 键
         orders.order_id,
         customers.customer_key,
         orders.customer_id,
 
-        -- dimensions
+        -- 维度
         orders.order_status,
         orders.fulfillment_status,
         orders.payment_status,
 
-        -- measures
+        -- 度量
         orders.subtotal,
         orders.tax,
         orders.shipping,
@@ -363,12 +363,12 @@ final as (
         orders.total_discount,
         orders.item_count,
 
-        -- timestamps
+        -- 时间戳
         orders.created_at,
         orders.updated_at,
         orders.fulfilled_at,
 
-        -- metadata
+        -- 元数据
         current_timestamp as _loaded_at
 
     from orders
@@ -378,7 +378,7 @@ final as (
 select * from final
 ```
 
-### Pattern 5: Testing and Documentation
+### 模式 5：测试和文档
 
 ```yaml
 # models/marts/core/_core__models.yml
@@ -386,39 +386,39 @@ version: 2
 
 models:
   - name: dim_customers
-    description: Customer dimension with payment and order metrics
+    description: 包含支付和订单指标的客户维度
     columns:
       - name: customer_key
-        description: Surrogate key for the customer dimension
+        description: 客户维度的代理键
         tests:
           - unique
           - not_null
 
       - name: customer_id
-        description: Natural key from source system
+        description: 来自源系统的自然键
         tests:
           - unique
           - not_null
 
       - name: email
-        description: Customer email address
+        description: 客户邮箱地址
         tests:
           - not_null
 
       - name: customer_tier
-        description: Customer value tier based on lifetime value
+        description: 基于生命周期价值的客户价值层级
         tests:
           - accepted_values:
               values: ["high", "medium", "low"]
 
       - name: lifetime_value
-        description: Total amount paid by customer
+        description: 客户支付总额
         tests:
           - dbt_utils.expression_is_true:
               expression: ">= 0"
 
   - name: fct_orders
-    description: Order fact table with all order transactions
+    description: 包含所有订单交易的事实表
     tests:
       - dbt_utils.recency:
           datepart: day
@@ -437,7 +437,7 @@ models:
               field: customer_key
 ```
 
-### Pattern 6: Macros and DRY Code
+### 模式 6：宏和 DRY 代码
 
 ```sql
 -- macros/cents_to_dollars.sql
@@ -462,15 +462,15 @@ models:
     {% endif %}
 {% endmacro %}
 
--- Usage in model
+-- 在模型中的用法
 select * from {{ ref('stg_orders') }}
 {{ limit_data_in_dev('created_at') }}
 ```
 
-### Pattern 7: Incremental Strategies
+### 模式 7：增量策略
 
 ```sql
--- Delete+Insert (default for most warehouses)
+-- Delete+Insert（大多数仓库的默认策略）
 {{
     config(
         materialized='incremental',
@@ -479,7 +479,7 @@ select * from {{ ref('stg_orders') }}
     )
 }}
 
--- Merge (best for late-arriving data)
+-- Merge（最适合迟到数据）
 {{
     config(
         materialized='incremental',
@@ -489,7 +489,7 @@ select * from {{ ref('stg_orders') }}
     )
 }}
 
--- Insert Overwrite (partition-based)
+-- Insert Overwrite（基于分区）
 {{
     config(
         materialized='incremental',
@@ -512,45 +512,45 @@ where created_date >= dateadd(day, -3, current_date)
 {% endif %}
 ```
 
-## dbt Commands
+## dbt 命令
 
 ```bash
-# Development
-dbt run                          # Run all models
-dbt run --select staging         # Run staging models only
-dbt run --select +fct_orders     # Run fct_orders and its upstream
-dbt run --select fct_orders+     # Run fct_orders and its downstream
-dbt run --full-refresh           # Rebuild incremental models
+# 开发
+dbt run                          # 运行所有模型
+dbt run --select staging         # 仅运行 staging 模型
+dbt run --select +fct_orders     # 运行 fct_orders 及其上游
+dbt run --select fct_orders+     # 运行 fct_orders 及其下游
+dbt run --full-refresh           # 重建增量模型
 
-# Testing
-dbt test                         # Run all tests
-dbt test --select stg_stripe     # Test specific models
-dbt build                        # Run + test in DAG order
+# 测试
+dbt test                         # 运行所有测试
+dbt test --select stg_stripe     # 测试特定模型
+dbt build                        # 按 DAG 顺序运行 + 测试
 
-# Documentation
-dbt docs generate                # Generate docs
-dbt docs serve                   # Serve docs locally
+# 文档
+dbt docs generate                # 生成文档
+dbt docs serve                   # 本地提供文档
 
-# Debugging
-dbt compile                      # Compile SQL without running
-dbt debug                        # Test connection
-dbt ls --select tag:critical     # List models by tag
+# 调试
+dbt compile                      # 编译 SQL 但不运行
+dbt debug                        # 测试连接
+dbt ls --select tag:critical     # 按标签列出模型
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该做
 
-- **Use staging layer** - Clean data once, use everywhere
-- **Test aggressively** - Not null, unique, relationships
-- **Document everything** - Column descriptions, model descriptions
-- **Use incremental** - For tables > 1M rows
-- **Version control** - dbt project in Git
+- **使用 staging 层** - 清洗一次，到处使用
+- **积极测试** - 非空、唯一、关系
+- **记录一切** - 列描述、模型描述
+- **使用增量** - 适用于超过 100 万行的表
+- **版本控制** - dbt 项目放在 Git 中
 
-### Don'ts
+### 不应该做
 
-- **Don't skip staging** - Raw → mart is tech debt
-- **Don't hardcode dates** - Use `{{ var('start_date') }}`
-- **Don't repeat logic** - Extract to macros
-- **Don't test in prod** - Use dev target
-- **Don't ignore freshness** - Monitor source data
+- **不要跳过 staging** - 原始→mart 是技术债务
+- **不要硬编码日期** - 使用 `{{ var('start_date') }}`
+- **不要重复逻辑** - 提取为宏
+- **不要在生产中测试** - 使用 dev 目标
+- **不要忽略新鲜度** - 监控源数据

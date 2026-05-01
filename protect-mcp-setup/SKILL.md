@@ -1,43 +1,33 @@
 ---
 name: protect-mcp-setup
-description: Configure Cedar policy enforcement and Ed25519 signed receipts for Claude Code tool calls. Use when setting up projects that need cryptographic audit trails, policy-gated tool execution, or compliance-ready evidence of agent actions.
+description: 为 Claude Code 工具调用配置 Cedar 策略执行和 Ed25519 签名收据。在设置需要加密审计跟踪、策略门控工具执行或合规就绪的代理操作证据的项目时使用。
 ---
 
-# protect-mcp — Policy Enforcement + Signed Receipts
+# protect-mcp — 策略执行 + 签名收据
 
-Cryptographic governance for every Claude Code tool call. Each invocation is
-evaluated against a Cedar policy and produces an Ed25519-signed receipt that
-anyone can verify offline.
+每个 Claude Code 工具调用的加密治理。每次调用都根据 Cedar 策略进行评估，并产生一个任何人都可以离线验证的 Ed25519 签名收据。
 
-## Overview
+## 概述
 
-Claude Code runs powerful tools: `Bash`, `Edit`, `Write`, `WebFetch`. By default
-there is no audit trail, no policy enforcement, and no way to prove what was
-decided after the fact. `protect-mcp` closes all three gaps:
+Claude Code 运行强大的工具：`Bash`、`Edit`、`Write`、`WebFetch`。默认情况下没有审计跟踪，没有策略执行，也无法事后证明决策。`protect-mcp` 弥补了这三个缺口：
 
-- **Cedar policies** (AWS's open authorization engine) evaluate every tool call
-  before execution. Cedar deny is authoritative.
-- **Ed25519 receipts** record each decision with its inputs, the policy that
-  governed it, and the outcome. Receipts are hash-chained.
-- **Offline verification** via `npx @veritasacta/verify`. No server, no account,
-  no trust in the operator.
+- **Cedar 策略**（AWS 的开放授权引擎）在执行前评估每个工具调用。Cedar 拒绝是权威性的。
+- **Ed25519 收据**记录每个决策及其输入、治理策略和结果。收据是哈希链式的。
+- **离线验证**通过 `npx @veritasacta/verify`。无需服务器、无需账户、无需信任操作者。
 
-## Problem
+## 问题
 
-AI agents make decisions that affect money, safety, and rights. The Claude Code
-session log records what happened, but the log is:
+AI 代理做出影响金钱、安全和权利的决策。Claude Code 会话日志记录了发生的事情，但日志是：
 
-- Mutable — anyone with access can edit it
-- Unsigned — there is no way to prove integrity
-- Operator-bound — verification requires trusting whoever holds the log
+- 可变的 — 任何有访问权限的人都可以编辑
+- 未签名的 — 无法证明完整性
+- 绑定操作者 — 验证需要信任持有日志的人
 
-For compliance contexts (finance, healthcare, regulated research), this is not
-sufficient. You need tamper-evident evidence that can be verified by third
-parties without trusting you.
+对于合规环境（金融、医疗、受监管研究），这不够。你需要防篡改的证据，可以由第三方验证而无需信任你。
 
-## Solution
+## 解决方案
 
-Add `protect-mcp` to your Claude Code project:
+将 `protect-mcp` 添加到你的 Claude Code 项目：
 
 ```bash
 # 1. Install the plugin (adds hooks + skill to your project)
@@ -52,9 +42,9 @@ npx protect-mcp@latest serve --enforce
 #    and produces a signed receipt in ./receipts/
 ```
 
-## Hook Configuration
+## Hook 配置
 
-Add the following to your project's `.claude/settings.json`:
+将以下内容添加到项目的 `.claude/settings.json`：
 
 ```json
 {
@@ -81,19 +71,15 @@ Add the following to your project's `.claude/settings.json`:
 }
 ```
 
-### What each hook does
+### 每个 hook 的作用
 
-**PreToolUse** — Runs BEFORE the tool executes. Evaluates the tool call against
-your Cedar policy file. If Cedar returns `deny`, the hook exits with code 2 and
-Claude Code blocks the tool call entirely.
+**PreToolUse** — 在工具执行之前运行。根据你的 Cedar 策略文件评估工具调用。如果 Cedar 返回 `deny`，hook 以代码 2 退出，Claude Code 完全阻止工具调用。
 
-**PostToolUse** — Runs AFTER the tool completes. Signs a receipt containing the
-tool name, input hash, output hash, decision, policy digest, and timestamp.
-Writes the receipt to `./receipts/<timestamp>.json`.
+**PostToolUse** — 在工具完成后运行。签名一个包含工具名称、输入哈希、输出哈希、决策、策略摘要和时间戳的收据。将收据写入 `./receipts/<timestamp>.json`。
 
-## Cedar Policy File
+## Cedar 策略文件
 
-Create `./protect.cedar` at the project root:
+在项目根目录创建 `./protect.cedar`：
 
 ```cedar
 // Allow read-only tools by default
@@ -132,9 +118,9 @@ forbid (
 };
 ```
 
-## Verification
+## 验证
 
-Verify a single receipt:
+验证单个收据：
 
 ```bash
 npx @veritasacta/verify receipts/2026-04-15T10-30-00Z.json
@@ -143,22 +129,22 @@ npx @veritasacta/verify receipts/2026-04-15T10-30-00Z.json
 # Exit 2 = malformed
 ```
 
-Verify the entire chain:
+验证整个链：
 
 ```bash
 npx @veritasacta/verify receipts/*.json
 ```
 
-Use the plugin's slash commands from within Claude Code:
+在 Claude Code 中使用插件的斜杠命令：
 
 ```
 /verify-receipt receipts/latest.json
 /audit-chain ./receipts/ --last 20
 ```
 
-## Receipt Format
+## 收据格式
 
-Each receipt is a JSON file with this structure:
+每个收据是具有此结构的 JSON 文件：
 
 ```json
 {
@@ -177,31 +163,31 @@ Each receipt is a JSON file with this structure:
 }
 ```
 
-- **Ed25519** signatures (RFC 8032)
-- **JCS canonicalization** (RFC 8785) before signing
-- **Hash-chained** to the previous receipt via `parent_receipt_id`
-- **Offline verifiable** — no network call, no vendor lookup
+- **Ed25519** 签名（RFC 8032）
+- **JCS 规范化**（RFC 8785）签名前
+- **哈希链式** 通过 `parent_receipt_id` 链接到前一个收据
+- **离线可验证** — 无需网络调用、无需供应商查找
 
-## Why This Matters
+## 为什么这很重要
 
-| Before | After |
+| 之前 | 之后 |
 |--------|-------|
-| "Trust me, the agent only read files" | Cryptographically provable: every Read logged and signed |
-| "The log shows it happened" | The receipt proves it happened, and no one can edit it |
-| "You'd have to audit our system" | Anyone can verify every receipt offline |
-| "Logs might be different by now" | Ed25519 signatures lock the record at signing time |
+| 「相信我，代理只读取了文件」 | 加密可证明：每个 Read 都被记录和签名 |
+| 「日志显示它发生了」 | 收据证明它发生了，没有人可以编辑 |
+| 「你必须审计我们的系统」 | 任何人都可以离线验证每个收据 |
+| 「日志现在可能不同了」 | Ed25519 签名在签名时锁定记录 |
 
-## Standards
+## 标准
 
-- **Ed25519** — RFC 8032 (digital signatures)
-- **JCS** — RFC 8785 (deterministic JSON canonicalization)
-- **Cedar** — AWS's open authorization policy language
-- **IETF draft** — [draft-farley-acta-signed-receipts](https://datatracker.ietf.org/doc/draft-farley-acta-signed-receipts/)
+- **Ed25519** — RFC 8032（数字签名）
+- **JCS** — RFC 8785（确定性 JSON 规范化）
+- **Cedar** — AWS 的开放授权策略语言
+- **IETF 草案** — [draft-farley-acta-signed-receipts](https://datatracker.ietf.org/doc/draft-farley-acta-signed-receipts/)
 
-## Related
+## 相关
 
-- **npm**: [protect-mcp](https://www.npmjs.com/package/protect-mcp) (v0.5.5, 10K+ monthly downloads)
-- **Verify CLI**: [@veritasacta/verify](https://www.npmjs.com/package/@veritasacta/verify)
-- **Source**: [github.com/ScopeBlind/scopeblind-gateway](https://github.com/ScopeBlind/scopeblind-gateway)
-- **Protocol**: [veritasacta.com](https://veritasacta.com)
-- **Integrations**: Microsoft Agent Governance Toolkit (PR #667), AWS cedar-policy/cedar-for-agents (PR #64)
+- **npm**: [protect-mcp](https://www.npmjs.com/package/protect-mcp) (v0.5.5, 10K+ 月下载量)
+- **验证 CLI**: [@veritasacta/verify](https://www.npmjs.com/package/@veritasacta/verify)
+- **源码**: [github.com/ScopeBlind/scopeblind-gateway](https://github.com/ScopeBlind/scopeblind-gateway)
+- **协议**: [veritasacta.com](https://veritasacta.com)
+- **集成**: Microsoft Agent Governance Toolkit (PR #667), AWS cedar-policy/cedar-for-agents (PR #64)

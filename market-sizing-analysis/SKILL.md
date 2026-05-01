@@ -1,430 +1,429 @@
 ---
 name: market-sizing-analysis
-description: Calculate TAM/SAM/SOM for market opportunities using top-down, bottom-up, and value theory methodologies. Use this skill when sizing markets, estimating addressable revenue, validating market opportunity for a new venture, or building investor-ready market analysis for a startup pitch or business plan.
+description: 使用自上而下、自下而上和价值理论方法计算市场机会的 TAM/SAM/SOM。在评估市场规模、估算可寻址收入、验证新企业的市场机会，或为创业融资演讲稿或商业计划构建投资者就绪的市场分析时使用此技能。
 version: 1.0.0
 ---
 
-# Market Sizing Analysis
+# 市场规模分析
 
-Comprehensive market sizing methodologies for calculating Total Addressable Market (TAM), Serviceable Available Market (SAM), and Serviceable Obtainable Market (SOM) for startup opportunities.
+用于计算创业机会的总可用市场（TAM）、可服务可用市场（SAM）和可获得可服务市场（SOM）的综合市场规模方法论。
 
-## Overview
+## 概述
 
-Market sizing provides the foundation for startup strategy, fundraising, and business planning. Calculate market opportunity using three complementary methodologies: top-down (industry reports), bottom-up (customer segment calculations), and value theory (willingness to pay).
+市场规模评估为创业战略、融资和商业计划提供基础。使用三种互补方法论计算市场机会：自上而下（行业报告）、自下而上（客户细分计算）和价值理论（支付意愿）。
 
-## Core Concepts
+## 核心概念
 
-### The Three-Tier Market Framework
+### 三层市场框架
 
-**TAM (Total Addressable Market)**
+**TAM（总可用市场）**
 
-- Total revenue opportunity if achieving 100% market share
-- Defines the universe of potential customers
-- Used for long-term vision and market validation
-- Example: All email marketing software revenue globally
+- 实现 100% 市场份额时的总收入机会
+- 定义潜在客户的整体范围
+- 用于长期愿景和市场验证
+- 示例：全球所有电子邮件营销软件收入
 
-**SAM (Serviceable Available Market)**
+**SAM（可服务可用市场）**
 
-- Portion of TAM targetable with current product/service
-- Accounts for geographic, segment, or capability constraints
-- Represents realistic addressable opportunity
-- Example: AI-powered email marketing for e-commerce in North America
+- TAM 中可用当前产品/服务定位的部分
+- 考虑地理、细分或能力限制
+- 代表现实可寻址的机会
+- 示例：北美电商 AI 驱动的电子邮件营销
 
-**SOM (Serviceable Obtainable Market)**
+**SOM（可获得可服务市场）**
 
-- Realistic market share achievable in 3-5 years
-- Accounts for competition, resources, and market dynamics
-- Used for financial projections and fundraising
-- Example: 2-5% of SAM based on competitive landscape
+- 3-5 年内可实现的现实市场份额
+- 考虑竞争、资源和市场动态
+- 用于财务预测和融资
+- 示例：基于竞争格局的 SAM 的 2-5%
 
-### When to Use Each Methodology
+### 何时使用每种方法论
 
-**Top-Down Analysis**
+**自上而下分析**
 
-- Use when established market research exists
-- Best for mature, well-defined markets
-- Validates market existence and growth
-- Starts with industry reports and narrows down
+- 在存在成熟市场研究时使用
+- 最适合成熟、定义明确的市场
+- 验证市场存在和增长
+- 从行业报告开始并逐步缩小范围
 
-**Bottom-Up Analysis**
+**自下而上分析**
 
-- Use when targeting specific customer segments
-- Best for new or niche markets
-- Most credible for investors
-- Builds from customer data and pricing
+- 在针对特定客户细分时使用
+- 最适合新兴或利基市场
+- 对投资者最有说服力
+- 从客户数据和定价构建
 
-**Value Theory**
+**价值理论**
 
-- Use when creating new market categories
-- Best for disruptive innovations
-- Estimates based on value creation
-- Calculates willingness to pay for problem solution
+- 在创建新市场类别时使用
+- 最适合颠覆性创新
+- 基于价值创造估算
+- 计算问题解决方案的支付意愿
 
-## Three-Methodology Framework
+## 三种方法论框架
 
-### Methodology 1: Top-Down Analysis
+### 方法论 1：自上而下分析
 
-Start with total market size and narrow to addressable segments.
+从总市场规模开始，缩小到可寻址细分市场。
 
-**Process:**
+**流程：**
 
-1. Identify total market category from research reports
-2. Apply geographic filters (target regions)
-3. Apply segment filters (target industries/customers)
-4. Calculate competitive positioning adjustments
+1. 从研究报告中确定总市场类别
+2. 应用地理过滤器（目标区域）
+3. 应用细分过滤器（目标行业/客户）
+4. 计算竞争定位调整
 
-**Formula:**
-
-```
-TAM = Total Market Category Size
-SAM = TAM × Geographic % × Segment %
-SOM = SAM × Realistic Capture Rate (2-5%)
-```
-
-**When to use:** Established markets with available research (e.g., SaaS, fintech, e-commerce)
-
-**Strengths:** Quick, uses credible data, validates market existence
-
-**Limitations:** May overestimate for new categories, less granular
-
-### Methodology 2: Bottom-Up Analysis
-
-Build market size from customer segment calculations.
-
-**Process:**
-
-1. Define target customer segments
-2. Estimate number of potential customers per segment
-3. Determine average revenue per customer
-4. Calculate realistic penetration rates
-
-**Formula:**
+**公式：**
 
 ```
-TAM = Σ (Segment Size × Annual Revenue per Customer)
-SAM = TAM × (Segments You Can Serve / Total Segments)
-SOM = SAM × Realistic Penetration Rate (Year 3-5)
+TAM = 总市场类别规模
+SAM = TAM × 地理百分比 × 细分百分比
+SOM = SAM × 现实获取率（2-5%）
 ```
 
-**When to use:** B2B, niche markets, specific customer segments
+**何时使用：** 有可用研究的成熟市场（如 SaaS、金融科技、电商）
 
-**Strengths:** Most credible for investors, granular, defensible
+**优势：** 快速、使用可信数据、验证市场存在
 
-**Limitations:** Requires detailed customer research, time-intensive
+**局限性：** 对新类别可能高估，粒度较低
 
-### Methodology 3: Value Theory
+### 方法论 2：自下而上分析
 
-Calculate based on value created and willingness to pay.
+从客户细分计算构建市场规模。
 
-**Process:**
+**流程：**
 
-1. Identify problem being solved
-2. Quantify current cost of problem (time, money, inefficiency)
-3. Calculate value of solution (savings, gains, efficiency)
-4. Estimate willingness to pay (typically 10-30% of value)
-5. Multiply by addressable customer base
+1. 定义目标客户细分
+2. 估算每个细分的潜在客户数量
+3. 确定每客户平均收入
+4. 计算现实渗透率
 
-**Formula:**
-
-```
-Value per Customer = Problem Cost × % Solved by Solution
-Price per Customer = Value × Willingness to Pay % (10-30%)
-TAM = Total Potential Customers × Price per Customer
-SAM = TAM × % Meeting Buy Criteria
-SOM = SAM × Realistic Adoption Rate
-```
-
-**When to use:** New categories, disruptive innovations, unclear existing markets
-
-**Strengths:** Shows value creation, works for new markets
-
-**Limitations:** Requires assumptions, harder to validate
-
-## Step-by-Step Process
-
-### Step 1: Define the Market
-
-Clearly specify what market is being measured.
-
-**Questions to answer:**
-
-- What problem is being solved?
-- Who are the target customers?
-- What's the product/service category?
-- What's the geographic scope?
-- What's the time horizon?
-
-**Example:**
-
-- Problem: E-commerce companies struggle with email marketing automation
-- Customers: E-commerce stores with >$1M annual revenue
-- Category: AI-powered email marketing software
-- Geography: North America initially, global expansion
-- Horizon: 3-5 year opportunity
-
-### Step 2: Gather Data Sources
-
-Identify credible data for calculations.
-
-**Top-Down Sources:**
-
-- Industry research reports (Gartner, Forrester, IDC)
-- Government statistics (Census, BLS, trade associations)
-- Public company filings and earnings
-- Market research firms (Statista, CB Insights, PitchBook)
-
-**Bottom-Up Sources:**
-
-- Customer interviews and surveys
-- Sales data and CRM records
-- Industry databases (LinkedIn, ZoomInfo, Crunchbase)
-- Competitive intelligence
-- Academic research
-
-**Value Theory Sources:**
-
-- Customer problem quantification
-- Time/cost studies
-- ROI case studies
-- Pricing research and willingness-to-pay surveys
-
-### Step 3: Calculate TAM
-
-Apply chosen methodology to determine total market.
-
-**For Top-Down:**
-
-1. Find total category size from research
-2. Document data source and year
-3. Apply growth rate if needed
-4. Validate with multiple sources
-
-**For Bottom-Up:**
-
-1. Count total potential customers
-2. Calculate average annual revenue per customer
-3. Multiply to get TAM
-4. Break down by segment
-
-**For Value Theory:**
-
-1. Quantify total addressable customer base
-2. Calculate value per customer
-3. Estimate pricing based on value
-4. Multiply for TAM
-
-### Step 4: Calculate SAM
-
-Narrow TAM to serviceable addressable market.
-
-**Apply Filters:**
-
-- Geographic constraints (regions you can serve)
-- Product limitations (features you currently have)
-- Customer requirements (size, industry, use case)
-- Distribution channel access
-- Regulatory or compliance restrictions
-
-**Formula:**
+**公式：**
 
 ```
-SAM = TAM × (% matching all filters)
+TAM = Σ（细分规模 × 每客户年收入）
+SAM = TAM ×（可服务细分 / 总细分）
+SOM = SAM × 现实渗透率（第 3-5 年）
 ```
 
-**Example:**
+**何时使用：** B2B、利基市场、特定客户细分
 
-- TAM: $10B global email marketing
-- Geographic filter: 40% (North America)
-- Product filter: 30% (e-commerce focus)
-- Feature filter: 60% (need AI capabilities)
-- SAM = $10B × 0.40 × 0.30 × 0.60 = $720M
+**优势：** 对投资者最有说服力、粒度细、可防御
 
-### Step 5: Calculate SOM
+**局限性：** 需要详细的客户研究、耗时
 
-Determine realistic obtainable market share.
+### 方法论 3：价值理论
 
-**Consider:**
+基于创造的价值和支付意愿计算。
 
-- Current market share of competitors
-- Typical market share for new entrants (2-5%)
-- Resources available (funding, team, time)
-- Go-to-market effectiveness
-- Competitive advantages
-- Time to achieve (3-5 years typically)
+**流程：**
 
-**Conservative Approach:**
+1. 确定要解决的问题
+2. 量化问题的当前成本（时间、金钱、低效率）
+3. 计算解决方案的价值（节省、收益、效率）
+4. 估算支付意愿（通常为价值的 10-30%）
+5. 乘以可寻址客户群
+
+**公式：**
 
 ```
-SOM (Year 3) = SAM × 2%
-SOM (Year 5) = SAM × 5%
+每客户价值 = 问题成本 × 解决方案解决的百分比
+每客户价格 = 价值 × 支付意愿百分比（10-30%）
+TAM = 总潜在客户 × 每客户价格
+SAM = TAM × 满足购买标准的百分比
+SOM = SAM × 现实采用率
 ```
 
-**Example:**
+**何时使用：** 新类别、颠覆性创新、现有市场不明确
 
-- SAM: $720M
-- Year 3 SOM: $720M × 2% = $14.4M
-- Year 5 SOM: $720M × 5% = $36M
+**优势：** 展示价值创造、适用于新市场
 
-### Step 6: Validate and Triangulate
+**局限性：** 需要假设、更难验证
 
-Cross-check using multiple methods.
+## 分步流程
 
-**Validation Techniques:**
+### Step 1：定义市场
 
-1. Compare top-down and bottom-up results (should be within 30%)
-2. Check against public company revenues in space
-3. Validate customer count assumptions
-4. Sense-check pricing assumptions
-5. Review with industry experts
-6. Compare to similar market categories
+清楚地指定要衡量的市场。
 
-**Red Flags:**
+**需要回答的问题：**
 
-- TAM that's too small (< $1B for VC-backed startups)
-- TAM that's too large (unsupported by data)
-- SOM that's too aggressive (> 10% in 5 years for new entrant)
-- Inconsistency between methodologies (> 50% difference)
+- 要解决什么问题？
+- 目标客户是谁？
+- 产品/服务类别是什么？
+- 地理范围是什么？
+- 时间范围是什么？
 
-## Industry-Specific Considerations
+**示例：**
 
-### SaaS Markets
+- 问题：电商公司在电子邮件营销自动化方面遇到困难
+- 客户：年收入超过 100 万美元的电商商店
+- 类别：AI 驱动的电子邮件营销软件
+- 地理：最初北美，全球扩展
+- 时间：3-5 年机会
 
-**Key Metrics:**
+### Step 2：收集数据来源
 
-- Number of potential businesses in target segment
-- Average contract value (ACV)
-- Typical market penetration rates
-- Expansion revenue potential
+确定可信的计算数据。
 
-**TAM Calculation:**
+**自上而下来源：**
+
+- 行业研究报告（Gartner、Forrester、IDC）
+- 政府统计数据（人口普查、劳工统计局、行业协会）
+- 上市公司财务报告和收益
+- 市场研究公司（Statista、CB Insights、PitchBook）
+
+**自下而上来源：**
+
+- 客户访谈和调查
+- 销售数据和 CRM 记录
+- 行业数据库（LinkedIn、ZoomInfo、Crunchbase）
+- 竞争情报
+- 学术研究
+
+**价值理论来源：**
+
+- 客户问题量化
+- 时间/成本研究
+- ROI 案例研究
+- 定价研究和支付意愿调查
+
+### Step 3：计算 TAM
+
+应用选定的方法论确定总市场。
+
+**自上而下：**
+
+1. 从研究中找到总类别规模
+2. 记录数据来源和年份
+3. 如需要应用增长率
+4. 用多个来源验证
+
+**自下而上：**
+
+1. 统计总潜在客户
+2. 计算每客户平均年收入
+3. 相乘得到 TAM
+4. 按细分分解
+
+**价值理论：**
+
+1. 量化总可寻址客户群
+2. 计算每客户价值
+3. 基于价值估算定价
+4. 相乘得到 TAM
+
+### Step 4：计算 SAM
+
+将 TAM 缩小到可服务可寻址市场。
+
+**应用过滤器：**
+
+- 地理限制（可服务的区域）
+- 产品限制（当前拥有的功能）
+- 客户要求（规模、行业、用例）
+- 分销渠道访问
+- 监管或合规限制
+
+**公式：**
 
 ```
-TAM = Total Target Companies × Average ACV × (1 + Expansion Rate)
+SAM = TAM ×（满足所有过滤器的百分比）
 ```
 
-### Marketplace Markets
+**示例：**
 
-**Key Metrics:**
+- TAM：100 亿美元全球电子邮件营销
+- 地理过滤器：40%（北美）
+- 产品过滤器：30%（电商聚焦）
+- 功能过滤器：60%（需要 AI 能力）
+- SAM = 100 亿 × 0.40 × 0.30 × 0.60 = 7.2 亿美元
 
-- Gross Merchandise Value (GMV) of category
-- Take rate (% of GMV you capture)
-- Total transactions or users
+### Step 5：计算 SOM
 
-**TAM Calculation:**
+确定现实可获得的市场份额。
 
-```
-TAM = Total Category GMV × Expected Take Rate
-```
+**考虑因素：**
 
-### Consumer Markets
+- 竞争对手的当前市场份额
+- 新进入者的典型市场份额（2-5%）
+- 可用资源（资金、团队、时间）
+- 上市效率
+- 竞争优势
+- 实现时间（通常 3-5 年）
 
-**Key Metrics:**
-
-- Total addressable users/households
-- Average revenue per user (ARPU)
-- Engagement frequency
-
-**TAM Calculation:**
-
-```
-TAM = Total Users × ARPU × Purchase Frequency per Year
-```
-
-### B2B Services
-
-**Key Metrics:**
-
-- Number of target companies by size/industry
-- Average project value or retainer
-- Typical buying frequency
-
-**TAM Calculation:**
+**保守方法：**
 
 ```
-TAM = Total Target Companies × Average Deal Size × Deals per Year
+SOM（第 3 年）= SAM × 2%
+SOM（第 5 年）= SAM × 5%
 ```
 
-## Presenting Market Sizing
+**示例：**
 
-### For Investors
+- SAM：7.2 亿美元
+- 第 3 年 SOM：7.2 亿 × 2% = 1440 万美元
+- 第 5 年 SOM：7.2 亿 × 5% = 3600 万美元
 
-**Structure:**
+### Step 6：验证和三角测量
 
-1. Market definition and problem scope
-2. TAM/SAM/SOM with methodology
-3. Data sources and assumptions
-4. Growth projections and drivers
-5. Competitive landscape context
+使用多种方法交叉验证。
 
-**Key Points:**
+**验证技术：**
 
-- Lead with bottom-up calculation (most credible)
-- Show triangulation with top-down
-- Explain conservative assumptions
-- Link to revenue projections
-- Highlight market growth rate
+1. 比较自上而下和自下而上结果（应在 30% 以内）
+2. 对照该领域上市公司收入检查
+3. 验证客户数量假设
+4. 审视定价假设
+5. 与行业专家审查
+6. 与类似市场类别比较
 
-### For Strategy
+**危险信号：**
 
-**Structure:**
+- TAM 太小（对 VC 支持的创业公司 < 10 亿美元）
+- TAM 太大（无数据支持）
+- SOM 过于激进（新进入者 5 年内 > 10%）
+- 方法论之间不一致（差异 > 50%）
 
-1. Addressable customer segments
-2. Prioritization by opportunity size
-3. Entry strategy by segment
-4. Expected penetration timeline
-5. Resource requirements
+## 行业特定考虑
 
-**Key Points:**
+### SaaS 市场
 
-- Focus on SAM and SOM
-- Show segment-level detail
-- Connect to go-to-market plan
-- Identify expansion opportunities
-- Discuss competitive positioning
+**关键指标：**
 
-## Common Mistakes to Avoid
+- 目标细分中的潜在企业数量
+- 平均合同价值（ACV）
+- 典型市场渗透率
+- 扩展收入潜力
 
-**Mistake 1: Confusing TAM with SAM**
+**TAM 计算：**
 
-- Don't claim entire market as addressable
-- Apply realistic product/geographic constraints
-- Be honest about serviceable market
+```
+TAM = 总目标公司数 × 平均 ACV ×（1 + 扩展率）
+```
 
-**Mistake 2: Overly Aggressive SOM**
+### 市场平台
 
-- New entrants rarely capture > 5% in 5 years
-- Account for competition and resources
-- Show realistic ramp timeline
+**关键指标：**
 
-**Mistake 3: Using Only Top-Down**
+- 类别的总商品交易额（GMV）
+- 提取率（你获取的 GMV 百分比）
+- 总交易数或用户数
 
-- Investors prefer bottom-up validation
-- Top-down alone lacks credibility
-- Always triangulate with multiple methods
+**TAM 计算：**
 
-**Mistake 4: Cherry-Picking Data**
+```
+TAM = 总类别 GMV × 预期提取率
+```
 
-- Use consistent, recent data sources
-- Don't mix methodologies inappropriately
-- Document all assumptions clearly
+### 消费者市场
 
-**Mistake 5: Ignoring Market Dynamics**
+**关键指标：**
 
-- Account for market growth/decline
-- Consider competitive intensity
-- Factor in switching costs and barriers
+- 总可寻址用户/家庭数
+- 每用户平均收入（ARPU）
+- 参与频率
 
+**TAM 计算：**
 
-## Quick Start
+```
+TAM = 总用户数 × ARPU × 年购买频率
+```
 
-To perform market sizing analysis:
+### B2B 服务
 
-1. **Define the market** - Problem, customers, category, geography
-2. **Choose methodology** - Bottom-up (preferred) or top-down + triangulation
-3. **Gather data** - Industry reports, customer data, competitive intelligence
-4. **Calculate TAM** - Apply methodology formula
-5. **Narrow to SAM** - Apply product, geographic, segment filters
-6. **Estimate SOM** - 2-5% realistic capture rate
-7. **Validate** - Cross-check with alternative methods
-8. **Document** - Show methodology, sources, assumptions
-9. **Present** - Structure for audience (investors, strategy, operations)
+**关键指标：**
+
+- 按规模/行业划分的目标公司数量
+- 平均项目价值或月费
+- 典型购买频率
+
+**TAM 计算：**
+
+```
+TAM = 总目标公司数 × 平均交易规模 × 年交易数
+```
+
+## 呈现市场规模
+
+### 面向投资者
+
+**结构：**
+
+1. 市场定义和问题范围
+2. TAM/SAM/SOM 及方法论
+3. 数据来源和假设
+4. 增长预测和驱动因素
+5. 竞争格局背景
+
+**要点：**
+
+- 以自下而上计算为主（最有说服力）
+- 展示与自上而下的三角测量
+- 解释保守假设
+- 关联收入预测
+- 突出市场增长率
+
+### 面向战略
+
+**结构：**
+
+1. 可寻址客户细分
+2. 按机会大小优先排序
+3. 按细分的进入策略
+4. 预期渗透时间线
+5. 资源需求
+
+**要点：**
+
+- 聚焦 SAM 和 SOM
+- 展示细分级别详情
+- 关联上市计划
+- 识别扩展机会
+- 讨论竞争定位
+
+## 常见错误
+
+**错误 1：混淆 TAM 和 SAM**
+
+- 不要声称整个市场都是可寻址的
+- 应用现实的产品/地理限制
+- 诚实面对可服务市场
+
+**错误 2：SOM 过于激进**
+
+- 新进入者 5 年内很少获得 > 5%
+- 考虑竞争和资源
+- 展示现实的增长时间线
+
+**错误 3：仅使用自上而下**
+
+- 投资者更喜欢自下而上验证
+- 仅自上而下缺乏可信度
+- 始终用多种方法三角测量
+
+**错误 4：选择性使用数据**
+
+- 使用一致的、最新的数据来源
+- 不要不当地混合方法论
+- 清楚记录所有假设
+
+**错误 5：忽略市场动态**
+
+- 考虑市场增长/衰退
+- 考虑竞争强度
+- 考虑转换成本和壁垒
+
+## 快速开始
+
+执行市场规模分析：
+
+1. **定义市场** - 问题、客户、类别、地理
+2. **选择方法论** - 自下而上（首选）或自上而下 + 三角测量
+3. **收集数据** - 行业报告、客户数据、竞争情报
+4. **计算 TAM** - 应用方法论公式
+5. **缩小到 SAM** - 应用产品、地理、细分过滤器
+6. **估算 SOM** - 2-5% 现实获取率
+7. **验证** - 用替代方法交叉检查
+8. **记录** - 展示方法论、来源、假设
+9. **呈现** - 根据受众结构化（投资者、战略、运营）

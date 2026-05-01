@@ -1,50 +1,50 @@
 ---
 name: similarity-search-patterns
-description: Implement efficient similarity search with vector databases. Use when building semantic search, implementing nearest neighbor queries, or optimizing retrieval performance.
+description: 使用向量数据库实现高效的相似性搜索。在构建语义搜索、实现最近邻查询或优化检索性能时使用。
 ---
 
-# Similarity Search Patterns
+# 相似性搜索模式
 
-Patterns for implementing efficient similarity search in production systems.
+在生产系统中实现高效相似性搜索的模式。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Building semantic search systems
-- Implementing RAG retrieval
-- Creating recommendation engines
-- Optimizing search latency
-- Scaling to millions of vectors
-- Combining semantic and keyword search
+- 构建语义搜索系统
+- 实现 RAG 检索
+- 创建推荐引擎
+- 优化搜索延迟
+- 扩展到数百万向量
+- 组合语义和关键词搜索
 
-## Core Concepts
+## 核心概念
 
-### 1. Distance Metrics
+### 1. 距离度量
 
-| Metric             | Formula            | Best For              |
-| ------------------ | ------------------ | --------------------- | --- | -------------- |
-| **Cosine**         | 1 - (A·B)/(‖A‖‖B‖) | Normalized embeddings |
-| **Euclidean (L2)** | √Σ(a-b)²           | Raw embeddings        |
-| **Dot Product**    | A·B                | Magnitude matters     |
-| **Manhattan (L1)** | Σ                  | a-b                   |     | Sparse vectors |
+| 度量             | 公式               | 最适用于              |
+| ---------------- | ------------------ | --------------------- |
+| **余弦**         | 1 - (A·B)/(‖A‖‖B‖) | 归一化嵌入            |
+| **欧几里得 (L2)** | √Σ(a-b)²           | 原始嵌入              |
+| **点积**         | A·B                | 大小很重要            |
+| **曼哈顿 (L1)**  | Σ|a-b|             | 稀疏向量              |
 
-### 2. Index Types
+### 2. 索引类型
 
 ```
 ┌─────────────────────────────────────────────────┐
-│                 Index Types                      │
+│                 索引类型                          │
 ├─────────────┬───────────────┬───────────────────┤
 │    Flat     │     HNSW      │    IVF+PQ         │
-│ (Exact)     │ (Graph-based) │ (Quantized)       │
+│ (精确)      │ (基于图)      │ (量化)            │
 ├─────────────┼───────────────┼───────────────────┤
-│ O(n) search │ O(log n)      │ O(√n)             │
-│ 100% recall │ ~95-99%       │ ~90-95%           │
-│ Small data  │ Medium-Large  │ Very Large        │
+│ O(n) 搜索   │ O(log n)      │ O(√n)             │
+│ 100% 召回率 │ ~95-99%       │ ~90-95%           │
+│ 小数据      │ 中大型        │ 超大型            │
 └─────────────┴───────────────┴───────────────────┘
 ```
 
-## Templates
+## 模板
 
-### Template 1: Pinecone Implementation
+### 模板 1：Pinecone 实现
 
 ```python
 from pinecone import Pinecone, ServerlessSpec
@@ -162,7 +162,7 @@ class PineconeVectorStore:
         self.index.delete(filter=filter, namespace=namespace)
 ```
 
-### Template 2: Qdrant Implementation
+### 模板 2：Qdrant 实现
 
 ```python
 from qdrant_client import QdrantClient
@@ -288,7 +288,7 @@ class QdrantVectorStore:
         return [{"id": r.id, "score": r.score, "payload": r.payload} for r in results]
 ```
 
-### Template 3: pgvector with PostgreSQL
+### 模板 3：pgvector 与 PostgreSQL
 
 ```python
 import asyncpg
@@ -429,7 +429,7 @@ class PgVectorStore:
         return [dict(row) for row in rows]
 ```
 
-### Template 4: Weaviate Implementation
+### 模板 4：Weaviate 实现
 
 ```python
 import weaviate
@@ -535,19 +535,19 @@ class WeaviateVectorStore:
         ]
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该做的
 
-- **Use appropriate index** - HNSW for most cases
-- **Tune parameters** - ef_search, nprobe for recall/speed
-- **Implement hybrid search** - Combine with keyword search
-- **Monitor recall** - Measure search quality
-- **Pre-filter when possible** - Reduce search space
+- **使用适当的索引** - 大多数情况下使用 HNSW
+- **调优参数** - ef_search、nprobe 用于召回率/速度
+- **实现混合搜索** - 与关键词搜索组合
+- **监控召回率** - 衡量搜索质量
+- **尽可能预过滤** - 减少搜索空间
 
-### Don'ts
+### 不应该做的
 
-- **Don't skip evaluation** - Measure before optimizing
-- **Don't over-index** - Start with flat, scale up
-- **Don't ignore latency** - P99 matters for UX
-- **Don't forget costs** - Vector storage adds up
+- **不要跳过评估** - 优化前先衡量
+- **不要过度索引** - 从 flat 开始，逐步扩展
+- **不要忽视延迟** - P99 对用户体验很重要
+- **不要忘记成本** - 向量存储会累积

@@ -1,24 +1,24 @@
 ---
 name: changelog-automation
-description: Automate changelog generation from commits, PRs, and releases following Keep a Changelog format. Use when setting up release workflows, generating release notes, or standardizing commit conventions.
+description: 从提交、PR 和发布自动生成变更日志，遵循 Keep a Changelog 格式。在设置发布工作流、生成发布说明或标准化提交规范时使用。
 ---
 
-# Changelog Automation
+# 变更日志自动化
 
-Patterns and tools for automating changelog generation, release notes, and version management following industry standards.
+自动化变更日志生成、发布说明和版本管理的模式和工具，遵循行业标准。
 
-## When to Use This Skill
+## 使用场景
 
-- Setting up automated changelog generation
-- Implementing Conventional Commits
-- Creating release note workflows
-- Standardizing commit message formats
-- Generating GitHub/GitLab release notes
-- Managing semantic versioning
+- 设置自动化变更日志生成
+- 实施约定式提交（Conventional Commits）
+- 创建发布说明工作流
+- 标准化提交消息格式
+- 生成 GitHub/GitLab 发布说明
+- 管理语义化版本控制
 
-## Core Concepts
+## 核心概念
 
-### 1. Keep a Changelog Format
+### 1. Keep a Changelog 格式
 
 ```markdown
 # Changelog
@@ -65,7 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.2.0]: https://github.com/user/repo/compare/v1.1.0...v1.2.0
 ```
 
-### 2. Conventional Commits
+### 2. 约定式提交
 
 ```
 <type>[optional scope]: <description>
@@ -75,43 +75,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [optional footer(s)]
 ```
 
-| Type       | Description      | Changelog Section  |
-| ---------- | ---------------- | ------------------ |
-| `feat`     | New feature      | Added              |
-| `fix`      | Bug fix          | Fixed              |
-| `docs`     | Documentation    | (usually excluded) |
-| `style`    | Formatting       | (usually excluded) |
-| `refactor` | Code restructure | Changed            |
-| `perf`     | Performance      | Changed            |
-| `test`     | Tests            | (usually excluded) |
-| `chore`    | Maintenance      | (usually excluded) |
-| `ci`       | CI changes       | (usually excluded) |
-| `build`    | Build system     | (usually excluded) |
-| `revert`   | Revert commit    | Removed            |
+| 类型 | 描述 | 变更日志分区 |
+|------|------|--------------|
+| `feat` | 新功能 | Added |
+| `fix` | Bug 修复 | Fixed |
+| `docs` | 文档 | （通常排除） |
+| `style` | 格式化 | （通常排除） |
+| `refactor` | 代码重构 | Changed |
+| `perf` | 性能 | Changed |
+| `test` | 测试 | （通常排除） |
+| `chore` | 维护 | （通常排除） |
+| `ci` | CI 变更 | （通常排除） |
+| `build` | 构建系统 | （通常排除） |
+| `revert` | 回滚提交 | Removed |
 
-### 3. Semantic Versioning
+### 3. 语义化版本控制
 
 ```
 MAJOR.MINOR.PATCH
 
-MAJOR: Breaking changes (feat! or BREAKING CHANGE)
-MINOR: New features (feat)
-PATCH: Bug fixes (fix)
+MAJOR：破坏性变更（feat! 或 BREAKING CHANGE）
+MINOR：新功能（feat）
+PATCH：Bug 修复（fix）
 ```
 
-## Implementation
+## 实施方法
 
-### Method 1: Conventional Changelog (Node.js)
+### 方法 1：Conventional Changelog（Node.js）
 
 ```bash
-# Install tools
+# 安装工具
 npm install -D @commitlint/cli @commitlint/config-conventional
 npm install -D husky
 npm install -D standard-version
-# or
+# 或
 npm install -D semantic-release
 
-# Setup commitlint
+# 设置 commitlint
 cat > commitlint.config.js << 'EOF'
 module.exports = {
   extends: ['@commitlint/config-conventional'],
@@ -139,12 +139,12 @@ module.exports = {
 };
 EOF
 
-# Setup husky
+# 设置 husky
 npx husky init
 echo "npx --no -- commitlint --edit \$1" > .husky/commit-msg
 ```
 
-### Method 2: standard-version Configuration
+### 方法 2：standard-version 配置
 
 ```javascript
 // .versionrc.js
@@ -190,7 +190,7 @@ module.exports = {
 }
 ```
 
-### Method 3: semantic-release (Full Automation)
+### 方法 3：semantic-release（完全自动化）
 
 ```javascript
 // release.config.js
@@ -233,7 +233,7 @@ module.exports = {
 };
 ```
 
-### Method 4: GitHub Actions Workflow
+### 方法 4：GitHub Actions 工作流
 
 ```yaml
 # .github/workflows/release.yml
@@ -285,7 +285,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npx semantic-release
 
-  # Alternative: manual release with standard-version
+  # 替代方案：使用 standard-version 的手动发布
   manual-release:
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
@@ -319,7 +319,7 @@ jobs:
           generate_release_notes: true
 ```
 
-### Method 5: git-cliff (Rust-based, Fast)
+### 方法 5：git-cliff（基于 Rust，快速）
 
 ```toml
 # cliff.toml
@@ -387,17 +387,17 @@ repo = "repo"
 ```
 
 ```bash
-# Generate changelog
+# 生成变更日志
 git cliff -o CHANGELOG.md
 
-# Generate for specific range
+# 生成特定范围的变更日志
 git cliff v1.0.0..v2.0.0 -o RELEASE_NOTES.md
 
-# Preview without writing
+# 预览但不写入
 git cliff --unreleased --dry-run
 ```
 
-### Method 6: Python (commitizen)
+### 方法 6：Python（commitizen）
 
 ```toml
 # pyproject.toml
@@ -422,22 +422,22 @@ bump_map = {"feat" = "MINOR", "fix" = "PATCH", "perf" = "PATCH", "refactor" = "P
 ```
 
 ```bash
-# Install
+# 安装
 pip install commitizen
 
-# Create commit interactively
+# 交互式创建提交
 cz commit
 
-# Bump version and update changelog
+# 升级版本并更新变更日志
 cz bump --changelog
 
-# Check commits
+# 检查提交
 cz check --rev-range HEAD~5..HEAD
 ```
 
-## Release Notes Templates
+## 发布说明模板
 
-### GitHub Release Template
+### GitHub 发布模板
 
 ```markdown
 ## What's Changed
@@ -480,66 +480,64 @@ cz check --rev-range HEAD~5..HEAD
 **Full Changelog**: https://github.com/owner/repo/compare/v{{ .Previous }}...v{{ .Current }}
 ```
 
-### Internal Release Notes
+### 内部发布说明
 
 ```markdown
 # Release v2.1.0 - January 15, 2024
 
-## Summary
+## 摘要
 
-This release introduces dark mode support and improves checkout performance
-by 40%. It also includes important security updates.
+此版本引入了暗黑模式支持，并将结账性能提升了 40%。还包括重要的安全更新。
 
-## Highlights
+## 亮点
 
-### 🌙 Dark Mode
+### 🌙 暗黑模式
 
-Users can now switch to dark mode from settings. The preference is
-automatically saved and synced across devices.
+用户现在可以从设置中切换到暗黑模式。偏好设置会自动保存并在设备间同步。
 
-### ⚡ Performance
+### ⚡ 性能
 
-- Checkout flow is 40% faster
-- Reduced bundle size by 15%
+- 结账流程快 40%
+- 包体积减少 15%
 
-## Breaking Changes
+## 破坏性变更
 
-None in this release.
+此版本无破坏性变更。
 
-## Upgrade Guide
+## 升级指南
 
-No special steps required. Standard deployment process applies.
+无需特殊步骤。标准部署流程适用。
 
-## Known Issues
+## 已知问题
 
-- Dark mode may flicker on initial load (fix scheduled for v2.1.1)
+- 暗黑模式在初始加载时可能闪烁（修复计划在 v2.1.1）
 
-## Dependencies Updated
+## 依赖更新
 
-| Package | From    | To      | Reason                   |
-| ------- | ------- | ------- | ------------------------ |
-| react   | 18.2.0  | 18.3.0  | Performance improvements |
-| lodash  | 4.17.20 | 4.17.21 | Security patch           |
+| 包 | 从 | 到 | 原因 |
+|----|----|----|------|
+| react | 18.2.0 | 18.3.0 | 性能改进 |
+| lodash | 4.17.20 | 4.17.21 | 安全补丁 |
 ```
 
-## Commit Message Examples
+## 提交消息示例
 
 ```bash
-# Feature with scope
+# 带范围的功能
 feat(auth): add OAuth2 support for Google login
 
-# Bug fix with issue reference
+# 带 issue 引用的 bug 修复
 fix(checkout): resolve race condition in payment processing
 
 Closes #123
 
-# Breaking change
+# 破坏性变更
 feat(api)!: change user endpoint response format
 
 BREAKING CHANGE: The user endpoint now returns `userId` instead of `id`.
 Migration guide: Update all API consumers to use the new field name.
 
-# Multiple paragraphs
+# 多段落
 fix(database): handle connection timeouts gracefully
 
 Previously, connection timeouts would cause the entire request to fail
@@ -553,20 +551,20 @@ Fixes #456
 Reviewed-by: @alice
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该做的
 
-- **Follow Conventional Commits** - Enables automation
-- **Write clear messages** - Future you will thank you
-- **Reference issues** - Link commits to tickets
-- **Use scopes consistently** - Define team conventions
-- **Automate releases** - Reduce manual errors
+- **遵循约定式提交** — 启用自动化
+- **写清晰的消息** — 未来的你会感谢你
+- **引用 issue** — 将提交关联到工单
+- **一致使用范围** — 定义团队规范
+- **自动化发布** — 减少手动错误
 
-### Don'ts
+### 不应该做的
 
-- **Don't mix changes** - One logical change per commit
-- **Don't skip validation** - Use commitlint
-- **Don't manual edit** - Generated changelogs only
-- **Don't forget breaking changes** - Mark with `!` or footer
-- **Don't ignore CI** - Validate commits in pipeline
+- **不要混合变更** — 每次提交一个逻辑变更
+- **不要跳过验证** — 使用 commitlint
+- **不要手动编辑** — 仅使用生成的变更日志
+- **不要忘记破坏性变更** — 用 `!` 或 footer 标记
+- **不要忽略 CI** — 在管道中验证提交

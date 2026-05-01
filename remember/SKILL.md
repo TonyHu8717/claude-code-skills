@@ -1,41 +1,40 @@
 ---
 name: remember
-description: Review reusable project knowledge and decide what belongs in project memory, notepad, or durable docs
+description: 审查可复用的项目知识，决定哪些内容应存入项目记忆、记事本或持久化文档
 ---
 
-# Remember
+# 记忆管理
 
-Use this skill when the user wants to preserve or organize useful knowledge discovered during a session.
+当用户希望保存或整理会话中发现的有用知识时，使用此技能。
 
-## Goal
-Promote durable, reusable knowledge into the right memory surface instead of leaving it buried in chat history.
+## 目标
+将持久、可复用的知识提升到合适的记忆载体中，而不是让其埋没在聊天历史中。
 
-## Memory surfaces
-- **Project memory** — durable team/project knowledge
-- **Notepad priority** — short high-signal context for the next turns
-- **Notepad working** — temporary active-session notes
-- **Docs / AGENTS / CLAUDE files** — durable instructions and conventions when they truly belong there
+## 记忆载体
+- **项目记忆** — 持久的团队/项目知识
+- **记事本优先级** — 下一轮对话的简短高信号上下文
+- **记事本工作区** — 临时的活跃会话笔记
+- **文档 / AGENTS / CLAUDE 文件** — 当确实属于此类别时的持久指令和规范
 
-## Workflow
-1. Gather the relevant session findings.
-2. Classify each item:
-   - durable project fact
-   - temporary working note
-   - operator preference or instruction
-   - duplicate / stale / conflicting information
-3. Propose the best destination for each item.
-4. Write or update only the appropriate memory surface.
-5. Call out duplicates or conflicts that should be cleaned up.
+## 工作流程
+1. 收集相关的会话发现。
+2. 对每条内容进行分类：
+   - 持久的项目事实
+   - 临时的工作笔记
+   - 操作者偏好或指令
+   - 重复 / 过时 / 冲突的信息
+3. 为每条内容建议最佳存储位置。
+4. 仅写入或更新适当的记忆载体。
+5. 指出应清理的重复或冲突内容。
 
-## Rules
-- Do not dump everything into one store.
-- Prefer project memory for durable team knowledge.
-- Prefer notepad for short-lived working context.
-- Keep entries concise and actionable.
-- If something is uncertain, mark it as uncertain rather than storing it as fact.
+## 规则
+- 不要将所有内容都转储到一个存储中。
+- 优先使用项目记忆存储持久的团队知识。
+- 优先使用记事本存储短期的工作上下文。
+- 保持条目简洁且可操作。
+- 如果某些内容不确定，将其标记为不确定，而不是作为事实存储。
 
-## Output
-- What was stored
-- Where it was stored
-- Any duplicates/conflicts found
-
+## 输出
+- 存储了什么内容
+- 存储在何处
+- 发现的重复/冲突

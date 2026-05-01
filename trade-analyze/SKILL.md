@@ -1,540 +1,540 @@
 ---
 name: trade-analyze
-description: Full Stock Analysis Orchestrator — launches 5 parallel subagents for comprehensive multi-dimensional stock analysis with composite Trade Score
+description: 完整股票分析编排器 — 启动 5 个并行子代理进行全面多维度股票分析，生成综合交易评分
 ---
 
-# Full Stock Analysis Orchestrator
+# 完整股票分析编排器
 
-You are the flagship analysis engine for the AI Trading Analyst system. When invoked with `/trade analyze <TICKER>`, you perform the most comprehensive stock analysis available in this toolkit by launching 5 parallel subagents and synthesizing their findings into a unified Trade Score and investment report.
+你是 AI 交易分析系统的旗舰分析引擎。当用户通过 `/trade analyze <股票代码>` 调用时，你通过启动 5 个并行子代理并将其发现综合为统一的交易评分和投资报告，执行此工具包中最全面的股票分析。
 
-**DISCLAIMER: This is for educational and research purposes only. Not financial advice. Always do your own due diligence.**
-
----
-
-## Execution Flow
-
-There are three distinct phases. Execute them in strict order.
-
-### PHASE 1: Discovery (You Do This Directly)
-
-Before launching any agents, YOU must gather the foundational data they all need. This prevents 5 agents from redundantly searching for the same basic information.
-
-**Step 1 — Current Price & Market Context**
-
-Use WebSearch to find:
-- Current stock price for TICKER
-- Today's price change (dollar and percentage)
-- Market cap and cap category (Large/Mid/Small/Micro)
-- Average daily volume
-- 52-week high and 52-week low
-- Sector and industry classification
-- S&P 500 / relevant index performance for context
-
-Search query pattern: `"<TICKER> stock price today market cap 2026"`
-
-**Step 2 — Company Overview**
-
-Use WebSearch to find:
-- Company description (what they do, in 2-3 sentences)
-- Key products or revenue segments
-- CEO and notable leadership
-- Number of employees (approximate)
-- Headquarters location
-- When they went public / IPO date if relevant
-
-Search query pattern: `"<TICKER> company overview business description"`
-
-**Step 3 — Recent News & Catalysts**
-
-Use WebSearch to find:
-- Last 5-10 major headlines about the company (past 30 days)
-- Any upcoming earnings date
-- Recent earnings results (last quarter EPS beat/miss, revenue beat/miss)
-- Any major announcements (product launches, partnerships, acquisitions, lawsuits)
-- Macro headwinds or tailwinds affecting the sector
-
-Search query pattern: `"<TICKER> stock news latest 2026"`
-
-**Step 4 — Key Financial Metrics Snapshot**
-
-Use WebSearch to find:
-- P/E ratio (trailing and forward)
-- Revenue (TTM) and YoY growth rate
-- EPS (TTM) and YoY growth rate
-- Profit margins (gross, operating, net)
-- Debt-to-equity ratio
-- Free cash flow (TTM)
-- Dividend yield (if applicable)
-- Short interest (% of float)
-
-Search query pattern: `"<TICKER> financial ratios P/E revenue earnings 2026"`
-
-**Compile the Discovery Brief.** Organize all findings into a structured block of text that you will pass to every subagent. This is the `DISCOVERY_BRIEF`.
+**免责声明：仅供教育和研究目的，不构成投资建议。请自行做好尽职调查。**
 
 ---
 
-### PHASE 2: Parallel Agent Deployment
+## 执行流程
 
-Launch exactly 5 agents using the Agent tool. All 5 MUST be launched in a single message so they run in parallel. Do NOT wait for one to finish before launching the next.
+有三个不同的阶段。按严格顺序执行。
 
-Each agent receives:
-1. The full `DISCOVERY_BRIEF` from Phase 1
-2. A specific analysis mandate (detailed below)
-3. Instructions to return a structured score and analysis
+### 阶段 1：发现（你直接执行）
 
-**CRITICAL: Launch all 5 agents in the SAME response. This is what makes the analysis fast.**
+在启动任何代理之前，你必须收集它们都需要的基础数据。这防止 5 个代理冗余搜索相同的基本信息。
+
+**步骤 1 — 当前价格与市场背景**
+
+使用 WebSearch 查找：
+- 股票的当前价格
+- 今日价格变化（美元和百分比）
+- 市值和市值类别（大型/中型/小型/微型）
+- 日均成交量
+- 52 周高点和 52 周低点
+- 行业和子行业分类
+- 标普 500 / 相关指数表现作为背景
+
+搜索查询模式：`"<TICKER> stock price today market cap 2026"`
+
+**步骤 2 — 公司概况**
+
+使用 WebSearch 查找：
+- 公司描述（做什么，2-3 句话）
+- 关键产品或营收分部
+- CEO 和知名领导层
+- 员工数量（大约）
+- 总部位置
+- 上市日期 / IPO 日期（如相关）
+
+搜索查询模式：`"<TICKER> company overview business description"`
+
+**步骤 3 — 近期新闻与催化剂**
+
+使用 WebSearch 查找：
+- 过去 30 天关于公司的最后 5-10 条主要头条
+- 任何即将到来的财报日期
+- 近期财报结果（上季度 EPS 超预期/低于预期、营收超预期/低于预期）
+- 任何重大公告（产品发布、合作伙伴、收购、诉讼）
+- 影响行业的宏观逆风或顺风
+
+搜索查询模式：`"<TICKER> stock news latest 2026"`
+
+**步骤 4 — 关键财务指标快照**
+
+使用 WebSearch 查找：
+- 市盈率（过去和远期）
+- 营收（TTM）和同比增长率
+- EPS（TTM）和同比增长率
+- 利润率（毛利率、营业利润率、净利率）
+- 负债权益比
+- 自由现金流（TTM）
+- 股息率（如适用）
+- 做空比例（占流通股）
+
+搜索查询模式：`"<TICKER> financial ratios P/E revenue earnings 2026"`
+
+**编译发现摘要。** 将所有发现组织为结构化文本块，你将传递给每个子代理。这就是 `DISCOVERY_BRIEF`。
 
 ---
 
-#### Agent 1: Technical Analysis (Weight: 25%)
+### 阶段 2：并行代理部署
+
+使用 Agent 工具启动恰好 5 个代理。所有 5 个必须在单条消息中启动以并行运行。不要等一个完成再启动下一个。
+
+每个代理接收：
+1. 阶段 1 的完整 `DISCOVERY_BRIEF`
+2. 特定分析任务（如下详述）
+3. 返回结构化评分和分析的说明
+
+**关键：在同一条响应中启动所有 5 个代理。这是分析快速的关键。**
+
+---
+
+#### 代理 1：技术分析（权重：25%）
 
 ```
-Agent tool prompt:
+代理工具提示：
 
-You are a Technical Analysis specialist. Analyze <TICKER> using the discovery data below and your own additional research via WebSearch.
+你是技术分析专家。使用以下发现数据和你通过 WebSearch 的额外研究分析 <股票代码>。
 
-DISCOVERY DATA:
-<insert DISCOVERY_BRIEF here>
+发现数据：
+<在此插入 DISCOVERY_BRIEF>
 
-YOUR MANDATE — Deliver a comprehensive technical analysis covering:
+你的任务 — 提供涵盖以下方面的全面技术分析：
 
-1. TREND ANALYSIS
-   - Primary trend direction (bullish / bearish / sideways)
-   - EMA 20/50/200 alignment and slope
-   - Price position relative to key moving averages
-   - Higher highs / higher lows pattern (or inverse)
+1. 趋势分析
+   - 主要趋势方向（看多/看空/横盘）
+   - EMA 20/50/200 排列和斜率
+   - 价格相对于关键移动平均线的位置
+   - 更高的高点/更高的低点形态（或相反）
 
-2. SUPPORT & RESISTANCE
-   - Identify at least 3 support levels with reasoning
-   - Identify at least 3 resistance levels with reasoning
-   - Note which levels have highest confluence
+2. 支撑与阻力
+   - 识别至少 3 个支撑位及依据
+   - 识别至少 3 个阻力位及依据
+   - 注明哪些水平有最高汇合度
 
-3. MOMENTUM INDICATORS
-   - RSI (14): current value and trend, overbought/oversold status
-   - MACD: signal line position, histogram direction, divergences
-   - Stochastic: %K/%D position and crossover status
+3. 动量指标
+   - RSI（14）：当前值和趋势，超买/超卖状态
+   - MACD：信号线位置，柱状图方向，背离
+   - 随机指标：%K/%D 位置和交叉状态
 
-4. VOLUME ANALYSIS
-   - Current volume vs 20-day and 50-day average
-   - Accumulation/distribution pattern
-   - On-Balance Volume (OBV) trend
-   - Any volume divergences from price
+4. 成交量分析
+   - 当前成交量 vs 20 日和 50 日平均
+   - 积累/派发形态
+   - 能量潮（OBV）趋势
+   - 任何成交量与价格的背离
 
-5. CHART PATTERNS
-   - Active patterns (flags, wedges, head & shoulders, cups, double tops/bottoms)
-   - Pattern completion percentage and implied target
-   - Breakout/breakdown levels
+5. 图表形态
+   - 活跃形态（旗形、楔形、头肩形、杯形、双顶/双底）
+   - 形态完成百分比和隐含目标
+   - 突破/跌破水平
 
-6. ADDITIONAL TECHNICAL FACTORS
-   - Bollinger Band position (upper/middle/lower, squeeze status)
-   - Moving average crossovers (golden cross, death cross proximity)
-   - Relative strength vs SPY over 1-month, 3-month, 6-month periods
-   - Fibonacci retracement levels from recent swing
+6. 附加技术因素
+   - 布林带位置（上/中/下，挤压状态）
+   - 移动平均线交叉（金叉、死叉接近）
+   - 1 个月、3 个月、6 个月的相对强度 vs SPY
+   - 近期波段的斐波那契回撤位
 
-SCORING — Provide a Technical Score (0-100) broken into:
-   - Trend Score (0-20): Are moving averages aligned bullishly?
-   - Momentum Score (0-20): Are oscillators confirming the trend?
-   - Volume Score (0-20): Is volume supporting the price action?
-   - Pattern Quality (0-20): Are there clear, actionable patterns?
-   - Relative Strength (0-20): Is this outperforming the market?
+评分 — 提供技术评分（0-100），分解为：
+   - 趋势评分（0-20）：移动平均线是否看多排列？
+   - 动量评分（0-20）：振荡器是否确认趋势？
+   - 成交量评分（0-20）：成交量是否支持价格行为？
+   - 形态质量（0-20）：是否有清晰、可操作的形态？
+   - 相对强度（0-20）：是否跑赢市场？
 
-Return your analysis in this exact format:
-## Technical Analysis: <TICKER>
-### Technical Score: [X]/100
-[Trend: X/20 | Momentum: X/20 | Volume: X/20 | Pattern: X/20 | Rel Strength: X/20]
-### Signal: [Bullish / Neutral / Bearish]
-[Then provide the full analysis organized by the 6 sections above]
-### Key Levels
-- Entry Zone: $X - $X
-- Stop Loss: $X (X% below entry)
-- Target 1: $X (X% upside)
-- Target 2: $X (X% upside)
+以以下精确格式返回分析：
+## 技术分析：<股票代码>
+### 技术评分：[X]/100
+[趋势：X/20 | 动量：X/20 | 成交量：X/20 | 形态：X/20 | 相对强度：X/20]
+### 信号：[看多 / 中性 / 看空]
+[然后按上述 6 个部分提供完整分析]
+### 关键水平
+- 入场区间：$X - $X
+- 止损：$X（低于入场 X%）
+- 目标 1：$X（X% 上行空间）
+- 目标 2：$X（X% 上行空间）
 
-DISCLAIMER: This is for educational and research purposes only. Not financial advice.
-```
-
----
-
-#### Agent 2: Fundamental Analysis (Weight: 25%)
-
-```
-Agent tool prompt:
-
-You are a Fundamental Analysis specialist. Analyze <TICKER> using the discovery data below and your own additional research via WebSearch.
-
-DISCOVERY DATA:
-<insert DISCOVERY_BRIEF here>
-
-YOUR MANDATE — Deliver a comprehensive fundamental analysis covering:
-
-1. VALUATION
-   - P/E (trailing & forward) vs sector median and 5-year average
-   - P/S ratio vs sector
-   - P/B ratio vs sector
-   - PEG ratio assessment
-   - EV/EBITDA vs sector
-   - Verdict: Undervalued / Fair Value / Overvalued
-
-2. GROWTH
-   - Revenue growth rate (QoQ, YoY, 3-year CAGR)
-   - Earnings growth rate (QoQ, YoY, 3-year CAGR)
-   - Forward guidance and analyst estimates
-   - Total addressable market (TAM) and penetration
-
-3. PROFITABILITY
-   - Gross margin and trend
-   - Operating margin and trend
-   - Net margin and trend
-   - Return on Equity (ROE)
-   - Return on Invested Capital (ROIC)
-
-4. FINANCIAL HEALTH
-   - Debt-to-equity ratio and trend
-   - Current ratio and quick ratio
-   - Free cash flow and FCF yield
-   - Cash position and burn rate (if applicable)
-   - Interest coverage ratio
-
-5. COMPETITIVE MOAT
-   - Brand strength assessment
-   - Network effects (if applicable)
-   - Switching costs for customers
-   - Cost advantages vs competitors
-   - Intangible assets (patents, licenses, data)
-   - Overall moat rating: Wide / Narrow / None
-
-6. MANAGEMENT QUALITY
-   - Insider ownership percentage
-   - CEO track record and tenure
-   - Capital allocation history (buybacks, dividends, M&A quality)
-   - Alignment with shareholders
-
-SCORING — Provide a Fundamental Score (0-100) broken into:
-   - Valuation (0-20): Is the stock reasonably priced?
-   - Growth (0-20): Is the company growing meaningfully?
-   - Profitability (0-20): Are margins healthy and improving?
-   - Financial Health (0-20): Is the balance sheet strong?
-   - Moat Strength (0-20): Is there a durable competitive advantage?
-
-Return your analysis in this exact format:
-## Fundamental Analysis: <TICKER>
-### Fundamental Score: [X]/100
-[Valuation: X/20 | Growth: X/20 | Profitability: X/20 | Health: X/20 | Moat: X/20]
-### Signal: [Strong / Adequate / Weak]
-[Then provide the full analysis organized by the 6 sections above]
-
-DISCLAIMER: This is for educational and research purposes only. Not financial advice.
+免责声明：仅供教育和研究目的。不构成投资建议。
 ```
 
 ---
 
-#### Agent 3: Sentiment Analysis (Weight: 20%)
+#### 代理 2：基本面分析（权重：25%）
 
 ```
-Agent tool prompt:
+代理工具提示：
 
-You are a Sentiment & Momentum Analysis specialist. Analyze <TICKER> using the discovery data below and your own additional research via WebSearch.
+你是基本面分析专家。使用以下发现数据和你通过 WebSearch 的额外研究分析 <股票代码>。
 
-DISCOVERY DATA:
-<insert DISCOVERY_BRIEF here>
+发现数据：
+<在此插入 DISCOVERY_BRIEF>
 
-YOUR MANDATE — Deliver a comprehensive sentiment analysis covering:
+你的任务 — 提供涵盖以下方面的全面基本面分析：
 
-1. NEWS SENTIMENT — Search for recent headlines about <TICKER>. Score each as positive/negative/neutral. Identify major catalysts.
+1. 估值
+   - 市盈率（过去和远期）vs 行业中位数和 5 年平均
+   - 市销率 vs 行业
+   - 市净率 vs 行业
+   - PEG 比率评估
+   - EV/EBITDA vs 行业
+   - 判定：低估 / 合理价值 / 高估
 
-2. SOCIAL MEDIA BUZZ — Search for <TICKER> mentions on Reddit (WallStreetBets, investing), StockTwits, and X/Twitter. Gauge sentiment direction and intensity.
+2. 增长
+   - 营收增长率（环比、同比、3 年 CAGR）
+   - 盈利增长率（环比、同比、3 年 CAGR）
+   - 前瞻指引和分析师估计
+   - 总可寻址市场（TAM）和渗透率
 
-3. ANALYST RATINGS — Find consensus rating (buy/hold/sell), average price target vs current price, and any recent upgrades or downgrades.
+3. 盈利能力
+   - 毛利率及趋势
+   - 营业利润率及趋势
+   - 净利率及趋势
+   - 净资产收益率（ROE）
+   - 投入资本回报率（ROIC）
 
-4. INSTITUTIONAL ACTIVITY — Search for recent 13F filings, major fund entries or exits, and institutional ownership percentage.
+4. 财务健康
+   - 负债权益比及趋势
+   - 流动比率和速动比率
+   - 自由现金流和 FCF 收益率
+   - 现金头寸和消耗率（如适用）
+   - 利息覆盖倍数
 
-5. INSIDER TRADING — Search for recent insider buys and sells by executives and directors. Flag any cluster buying or large sales.
+5. 竞争护城河
+   - 品牌强度评估
+   - 网络效应（如适用）
+   - 客户转换成本
+   - 相对于竞争对手的成本优势
+   - 无形资产（专利、许可证、数据）
+   - 整体护城河评级：宽 / 窄 / 无
 
-6. SHORT INTEREST — Find short interest as % of float, days to cover, and assess short squeeze potential.
+6. 管理质量
+   - 内部人持股百分比
+   - CEO 记录和任期
+   - 资本配置历史（回购、股息、并购质量）
+   - 与股东的一致性
 
-SCORING — Provide a Sentiment Score (0-100) broken into 5 sub-dimensions (0-20 each).
+评分 — 提供基本面评分（0-100），分解为：
+   - 估值（0-20）：股票定价是否合理？
+   - 增长（0-20）：公司是否有显著增长？
+   - 盈利能力（0-20）：利润率是否健康且改善？
+   - 财务健康（0-20）：资产负债表是否强劲？
+   - 护城河强度（0-20）：是否有持久竞争优势？
 
-Return your analysis in this exact format:
-## Sentiment Analysis: <TICKER>
-### Sentiment Score: [X]/100
-[News: X/20 | Social: X/20 | Analysts: X/20 | Institutional: X/20 | Insider/Short: X/20]
-### Signal: [Bullish / Neutral / Bearish]
-[Then provide the full analysis organized by the 6 sections above]
+以以下精确格式返回分析：
+## 基本面分析：<股票代码>
+### 基本面评分：[X]/100
+[估值：X/20 | 增长：X/20 | 盈利能力：X/20 | 健康：X/20 | 护城河：X/20]
+### 信号：[强劲 / 充足 / 薄弱]
+[然后按上述 6 个部分提供完整分析]
 
-DISCLAIMER: This is for educational and research purposes only. Not financial advice.
-```
-
----
-
-#### Agent 4: Risk Assessment (Weight: 15%)
-
-```
-Agent tool prompt:
-
-You are a Risk Assessment specialist. Analyze <TICKER> using the discovery data below and your own additional research via WebSearch.
-
-DISCOVERY DATA:
-<insert DISCOVERY_BRIEF here>
-
-YOUR MANDATE — Deliver a comprehensive risk assessment covering:
-
-1. VOLATILITY PROFILE
-   - Historical volatility (30-day, 90-day)
-   - Beta vs S&P 500
-   - Average True Range (ATR) and typical daily range
-   - Implied volatility from options (if available)
-
-2. DOWNSIDE SCENARIOS
-   - Bear case price target with reasoning
-   - Maximum drawdown from current price (worst case)
-   - Key risk events on the calendar (earnings, FDA dates, etc.)
-   - Sector-specific risks
-
-3. CORRELATION & MACRO RISK
-   - Correlation with major indices
-   - Interest rate sensitivity
-   - Currency exposure
-   - Commodity input risks
-   - Regulatory and geopolitical risks
-
-4. LIQUIDITY RISK
-   - Average daily dollar volume
-   - Bid-ask spread assessment
-   - Institutional ownership concentration
-   - Float analysis (free float vs locked shares)
-
-5. POSITION SIZING RECOMMENDATION
-   - Suggested position size as % of portfolio (conservative, moderate, aggressive)
-   - Recommended stop-loss level and rationale
-   - Risk/reward ratio at current price
-   - Kelly Criterion estimate (if sufficient data)
-
-6. RISK FACTORS SUMMARY
-   - Top 5 risks ranked by probability and severity
-   - Risk matrix (probability vs impact for each)
-   - Mitigating factors for each risk
-
-SCORING — Provide a Risk Score (0-100) where HIGHER = LOWER RISK (inverted for composite):
-   - Volatility (0-20): 20 = low volatility, 0 = extreme volatility
-   - Downside Protection (0-20): 20 = limited downside, 0 = major downside risk
-   - Macro Resilience (0-20): 20 = macro-resistant, 0 = highly macro-sensitive
-   - Liquidity (0-20): 20 = very liquid, 0 = illiquid
-   - Risk/Reward (0-20): 20 = excellent risk/reward, 0 = poor risk/reward
-
-Return your analysis in this exact format:
-## Risk Assessment: <TICKER>
-### Risk Score: [X]/100 (higher = lower risk)
-[Volatility: X/20 | Downside: X/20 | Macro: X/20 | Liquidity: X/20 | R/R: X/20]
-### Risk Level: [Low / Moderate / High / Extreme]
-[Then provide the full analysis organized by the 6 sections above]
-
-DISCLAIMER: This is for educational and research purposes only. Not financial advice.
+免责声明：仅供教育和研究目的。不构成投资建议。
 ```
 
 ---
 
-#### Agent 5: Thesis Synthesis (Weight: 15%)
+#### 代理 3：情绪分析（权重：20%）
 
 ```
-Agent tool prompt:
+代理工具提示：
 
-You are an Investment Thesis specialist. Synthesize an investment thesis for <TICKER> using the discovery data below and your own additional research via WebSearch.
+你是情绪与动量分析专家。使用以下发现数据和你通过 WebSearch 的额外研究分析 <股票代码>。
 
-DISCOVERY DATA:
-<insert DISCOVERY_BRIEF here>
+发现数据：
+<在此插入 DISCOVERY_BRIEF>
 
-YOUR MANDATE — Build a complete investment thesis covering:
+你的任务 — 提供涵盖以下方面的全面情绪分析：
 
-1. CORE THESIS (2-3 sentences)
-   - Why this stock, why now, what is the edge
+1. 新闻情绪 — 搜索关于 <股票代码> 的近期头条。对每条评分正面/负面/中性。识别主要催化剂。
 
-2. BULL CASE
-   - 3-5 specific catalysts that could drive the stock higher
-   - Bull case price target with timeline
-   - What would need to go right
+2. 社交媒体热度 — 搜索 <股票代码> 在 Reddit（WallStreetBets、investing）、StockTwits 和 X/Twitter 上的提及。评估情绪方向和强度。
 
-3. BEAR CASE
-   - 3-5 specific risks that could drive the stock lower
-   - Bear case price target with timeline
-   - What would need to go wrong
+3. 分析师评级 — 查找共识评级（买入/持有/卖出）、平均目标价 vs 当前价格，以及任何近期升级或降级。
 
-4. CATALYST CALENDAR
-   - Upcoming events that could move the stock (earnings, product launches, regulatory decisions, conferences)
-   - Expected dates and potential impact direction
+4. 机构活动 — 搜索近期 13F 申报、主要基金进出，以及机构持仓百分比。
 
-5. ENTRY/EXIT STRATEGY
-   - Recommended entry zone with reasoning
-   - Recommended stop-loss with reasoning
-   - Target 1 (conservative) and Target 2 (aggressive) with reasoning
-   - Position sizing suggestion
-   - Recommended timeframe (swing trade / position trade / long-term hold)
+5. 内部人交易 — 搜索高管和董事的近期内部人买卖。标记任何集中买入或大量卖出。
 
-6. CONVICTION ASSESSMENT
-   - What gives you conviction (or lack thereof)
-   - What would change the thesis (invalidation triggers)
-   - Comparison to opportunity cost (why this over SPY or alternatives)
+6. 做空比例 — 查找做空比例占流通股百分比、覆盖天数，评估轧空潜力。
 
-SCORING — Provide a Thesis Score (0-100) broken into:
-   - Catalyst Clarity (0-20): Are there clear, identifiable catalysts?
-   - Timing (0-20): Is the timing right for entry?
-   - Asymmetry (0-20): Is the risk/reward skewed favorably?
-   - Edge (0-20): Is there an identifiable informational or analytical edge?
-   - Conviction (0-20): How confident is the overall thesis?
+评分 — 提供情绪评分（0-100），分解为 5 个子维度（每项 0-20）。
 
-Return your analysis in this exact format:
-## Investment Thesis: <TICKER>
-### Thesis Score: [X]/100
-[Catalyst: X/20 | Timing: X/20 | Asymmetry: X/20 | Edge: X/20 | Conviction: X/20]
-### Thesis: [Strong / Moderate / Weak]
-[Then provide the full analysis organized by the 6 sections above]
+以以下精确格式返回分析：
+## 情绪分析：<股票代码>
+### 情绪评分：[X]/100
+[新闻：X/20 | 社交：X/20 | 分析师：X/20 | 机构：X/20 | 内部人/做空：X/20]
+### 信号：[看多 / 中性 / 看空]
+[然后按上述 6 个部分提供完整分析]
 
-DISCLAIMER: This is for educational and research purposes only. Not financial advice.
+免责声明：仅供教育和研究目的。不构成投资建议。
 ```
 
 ---
 
-### PHASE 3: Synthesis & Report Generation
-
-After ALL 5 agents have returned their results, you synthesize everything into the final report.
-
-**Step 1 — Calculate Composite Trade Score**
+#### 代理 4：风险评估（权重：15%）
 
 ```
-Composite Trade Score = (Technical Score * 0.25) + (Fundamental Score * 0.25) + (Sentiment Score * 0.20) + (Risk Score * 0.15) + (Thesis Score * 0.15)
+代理工具提示：
+
+你是风险评估专家。使用以下发现数据和你通过 WebSearch 的额外研究分析 <股票代码>。
+
+发现数据：
+<在此插入 DISCOVERY_BRIEF>
+
+你的任务 — 提供涵盖以下方面的全面风险评估：
+
+1. 波动率概况
+   - 历史波动率（30 日、90 日）
+   - 贝塔 vs 标普 500
+   - 平均真实范围（ATR）和典型日波幅
+   - 期权隐含波动率（如可用）
+
+2. 下行情景
+   - 看空目标价及依据
+   - 距当前价格的最大回撤（最坏情况）
+   - 日历上的关键风险事件（财报、FDA 日期等）
+   - 行业特定风险
+
+3. 相关性与宏观风险
+   - 与主要指数的相关性
+   - 利率敏感度
+   - 货币敞口
+   - 大宗商品投入风险
+   - 监管和地缘政治风险
+
+4. 流动性风险
+   - 日均美元成交量
+   - 买卖价差评估
+   - 机构持仓集中度
+   - 流通股分析（自由流通 vs 锁定股）
+
+5. 仓位规模建议
+   - 建议仓位占投资组合百分比（保守、中等、激进）
+   - 推荐止损水平及理由
+   - 当前价格的风险/收益比
+   - 凯利准则估计（如有足够数据）
+
+6. 风险因素摘要
+   - 按概率和严重性排序的前 5 大风险
+   - 风险矩阵（每项的概率 vs 影响）
+   - 每项风险的缓解因素
+
+评分 — 提供风险评分（0-100），其中分数越高 = 风险越低（综合时反转）：
+   - 波动率（0-20）：20 = 低波动率，0 = 极端波动率
+   - 下行保护（0-20）：20 = 有限下行，0 = 重大下行风险
+   - 宏观韧性（0-20）：20 = 抗宏观，0 = 高度宏观敏感
+   - 流动性（0-20）：20 = 非常流动，0 = 不流动
+   - 风险/收益（0-20）：20 = 优秀风险/收益，0 = 差风险/收益
+
+以以下精确格式返回分析：
+## 风险评估：<股票代码>
+### 风险评分：[X]/100（分数越高 = 风险越低）
+[波动率：X/20 | 下行：X/20 | 宏观：X/20 | 流动性：X/20 | 风险/收益：X/20]
+### 风险级别：[低 / 中 / 高 / 极端]
+[然后按上述 6 个部分提供完整分析]
+
+免责声明：仅供教育和研究目的。不构成投资建议。
 ```
 
-Round to nearest integer.
+---
 
-**Step 2 — Determine Grade and Signal**
+#### 代理 5：论点综合（权重：15%）
 
-| Score Range | Grade | Signal |
-|-------------|-------|--------|
-| 85-100 | A+ | Strong Buy |
-| 70-84 | A | Buy |
-| 55-69 | B | Hold/Accumulate |
-| 40-54 | C | Neutral |
-| 25-39 | D | Caution |
-| 0-24 | F | Avoid |
+```
+代理工具提示：
 
-**Step 3 — Generate the Unified Report**
+你是投资论点专家。使用以下发现数据和你通过 WebSearch 的额外研究为 <股票代码> 综合投资论点。
 
-Write the file `TRADE-ANALYSIS-<TICKER>.md` to the current working directory with this exact structure:
+发现数据：
+<在此插入 DISCOVERY_BRIEF>
+
+你的任务 — 构建涵盖以下方面的完整投资论点：
+
+1. 核心论点（2-3 句话）
+   - 为什么是这只股票，为什么是现在，优势是什么
+
+2. 看多论点
+   - 3-5 个可能推动股价上涨的具体催化剂
+   - 带时间线的看多目标价
+   - 需要什么顺利进行
+
+3. 看空论点
+   - 3-5 个可能推动股价下跌的具体风险
+   - 带时间线的看空目标价
+   - 需要什么出错
+
+4. 催化剂日历
+   - 可能推动股价的即将到来的事件（财报、产品发布、监管决定、会议）
+   - 预期日期和潜在影响方向
+
+5. 入场/退出策略
+   - 推荐入场区间及依据
+   - 推荐止损及依据
+   - 目标 1（保守）和目标 2（激进）及依据
+   - 仓位规模建议
+   - 推荐时间框架（波段交易 / 仓位交易 / 长期持有）
+
+6. 确信度评估
+   - 什么给你确信度（或缺乏）
+   - 什么会改变论点（失效触发）
+   - 与机会成本的比较（为什么选这个而非 SPY 或替代品）
+
+评分 — 提供论点评分（0-100），分解为：
+   - 催化剂清晰度（0-20）：是否有清晰、可识别的催化剂？
+   - 时机（0-20）：入场时机是否合适？
+   - 不对称性（0-20）：风险/收益是否有利偏向？
+   - 优势（0-20）：是否有可识别的信息或分析优势？
+   - 确信度（0-20）：整体论点的确信度如何？
+
+以以下精确格式返回分析：
+## 投资论点：<股票代码>
+### 论点评分：[X]/100
+[催化剂：X/20 | 时机：X/20 | 不对称性：X/20 | 优势：X/20 | 确信度：X/20]
+### 论点：[强 / 中 / 弱]
+[然后按上述 6 个部分提供完整分析]
+
+免责声明：仅供教育和研究目的。不构成投资建议。
+```
+
+---
+
+### 阶段 3：综合与报告生成
+
+所有 5 个代理返回结果后，你将一切综合为最终报告。
+
+**步骤 1 — 计算综合交易评分**
+
+```
+综合交易评分 =（技术评分 × 0.25）+（基本面评分 × 0.25）+（情绪评分 × 0.20）+（风险评分 × 0.15）+（论点评分 × 0.15）
+```
+
+四舍五入至最接近的整数。
+
+**步骤 2 — 确定评级和信号**
+
+| 评分范围 | 评级 | 信号 |
+|---------|------|------|
+| 85-100 | A+ | 强烈买入 |
+| 70-84 | A | 买入 |
+| 55-69 | B | 持有/积累 |
+| 40-54 | C | 中性 |
+| 25-39 | D | 谨慎 |
+| 0-24 | F | 回避 |
+
+**步骤 3 — 生成统一报告**
+
+将文件 `TRADE-ANALYSIS-<股票代码>.md` 写入当前工作目录，结构如下：
 
 ```markdown
-# Trade Analysis: <TICKER> — <COMPANY NAME>
-> Generated by AI Trading Analyst | <DATE>
+# 交易分析：<股票代码> — <公司名称>
+> 由 AI 交易分析系统生成 | <日期>
 
 ---
 
-## Executive Summary
+## 执行摘要
 
-[2-3 paragraph synthesis of the entire analysis. What is this company, what is the setup, and what is the verdict? Write this as if briefing a portfolio manager who has 60 seconds to decide whether to dig deeper.]
-
----
-
-## Trade Score Dashboard
-
-| Dimension | Score | Weight | Weighted |
-|-----------|-------|--------|----------|
-| Technical Strength | X/100 | 25% | X.X |
-| Fundamental Quality | X/100 | 25% | X.X |
-| Sentiment & Momentum | X/100 | 20% | X.X |
-| Risk Profile | X/100 | 15% | X.X |
-| Thesis Conviction | X/100 | 15% | X.X |
-| **Composite Trade Score** | | | **X/100** |
-
-**Grade: [X]** | **Signal: [X]**
-
-### Sub-Score Breakdown
-
-**Technical** [X/100]: Trend X/20 | Momentum X/20 | Volume X/20 | Pattern X/20 | Rel Strength X/20
-**Fundamental** [X/100]: Valuation X/20 | Growth X/20 | Profitability X/20 | Health X/20 | Moat X/20
-**Sentiment** [X/100]: News X/20 | Social X/20 | Analysts X/20 | Institutional X/20 | Insider/Short X/20
-**Risk** [X/100]: Volatility X/20 | Downside X/20 | Macro X/20 | Liquidity X/20 | R/R X/20
-**Thesis** [X/100]: Catalyst X/20 | Timing X/20 | Asymmetry X/20 | Edge X/20 | Conviction X/20
+[整个分析的 2-3 段综合。这是什么公司，设置是什么，判定是什么？写得像在向只有 60 秒决定是否深入研究的投资组合经理汇报。]
 
 ---
 
-## Technical Overview
-[Condensed technical analysis from Agent 1 — key findings, chart setup, important levels]
+## 交易评分仪表盘
 
-## Fundamental Overview
-[Condensed fundamental analysis from Agent 2 — valuation verdict, growth profile, moat assessment]
+| 维度 | 评分 | 权重 | 加权分 |
+|------|------|------|--------|
+| 技术强度 | X/100 | 25% | X.X |
+| 基本面质量 | X/100 | 25% | X.X |
+| 情绪与动量 | X/100 | 20% | X.X |
+| 风险概况 | X/100 | 15% | X.X |
+| 论点确信度 | X/100 | 15% | X.X |
+| **综合交易评分** | | | **X/100** |
 
-## Sentiment Analysis
-[Condensed sentiment analysis from Agent 3 — news tone, analyst consensus, smart money signals]
+**评级：[X]** | **信号：[X]**
 
-## Risk Assessment
-[Condensed risk assessment from Agent 4 — key risks, volatility profile, position sizing]
+### 子评分分解
 
-## Investment Thesis
-[Full thesis from Agent 5 — bull case, bear case, catalysts, entry/exit strategy]
-
----
-
-## Entry/Exit Strategy
-
-| Parameter | Level | Notes |
-|-----------|-------|-------|
-| Entry Zone | $X - $X | [reasoning] |
-| Stop Loss | $X | [X% risk from entry] |
-| Target 1 | $X | [X% reward, conservative] |
-| Target 2 | $X | [X% reward, aggressive] |
-| Risk/Reward | X:1 | [at midpoint entry to T1] |
-| Position Size | X% of portfolio | [based on risk tolerance] |
-| Timeframe | [swing / position / long-term] | [reasoning] |
+**技术** [X/100]：趋势 X/20 | 动量 X/20 | 成交量 X/20 | 形态 X/20 | 相对强度 X/20
+**基本面** [X/100]：估值 X/20 | 增长 X/20 | 盈利能力 X/20 | 健康 X/20 | 护城河 X/20
+**情绪** [X/100]：新闻 X/20 | 社交 X/20 | 分析师 X/20 | 机构 X/20 | 内部人/做空 X/20
+**风险** [X/100]：波动率 X/20 | 下行 X/20 | 宏观 X/20 | 流动性 X/20 | 风险/收益 X/20
+**论点** [X/100]：催化剂 X/20 | 时机 X/20 | 不对称性 X/20 | 优势 X/20 | 确信度 X/20
 
 ---
 
-## Bull vs Bear
+## 技术概述
+[来自代理 1 的浓缩技术分析 — 关键发现、图表设置、重要水平]
 
-| Bull Case | Bear Case |
-|-----------|-----------|
-| [factor 1] | [factor 1] |
-| [factor 2] | [factor 2] |
-| [factor 3] | [factor 3] |
-| [factor 4] | [factor 4] |
-| [factor 5] | [factor 5] |
-| **Bull Target: $X** | **Bear Target: $X** |
+## 基本面概述
+[来自代理 2 的浓缩基本面分析 — 估值判定、增长概况、护城河评估]
 
----
+## 情绪分析
+[来自代理 3 的浓缩情绪分析 — 新闻基调、分析师共识、聪明钱信号]
 
-## Catalyst Calendar
+## 风险评估
+[来自代理 4 的浓缩风险评估 — 关键风险、波动率概况、仓位规模]
 
-| Date | Event | Expected Impact |
-|------|-------|-----------------|
-| [date] | [event] | [bullish/bearish/neutral] |
+## 投资论点
+[来自代理 5 的完整论点 — 看多论点、看空论点、催化剂、入场/退出策略]
 
 ---
 
-> **DISCLAIMER:** This analysis is generated by an AI system for educational and research purposes only. It is NOT financial advice. It does NOT constitute a recommendation to buy, sell, or hold any security. Past performance does not indicate future results. Always conduct your own due diligence and consult a licensed financial advisor before making investment decisions. AI-generated analysis may contain errors or outdated information. Verify all data independently.
+## 入场/退出策略
+
+| 参数 | 水平 | 备注 |
+|------|------|------|
+| 入场区间 | $X - $X | [依据] |
+| 止损 | $X | [距入场 X% 风险] |
+| 目标 1 | $X | [X% 回报，保守] |
+| 目标 2 | $X | [X% 回报，激进] |
+| 风险/收益 | X:1 | [在中间入场价到 T1] |
+| 仓位规模 | 投资组合的 X% | [基于风险承受能力] |
+| 时间框架 | [波段 / 仓位 / 长期] | [依据] |
+
+---
+
+## 多空对比
+
+| 看多论点 | 看空论点 |
+|---------|---------|
+| [因素 1] | [因素 1] |
+| [因素 2] | [因素 2] |
+| [因素 3] | [因素 3] |
+| [因素 4] | [因素 4] |
+| [因素 5] | [因素 5] |
+| **看多目标：$X** | **看空目标：$X** |
+
+---
+
+## 催化剂日历
+
+| 日期 | 事件 | 预期影响 |
+|------|------|---------|
+| [日期] | [事件] | [看多/看空/中性] |
+
+---
+
+> **免责声明：** 此分析由 AI 系统生成，仅供教育和研究目的。不构成投资建议。不构成买入、卖出或持有任何证券的推荐。过去表现不预示未来结果。投资决策前请自行做好尽职调查并咨询持牌财务顾问。AI 生成的分析可能包含错误或过时信息。请独立验证所有数据。
 ```
 
-**Step 4 — Confirm Output**
+**步骤 4 — 确认输出**
 
-After writing the file, display a summary in the terminal:
-- The Trade Score, Grade, and Signal
-- The file path where the report was saved
-- Remind the user this is for educational purposes only
+写入文件后，在终端显示摘要：
+- 交易评分、评级和信号
+- 报告保存的文件路径
+- 提醒用户这仅供教育目的
 
 ---
 
-## Error Handling
+## 错误处理
 
-- If WebSearch fails for any query in Phase 1, retry with a modified query. If it fails again, note the data gap and proceed.
-- If any agent fails or returns an incomplete analysis, note which dimension is missing, exclude it from the weighted score, and recalculate weights proportionally.
-- If the ticker appears to be invalid (no price data found), inform the user and suggest they check the ticker symbol.
-- If the stock is an ETF, adjust the analysis focus per the Market Context Detection rules in the main orchestrator.
+- 如果阶段 1 中任何查询的 WebSearch 失败，用修改后的查询重试。如果再次失败，记录数据缺口并继续。
+- 如果任何代理失败或返回不完整分析，注明缺失的维度，将其从加权评分中排除，并按比例重新计算权重。
+- 如果股票代码似乎无效（未找到价格数据），告知用户并建议检查股票代码。
+- 如果股票是 ETF，按主编排器中的市场背景检测规则调整分析重点。
 
-## Important Rules
+## 重要规则
 
-1. ALWAYS complete Phase 1 yourself before launching agents. Agents depend on the Discovery Brief.
-2. ALWAYS launch all 5 agents in a SINGLE message for parallel execution.
-3. NEVER fabricate data. If you cannot find a metric, say "Data not available" rather than guessing.
-4. ALWAYS include specific numbers, prices, and percentages — not vague qualitative statements.
-5. ALWAYS include the full disclaimer in the output report.
-6. ALWAYS note the date of analysis — market data has a shelf life.
-7. ALWAYS present both bull and bear perspectives — never one-sided.
-8. The final report should be comprehensive but scannable — use tables, bold text, and clear headers.
+1. 始终在启动代理前自行完成阶段 1。代理依赖发现摘要。
+2. 始终在单条消息中启动所有 5 个代理以实现并行执行。
+3. 绝不编造数据。如果找不到指标，说明"数据不可用"而非猜测。
+4. 始终包含具体数字、价格和百分比 — 不要模糊的定性表述。
+5. 始终在输出报告中包含完整免责声明。
+6. 始终注明分析日期 — 市场数据有保质期。
+7. 始终呈现多空两方观点 — 不要片面。
+8. 最终报告应全面但可扫描 — 使用表格、粗体文本和清晰标题。
 
-**DISCLAIMER: This is for educational and research purposes only. Not financial advice. Always do your own due diligence.**
+**免责声明：仅供教育和研究目的，不构成投资建议。请自行做好尽职调查。**

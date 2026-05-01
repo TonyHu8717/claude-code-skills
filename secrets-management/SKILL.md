@@ -1,74 +1,74 @@
 ---
 name: secrets-management
-description: Implement secure secrets management for CI/CD pipelines using Vault, AWS Secrets Manager, or native platform solutions. Use when handling sensitive credentials, rotating secrets, or securing CI/CD environments.
+description: 使用 Vault、AWS Secrets Manager 或原生平台解决方案为 CI/CD 管道实施安全的密钥管理。在处理敏感凭据、轮换密钥或保护 CI/CD 环境时使用。
 ---
 
-# Secrets Management
+# 密钥管理
 
-Secure secrets management practices for CI/CD pipelines using Vault, AWS Secrets Manager, and other tools.
+使用 Vault、AWS Secrets Manager 和其他工具为 CI/CD 管道实施安全的密钥管理实践。
 
-## Purpose
+## 目的
 
-Implement secure secrets management in CI/CD pipelines without hardcoding sensitive information.
+在 CI/CD 管道中实施安全的密钥管理，避免硬编码敏感信息。
 
-## When to Use
+## 何时使用
 
-- Store API keys and credentials
-- Manage database passwords
-- Handle TLS certificates
-- Rotate secrets automatically
-- Implement least-privilege access
+- 存储 API 密钥和凭据
+- 管理数据库密码
+- 处理 TLS 证书
+- 自动轮换密钥
+- 实施最小权限访问
 
-## Secrets Management Tools
+## 密钥管理工具
 
 ### HashiCorp Vault
 
-- Centralized secrets management
-- Dynamic secrets generation
-- Secret rotation
-- Audit logging
-- Fine-grained access control
+- 集中化密钥管理
+- 动态密钥生成
+- 密钥轮换
+- 审计日志
+- 细粒度访问控制
 
 ### AWS Secrets Manager
 
-- AWS-native solution
-- Automatic rotation
-- Integration with RDS
-- CloudFormation support
+- AWS 原生解决方案
+- 自动轮换
+- 与 RDS 集成
+- CloudFormation 支持
 
 ### Azure Key Vault
 
-- Azure-native solution
-- HSM-backed keys
-- Certificate management
-- RBAC integration
+- Azure 原生解决方案
+- HSM 支持的密钥
+- 证书管理
+- RBAC 集成
 
 ### Google Secret Manager
 
-- GCP-native solution
-- Versioning
-- IAM integration
+- GCP 原生解决方案
+- 版本控制
+- IAM 集成
 
-## HashiCorp Vault Integration
+## HashiCorp Vault 集成
 
-### Setup Vault
+### 设置 Vault
 
 ```bash
-# Start Vault dev server
+# 启动 Vault 开发服务器
 vault server -dev
 
-# Set environment
+# 设置环境
 export VAULT_ADDR='http://127.0.0.1:8200'
 export VAULT_TOKEN='root'
 
-# Enable secrets engine
+# 启用密钥引擎
 vault secrets enable -path=secret kv-v2
 
-# Store secret
+# 存储密钥
 vault kv put secret/database/config username=admin password=secret
 ```
 
-### GitHub Actions with Vault
+### GitHub Actions 与 Vault
 
 ```yaml
 name: Deploy with Vault Secrets
@@ -97,7 +97,7 @@ jobs:
           # Use $DB_PASSWORD, $API_KEY
 ```
 
-### GitLab CI with Vault
+### GitLab CI 与 Vault
 
 ```yaml
 deploy:
@@ -114,11 +114,11 @@ deploy:
       # Use $DB_PASSWORD, $API_KEY
 ```
 
-**Reference:** See `references/vault-setup.md`
+**参考：** 参见 `references/vault-setup.md`
 
 ## AWS Secrets Manager
 
-### Store Secret
+### 存储密钥
 
 ```bash
 aws secretsmanager create-secret \
@@ -126,7 +126,7 @@ aws secretsmanager create-secret \
   --secret-string "super-secret-password"
 ```
 
-### Retrieve in GitHub Actions
+### 在 GitHub Actions 中检索
 
 ```yaml
 - name: Configure AWS credentials
@@ -151,7 +151,7 @@ aws secretsmanager create-secret \
     ./deploy.sh
 ```
 
-### Terraform with AWS Secrets Manager
+### Terraform 与 AWS Secrets Manager
 
 ```hcl
 data "aws_secretsmanager_secret_version" "db_password" {
@@ -169,7 +169,7 @@ resource "aws_db_instance" "main" {
 
 ## GitHub Secrets
 
-### Organization/Repository Secrets
+### 组织/仓库级密钥
 
 ```yaml
 - name: Use GitHub secret
@@ -177,11 +177,11 @@ resource "aws_db_instance" "main" {
     API_KEY: ${{ secrets.API_KEY }}
     DATABASE_URL: ${{ secrets.DATABASE_URL }}
   run: |
-    # Secrets are injected as env vars — never print them to logs
+    # 密钥作为环境变量注入 — 永远不要打印到日志
     ./deploy.sh
 ```
 
-### Environment Secrets
+### 环境级密钥
 
 ```yaml
 deploy:
@@ -192,15 +192,15 @@ deploy:
       env:
         PROD_API_KEY: ${{ secrets.PROD_API_KEY }}
       run: |
-        # Secret injected as env var — never print to logs
+        # 密钥作为环境变量注入 — 永远不要打印到日志
         ./deploy.sh
 ```
 
-**Reference:** See `references/github-secrets.md`
+**参考：** 参见 `references/github-secrets.md`
 
-## GitLab CI/CD Variables
+## GitLab CI/CD 变量
 
-### Project Variables
+### 项目级变量
 
 ```yaml
 deploy:
@@ -209,28 +209,28 @@ deploy:
     - echo "Database: $DATABASE_URL"
 ```
 
-### Protected and Masked Variables
+### 受保护和遮蔽变量
 
-- Protected: Only available in protected branches
-- Masked: Hidden in job logs
-- File type: Stored as file
+- 受保护：仅在受保护分支中可用
+- 遮蔽：在作业日志中隐藏
+- 文件类型：作为文件存储
 
-## Best Practices
+## 最佳实践
 
-1. **Never commit secrets** to Git
-2. **Use different secrets** per environment
-3. **Rotate secrets regularly**
-4. **Implement least-privilege access**
-5. **Enable audit logging**
-6. **Use secret scanning** (GitGuardian, TruffleHog)
-7. **Mask secrets in logs**
-8. **Encrypt secrets at rest**
-9. **Use short-lived tokens** when possible
-10. **Document secret requirements**
+1. **永远不要提交密钥** 到 Git
+2. **每个环境使用不同的密钥**
+3. **定期轮换密钥**
+4. **实施最小权限访问**
+5. **启用审计日志**
+6. **使用密钥扫描**（GitGuardian、TruffleHog）
+7. **在日志中遮蔽密钥**
+8. **静态加密密钥**
+9. **尽可能使用短期令牌**
+10. **记录密钥要求**
 
-## Secret Rotation
+## 密钥轮换
 
-### Automated Rotation with AWS
+### 使用 AWS 自动轮换
 
 ```python
 import boto3
@@ -239,17 +239,17 @@ import json
 def lambda_handler(event, context):
     client = boto3.client('secretsmanager')
 
-    # Get current secret
+    # 获取当前密钥
     response = client.get_secret_value(SecretId='my-secret')
     current_secret = json.loads(response['SecretString'])
 
-    # Generate new password
+    # 生成新密码
     new_password = generate_strong_password()
 
-    # Update database password
+    # 更新数据库密码
     update_database_password(new_password)
 
-    # Update secret
+    # 更新密钥
     client.put_secret_value(
         SecretId='my-secret',
         SecretString=json.dumps({
@@ -261,17 +261,17 @@ def lambda_handler(event, context):
     return {'statusCode': 200}
 ```
 
-### Manual Rotation Process
+### 手动轮换流程
 
-1. Generate new secret
-2. Update secret in secret store
-3. Update applications to use new secret
-4. Verify functionality
-5. Revoke old secret
+1. 生成新密钥
+2. 在密钥存储中更新密钥
+3. 更新应用以使用新密钥
+4. 验证功能
+5. 撤销旧密钥
 
 ## External Secrets Operator
 
-### Kubernetes Integration
+### Kubernetes 集成
 
 ```yaml
 apiVersion: external-secrets.io/v1beta1
@@ -315,15 +315,15 @@ spec:
         property: password
 ```
 
-## Secret Scanning
+## 密钥扫描
 
-### Pre-commit Hook
+### 预提交钩子
 
 ```bash
 #!/bin/bash
 # .git/hooks/pre-commit
 
-# Check for secrets with TruffleHog
+# 使用 TruffleHog 检查密钥
 docker run --rm -v "$(pwd):/repo" \
   trufflesecurity/trufflehog:3.88 \
   filesystem --directory=/repo
@@ -334,7 +334,7 @@ if [ $? -ne 0 ]; then
 fi
 ```
 
-### CI/CD Secret Scanning
+### CI/CD 密钥扫描
 
 ```yaml
 secret-scan:
@@ -346,8 +346,8 @@ secret-scan:
 ```
 
 
-## Related Skills
+## 相关技能
 
-- `github-actions-templates` - For GitHub Actions integration
-- `gitlab-ci-patterns` - For GitLab CI integration
-- `deployment-pipeline-design` - For pipeline architecture
+- `github-actions-templates` - GitHub Actions 集成
+- `gitlab-ci-patterns` - GitLab CI 集成
+- `deployment-pipeline-design` - 管道架构

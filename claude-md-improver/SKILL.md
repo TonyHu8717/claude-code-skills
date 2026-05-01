@@ -1,127 +1,127 @@
 ---
 name: claude-md-improver
-description: Audit and improve CLAUDE.md files in repositories. Use when user asks to check, audit, update, improve, or fix CLAUDE.md files. Scans for all CLAUDE.md files, evaluates quality against templates, outputs quality report, then makes targeted updates. Also use when the user mentions "CLAUDE.md maintenance" or "project memory optimization".
+description: 审计和改进仓库中的 CLAUDE.md 文件。当用户要求检查、审计、更新、改进或修复 CLAUDE.md 文件时使用。扫描所有 CLAUDE.md 文件，根据模板评估质量，输出质量报告，然后进行有针对性的更新。当用户提到"CLAUDE.md 维护"或"项目记忆优化"时也使用。
 tools: Read, Glob, Grep, Bash, Edit
 ---
 
-# CLAUDE.md Improver
+# CLAUDE.md 改进器
 
-Audit, evaluate, and improve CLAUDE.md files across a codebase to ensure Claude Code has optimal project context.
+审计、评估和改进整个代码库中的 CLAUDE.md 文件，确保 Claude Code 获得最佳项目上下文。
 
-**This skill can write to CLAUDE.md files.** After presenting a quality report and getting user approval, it updates CLAUDE.md files with targeted improvements.
+**此技能可以写入 CLAUDE.md 文件。** 在呈现质量报告并获得用户批准后，它会使用有针对性的更新来修改 CLAUDE.md 文件。
 
-## Workflow
+## 工作流程
 
-### Phase 1: Discovery
+### 阶段 1：发现
 
-Find all CLAUDE.md files in the repository:
+查找仓库中的所有 CLAUDE.md 文件：
 
 ```bash
 find . -name "CLAUDE.md" -o -name ".claude.md" -o -name ".claude.local.md" 2>/dev/null | head -50
 ```
 
-**File Types & Locations:**
+**文件类型和位置：**
 
-| Type | Location | Purpose |
-|------|----------|---------|
-| Project root | `./CLAUDE.md` | Primary project context (checked into git, shared with team) |
-| Local overrides | `./.claude.local.md` | Personal/local settings (gitignored, not shared) |
-| Global defaults | `~/.claude/CLAUDE.md` | User-wide defaults across all projects |
-| Package-specific | `./packages/*/CLAUDE.md` | Module-level context in monorepos |
-| Subdirectory | Any nested location | Feature/domain-specific context |
+| 类型 | 位置 | 用途 |
+|------|------|------|
+| 项目根目录 | `./CLAUDE.md` | 主要项目上下文（检入 git，与团队共享） |
+| 本地覆盖 | `./.claude.local.md` | 个人/本地设置（gitignore，不共享） |
+| 全局默认 | `~/.claude/CLAUDE.md` | 所有项目的用户级默认值 |
+| 包特定 | `./packages/*/CLAUDE.md` | monorepo 中的模块级上下文 |
+| 子目录 | 任何嵌套位置 | 功能/领域特定上下文 |
 
-**Note:** Claude auto-discovers CLAUDE.md files in parent directories, making monorepo setups work automatically.
+**注意：** Claude 会自动发现父目录中的 CLAUDE.md 文件，使 monorepo 设置自动工作。
 
-### Phase 2: Quality Assessment
+### 阶段 2：质量评估
 
-For each CLAUDE.md file, evaluate against quality criteria. See [references/quality-criteria.md](references/quality-criteria.md) for detailed rubrics.
+对每个 CLAUDE.md 文件，根据质量标准进行评估。参见 [references/quality-criteria.md](references/quality-criteria.md) 获取详细评分标准。
 
-**Quick Assessment Checklist:**
+**快速评估清单：**
 
-| Criterion | Weight | Check |
-|-----------|--------|-------|
-| Commands/workflows documented | High | Are build/test/deploy commands present? |
-| Architecture clarity | High | Can Claude understand the codebase structure? |
-| Non-obvious patterns | Medium | Are gotchas and quirks documented? |
-| Conciseness | Medium | No verbose explanations or obvious info? |
-| Currency | High | Does it reflect current codebase state? |
-| Actionability | High | Are instructions executable, not vague? |
+| 标准 | 权重 | 检查项 |
+|------|------|--------|
+| 命令/工作流已记录 | 高 | 构建/测试/部署命令是否存在？ |
+| 架构清晰度 | 高 | Claude 能否理解代码库结构？ |
+| 非显而易见的模式 | 中 | 陷阱和怪癖是否已记录？ |
+| 简洁性 | 中 | 没有冗长解释或显而易见的信息？ |
+| 时效性 | 高 | 是否反映当前代码库状态？ |
+| 可操作性 | 高 | 指令是否可执行，而非模糊？ |
 
-**Quality Scores:**
-- **A (90-100)**: Comprehensive, current, actionable
-- **B (70-89)**: Good coverage, minor gaps
-- **C (50-69)**: Basic info, missing key sections
-- **D (30-49)**: Sparse or outdated
-- **F (0-29)**: Missing or severely outdated
+**质量评分：**
+- **A (90-100)**：全面、最新、可操作
+- **B (70-89)**：覆盖良好，有轻微缺口
+- **C (50-69)**：基本信息，缺少关键部分
+- **D (30-49)**：稀疏或过时
+- **F (0-29)**：缺失或严重过时
 
-### Phase 3: Quality Report Output
+### 阶段 3：质量报告输出
 
-**ALWAYS output the quality report BEFORE making any updates.**
+**在进行任何更新之前，始终先输出质量报告。**
 
-Format:
+格式：
 
 ```
-## CLAUDE.md Quality Report
+## CLAUDE.md 质量报告
 
-### Summary
-- Files found: X
-- Average score: X/100
-- Files needing update: X
+### 摘要
+- 找到的文件数：X
+- 平均得分：X/100
+- 需要更新的文件数：X
 
-### File-by-File Assessment
+### 逐文件评估
 
-#### 1. ./CLAUDE.md (Project Root)
-**Score: XX/100 (Grade: X)**
+#### 1. ./CLAUDE.md（项目根目录）
+**得分：XX/100（等级：X）**
 
-| Criterion | Score | Notes |
-|-----------|-------|-------|
-| Commands/workflows | X/20 | ... |
-| Architecture clarity | X/20 | ... |
-| Non-obvious patterns | X/15 | ... |
-| Conciseness | X/15 | ... |
-| Currency | X/15 | ... |
-| Actionability | X/15 | ... |
+| 标准 | 得分 | 备注 |
+|------|------|------|
+| 命令/工作流 | X/20 | ... |
+| 架构清晰度 | X/20 | ... |
+| 非显而易见的模式 | X/15 | ... |
+| 简洁性 | X/15 | ... |
+| 时效性 | X/15 | ... |
+| 可操作性 | X/15 | ... |
 
-**Issues:**
-- [List specific problems]
+**问题：**
+- [列出具体问题]
 
-**Recommended additions:**
-- [List what should be added]
+**建议添加：**
+- [列出应添加的内容]
 
-#### 2. ./packages/api/CLAUDE.md (Package-specific)
+#### 2. ./packages/api/CLAUDE.md（包特定）
 ...
 ```
 
-### Phase 4: Targeted Updates
+### 阶段 4：有针对性的更新
 
-After outputting the quality report, ask user for confirmation before updating.
+输出质量报告后，在更新前请求用户确认。
 
-**Update Guidelines (Critical):**
+**更新指南（关键）：**
 
-1. **Propose targeted additions only** - Focus on genuinely useful info:
-   - Commands or workflows discovered during analysis
-   - Gotchas or non-obvious patterns found in code
-   - Package relationships that weren't clear
-   - Testing approaches that work
-   - Configuration quirks
+1. **仅提议有针对性的添加** — 关注真正有用的信息：
+   - 分析期间发现的命令或工作流
+   - 在代码中发现的陷阱或非显而易见的模式
+   - 不清楚的包关系
+   - 有效的测试方法
+   - 配置怪癖
 
-2. **Keep it minimal** - Avoid:
-   - Restating what's obvious from the code
-   - Generic best practices already covered
-   - One-off fixes unlikely to recur
-   - Verbose explanations when a one-liner suffices
+2. **保持最小化** — 避免：
+   - 重述代码中显而易见的内容
+   - 已涵盖的通用最佳实践
+   - 不太可能再次出现的一次性修复
+   - 用冗长解释代替一行代码
 
-3. **Show diffs** - For each change, show:
-   - Which CLAUDE.md file to update
-   - The specific addition (as a diff or quoted block)
-   - Brief explanation of why this helps future sessions
+3. **显示差异** — 对于每个更改，显示：
+   - 要更新的 CLAUDE.md 文件
+   - 具体的添加内容（作为差异或引用块）
+   - 为什么这对未来会话有帮助的简要说明
 
-**Diff Format:**
+**差异格式：**
 
 ```markdown
-### Update: ./CLAUDE.md
+### 更新：./CLAUDE.md
 
-**Why:** Build command was missing, causing confusion about how to run the project.
+**原因：** 缺少构建命令，导致对如何运行项目产生困惑。
 
 ```diff
 + ## Quick Start
@@ -133,47 +133,47 @@ After outputting the quality report, ask user for confirmation before updating.
 ```
 ```
 
-### Phase 5: Apply Updates
+### 阶段 5：应用更新
 
-After user approval, apply changes using the Edit tool. Preserve existing content structure.
+用户批准后，使用 Edit 工具应用更改。保留现有内容结构。
 
-## Templates
+## 模板
 
-See [references/templates.md](references/templates.md) for CLAUDE.md templates by project type.
+参见 [references/templates.md](references/templates.md) 获取按项目类型的 CLAUDE.md 模板。
 
-## Common Issues to Flag
+## 要标记的常见问题
 
-1. **Stale commands**: Build commands that no longer work
-2. **Missing dependencies**: Required tools not mentioned
-3. **Outdated architecture**: File structure that's changed
-4. **Missing environment setup**: Required env vars or config
-5. **Broken test commands**: Test scripts that have changed
-6. **Undocumented gotchas**: Non-obvious patterns not captured
+1. **过期的命令**：不再工作的构建命令
+2. **缺少依赖**：未提及的必需工具
+3. **过时的架构**：已更改的文件结构
+4. **缺少环境设置**：必需的环境变量或配置
+5. **损坏的测试命令**：已更改的测试脚本
+6. **未记录的陷阱**：未捕获的非显而易见模式
 
-## User Tips to Share
+## 要分享的用户提示
 
-When presenting recommendations, remind users:
+在呈现建议时提醒用户：
 
-- **`#` key shortcut**: During a Claude session, press `#` to have Claude auto-incorporate learnings into CLAUDE.md
-- **Keep it concise**: CLAUDE.md should be human-readable; dense is better than verbose
-- **Actionable commands**: All documented commands should be copy-paste ready
-- **Use `.claude.local.md`**: For personal preferences not shared with team (add to `.gitignore`)
-- **Global defaults**: Put user-wide preferences in `~/.claude/CLAUDE.md`
+- **`#` 键快捷方式**：在 Claude 会话期间，按 `#` 让 Claude 自动将学习内容纳入 CLAUDE.md
+- **保持简洁**：CLAUDE.md 应人类可读；紧凑优于冗长
+- **可操作的命令**：所有记录的命令都应可直接复制粘贴
+- **使用 `.claude.local.md`**：用于不与团队共享的个人偏好（添加到 `.gitignore`）
+- **全局默认值**：将用户级偏好放在 `~/.claude/CLAUDE.md` 中
 
-## What Makes a Great CLAUDE.md
+## 优秀的 CLAUDE.md 是什么样的
 
-**Key principles:**
-- Concise and human-readable
-- Actionable commands that can be copy-pasted
-- Project-specific patterns, not generic advice
-- Non-obvious gotchas and warnings
+**关键原则：**
+- 简洁且人类可读
+- 可直接复制粘贴的可操作命令
+- 项目特定模式，非通用建议
+- 非显而易见的陷阱和警告
 
-**Recommended sections** (use only what's relevant):
-- Commands (build, test, dev, lint)
-- Architecture (directory structure)
-- Key Files (entry points, config)
-- Code Style (project conventions)
-- Environment (required vars, setup)
-- Testing (commands, patterns)
-- Gotchas (quirks, common mistakes)
-- Workflow (when to do what)
+**推荐部分**（仅使用相关的）：
+- 命令（构建、测试、开发、lint）
+- 架构（目录结构）
+- 关键文件（入口点、配置）
+- 代码风格（项目约定）
+- 环境（必需变量、设置）
+- 测试（命令、模式）
+- 陷阱（怪癖、常见错误）
+- 工作流（何时做什么）

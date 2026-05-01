@@ -1,65 +1,65 @@
 ---
 name: cqrs-implementation
-description: Implement Command Query Responsibility Segregation for scalable architectures. Use when separating read and write models, optimizing query performance, or building event-sourced systems.
+description: 实现命令查询职责分离以构建可扩展架构。在分离读写模型、优化查询性能或构建事件溯源系统时使用。
 ---
 
-# CQRS Implementation
+# CQRS 实现
 
-Comprehensive guide to implementing CQRS (Command Query Responsibility Segregation) patterns.
+实现 CQRS（命令查询职责分离）模式的全面指南。
 
-## When to Use This Skill
+## 使用场景
 
-- Separating read and write concerns
-- Scaling reads independently from writes
-- Building event-sourced systems
-- Optimizing complex query scenarios
-- Different read/write data models needed
-- High-performance reporting requirements
+- 分离读写关注点
+- 独立扩展读和写
+- 构建事件溯源系统
+- 优化复杂查询场景
+- 需要不同的读写数据模型
+- 高性能报告需求
 
-## Core Concepts
+## 核心概念
 
-### 1. CQRS Architecture
+### 1. CQRS 架构
 
 ```
                     ┌─────────────┐
-                    │   Client    │
+                    │   客户端    │
                     └──────┬──────┘
                            │
               ┌────────────┴────────────┐
               │                         │
               ▼                         ▼
        ┌─────────────┐          ┌─────────────┐
-       │  Commands   │          │   Queries   │
+       │   命令      │          │   查询      │
        │    API      │          │    API      │
        └──────┬──────┘          └──────┬──────┘
               │                         │
               ▼                         ▼
        ┌─────────────┐          ┌─────────────┐
-       │  Command    │          │   Query     │
-       │  Handlers   │          │  Handlers   │
+       │  命令       │          │   查询      │
+       │  处理器     │          │  处理器     │
        └──────┬──────┘          └──────┬──────┘
               │                         │
               ▼                         ▼
        ┌─────────────┐          ┌─────────────┐
-       │   Write     │─────────►│    Read     │
-       │   Model     │  Events  │   Model     │
+       │   写入      │─────────►│    读取     │
+       │   模型      │  事件    │   模型      │
        └─────────────┘          └─────────────┘
 ```
 
-### 2. Key Components
+### 2. 关键组件
 
-| Component           | Responsibility                  |
+| 组件           | 职责                  |
 | ------------------- | ------------------------------- |
-| **Command**         | Intent to change state          |
-| **Command Handler** | Validates and executes commands |
-| **Event**           | Record of state change          |
-| **Query**           | Request for data                |
-| **Query Handler**   | Retrieves data from read model  |
-| **Projector**       | Updates read model from events  |
+| **命令**         | 更改状态的意图          |
+| **命令处理器** | 验证并执行命令 |
+| **事件**           | 状态变更记录          |
+| **查询**           | 数据请求                |
+| **查询处理器**   | 从读取模型检索数据  |
+| **投影器**       | 从事件更新读取模型  |
 
-## Templates
+## 模板
 
-### Template 1: Command Infrastructure
+### 模板 1：命令基础设施
 
 ```python
 from abc import ABC, abstractmethod
@@ -68,7 +68,7 @@ from typing import TypeVar, Generic, Dict, Any, Type
 from datetime import datetime
 import uuid
 
-# Command base
+# 命令基类
 @dataclass
 class Command:
     command_id: str = None
@@ -79,7 +79,7 @@ class Command:
         self.timestamp = self.timestamp or datetime.utcnow()
 
 
-# Concrete commands
+# 具体命令
 @dataclass
 class CreateOrder(Command):
     customer_id: str
@@ -101,7 +101,7 @@ class CancelOrder(Command):
     reason: str
 
 
-# Command handler base
+# 命令处理器基类
 T = TypeVar('T', bound=Command)
 
 class CommandHandler(ABC, Generic[T]):
@@ -110,7 +110,7 @@ class CommandHandler(ABC, Generic[T]):
         pass
 
 
-# Command bus
+# 命令总线
 class CommandBus:
     def __init__(self):
         self._handlers: Dict[Type[Command], CommandHandler] = {}
@@ -125,25 +125,25 @@ class CommandBus:
         return await handler.handle(command)
 
 
-# Command handler implementation
+# 命令处理器实现
 class CreateOrderHandler(CommandHandler[CreateOrder]):
     def __init__(self, order_repository, event_store):
         self.order_repository = order_repository
         self.event_store = event_store
 
     async def handle(self, command: CreateOrder) -> str:
-        # Validate
+        # 验证
         if not command.items:
-            raise ValueError("Order must have at least one item")
+            raise ValueError("订单必须至少包含一个商品")
 
-        # Create aggregate
+        # 创建聚合
         order = Order.create(
             customer_id=command.customer_id,
             items=command.items,
             shipping_address=command.shipping_address
         )
 
-        # Persist events
+        # 持久化事件
         await self.event_store.append_events(
             stream_id=f"Order-{order.id}",
             stream_type="Order",
@@ -153,20 +153,20 @@ class CreateOrderHandler(CommandHandler[CreateOrder]):
         return order.id
 ```
 
-### Template 2: Query Infrastructure
+### 模板 2：查询基础设施
 
 ```python
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import TypeVar, Generic, List, Optional
 
-# Query base
+# 查询基类
 @dataclass
 class Query:
     pass
 
 
-# Concrete queries
+# 具体查询
 @dataclass
 class GetOrderById(Query):
     order_id: str
@@ -188,7 +188,7 @@ class SearchOrders(Query):
     sort_order: str = "desc"
 
 
-# Query result types
+# 查询结果类型
 @dataclass
 class OrderView:
     order_id: str
@@ -212,7 +212,7 @@ class PaginatedResult(Generic[T]):
         return (self.total + self.page_size - 1) // self.page_size
 
 
-# Query handler base
+# 查询处理器基类
 T = TypeVar('T', bound=Query)
 R = TypeVar('R')
 
@@ -222,7 +222,7 @@ class QueryHandler(ABC, Generic[T, R]):
         pass
 
 
-# Query bus
+# 查询总线
 class QueryBus:
     def __init__(self):
         self._handlers: Dict[Type[Query], QueryHandler] = {}
@@ -237,7 +237,7 @@ class QueryBus:
         return await handler.handle(query)
 
 
-# Query handler implementation
+# 查询处理器实现
 class GetOrderByIdHandler(QueryHandler[GetOrderById, Optional[OrderView]]):
     def __init__(self, read_db):
         self.read_db = read_db
@@ -264,7 +264,7 @@ class GetCustomerOrdersHandler(QueryHandler[GetCustomerOrders, PaginatedResult[O
 
     async def handle(self, query: GetCustomerOrders) -> PaginatedResult[OrderView]:
         async with self.read_db.acquire() as conn:
-            # Build query with optional status filter
+            # 构建带可选状态过滤的查询
             where_clause = "customer_id = $1"
             params = [query.customer_id]
 
@@ -272,13 +272,13 @@ class GetCustomerOrdersHandler(QueryHandler[GetCustomerOrders, PaginatedResult[O
                 where_clause += " AND status = $2"
                 params.append(query.status)
 
-            # Get total count
+            # 获取总数
             total = await conn.fetchval(
                 f"SELECT COUNT(*) FROM order_views WHERE {where_clause}",
                 *params
             )
 
-            # Get paginated results
+            # 获取分页结果
             offset = (query.page - 1) * query.page_size
             rows = await conn.fetch(
                 f"""
@@ -300,7 +300,7 @@ class GetCustomerOrdersHandler(QueryHandler[GetCustomerOrders, PaginatedResult[O
             )
 ```
 
-### Template 3: FastAPI CQRS Application
+### 模板 3：FastAPI CQRS 应用
 
 ```python
 from fastapi import FastAPI, HTTPException, Depends
@@ -309,7 +309,7 @@ from typing import List, Optional
 
 app = FastAPI()
 
-# Request/Response models
+# 请求/响应模型
 class CreateOrderRequest(BaseModel):
     customer_id: str
     items: List[dict]
@@ -325,7 +325,7 @@ class OrderResponse(BaseModel):
     created_at: datetime
 
 
-# Dependency injection
+# 依赖注入
 def get_command_bus() -> CommandBus:
     return app.state.command_bus
 
@@ -334,7 +334,7 @@ def get_query_bus() -> QueryBus:
     return app.state.query_bus
 
 
-# Command endpoints (POST, PUT, DELETE)
+# 命令端点（POST, PUT, DELETE）
 @app.post("/orders", response_model=dict)
 async def create_order(
     request: CreateOrderRequest,
@@ -378,7 +378,7 @@ async def cancel_order(
     return {"status": "cancelled"}
 
 
-# Query endpoints (GET)
+# 查询端点（GET）
 @app.get("/orders/{order_id}", response_model=OrderResponse)
 async def get_order(
     order_id: str,
@@ -387,7 +387,7 @@ async def get_order(
     query = GetOrderById(order_id=order_id)
     result = await query_bus.dispatch(query)
     if not result:
-        raise HTTPException(status_code=404, detail="Order not found")
+        raise HTTPException(status_code=404, detail="订单未找到")
     return result
 
 
@@ -418,11 +418,11 @@ async def search_orders(
     return await query_bus.dispatch(query)
 ```
 
-### Template 4: Read Model Synchronization
+### 模板 4：读取模型同步
 
 ```python
 class ReadModelSynchronizer:
-    """Keeps read models in sync with events."""
+    """保持读取模型与事件同步。"""
 
     def __init__(self, event_store, read_db, projections: List[Projection]):
         self.event_store = event_store
@@ -430,7 +430,7 @@ class ReadModelSynchronizer:
         self.projections = {p.name: p for p in projections}
 
     async def run(self):
-        """Continuously sync read models."""
+        """持续同步读取模型。"""
         while True:
             for name, projection in self.projections.items():
                 await self._sync_projection(projection)
@@ -449,23 +449,23 @@ class ReadModelSynchronizer:
                 try:
                     await projection.apply(event)
                 except Exception as e:
-                    # Log error, possibly retry or skip
-                    logger.error(f"Projection error: {e}")
+                    # 记录错误，可能重试或跳过
+                    logger.error(f"投影错误: {e}")
                     continue
 
             await self._save_checkpoint(projection.name, event.global_position)
 
     async def rebuild_projection(self, projection_name: str):
-        """Rebuild a projection from scratch."""
+        """从头重建投影。"""
         projection = self.projections[projection_name]
 
-        # Clear existing data
+        # 清除现有数据
         await projection.clear()
 
-        # Reset checkpoint
+        # 重置检查点
         await self._save_checkpoint(projection_name, 0)
 
-        # Rebuild
+        # 重建
         while True:
             checkpoint = await self._get_checkpoint(projection_name)
             events = await self.event_store.read_all(checkpoint, 1000)
@@ -483,11 +483,11 @@ class ReadModelSynchronizer:
             )
 ```
 
-### Template 5: Eventual Consistency Handling
+### 模板 5：最终一致性处理
 
 ```python
 class ConsistentQueryHandler:
-    """Query handler that can wait for consistency."""
+    """可以等待一致性的查询处理器。"""
 
     def __init__(self, read_db, event_store):
         self.read_db = read_db
@@ -501,29 +501,29 @@ class ConsistentQueryHandler:
         timeout: float = 5.0
     ):
         """
-        Execute query, ensuring read model is at expected version.
-        Used for read-your-writes consistency.
+        执行查询，确保读取模型达到预期版本。
+        用于读取自己写入的一致性。
         """
         start_time = time.time()
 
         while time.time() - start_time < timeout:
-            # Check if read model is caught up
+            # 检查读取模型是否已跟上
             projection_version = await self._get_projection_version(stream_id)
 
             if projection_version >= expected_version:
                 return await self.execute_query(query)
 
-            # Wait a bit and retry
+            # 等待一会儿再重试
             await asyncio.sleep(0.1)
 
-        # Timeout - return stale data with warning
+        # 超时 - 返回过期数据并附带警告
         return {
             "data": await self.execute_query(query),
-            "_warning": "Data may be stale"
+            "_warning": "数据可能已过期"
         }
 
     async def _get_projection_version(self, stream_id: str) -> int:
-        """Get the last processed event version for a stream."""
+        """获取流的最后处理事件版本。"""
         async with self.read_db.acquire() as conn:
             return await conn.fetchval(
                 "SELECT last_event_version FROM projection_state WHERE stream_id = $1",
@@ -531,19 +531,19 @@ class ConsistentQueryHandler:
             ) or 0
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该做
 
-- **Separate command and query models** - Different needs
-- **Use eventual consistency** - Accept propagation delay
-- **Validate in command handlers** - Before state change
-- **Denormalize read models** - Optimize for queries
-- **Version your events** - For schema evolution
+- **分离命令和查询模型** - 不同的需求
+- **使用最终一致性** - 接受传播延迟
+- **在命令处理器中验证** - 在状态变更之前
+- **反规范化读取模型** - 为查询优化
+- **版本化事件** - 用于 schema 演进
 
-### Don'ts
+### 不应该做
 
-- **Don't query in commands** - Use only for writes
-- **Don't couple read/write schemas** - Independent evolution
-- **Don't over-engineer** - Start simple
-- **Don't ignore consistency SLAs** - Define acceptable lag
+- **不要在命令中查询** - 仅用于写入
+- **不要耦合读写 schema** - 独立演进
+- **不要过度工程** - 从简单开始
+- **不要忽略一致性 SLA** - 定义可接受的延迟

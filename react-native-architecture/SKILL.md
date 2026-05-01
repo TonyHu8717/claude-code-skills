@@ -1,58 +1,58 @@
 ---
 name: react-native-architecture
-description: Build production React Native apps with Expo, navigation, native modules, offline sync, and cross-platform patterns. Use when developing mobile apps, implementing native integrations, or architecting React Native projects.
+description: 使用 Expo、导航、原生模块、离线同步和跨平台模式构建生产级 React Native 应用。在开发移动应用、实现原生集成或架构 React Native 项目时使用。
 ---
 
-# React Native Architecture
+# React Native 架构
 
-Production-ready patterns for React Native development with Expo, including navigation, state management, native modules, and offline-first architecture.
+使用 Expo 进行 React Native 开发的生产就绪模式，包括导航、状态管理、原生模块和离线优先架构。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Starting a new React Native or Expo project
-- Implementing complex navigation patterns
-- Integrating native modules and platform APIs
-- Building offline-first mobile applications
-- Optimizing React Native performance
-- Setting up CI/CD for mobile releases
+- 启动新的 React Native 或 Expo 项目
+- 实现复杂导航模式
+- 集成原生模块和平台 API
+- 构建离线优先移动应用
+- 优化 React Native 性能
+- 设置移动发布的 CI/CD
 
-## Core Concepts
+## 核心概念
 
-### 1. Project Structure
+### 1. 项目结构
 
 ```
 src/
-├── app/                    # Expo Router screens
-│   ├── (auth)/            # Auth group
-│   ├── (tabs)/            # Tab navigation
-│   └── _layout.tsx        # Root layout
+├── app/                    # Expo Router 屏幕
+│   ├── (auth)/            # 认证组
+│   ├── (tabs)/            # 标签导航
+│   └── _layout.tsx        # 根布局
 ├── components/
-│   ├── ui/                # Reusable UI components
-│   └── features/          # Feature-specific components
-├── hooks/                 # Custom hooks
-├── services/              # API and native services
-├── stores/                # State management
-├── utils/                 # Utilities
-└── types/                 # TypeScript types
+│   ├── ui/                # 可复用 UI 组件
+│   └── features/          # 功能特定组件
+├── hooks/                 # 自定义 hooks
+├── services/              # API 和原生服务
+├── stores/                # 状态管理
+├── utils/                 # 工具函数
+└── types/                 # TypeScript 类型
 ```
 
 ### 2. Expo vs Bare React Native
 
-| Feature            | Expo           | Bare RN        |
+| 功能            | Expo           | Bare RN        |
 | ------------------ | -------------- | -------------- |
-| Setup complexity   | Low            | High           |
-| Native modules     | EAS Build      | Manual linking |
-| OTA updates        | Built-in       | Manual setup   |
-| Build service      | EAS            | Custom CI      |
-| Custom native code | Config plugins | Direct access  |
+| 设置复杂度   | 低            | 高           |
+| 原生模块     | EAS Build      | 手动链接 |
+| OTA 更新        | 内置       | 手动设置   |
+| 构建服务      | EAS            | 自定义 CI      |
+| 自定义原生代码 | 配置插件 | 直接访问  |
 
-## Quick Start
+## 快速开始
 
 ```bash
-# Create new Expo project
+# 创建新 Expo 项目
 npx create-expo-app@latest my-app -t expo-template-blank-typescript
 
-# Install essential dependencies
+# 安装核心依赖
 npx expo install expo-router expo-status-bar react-native-safe-area-context
 npx expo install @react-native-async-storage/async-storage
 npx expo install expo-secure-store expo-haptics
@@ -79,9 +79,9 @@ export default function RootLayout() {
 }
 ```
 
-## Patterns
+## 模式
 
-### Pattern 1: Expo Router Navigation
+### 模式 1：Expo Router 导航
 
 ```typescript
 // app/(tabs)/_layout.tsx
@@ -133,7 +133,7 @@ export default function TabLayout() {
   )
 }
 
-// app/(tabs)/profile/[id].tsx - Dynamic route
+// app/(tabs)/profile/[id].tsx - 动态路由
 import { useLocalSearchParams } from 'expo-router'
 
 export default function ProfileScreen() {
@@ -142,22 +142,22 @@ export default function ProfileScreen() {
   return <UserProfile userId={id} />
 }
 
-// Navigation from anywhere
+// 从任意位置导航
 import { router } from 'expo-router'
 
-// Programmatic navigation
+// 编程式导航
 router.push('/profile/123')
 router.replace('/login')
 router.back()
 
-// With params
+// 带参数
 router.push({
   pathname: '/product/[id]',
   params: { id: '123', referrer: 'home' },
 })
 ```
 
-### Pattern 2: Authentication Flow
+### 模式 2：认证流程
 
 ```typescript
 // providers/AuthProvider.tsx
@@ -180,12 +180,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const segments = useSegments()
   const router = useRouter()
 
-  // Check authentication on mount
+  // 挂载时检查认证
   useEffect(() => {
     checkAuth()
   }, [])
 
-  // Protect routes
+  // 保护路由
   useEffect(() => {
     if (isLoading) return
 
@@ -241,7 +241,7 @@ export const useAuth = () => {
 }
 ```
 
-### Pattern 3: Offline-First with React Query
+### 模式 3：使用 React Query 的离线优先
 
 ```typescript
 // providers/QueryProvider.tsx
@@ -252,7 +252,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import NetInfo from '@react-native-community/netinfo'
 import { onlineManager } from '@tanstack/react-query'
 
-// Sync online status
+// 同步在线状态
 onlineManager.setEventListener((setOnline) => {
   return NetInfo.addEventListener((state) => {
     setOnline(!!state.isConnected)
@@ -262,8 +262,8 @@ onlineManager.setEventListener((setOnline) => {
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      gcTime: 1000 * 60 * 60 * 24, // 24 hours
-      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 60 * 24, // 24 小时
+      staleTime: 1000 * 60 * 5, // 5 分钟
       retry: 2,
       networkMode: 'offlineFirst',
     },
@@ -296,7 +296,7 @@ export function useProducts() {
   return useQuery({
     queryKey: ['products'],
     queryFn: api.getProducts,
-    // Use stale data while revalidating
+    // 重新验证时使用过期数据
     placeholderData: (previousData) => previousData,
   })
 }
@@ -306,7 +306,7 @@ export function useCreateProduct() {
 
   return useMutation({
     mutationFn: api.createProduct,
-    // Optimistic update
+    // 乐观更新
     onMutate: async (newProduct) => {
       await queryClient.cancelQueries({ queryKey: ['products'] })
       const previous = queryClient.getQueryData(['products'])
@@ -328,7 +328,7 @@ export function useCreateProduct() {
 }
 ```
 
-### Pattern 4: Native Module Integration
+### 模式 4：原生模块集成
 
 ```typescript
 // services/haptics.ts
@@ -425,7 +425,7 @@ export async function registerForPushNotifications() {
 }
 ```
 
-### Pattern 5: Platform-Specific Code
+### 模式 5：平台特定代码
 
 ```typescript
 // components/ui/Button.tsx
@@ -487,12 +487,12 @@ export function Button({
   )
 }
 
-// Platform-specific files
-// Button.ios.tsx - iOS-specific implementation
-// Button.android.tsx - Android-specific implementation
-// Button.web.tsx - Web-specific implementation
+// 平台特定文件
+// Button.ios.tsx - iOS 特定实现
+// Button.android.tsx - Android 特定实现
+// Button.web.tsx - Web 特定实现
 
-// Or use Platform.select
+// 或使用 Platform.select
 const styles = StyleSheet.create({
   button: {
     paddingVertical: 12,
@@ -541,7 +541,7 @@ const styles = StyleSheet.create({
 })
 ```
 
-### Pattern 6: Performance Optimization
+### 模式 6：性能优化
 
 ```typescript
 // components/ProductList.tsx
@@ -553,7 +553,7 @@ interface ProductListProps {
   onProductPress: (id: string) => void
 }
 
-// Memoize list item
+// 缓存列表项
 const ProductItem = memo(function ProductItem({
   item,
   onPress,
@@ -592,11 +592,11 @@ export function ProductList({ products, onProductPress }: ProductListProps) {
       renderItem={renderItem}
       keyExtractor={keyExtractor}
       estimatedItemSize={100}
-      // Performance optimizations
+      // 性能优化
       removeClippedSubviews={true}
       maxToRenderPerBatch={10}
       windowSize={5}
-      // Pull to refresh
+      // 下拉刷新
       onRefresh={onRefresh}
       refreshing={isRefreshing}
     />
@@ -604,7 +604,7 @@ export function ProductList({ products, onProductPress }: ProductListProps) {
 }
 ```
 
-## EAS Build & Submit
+## EAS Build 和 Submit
 
 ```json
 // eas.json
@@ -634,33 +634,33 @@ export function ProductList({ products, onProductPress }: ProductListProps) {
 ```
 
 ```bash
-# Build commands
+# 构建命令
 eas build --platform ios --profile development
 eas build --platform android --profile preview
 eas build --platform all --profile production
 
-# Submit to stores
+# 提交到商店
 eas submit --platform ios
 eas submit --platform android
 
-# OTA updates
+# OTA 更新
 eas update --branch production --message "Bug fixes"
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 推荐
 
-- **Use Expo** - Faster development, OTA updates, managed native code
-- **FlashList over FlatList** - Better performance for long lists
-- **Memoize components** - Prevent unnecessary re-renders
-- **Use Reanimated** - 60fps animations on native thread
-- **Test on real devices** - Simulators miss real-world issues
+- **使用 Expo** - 更快的开发、OTA 更新、托管原生代码
+- **FlashList 优于 FlatList** - 长列表性能更好
+- **缓存组件** - 防止不必要的重新渲染
+- **使用 Reanimated** - 原生线程上的 60fps 动画
+- **在真机上测试** - 模拟器会遗漏真实世界的问题
 
-### Don'ts
+### 避免
 
-- **Don't inline styles** - Use StyleSheet.create for performance
-- **Don't fetch in render** - Use useEffect or React Query
-- **Don't ignore platform differences** - Test on both iOS and Android
-- **Don't store secrets in code** - Use environment variables
-- **Don't skip error boundaries** - Mobile crashes are unforgiving
+- **不要内联样式** - 使用 StyleSheet.create 以获得更好性能
+- **不要在渲染中获取数据** - 使用 useEffect 或 React Query
+- **不要忽略平台差异** - 在 iOS 和 Android 上都测试
+- **不要在代码中存储密钥** - 使用环境变量
+- **不要跳过错误边界** - 移动端崩溃是不可原谅的

@@ -1,54 +1,54 @@
 ---
 name: interaction-design
-description: Design and implement microinteractions, motion design, transitions, and user feedback patterns. Use when adding polish to UI interactions, implementing loading states, or creating delightful user experiences.
+description: 设计和实现微交互、动效设计、过渡动画和用户反馈模式。在为 UI 交互添加打磨效果、实现加载状态或创建令人愉悦的用户体验时使用。
 ---
 
-# Interaction Design
+# 交互设计
 
-Create engaging, intuitive interactions through motion, feedback, and thoughtful state transitions that enhance usability and delight users.
+通过动效、反馈和周到的状态过渡创建引人入胜、直观的交互，以增强可用性并让用户感到愉悦。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Adding microinteractions to enhance user feedback
-- Implementing smooth page and component transitions
-- Designing loading states and skeleton screens
-- Creating gesture-based interactions
-- Building notification and toast systems
-- Implementing drag-and-drop interfaces
-- Adding scroll-triggered animations
-- Designing hover and focus states
+- 添加微交互以增强用户反馈
+- 实现平滑的页面和组件过渡
+- 设计加载状态和骨架屏
+- 创建基于手势的交互
+- 构建通知和 toast 系统
+- 实现拖放界面
+- 添加滚动触发动画
+- 设计悬停和聚焦状态
 
-## Core Principles
+## 核心原则
 
-### 1. Purposeful Motion
+### 1. 有目的的动效
 
-Motion should communicate, not decorate:
+动效应该传达信息，而非装饰：
 
-- **Feedback**: Confirm user actions occurred
-- **Orientation**: Show where elements come from/go to
-- **Focus**: Direct attention to important changes
-- **Continuity**: Maintain context during transitions
+- **反馈**：确认用户操作已发生
+- **引导**：显示元素从哪里来/到哪里去
+- **聚焦**：将注意力引导到重要变化上
+- **连续性**：在过渡期间保持上下文
 
-### 2. Timing Guidelines
+### 2. 时长指南
 
-| Duration  | Use Case                                  |
+| 时长      | 用例                                      |
 | --------- | ----------------------------------------- |
-| 100-150ms | Micro-feedback (hovers, clicks)           |
-| 200-300ms | Small transitions (toggles, dropdowns)    |
-| 300-500ms | Medium transitions (modals, page changes) |
-| 500ms+    | Complex choreographed animations          |
+| 100-150ms | 微反馈（悬停、点击）                      |
+| 200-300ms | 小过渡（开关、下拉菜单）                  |
+| 300-500ms | 中等过渡（弹窗、页面切换）                |
+| 500ms+    | 复杂编排动画                              |
 
-### 3. Easing Functions
+### 3. 缓动函数
 
 ```css
-/* Common easings */
---ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* Decelerate - entering */
---ease-in: cubic-bezier(0.55, 0, 1, 0.45); /* Accelerate - exiting */
---ease-in-out: cubic-bezier(0.65, 0, 0.35, 1); /* Both - moving between */
---spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* Overshoot - playful */
+/* 常用缓动 */
+--ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* 减速 - 进入 */
+--ease-in: cubic-bezier(0.55, 0, 1, 0.45); /* 加速 - 退出 */
+--ease-in-out: cubic-bezier(0.65, 0, 0.35, 1); /* 两者 - 移动中 */
+--spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* 超调 - 活泼 */
 ```
 
-## Quick Start: Button Microinteraction
+## 快速开始：按钮微交互
 
 ```tsx
 import { motion } from "framer-motion";
@@ -68,11 +68,11 @@ export function InteractiveButton({ children, onClick }) {
 }
 ```
 
-## Interaction Patterns
+## 交互模式
 
-### 1. Loading States
+### 1. 加载状态
 
-**Skeleton Screens**: Preserve layout while loading
+**骨架屏**：加载时保留布局
 
 ```tsx
 function CardSkeleton() {
@@ -86,7 +86,7 @@ function CardSkeleton() {
 }
 ```
 
-**Progress Indicators**: Show determinate progress
+**进度指示器**：显示确定进度
 
 ```tsx
 function ProgressBar({ progress }: { progress: number }) {
@@ -103,9 +103,9 @@ function ProgressBar({ progress }: { progress: number }) {
 }
 ```
 
-### 2. State Transitions
+### 2. 状态过渡
 
-**Toggle with smooth transition**:
+**带平滑过渡的开关**：
 
 ```tsx
 function Toggle({ checked, onChange }) {
@@ -129,9 +129,9 @@ function Toggle({ checked, onChange }) {
 }
 ```
 
-### 3. Page Transitions
+### 3. 页面过渡
 
-**Framer Motion layout animations**:
+**Framer Motion 布局动画**：
 
 ```tsx
 import { AnimatePresence, motion } from "framer-motion";
@@ -153,9 +153,9 @@ function PageTransition({ children, key }) {
 }
 ```
 
-### 4. Feedback Patterns
+### 4. 反馈模式
 
-**Ripple effect on click**:
+**点击涟漪效果**：
 
 ```tsx
 function RippleButton({ children, onClick }) {
@@ -190,9 +190,9 @@ function RippleButton({ children, onClick }) {
 }
 ```
 
-### 5. Gesture Interactions
+### 5. 手势交互
 
-**Swipe to dismiss**:
+**滑动关闭**：
 
 ```tsx
 function SwipeCard({ children, onDismiss }) {
@@ -213,9 +213,9 @@ function SwipeCard({ children, onDismiss }) {
 }
 ```
 
-## CSS Animation Patterns
+## CSS 动画模式
 
-### Keyframe Animations
+### 关键帧动画
 
 ```css
 @keyframes fadeIn {
@@ -256,7 +256,7 @@ function SwipeCard({ children, onDismiss }) {
 }
 ```
 
-### CSS Transitions
+### CSS 过渡
 
 ```css
 .card {
@@ -271,10 +271,10 @@ function SwipeCard({ children, onDismiss }) {
 }
 ```
 
-## Accessibility Considerations
+## 无障碍考虑
 
 ```css
-/* Respect user motion preferences */
+/* 尊重用户动效偏好 */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -301,20 +301,20 @@ function AnimatedComponent() {
 }
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Performance First**: Use `transform` and `opacity` for smooth 60fps
-2. **Reduce Motion Support**: Always respect `prefers-reduced-motion`
-3. **Consistent Timing**: Use a timing scale across the app
-4. **Natural Physics**: Prefer spring animations over linear
-5. **Interruptible**: Allow users to cancel long animations
-6. **Progressive Enhancement**: Work without JS animations
-7. **Test on Devices**: Performance varies significantly
+1. **性能优先**：使用 `transform` 和 `opacity` 实现流畅的 60fps
+2. **减少动效支持**：始终尊重 `prefers-reduced-motion`
+3. **一致的时长**：在整个应用中使用统一的时长比例
+4. **自然物理**：优先使用弹簧动画而非线性动画
+5. **可中断**：允许用户取消长时间动画
+6. **渐进增强**：在没有 JS 动画的情况下也能工作
+7. **设备测试**：性能差异显著
 
-## Common Issues
+## 常见问题
 
-- **Janky Animations**: Avoid animating `width`, `height`, `top`, `left`
-- **Over-animation**: Too much motion causes fatigue
-- **Blocking Interactions**: Never prevent user input during animations
-- **Memory Leaks**: Clean up animation listeners on unmount
-- **Flash of Content**: Use `will-change` sparingly for optimization
+- **卡顿动画**：避免对 `width`、`height`、`top`、`left` 进行动画
+- **过度动画**：过多动效会导致疲劳
+- **阻塞交互**：动画期间绝不阻止用户输入
+- **内存泄漏**：卸载时清理动画监听器
+- **内容闪烁**：谨慎使用 `will-change` 进行优化

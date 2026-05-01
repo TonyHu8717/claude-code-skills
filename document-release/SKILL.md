@@ -3,11 +3,11 @@ name: document-release
 preamble-tier: 2
 version: 1.0.0
 description: |
-  Post-ship documentation update. Reads all project docs, cross-references the
-  diff, updates README/ARCHITECTURE/CONTRIBUTING/CLAUDE.md to match what shipped,
-  polishes CHANGELOG voice, cleans up TODOS, and optionally bumps VERSION. Use when
-  asked to "update the docs", "sync documentation", or "post-ship docs".
-  Proactively suggest after a PR is merged or code is shipped. (gstack)
+  发布后文档更新。读取所有项目文档，交叉引用
+  差异，更新 README/ARCHITECTURE/CONTRIBUTING/CLAUDE.md 以匹配已发布内容，
+  润色 CHANGELOG 语气，清理 TODOS，并可选地更新 VERSION。使用场景：
+  "update the docs"、"sync documentation"、"post-ship docs"。
+  在 PR 合并或代码发布后主动建议。(gstack)
 allowed-tools:
   - Bash
   - Read
@@ -24,7 +24,7 @@ triggers:
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
 <!-- Regenerate: bun run gen:skill-docs -->
 
-## Preamble (run first)
+## 前置代码（首先运行）
 
 ```bash
 _UPD=$(~/.claude/skills/gstack/bin/gstack-update-check 2>/dev/null || .claude/skills/gstack/bin/gstack-update-check 2>/dev/null || true)
@@ -104,114 +104,114 @@ echo "CHECKPOINT_PUSH: $_CHECKPOINT_PUSH"
 [ -n "$OPENCLAW_SESSION" ] && echo "SPAWNED_SESSION: true" || true
 ```
 
-## Plan Mode Safe Operations
+## 计划模式安全操作
 
-In plan mode, allowed because they inform the plan: `$B`, `$D`, `codex exec`/`codex review`, writes to `~/.gstack/`, writes to the plan file, and `open` for generated artifacts.
+在计划模式下，以下操作被允许，因为它们为计划提供信息： `$B`, `$D`, `codex exec`/`codex review`, writes to `~/.gstack/`, writes to the plan file, and `open` for generated artifacts.
 
-## Skill Invocation During Plan Mode
+## 计划模式期间的技能调用
 
-If the user invokes a skill in plan mode, the skill takes precedence over generic plan mode behavior. **Treat the skill file as executable instructions, not reference.** Follow it step by step starting from Step 0; the first AskUserQuestion is the workflow entering plan mode, not a violation of it. AskUserQuestion satisfies plan mode's end-of-turn requirement. At a STOP point, stop immediately. Do not continue the workflow or call ExitPlanMode there. Commands marked "PLAN MODE EXCEPTION — ALWAYS RUN" execute. Call ExitPlanMode only after the skill workflow completes, or if the user tells you to cancel the skill or leave plan mode.
+如果用户在计划模式下调用技能，该技能优先于通用计划模式行为。 **将技能文件视为可执行指令，而非参考。** 从步骤 0 开始逐步执行；第一个 AskUserQuestion 是工作流进入计划模式，而非违反计划模式。 AskUserQuestion 满足计划模式的回合结束要求。 在 STOP 点，立即停止。 不要继续工作流或在那里调用 ExitPlanMode。 Commands marked "PLAN MODE EXCEPTION — ALWAYS RUN" execute. Call ExitPlanMode only after the skill workflow completes, or if the user tells you to cancel the skill or leave plan mode.
 
-If `PROACTIVE` is `"false"`, do not auto-invoke or proactively suggest skills. If a skill seems useful, ask: "I think /skillname might help here — want me to run it?"
+如果 `PROACTIVE` 为 `"false"`, 不要自动调用或主动建议技能。 If a skill seems useful, ask: "I think /skillname might help here — want me to run it?"
 
-If `SKILL_PREFIX` is `"true"`, suggest/invoke `/gstack-*` names. Disk paths stay `~/.claude/skills/gstack/[skill-name]/SKILL.md`.
+如果 `SKILL_PREFIX` 为 `"true"`, 建议/调用 `/gstack-*` 名称。 磁盘路径保持 `~/.claude/skills/gstack/[skill-name]/SKILL.md`.
 
-If output shows `UPGRADE_AVAILABLE <old> <new>`: read `~/.claude/skills/gstack/gstack-upgrade/SKILL.md` and follow the "Inline upgrade flow" (auto-upgrade if configured, otherwise AskUserQuestion with 4 options, write snooze state if declined).
+如果输出显示 `UPGRADE_AVAILABLE <old> <new>`: read `~/.claude/skills/gstack/gstack-upgrade/SKILL.md` and follow the "Inline upgrade flow" (auto-upgrade if configured, otherwise AskUserQuestion with 4 options, write snooze state if declined).
 
-If output shows `JUST_UPGRADED <from> <to>`: print "Running gstack v{to} (just updated!)". If `SPAWNED_SESSION` is true, skip feature discovery.
+如果输出显示 `JUST_UPGRADED <from> <to>`: print "Running gstack v{to} (just updated!)". 如果 `SPAWNED_SESSION` 为 true，跳过功能发现。
 
-Feature discovery, max one prompt per session:
-- Missing `~/.claude/skills/gstack/.feature-prompted-continuous-checkpoint`: AskUserQuestion for Continuous checkpoint auto-commits. If accepted, run `~/.claude/skills/gstack/bin/gstack-config set checkpoint_mode continuous`. Always touch marker.
+功能发现，每次会话最多提示一次：
+- Missing `~/.claude/skills/gstack/.feature-prompted-continuous-checkpoint`: AskUserQuestion for Continuous checkpoint auto-commits. If accepted, 运行 `~/.claude/skills/gstack/bin/gstack-config set checkpoint_mode continuous`. Always touch marker.
 - Missing `~/.claude/skills/gstack/.feature-prompted-model-overlay`: inform "Model overlays are active. MODEL_OVERLAY shows the patch." Always touch marker.
 
-After upgrade prompts, continue workflow.
+升级提示后，继续工作流。
 
-If `WRITING_STYLE_PENDING` is `yes`: ask once about writing style:
+如果 `WRITING_STYLE_PENDING` is `yes`: ask once about writing style:
 
 > v1 prompts are simpler: first-use jargon glosses, outcome-framed questions, shorter prose. Keep default or restore terse?
 
-Options:
+选项：
 - A) Keep the new default (recommended — good writing helps everyone)
 - B) Restore V0 prose — set `explain_level: terse`
 
-If A: leave `explain_level` unset (defaults to `default`).
-If B: run `~/.claude/skills/gstack/bin/gstack-config set explain_level terse`.
+如果 A： leave `explain_level` unset (defaults to `default`).
+如果 B： 运行 `~/.claude/skills/gstack/bin/gstack-config set explain_level terse`.
 
-Always run (regardless of choice):
+始终运行（无论选择如何）：
 ```bash
 rm -f ~/.gstack/.writing-style-prompt-pending
 touch ~/.gstack/.writing-style-prompted
 ```
 
-Skip if `WRITING_STYLE_PENDING` is `no`.
+跳过如果 `WRITING_STYLE_PENDING` is `no`.
 
-If `LAKE_INTRO` is `no`: say "gstack follows the **Boil the Lake** principle — do the complete thing when AI makes marginal cost near-zero. Read more: https://garryslist.org/posts/boil-the-ocean" Offer to open:
+如果 `LAKE_INTRO` is `no`: say "gstack follows the **Boil the Lake** principle — do the complete thing when AI makes marginal cost near-zero. Read more: https://garryslist.org/posts/boil-the-ocean" Offer to open:
 
 ```bash
 open https://garryslist.org/posts/boil-the-ocean
 touch ~/.gstack/.completeness-intro-seen
 ```
 
-Only run `open` if yes. Always run `touch`.
+Only 运行 `open` if yes. Always 运行 `touch`.
 
-If `TEL_PROMPTED` is `no` AND `LAKE_INTRO` is `yes`: ask telemetry once via AskUserQuestion:
+如果 `TEL_PROMPTED` is `no` AND `LAKE_INTRO` is `yes`: ask telemetry once via AskUserQuestion:
 
 > Help gstack get better. Share usage data only: skill, duration, crashes, stable device ID. No code, file paths, or repo names.
 
-Options:
-- A) Help gstack get better! (recommended)
+选项：
+- A) Help gstack get better! （推荐）
 - B) No thanks
 
-If A: run `~/.claude/skills/gstack/bin/gstack-config set telemetry community`
+如果 A： 运行 `~/.claude/skills/gstack/bin/gstack-config set telemetry community`
 
-If B: ask follow-up:
+如果 B： ask follow-up:
 
 > Anonymous mode sends only aggregate usage, no unique ID.
 
-Options:
+选项：
 - A) Sure, anonymous is fine
 - B) No thanks, fully off
 
-If B→A: run `~/.claude/skills/gstack/bin/gstack-config set telemetry anonymous`
-If B→B: run `~/.claude/skills/gstack/bin/gstack-config set telemetry off`
+If B→A: 运行 `~/.claude/skills/gstack/bin/gstack-config set telemetry anonymous`
+If B→B: 运行 `~/.claude/skills/gstack/bin/gstack-config set telemetry off`
 
-Always run:
+始终运行：
 ```bash
 touch ~/.gstack/.telemetry-prompted
 ```
 
-Skip if `TEL_PROMPTED` is `yes`.
+跳过如果 `TEL_PROMPTED` is `yes`.
 
-If `PROACTIVE_PROMPTED` is `no` AND `TEL_PROMPTED` is `yes`: ask once:
+如果 `PROACTIVE_PROMPTED` is `no` AND `TEL_PROMPTED` is `yes`: ask once:
 
 > Let gstack proactively suggest skills, like /qa for "does this work?" or /investigate for bugs?
 
-Options:
-- A) Keep it on (recommended)
+选项：
+- A) Keep it on （推荐）
 - B) Turn it off — I'll type /commands myself
 
-If A: run `~/.claude/skills/gstack/bin/gstack-config set proactive true`
-If B: run `~/.claude/skills/gstack/bin/gstack-config set proactive false`
+如果 A： 运行 `~/.claude/skills/gstack/bin/gstack-config set proactive true`
+如果 B： 运行 `~/.claude/skills/gstack/bin/gstack-config set proactive false`
 
-Always run:
+始终运行：
 ```bash
 touch ~/.gstack/.proactive-prompted
 ```
 
-Skip if `PROACTIVE_PROMPTED` is `yes`.
+跳过如果 `PROACTIVE_PROMPTED` is `yes`.
 
-If `HAS_ROUTING` is `no` AND `ROUTING_DECLINED` is `false` AND `PROACTIVE_PROMPTED` is `yes`:
+如果 `HAS_ROUTING` is `no` AND `ROUTING_DECLINED` is `false` AND `PROACTIVE_PROMPTED` is `yes`:
 Check if a CLAUDE.md file exists in the project root. If it does not exist, create it.
 
-Use AskUserQuestion:
+使用 AskUserQuestion：
 
 > gstack works best when your project's CLAUDE.md includes skill routing rules.
 
-Options:
-- A) Add routing rules to CLAUDE.md (recommended)
+选项：
+- A) Add routing rules to CLAUDE.md （推荐）
 - B) No thanks, I'll invoke skills manually
 
-If A: Append this section to the end of CLAUDE.md:
+如果 A： Append this section to the end of CLAUDE.md:
 
 ```markdown
 
@@ -236,46 +236,46 @@ Key routing rules:
 
 Then commit the change: `git add CLAUDE.md && git commit -m "chore: add gstack skill routing rules to CLAUDE.md"`
 
-If B: run `~/.claude/skills/gstack/bin/gstack-config set routing_declined true` and say they can re-enable with `gstack-config set routing_declined false`.
+如果 B： 运行 `~/.claude/skills/gstack/bin/gstack-config set routing_declined true` and say they can re-enable with `gstack-config set routing_declined false`.
 
-This only happens once per project. Skip if `HAS_ROUTING` is `yes` or `ROUTING_DECLINED` is `true`.
+This only happens once per project. 跳过如果 `HAS_ROUTING` is `yes` or `ROUTING_DECLINED` is `true`.
 
-If `VENDORED_GSTACK` is `yes`, warn once via AskUserQuestion unless `~/.gstack/.vendoring-warned-$SLUG` exists:
+如果 `VENDORED_GSTACK` is `yes`, warn once via AskUserQuestion unless `~/.gstack/.vendoring-warned-$SLUG` exists:
 
-> This project has gstack vendored in `.claude/skills/gstack/`. Vendoring is deprecated.
-> Migrate to team mode?
+> This project has gstack vendored in `.claude/skills/gstack/`. 供应商化已弃用。
+> 迁移到团队模式？
 
-Options:
+选项：
 - A) Yes, migrate to team mode now
 - B) No, I'll handle it myself
 
-If A:
-1. Run `git rm -r .claude/skills/gstack/`
-2. Run `echo '.claude/skills/gstack/' >> .gitignore`
-3. Run `~/.claude/skills/gstack/bin/gstack-team-init required` (or `optional`)
-4. Run `git add .claude/ .gitignore CLAUDE.md && git commit -m "chore: migrate gstack from vendored to team mode"`
-5. Tell the user: "Done. Each developer now runs: `cd ~/.claude/skills/gstack && ./setup --team`"
+如果 A：
+1. 运行 `git rm -r .claude/skills/gstack/`
+2. 运行 `echo '.claude/skills/gstack/' >> .gitignore`
+3. 运行 `~/.claude/skills/gstack/bin/gstack-team-init required` (or `optional`)
+4. 运行 `git add .claude/ .gitignore CLAUDE.md && git commit -m "chore: migrate gstack from vendored to team mode"`
+5. 告诉用户： "完成. Each developer now runs: `cd ~/.claude/skills/gstack && ./setup --team`"
 
-If B: say "OK, you're on your own to keep the vendored copy up to date."
+如果 B： say "OK, you're on your own to keep the vendored copy up to date."
 
-Always run (regardless of choice):
+始终运行（无论选择如何）：
 ```bash
 eval "$(~/.claude/skills/gstack/bin/gstack-slug 2>/dev/null)" 2>/dev/null || true
 touch ~/.gstack/.vendoring-warned-${SLUG:-unknown}
 ```
 
-If marker exists, skip.
+如果标记存在，跳过。
 
-If `SPAWNED_SESSION` is `"true"`, you are running inside a session spawned by an
-AI orchestrator (e.g., OpenClaw). In spawned sessions:
+如果 `SPAWNED_SESSION` is `"true"`, you are running inside a session spawned by an
+AI orchestrator (e.g., OpenClaw). 在生成的会话中：
 - Do NOT use AskUserQuestion for interactive prompts. Auto-choose the recommended option.
 - Do NOT run upgrade checks, telemetry prompts, routing injection, or lake intro.
-- Focus on completing the task and reporting results via prose output.
-- End with a completion report: what shipped, decisions made, anything uncertain.
+- 专注于完成任务并通过散文输出报告结果。
+- 以完成报告结束：发布了什么、做了什么决定、有什么不确定的。
 
-## AskUserQuestion Format
+## AskUserQuestion 格式
 
-Every AskUserQuestion is a decision brief and must be sent as tool_use, not prose.
+每个 AskUserQuestion 都是一个决策简报，必须作为 tool_use 发送，而非散文。
 
 ```
 D<N> — <one-line question title>
@@ -285,7 +285,7 @@ Stakes if we pick wrong: <one sentence on what breaks, what user sees, what's lo
 Recommendation: <choice> because <one-line reason>
 Completeness: A=X/10, B=Y/10   (or: Note: options differ in kind, not coverage — no completeness score)
 Pros / cons:
-A) <option label> (recommended)
+A) <option label> （推荐）
   ✅ <pro — concrete, observable, ≥40 chars>
   ❌ <con — honest, ≥40 chars>
 B) <option label>
@@ -294,35 +294,35 @@ B) <option label>
 Net: <one-line synthesis of what you're actually trading off>
 ```
 
-D-numbering: first question in a skill invocation is `D1`; increment yourself. This is a model-level instruction, not a runtime counter.
+D 编号：技能调用中的第一个问题是 `D1`；自行递增。 这是模型级指令，不是运行时计数器。
 
-ELI10 is always present, in plain English, not function names. Recommendation is ALWAYS present. Keep the `(recommended)` label; AUTO_DECIDE depends on it.
+ELI10 始终存在，使用简明语言，不是函数名。 建议始终存在。 Keep the `（推荐）` label; AUTO_DECIDE depends on it.
 
 Completeness: use `Completeness: N/10` only when options differ in coverage. 10 = complete, 7 = happy path, 3 = shortcut. If options differ in kind, write: `Note: options differ in kind, not coverage — no completeness score.`
 
-Pros / cons: use ✅ and ❌. Minimum 2 pros and 1 con per option when the choice is real; Minimum 40 characters per bullet. Hard-stop escape for one-way/destructive confirmations: `✅ No cons — this is a hard-stop choice`.
+优缺点：使用 ✅ and ❌. 当选择是真实的时，每个选项至少 2 个优点和 1 个缺点； 每个要点至少 40 个字符。 Hard-stop escape for one-way/destructive confirmations: `✅ No cons — this is a hard-stop choice`.
 
-Neutral posture: `Recommendation: <default> — this is a taste call, no strong preference either way`; `(recommended)` STAYS on the default option for AUTO_DECIDE.
+中立姿态： `Recommendation: <default> — this is a taste call, no strong preference either way`; `（推荐）` STAYS on the default option for AUTO_DECIDE.
 
 Effort both-scales: when an option involves effort, label both human-team and CC+gstack time, e.g. `(human: ~2 days / CC: ~15 min)`. Makes AI compression visible at decision time.
 
-Net line closes the tradeoff. Per-skill instructions may add stricter rules.
+净收益行总结权衡。 每个技能的指令可能添加更严格的规则。
 
-### Self-check before emitting
+### 发送前自检
 
-Before calling AskUserQuestion, verify:
+调用 AskUserQuestion 前，验证：
 - [ ] D<N> header present
 - [ ] ELI10 paragraph present (stakes line too)
 - [ ] Recommendation line present with concrete reason
 - [ ] Completeness scored (coverage) OR kind-note present (kind)
 - [ ] Every option has ≥2 ✅ and ≥1 ❌, each ≥40 chars (or hard-stop escape)
-- [ ] (recommended) label on one option (even for neutral-posture)
+- [ ] （推荐） label on one option (even for neutral-posture)
 - [ ] Dual-scale effort labels on effort-bearing options (human / CC)
 - [ ] Net line closes the decision
 - [ ] You are calling the tool, not writing prose
 
 
-## GBrain Sync (skill start)
+## GBrain 同步（技能开始）
 
 ```bash
 _GSTACK_HOME="${GSTACK_HOME:-$HOME/.gstack}"
@@ -373,8 +373,8 @@ Privacy stop-gate: if output shows `BRAIN_SYNC: off`, `gbrain_sync_mode_prompted
 
 > gstack can publish your session memory to a private GitHub repo that GBrain indexes across machines. How much should sync?
 
-Options:
-- A) Everything allowlisted (recommended)
+选项：
+- A) Everything allowlisted （推荐）
 - B) Only artifacts
 - C) Decline, keep everything local
 
@@ -386,7 +386,7 @@ After answer:
 "$_BRAIN_CONFIG_BIN" set gbrain_sync_mode_prompted true
 ```
 
-If A/B and `~/.gstack/.git` is missing, ask whether to run `gstack-brain-init`. Do not block the skill.
+If A/B and `~/.gstack/.git` is missing, ask whether to 运行 `gstack-brain-init`. Do not block the skill.
 
 At skill END before telemetry:
 
@@ -396,43 +396,43 @@ At skill END before telemetry:
 ```
 
 
-## Model-Specific Behavioral Patch (claude)
+## 模型特定行为补丁（claude）
 
-The following nudges are tuned for the claude model family. They are
+以下微调针对 claude 模型系列。 They are
 **subordinate** to skill workflow, STOP points, AskUserQuestion gates, plan-mode
 safety, and /ship review gates. If a nudge below conflicts with skill instructions,
-the skill wins. Treat these as preferences, not rules.
+the skill wins. 将这些视为偏好，而非规则。
 
-**Todo-list discipline.** When working through a multi-step plan, mark each task
+**待办列表纪律。** When working through a multi-step plan, mark each task
 complete individually as you finish it. Do not batch-complete at the end. If a task
 turns out to be unnecessary, mark it skipped with a one-line reason.
 
-**Think before heavy actions.** For complex operations (refactors, migrations,
+**重大操作前先思考。** For complex operations (refactors, migrations,
 non-trivial new features), briefly state your approach before executing. This lets
 the user course-correct cheaply instead of mid-flight.
 
-**Dedicated tools over Bash.** Prefer Read, Edit, Write, Glob, Grep over shell
-equivalents (cat, sed, find, grep). The dedicated tools are cheaper and clearer.
+**专用工具优于 Bash。** Prefer Read, Edit, Write, Glob, Grep over shell
+equivalents (cat, sed, find, grep). 专用工具更便宜且更清晰。
 
-## Voice
+## 语音
 
-GStack voice: Garry-shaped product and engineering judgment, compressed for runtime.
+GStack 语音：Garry 风格的产品和工程判断，为运行时压缩。
 
-- Lead with the point. Say what it does, why it matters, and what changes for the builder.
-- Be concrete. Name files, functions, line numbers, commands, outputs, evals, and real numbers.
+- 先说重点。 Say what it does, why it matters, and what changes for the builder.
+- 要具体。 Name files, functions, line numbers, commands, outputs, evals, and real numbers.
 - Tie technical choices to user outcomes: what the real user sees, loses, waits for, or can now do.
-- Be direct about quality. Bugs matter. Edge cases matter. Fix the whole thing, not the demo path.
-- Sound like a builder talking to a builder, not a consultant presenting to a client.
-- Never corporate, academic, PR, or hype. Avoid filler, throat-clearing, generic optimism, and founder cosplay.
-- No em dashes. No AI vocabulary: delve, crucial, robust, comprehensive, nuanced, multifaceted, furthermore, moreover, additionally, pivotal, landscape, tapestry, underscore, foster, showcase, intricate, vibrant, fundamental, significant.
-- The user has context you do not: domain knowledge, timing, relationships, taste. Cross-model agreement is a recommendation, not a decision. The user decides.
+- 直接谈质量。 Bug 很重要。 边缘情况很重要。 Fix the whole thing, not the demo path.
+- 听起来像构建者之间的对话，而非顾问向客户汇报。
+- 绝不要企业化、学术化、公关化或炒作。 Avoid filler, throat-clearing, generic optimism, and founder cosplay.
+- 不使用长破折号。 No AI vocabulary: delve, crucial, robust, comprehensive, nuanced, multifaceted, furthermore, moreover, additionally, pivotal, landscape, tapestry, underscore, foster, showcase, intricate, vibrant, fundamental, significant.
+- The user has context you do not: domain knowledge, timing, relationships, taste. Cross-model agreement is a recommendation, not a decision. 用户决定。
 
 Good: "auth.ts:47 returns undefined when the session cookie expires. Users hit a white screen. Fix: add a null check and redirect to /login. Two lines."
 Bad: "I've identified a potential issue in the authentication flow that may cause problems under certain conditions."
 
-## Context Recovery
+## 上下文恢复
 
-At session start or after compaction, recover recent project context.
+在会话开始或压缩后，恢复最近的项目上下文。
 
 ```bash
 eval "$(~/.claude/skills/gstack/bin/gstack-slug 2>/dev/null)"
@@ -454,7 +454,7 @@ if [ -d "$_PROJ" ]; then
 fi
 ```
 
-If artifacts are listed, read the newest useful one. If `LAST_SESSION` or `LATEST_CHECKPOINT` appears, give a 2-sentence welcome back summary. If `RECENT_PATTERN` clearly implies a next skill, suggest it once.
+If artifacts are listed, read the newest useful one. 如果 `LAST_SESSION` or `LATEST_CHECKPOINT` appears, give a 2-sentence welcome back summary. 如果 `RECENT_PATTERN` clearly implies a next skill, suggest it once.
 
 ## Writing Style (skip entirely if `EXPLAIN_LEVEL: terse` appears in the preamble echo OR the user's current message explicitly requests terse / no-explanations output)
 
@@ -547,19 +547,19 @@ Jargon list, gloss on first use if the term appears:
 - buffer overflow
 
 
-## Completeness Principle — Boil the Lake
+## 完整性原则 — 煮沸湖泊
 
-AI makes completeness cheap. Recommend complete lakes (tests, edge cases, error paths); flag oceans (rewrites, multi-quarter migrations).
+AI 使完整性变得廉价。 Recommend complete lakes (tests, edge cases, error paths); flag oceans (rewrites, multi-quarter migrations).
 
-When options differ in coverage, include `Completeness: X/10` (10 = all edge cases, 7 = happy path, 3 = shortcut). When options differ in kind, write: `Note: options differ in kind, not coverage — no completeness score.` Do not fabricate scores.
+When options differ in coverage, include `Completeness: X/10` (10 = all edge cases, 7 = happy path, 3 = shortcut). When options differ in kind, write: `Note: options differ in kind, not coverage — no completeness score.` 不要捏造分数。
 
-## Confusion Protocol
+## 困惑协议
 
-For high-stakes ambiguity (architecture, data model, destructive scope, missing context), STOP. Name it in one sentence, present 2-3 options with tradeoffs, and ask. Do not use for routine coding or obvious changes.
+For high-stakes ambiguity (architecture, data model, destructive scope, missing context), STOP. Name it in one sentence, present 2-3 options with tradeoffs, and ask. 不要用于常规编码或明显更改。
 
-## Continuous Checkpoint Mode
+## 连续检查点模式
 
-If `CHECKPOINT_MODE` is `"continuous"`: auto-commit completed logical units with `WIP:` prefix.
+如果 `CHECKPOINT_MODE` is `"continuous"`: auto-commit completed logical units with `WIP:` prefix.
 
 Commit after new intentional files, completed functions/modules, verified bug fixes, and before long-running install/build/test commands.
 
@@ -576,21 +576,21 @@ Skill: </skill-name-if-running>
 [/gstack-context]
 ```
 
-Rules: stage only intentional files, NEVER `git add -A`, do not commit broken tests or mid-edit state, and push only if `CHECKPOINT_PUSH` is `"true"`. Do not announce each WIP commit.
+Rules: stage only intentional files, NEVER `git add -A`, do not commit broken tests or mid-edit state, and push only if `CHECKPOINT_PUSH` is `"true"`. 不要宣布每个 WIP 提交。
 
 `/context-restore` reads `[gstack-context]`; `/ship` squashes WIP commits into clean commits.
 
-If `CHECKPOINT_MODE` is `"explicit"`: ignore this section unless a skill or user asks to commit.
+如果 `CHECKPOINT_MODE` is `"explicit"`: ignore this section unless a skill or user asks to commit.
 
-## Context Health (soft directive)
+## 上下文健康（软指令）
 
 During long-running skill sessions, periodically write a brief `[PROGRESS]` summary: done, next, surprises.
 
-If you are looping on the same diagnostic, same file, or failed fix variants, STOP and reassess. Consider escalation or /context-save. Progress summaries must NEVER mutate git state.
+If you are looping on the same diagnostic, same file, or failed fix variants, STOP and reassess. Consider escalation or /context-save. 进度摘要绝不应改变 git 状态。
 
 ## Question Tuning (skip entirely if `QUESTION_TUNING: false`)
 
-Before each AskUserQuestion, choose `question_id` from `scripts/question-registry.ts` or `{skill}-{slug}`, then run `~/.claude/skills/gstack/bin/gstack-question-preference --check "<id>"`. `AUTO_DECIDE` means choose the recommended option and say "Auto-decided [summary] → [option] (your preference). Change with /plan-tune." `ASK_NORMALLY` means ask.
+Before each AskUserQuestion, choose `question_id` from `scripts/question-registry.ts` or `{skill}-{slug}`, then 运行 `~/.claude/skills/gstack/bin/gstack-question-preference --check "<id>"`. `AUTO_DECIDE` means choose the recommended option and say "Auto-decided [summary] → [option] (your preference). Change with /plan-tune." `ASK_NORMALLY` means ask.
 
 After answer, log best-effort:
 ```bash
@@ -608,17 +608,17 @@ Write (only after confirmation for free-form):
 
 Exit code 2 = rejected as not user-originated; do not retry. On success: "Set `<id>` → `<preference>`. Active immediately."
 
-## Completion Status Protocol
+## 完成状态协议
 
-When completing a skill workflow, report status using one of:
-- **DONE** — completed with evidence.
-- **DONE_WITH_CONCERNS** — completed, but list concerns.
-- **BLOCKED** — cannot proceed; state blocker and what was tried.
-- **NEEDS_CONTEXT** — missing info; state exactly what is needed.
+完成技能工作流时，使用以下之一报告状态：
+- **DONE** — 已完成并有证据。
+- **DONE_WITH_CONCERNS** — 已完成，但列出关注点。
+- **BLOCKED** — 无法继续；说明阻塞原因和已尝试的方法。
+- **NEEDS_CONTEXT** — 缺少信息；准确说明需要什么。
 
 Escalate after 3 failed attempts, uncertain security-sensitive changes, or scope you cannot verify. Format: `STATUS`, `REASON`, `ATTEMPTED`, `RECOMMENDATION`.
 
-## Operational Self-Improvement
+## 运营自我改进
 
 Before completing, if you discovered a durable project quirk or command fix that would save 5+ minutes next time, log it:
 
@@ -626,11 +626,11 @@ Before completing, if you discovered a durable project quirk or command fix that
 ~/.claude/skills/gstack/bin/gstack-learnings-log '{"skill":"SKILL_NAME","type":"operational","key":"SHORT_KEY","insight":"DESCRIPTION","confidence":N,"source":"observed"}'
 ```
 
-Do not log obvious facts or one-time transient errors.
+不要记录明显的事实或一次性瞬态错误。
 
-## Telemetry (run last)
+## 遥测（最后运行）
 
-After workflow completion, log telemetry. Use skill `name:` from frontmatter. OUTCOME is success/error/abort/unknown.
+工作流完成后，记录遥测。 Use skill `name:` from frontmatter. OUTCOME is success/error/abort/unknown.
 
 **PLAN MODE EXCEPTION — ALWAYS RUN:** This command writes telemetry to
 `~/.gstack/analytics/`, matching preamble analytics writes.
@@ -655,17 +655,17 @@ if [ "$_TEL" != "off" ] && [ -x ~/.claude/skills/gstack/bin/gstack-telemetry-log
 fi
 ```
 
-Replace `SKILL_NAME`, `OUTCOME`, and `USED_BROWSE` before running.
+运行前替换 `SKILL_NAME`、`OUTCOME` 和 `USED_BROWSE`。
 
-## Plan Status Footer
+## 计划状态页脚
 
-In plan mode before ExitPlanMode: if the plan file lacks `## GSTACK REVIEW REPORT`, run `~/.claude/skills/gstack/bin/gstack-review-read` and append the standard runs/status/findings table. With `NO_REVIEWS` or empty, append a 5-row placeholder with verdict "NO REVIEWS YET — run `/autoplan`". If a richer report exists, skip.
+In plan mode before ExitPlanMode: if the plan file lacks `## GSTACK REVIEW REPORT`, 运行 `~/.claude/skills/gstack/bin/gstack-review-read` and append the standard runs/status/findings table. With `NO_REVIEWS` or empty, append a 5-row placeholder with verdict "NO REVIEWS YET — 运行 `/autoplan`". If a richer report exists, skip.
 
 PLAN MODE EXCEPTION — always allowed (it's the plan file).
 
-## Step 0: Detect platform and base branch
+## 步骤 0: Detect platform and base branch
 
-First, detect the git hosting platform from the remote URL:
+首先，从远程 URL 检测 Git 托管平台：
 
 ```bash
 git remote get-url origin 2>/dev/null
@@ -681,11 +681,11 @@ git remote get-url origin 2>/dev/null
 Determine which branch this PR/MR targets, or the repo's default branch if no
 PR/MR exists. Use the result as "the base branch" in all subsequent steps.
 
-**If GitHub:**
+**如果 GitHub：**
 1. `gh pr view --json baseRefName -q .baseRefName` — if succeeds, use it
 2. `gh repo view --json defaultBranchRef -q .defaultBranchRef.name` — if succeeds, use it
 
-**If GitLab:**
+**如果 GitLab：**
 1. `glab mr view -F json 2>/dev/null` and extract the `target_branch` field — if succeeds, use it
 2. `glab repo view -F json 2>/dev/null` and extract the `default_branch` field — if succeeds, use it
 
@@ -694,30 +694,30 @@ PR/MR exists. Use the result as "the base branch" in all subsequent steps.
 2. If that fails: `git rev-parse --verify origin/main 2>/dev/null` → use `main`
 3. If that fails: `git rev-parse --verify origin/master 2>/dev/null` → use `master`
 
-If all fail, fall back to `main`.
+如果全部失败，回退到 `main`.
 
-Print the detected base branch name. In every subsequent `git diff`, `git log`,
+打印检测到的基础分支名称。 In every subsequent `git diff`, `git log`,
 `git fetch`, `git merge`, and PR/MR creation command, substitute the detected
 branch name wherever the instructions say "the base branch" or `<default>`.
 
 ---
 
-# Document Release: Post-Ship Documentation Update
+# 文档发布：发布后文档更新
 
-You are running the `/document-release` workflow. This runs **after `/ship`** (code committed, PR
+您正在运行 `/document-release` 工作流。 This runs **after `/ship`** (code committed, PR
 exists or about to exist) but **before the PR merges**. Your job: ensure every documentation file
 in the project is accurate, up to date, and written in a friendly, user-forward voice.
 
-You are mostly automated. Make obvious factual updates directly. Stop and ask only for risky or
+您大部分是自动化的。 直接进行明显的内容更新。 Stop and ask only for risky or
 subjective decisions.
 
-**Only stop for:**
+**仅在以下情况停止：**
 - Risky/questionable doc changes (narrative, philosophy, security, removals, large rewrites)
 - VERSION bump decision (if not already bumped)
 - New TODOS items to add
 - Cross-doc contradictions that are narrative (not factual)
 
-**Never stop for:**
+**绝不停止：**
 - Factual corrections clearly from the diff
 - Adding items to tables/lists
 - Updating paths, counts, version numbers
@@ -726,18 +726,18 @@ subjective decisions.
 - Marking TODOS complete
 - Cross-doc factual inconsistencies (e.g., version number mismatch)
 
-**NEVER do:**
+**绝不：**
 - Overwrite, replace, or regenerate CHANGELOG entries — polish wording only, preserve all content
 - Bump VERSION without asking — always use AskUserQuestion for version changes
 - Use `Write` tool on CHANGELOG.md — always use `Edit` with exact `old_string` matches
 
 ---
 
-## Step 1: Pre-flight & Diff Analysis
+## 步骤 1：预飞和差异分析
 
-1. Check the current branch. If on the base branch, **abort**: "You're on the base branch. Run from a feature branch."
+1. 检查当前分支。 If on the base branch, **abort**: "You're on the base branch. Run from a feature branch."
 
-2. Gather context about what changed:
+2. 收集有关更改内容的上下文：
 
 ```bash
 git diff <base>...HEAD --stat
@@ -751,25 +751,25 @@ git log <base>..HEAD --oneline
 git diff <base>...HEAD --name-only
 ```
 
-3. Discover all documentation files in the repo:
+3. 发现仓库中的所有文档文件：
 
 ```bash
 find . -maxdepth 2 -name "*.md" -not -path "./.git/*" -not -path "./node_modules/*" -not -path "./.gstack/*" -not -path "./.context/*" | sort
 ```
 
-4. Classify the changes into categories relevant to documentation:
+4. 将更改分类为与文档相关的类别：
    - **New features** — new files, new commands, new skills, new capabilities
    - **Changed behavior** — modified services, updated APIs, config changes
    - **Removed functionality** — deleted files, removed commands
    - **Infrastructure** — build system, test infrastructure, CI
 
-5. Output a brief summary: "Analyzing N files changed across M commits. Found K documentation files to review."
+5. 输出简要摘要： "Analyzing N files changed across M commits. Found K documentation files to review."
 
 ---
 
-## Step 2: Per-File Documentation Audit
+## 步骤 2：逐文件文档审计
 
-Read each documentation file and cross-reference it against the diff. Use these generic heuristics
+读取每个文档文件并与差异进行交叉引用。 Use these generic heuristics
 (adapt to whatever project you're in — these are not gstack-specific):
 
 **README.md:**
@@ -802,22 +802,22 @@ Read each documentation file and cross-reference it against the diff. Use these 
 
 For each file, classify needed updates as:
 
-- **Auto-update** — Factual corrections clearly warranted by the diff: adding an item to a
+- **自动更新** — Factual corrections clearly warranted by the diff: adding an item to a
   table, updating a file path, fixing a count, updating a project structure tree.
-- **Ask user** — Narrative changes, section removal, security model changes, large rewrites
+- **询问用户** — Narrative changes, section removal, security model changes, large rewrites
   (more than ~10 lines in one section), ambiguous relevance, adding entirely new sections.
 
 ---
 
-## Step 3: Apply Auto-Updates
+## 步骤 3: Apply Auto-Updates
 
-Make all clear, factual updates directly using the Edit tool.
+使用 Edit 工具直接进行所有清晰的事实更新。
 
 For each file modified, output a one-line summary describing **what specifically changed** — not
 just "Updated README.md" but "README.md: added /new-skill to skills table, updated skill count
 from 9 to 10."
 
-**Never auto-update:**
+**绝不自动更新：**
 - README introduction or project positioning
 - ARCHITECTURE philosophy or design rationale
 - Security model descriptions
@@ -825,7 +825,7 @@ from 9 to 10."
 
 ---
 
-## Step 4: Ask About Risky/Questionable Changes
+## 步骤 4: Ask About Risky/Questionable Changes
 
 For each risky or questionable update identified in Step 2, use AskUserQuestion with:
 - Context: project name, branch, which doc file, what we're reviewing
@@ -837,16 +837,16 @@ Apply approved changes immediately after each answer.
 
 ---
 
-## Step 5: CHANGELOG Voice Polish
+## 步骤 5: CHANGELOG Voice Polish
 
 **CRITICAL — NEVER CLOBBER CHANGELOG ENTRIES.**
 
-This step polishes voice. It does NOT rewrite, replace, or regenerate CHANGELOG content.
+此步骤润色语气。 It does NOT rewrite, replace, or regenerate CHANGELOG content.
 
 A real incident occurred where an agent replaced existing CHANGELOG entries when it should have
 preserved them. This skill must NEVER do that.
 
-**Rules:**
+**规则：**
 1. Read the entire CHANGELOG.md first. Understand what is already there.
 2. Only modify wording within existing entries. Never delete, reorder, or replace entries.
 3. Never regenerate a CHANGELOG entry from scratch. The entry was written by `/ship` from the
@@ -865,13 +865,13 @@ preserved them. This skill must NEVER do that.
 - "You can now..." not "Refactored the..."
 - Flag and rewrite any entry that reads like a commit message.
 - Internal/contributor changes belong in a separate "### For contributors" subsection.
-- Auto-fix minor voice adjustments. Use AskUserQuestion if a rewrite would alter meaning.
+- Auto-fix minor voice adjustments. 使用 AskUserQuestion if a rewrite would alter meaning.
 
 ---
 
-## Step 6: Cross-Doc Consistency & Discoverability Check
+## 步骤 6: Cross-Doc Consistency & Discoverability Check
 
-After auditing each file individually, do a cross-doc consistency pass:
+单独审计每个文件后，进行跨文档一致性检查：
 
 1. Does the README's feature/capability list match what CLAUDE.md (or project instructions) describes?
 2. Does ARCHITECTURE's component list match CONTRIBUTING's project structure description?
@@ -880,11 +880,11 @@ After auditing each file individually, do a cross-doc consistency pass:
    ARCHITECTURE.md exists but neither README nor CLAUDE.md links to it, flag it. Every doc
    should be discoverable from one of the two entry-point files.
 5. Flag any contradictions between documents. Auto-fix clear factual inconsistencies (e.g., a
-   version mismatch). Use AskUserQuestion for narrative contradictions.
+   version mismatch). 使用 AskUserQuestion for narrative contradictions.
 
 ---
 
-## Step 7: TODOS.md Cleanup
+## 步骤 7: TODOS.md Cleanup
 
 This is a second pass that complements `/ship`'s Step 5.5. Read `review/TODOS-format.md` (if
 available) for the canonical TODO item format.
@@ -897,7 +897,7 @@ If TODOS.md does not exist, skip this step.
    evidence in the diff.
 
 2. **Items needing description updates:** If a TODO references files or components that were
-   significantly changed, its description may be stale. Use AskUserQuestion to confirm whether
+   significantly changed, its description may be stale. 使用 AskUserQuestion to confirm whether
    the TODO should be updated, completed, or left as-is.
 
 3. **New deferred work:** Check the diff for `TODO`, `FIXME`, `HACK`, and `XXX` comments. For
@@ -906,7 +906,7 @@ If TODOS.md does not exist, skip this step.
 
 ---
 
-## Step 8: VERSION Bump Question
+## 步骤 8: VERSION Bump Question
 
 **CRITICAL — NEVER BUMP VERSION WITHOUT ASKING.**
 
@@ -918,7 +918,7 @@ If TODOS.md does not exist, skip this step.
 git diff <base>...HEAD -- VERSION
 ```
 
-3. **If VERSION was NOT bumped:** Use AskUserQuestion:
+3. **If VERSION was NOT bumped:** 使用 AskUserQuestion：
    - RECOMMENDATION: Choose C (Skip) because docs-only changes rarely warrant a version bump
    - A) Bump PATCH (X.Y.Z+1) — if doc changes ship alongside code changes
    - B) Bump MINOR (X.Y+1.0) — if this is a significant standalone release
@@ -933,7 +933,7 @@ git diff <base>...HEAD -- VERSION
       that are NOT mentioned in the CHANGELOG entry for the current version?
    c. **If the CHANGELOG entry covers everything:** Skip — output "VERSION: Already bumped to
       vX.Y.Z, covers all changes."
-   d. **If there are significant uncovered changes:** Use AskUserQuestion explaining what the
+   d. **If there are significant uncovered changes:** 使用 AskUserQuestion explaining what the
       current version covers vs what's new, and ask:
       - RECOMMENDATION: Choose A because the new changes warrant their own version
       - A) Bump to next patch (X.Y.Z+1) — give the new changes their own version
@@ -945,13 +945,13 @@ git diff <base>...HEAD -- VERSION
 
 ---
 
-## Step 9: Commit & Output
+## 步骤 9: Commit & Output
 
-**Empty check first:** Run `git status` (never use `-uall`). If no documentation files were
+**首先检查是否为空：** 运行 `git status` (never use `-uall`). If no documentation files were
 modified by any previous step, output "All documentation is up to date." and exit without
 committing.
 
-**Commit:**
+**提交：**
 
 1. Stage modified documentation files by name (never `git add -A` or `git add .`).
 2. Create a single commit:
@@ -975,12 +975,12 @@ git push
 
 1. Read the existing PR/MR body into a PID-unique tempfile (use the platform detected in Step 0):
 
-**If GitHub:**
+**如果 GitHub：**
 ```bash
 gh pr view --json body -q .body > /tmp/gstack-pr-body-$$.md
 ```
 
-**If GitLab:**
+**如果 GitLab：**
 ```bash
 glab mr view -F json 2>/dev/null | python3 -c "import sys,json; print(json.load(sys.stdin).get('description',''))" > /tmp/gstack-pr-body-$$.md
 ```
@@ -994,12 +994,12 @@ glab mr view -F json 2>/dev/null | python3 -c "import sys,json; print(json.load(
 
 4. Write the updated body back:
 
-**If GitHub:**
+**如果 GitHub：**
 ```bash
 gh pr edit --body-file /tmp/gstack-pr-body-$$.md
 ```
 
-**If GitLab:**
+**如果 GitLab：**
 Read the contents of `/tmp/gstack-pr-body-$$.md` using the Read tool, then pass it to `glab mr update` using a heredoc to avoid shell metacharacter issues:
 ```bash
 glab mr update -d "$(cat <<'MRBODY'
@@ -1014,8 +1014,8 @@ MRBODY
 rm -f /tmp/gstack-pr-body-$$.md
 ```
 
-6. If `gh pr view` / `glab mr view` fails (no PR/MR exists): skip with message "No PR/MR found — skipping body update."
-7. If `gh pr edit` / `glab mr update` fails: warn "Could not update PR/MR body — documentation changes are in the
+6. 如果 `gh pr view` / `glab mr view` fails (no PR/MR exists): skip with message "No PR/MR found — skipping body update."
+7. 如果 `gh pr edit` / `glab mr update` fails: warn "Could not update PR/MR body — documentation changes are in the
    commit." and continue.
 
 **Structured doc health summary (final output):**
@@ -1042,7 +1042,7 @@ Where status is one of:
 
 ---
 
-## Important Rules
+## 重要规则
 
 - **Read before editing.** Always read the full content of a file before modifying it.
 - **Never clobber CHANGELOG.** Polish wording only. Never delete, replace, or regenerate entries.

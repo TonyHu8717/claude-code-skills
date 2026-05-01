@@ -35,23 +35,23 @@ metadata:
 
 ## Shortcuts
 
-- [`+create`](./references/lark-task-create.md) — Create a task
-- [`+update`](./references/lark-task-update.md) — Update a task
-- [`+comment`](./references/lark-task-comment.md) — Add a comment to a task
-- [`+complete`](./references/lark-task-complete.md) — Complete a task
-- [`+reopen`](./references/lark-task-reopen.md) — Reopen a task
-- [`+assign`](./references/lark-task-assign.md) — Assign or remove members from a task
-- [`+followers`](./references/lark-task-followers.md) — Manage task followers
-- [`+reminder`](./references/lark-task-reminder.md) — Manage task reminders
-- [`+get-my-tasks`](./references/lark-task-get-my-tasks.md) — List tasks assigned to me
-- [`+get-related-tasks`](./references/lark-task-get-related-tasks.md) — List tasks related to me
-- [`+search`](./references/lark-task-search.md) — Search tasks
-- [`+subscribe-event`](./references/lark-task-subscribe-event.md) — Subscribe to task events
-- [`+set-ancestor`](./references/lark-task-set-ancestor.md) — Set or clear a task ancestor
-- [`+tasklist-create`](./references/lark-task-tasklist-create.md) — Create a tasklist and batch add tasks
-- [`+tasklist-search`](./references/lark-task-tasklist-search.md) — Search tasklists
-- [`+tasklist-task-add`](./references/lark-task-tasklist-task-add.md) — Add existing tasks to a tasklist
-- [`+tasklist-members`](./references/lark-task-tasklist-members.md) — Manage tasklist members
+- [`+create`](./references/lark-task-create.md) — 创建任务
+- [`+update`](./references/lark-task-update.md) — 更新任务
+- [`+comment`](./references/lark-task-comment.md) — 为任务添加评论
+- [`+complete`](./references/lark-task-complete.md) — 完成任务
+- [`+reopen`](./references/lark-task-reopen.md) — 重新打开任务
+- [`+assign`](./references/lark-task-assign.md) — 为任务分配或移除成员
+- [`+followers`](./references/lark-task-followers.md) — 管理任务关注者
+- [`+reminder`](./references/lark-task-reminder.md) — 管理任务提醒
+- [`+get-my-tasks`](./references/lark-task-get-my-tasks.md) — 列出分配给我的任务
+- [`+get-related-tasks`](./references/lark-task-get-related-tasks.md) — 列出与我相关的任务
+- [`+search`](./references/lark-task-search.md) — 搜索任务
+- [`+subscribe-event`](./references/lark-task-subscribe-event.md) — 订阅任务事件
+- [`+set-ancestor`](./references/lark-task-set-ancestor.md) — 设置或清除任务祖先
+- [`+tasklist-create`](./references/lark-task-tasklist-create.md) — 创建任务清单并批量添加任务
+- [`+tasklist-search`](./references/lark-task-tasklist-search.md) — 搜索任务清单
+- [`+tasklist-task-add`](./references/lark-task-tasklist-task-add.md) — 将现有任务添加到任务清单
+- [`+tasklist-members`](./references/lark-task-tasklist-members.md) — 管理任务清单成员
 
 ## API Resources
 

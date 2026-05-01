@@ -1,25 +1,25 @@
 ---
 name: database-migration
-description: Execute database migrations across ORMs and platforms with zero-downtime strategies, data transformation, and rollback procedures. Use when migrating databases, changing schemas, performing data transformations, or implementing zero-downtime deployment strategies.
+description: 跨 ORM 和平台执行数据库迁移，包含零停机策略、数据转换和回滚程序。在迁移数据库、更改 schema、执行数据转换或实施零停机部署策略时使用。
 ---
 
-# Database Migration
+# 数据库迁移
 
-Master database schema and data migrations across ORMs (Sequelize, TypeORM, Prisma), including rollback strategies and zero-downtime deployments.
+掌握跨 ORM（Sequelize、TypeORM、Prisma）的数据库 schema 和数据迁移，包括回滚策略和零停机部署。
 
-## When to Use This Skill
+## 使用场景
 
-- Migrating between different ORMs
-- Performing schema transformations
-- Moving data between databases
-- Implementing rollback procedures
-- Zero-downtime deployments
-- Database version upgrades
-- Data model refactoring
+- 在不同 ORM 之间迁移
+- 执行 schema 转换
+- 在数据库之间移动数据
+- 实施回滚程序
+- 零停机部署
+- 数据库版本升级
+- 数据模型重构
 
-## ORM Migrations
+## ORM 迁移
 
-### Sequelize Migrations
+### Sequelize 迁移
 
 ```javascript
 // migrations/20231201-create-users.js
@@ -46,11 +46,11 @@ module.exports = {
   },
 };
 
-// Run: npx sequelize-cli db:migrate
-// Rollback: npx sequelize-cli db:migrate:undo
+// 运行: npx sequelize-cli db:migrate
+// 回滚: npx sequelize-cli db:migrate:undo
 ```
 
-### TypeORM Migrations
+### TypeORM 迁移
 
 ```typescript
 // migrations/1701234567-CreateUsers.ts
@@ -89,11 +89,11 @@ export class CreateUsers1701234567 implements MigrationInterface {
   }
 }
 
-// Run: npm run typeorm migration:run
-// Rollback: npm run typeorm migration:revert
+// 运行: npm run typeorm migration:run
+// 回滚: npm run typeorm migration:revert
 ```
 
-### Prisma Migrations
+### Prisma 迁移
 
 ```prisma
 // schema.prisma
@@ -103,16 +103,16 @@ model User {
   createdAt DateTime @default(now())
 }
 
-// Generate migration: npx prisma migrate dev --name create_users
-// Apply: npx prisma migrate deploy
+// 生成迁移: npx prisma migrate dev --name create_users
+// 应用: npx prisma migrate deploy
 ```
 
-## Schema Transformations
+## Schema 转换
 
-### Adding Columns with Defaults
+### 添加带默认值的列
 
 ```javascript
-// Safe migration: add column with default
+// 安全迁移：添加带默认值的列
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.addColumn("users", "status", {
@@ -128,17 +128,17 @@ module.exports = {
 };
 ```
 
-### Renaming Columns (Zero Downtime)
+### 重命名列（零停机）
 
 ```javascript
-// Step 1: Add new column
+// 步骤 1：添加新列
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.addColumn("users", "full_name", {
       type: Sequelize.STRING,
     });
 
-    // Copy data from old column
+    // 从旧列复制数据
     await queryInterface.sequelize.query("UPDATE users SET full_name = name");
   },
 
@@ -147,9 +147,9 @@ module.exports = {
   },
 };
 
-// Step 2: Update application to use new column
+// 步骤 2：更新应用以使用新列
 
-// Step 3: Remove old column
+// 步骤 3：删除旧列
 module.exports = {
   up: async (queryInterface) => {
     await queryInterface.removeColumn("users", "name");
@@ -163,29 +163,29 @@ module.exports = {
 };
 ```
 
-### Changing Column Types
+### 更改列类型
 
 ```javascript
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    // For large tables, use multi-step approach
+    // 对于大表，使用多步骤方法
 
-    // 1. Add new column
+    // 1. 添加新列
     await queryInterface.addColumn("users", "age_new", {
       type: Sequelize.INTEGER,
     });
 
-    // 2. Copy and transform data
+    // 2. 复制并转换数据
     await queryInterface.sequelize.query(`
       UPDATE users
       SET age_new = CAST(age AS INTEGER)
       WHERE age IS NOT NULL
     `);
 
-    // 3. Drop old column
+    // 3. 删除旧列
     await queryInterface.removeColumn("users", "age");
 
-    // 4. Rename new column
+    // 4. 重命名新列
     await queryInterface.renameColumn("users", "age_new", "age");
   },
 
@@ -197,19 +197,19 @@ module.exports = {
 };
 ```
 
-## Data Transformations
+## 数据转换
 
-### Complex Data Migration
+### 复杂数据迁移
 
 ```javascript
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    // Get all records
+    // 获取所有记录
     const [users] = await queryInterface.sequelize.query(
       "SELECT id, address_string FROM users",
     );
 
-    // Transform each record
+    // 转换每条记录
     for (const user of users) {
       const addressParts = user.address_string.split(",");
 
@@ -230,12 +230,12 @@ module.exports = {
       );
     }
 
-    // Drop old column
+    // 删除旧列
     await queryInterface.removeColumn("users", "address_string");
   },
 
   down: async (queryInterface, Sequelize) => {
-    // Reconstruct original column
+    // 重建原始列
     await queryInterface.addColumn("users", "address_string", {
       type: Sequelize.STRING,
     });
@@ -252,9 +252,9 @@ module.exports = {
 };
 ```
 
-## Rollback Strategies
+## 回滚策略
 
-### Transaction-Based Migrations
+### 基于事务的迁移
 
 ```javascript
 module.exports = {
@@ -287,23 +287,23 @@ module.exports = {
 };
 ```
 
-### Checkpoint-Based Rollback
+### 基于检查点的回滚
 
 ```javascript
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    // Create backup table
+    // 创建备份表
     await queryInterface.sequelize.query(
       "CREATE TABLE users_backup AS SELECT * FROM users",
     );
 
     try {
-      // Perform migration
+      // 执行迁移
       await queryInterface.addColumn("users", "new_field", {
         type: Sequelize.STRING,
       });
 
-      // Verify migration
+      // 验证迁移
       const [result] = await queryInterface.sequelize.query(
         "SELECT COUNT(*) as count FROM users WHERE new_field IS NULL",
       );
@@ -312,10 +312,10 @@ module.exports = {
         throw new Error("Migration verification failed");
       }
 
-      // Drop backup
+      // 删除备份
       await queryInterface.dropTable("users_backup");
     } catch (error) {
-      // Restore from backup
+      // 从备份恢复
       await queryInterface.sequelize.query("DROP TABLE users");
       await queryInterface.sequelize.query(
         "CREATE TABLE users AS SELECT * FROM users_backup",
@@ -327,24 +327,24 @@ module.exports = {
 };
 ```
 
-## Zero-Downtime Migrations
+## 零停机迁移
 
-### Blue-Green Deployment Strategy
+### 蓝绿部署策略
 
 ```javascript
-// Phase 1: Make changes backward compatible
+// 阶段 1：使更改向后兼容
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    // Add new column (both old and new code can work)
+    // 添加新列（新旧代码都可以工作）
     await queryInterface.addColumn("users", "email_new", {
       type: Sequelize.STRING,
     });
   },
 };
 
-// Phase 2: Deploy code that writes to both columns
+// 阶段 2：部署写入两列的代码
 
-// Phase 3: Backfill data
+// 阶段 3：回填数据
 module.exports = {
   up: async (queryInterface) => {
     await queryInterface.sequelize.query(`
@@ -355,9 +355,9 @@ module.exports = {
   },
 };
 
-// Phase 4: Deploy code that reads from new column
+// 阶段 4：部署从新列读取的代码
 
-// Phase 5: Remove old column
+// 阶段 5：删除旧列
 module.exports = {
   up: async (queryInterface) => {
     await queryInterface.removeColumn("users", "email");
@@ -365,12 +365,12 @@ module.exports = {
 };
 ```
 
-## Cross-Database Migrations
+## 跨数据库迁移
 
-### PostgreSQL to MySQL
+### PostgreSQL 到 MySQL
 
 ```javascript
-// Handle differences
+// 处理差异
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     const dialectName = queryInterface.sequelize.getDialect();
@@ -383,7 +383,7 @@ module.exports = {
           autoIncrement: true,
         },
         data: {
-          type: Sequelize.JSON, // MySQL JSON type
+          type: Sequelize.JSON, // MySQL JSON 类型
         },
       });
     } else if (dialectName === "postgres") {
@@ -394,7 +394,7 @@ module.exports = {
           autoIncrement: true,
         },
         data: {
-          type: Sequelize.JSONB, // PostgreSQL JSONB type
+          type: Sequelize.JSONB, // PostgreSQL JSONB 类型
         },
       });
     }

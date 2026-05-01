@@ -1,13 +1,11 @@
 ---
 name: excel-variance-analyzer
 description: |
-  Automates budget vs actual variance analysis in Excel with flagging, commentary,
-  and executive summaries. Targets FP&A teams and financial reporting workflows.
-  Use when asked to analyze budget variance, compare actual vs forecast, create a
-  variance report, or explain budget differences.
-  Trigger with "analyze budget variance", "compare actual vs forecast", "variance report",
-  or "why are we over budget".
-  Make sure to use whenever the user needs budget-to-actual analysis or financial variance reporting.
+  在 Excel 中自动执行预算与实际差异分析，包含标记、评注和执行摘要。
+  面向 FP&A 团队和财务报告工作流。
+  当要求分析预算差异、比较实际与预测、创建差异报告或解释预算差异时使用。
+  使用"分析预算差异"、"比较实际与预测"、"差异报告"或"为什么超出预算"触发。
+  确保在用户需要预算到实际分析或财务差异报告时使用。
 allowed-tools: "Read,Write,Edit,Glob,Grep,Bash(npx:*),AskUserQuestion"
 model: inherit
 version: "2.0.0"
@@ -17,139 +15,136 @@ compatible-with: claude-code
 tags: [variance-analysis, budgeting, fpa, excel, financial-reporting]
 ---
 
-# Excel Variance Analyzer
+# Excel 差异分析器
 
-## Table of Contents
-- [Overview](#overview) — [Prerequisites](#prerequisites) — [Instructions](#instructions) — [Output](#output) — [Examples](#examples) — [Error Handling](#error-handling) — [Resources](#resources)
+## 目录
+- [概述](#概述) — [先决条件](#先决条件) — [指令](#指令) — [输出](#输出) — [示例](#示例) — [错误处理](#错误处理) — [资源](#资源)
 
-## Overview
+## 概述
 
-Automates variance analysis for monthly/quarterly financial reporting and budget reviews.
-Generates flagged variance reports with automated commentary and executive summaries so
-FP&A teams can produce board-ready variance packages from raw budget and actual data
-without manual spreadsheet work.
+为月度/季度财务报告和预算审查自动执行差异分析。生成带有自动评注和执行摘要的标记差异报告，使 FP&A 团队能够从原始预算和实际数据生成董事会级别的差异报告包，无需手动电子表格工作。
 
-## Prerequisites
+## 先决条件
 
 - Node.js 18+
-- `@negokaz/excel-mcp-server` MCP server configured
+- 已配置 `@negokaz/excel-mcp-server` MCP 服务器
 - Claude Code 1.0+
-- Budget and actual data in `.xlsx` or `.csv` format
+- `.xlsx` 或 `.csv` 格式的预算和实际数据
 
-## Instructions
+## 指令
 
-### Step 1: Load Data
+### 步骤 1：加载数据
 
-Use AskUserQuestion to collect:
-- **Budget data**: Excel file, CSV, or pasted table
-- **Actual data**: Same format as budget
-- **Period**: Month, quarter, or YTD
-- **Threshold settings** (or use defaults):
-  - Percentage threshold: 10% (flag items >10% variance)
-  - Dollar threshold: $50K (flag items >$50K absolute variance)
+使用 AskUserQuestion 收集：
+- **预算数据**：Excel 文件、CSV 或粘贴的表格
+- **实际数据**：与预算相同格式
+- **期间**：月度、季度或年初至今
+- **阈值设置**（或使用默认值）：
+  - 百分比阈值：10%（标记 >10% 差异的项目）
+  - 金额阈值：$50K（标记 >$50K 绝对差异的项目）
 
-### Step 2: Validate Data
+### 步骤 2：验证数据
 
-Before analysis, check:
-- Budget and actual have matching line items
-- All values are numeric
-- No missing data for key categories (revenue, expenses, profit)
-- Budget data is reasonable (no zeros where there should be values)
+分析前检查：
+- 预算和实际具有匹配的行项目
+- 所有值都是数字
+- 关键类别（收入、费用、利润）没有缺失数据
+- 预算数据合理（应该有值的地方没有零）
 
-If mismatches found, report them and ask user to clarify.
+如果发现不匹配，报告它们并请用户澄清。
 
-### Step 3: Calculate Variances
+### 步骤 3：计算差异
 
-For each line item:
-- Absolute Variance = Actual - Budget
-- Percentage Variance = (Actual - Budget) / Budget x 100%
+对于每个行项目：
+- 绝对差异 = 实际 - 预算
+- 百分比差异 = (实际 - 预算) / 预算 x 100%
 
-**Sign Convention:** Revenue/profit: positive = Favorable. Expenses: positive = Unfavorable.
+**符号约定：** 收入/利润：正数 = 有利。费用：正数 = 不利。
 
-### Step 4: Flag Material Items
+### 步骤 4：标记重要项目
 
-| Flag | Criteria |
+| 标记 | 标准 |
 |------|----------|
-| Critical (red) | Revenue/profit >10% below budget, expenses >10% over, or absolute >$100K |
-| Warning (yellow) | Revenue/profit 5-10% below, expenses 5-10% over, or absolute $50K-$100K |
-| On Track (green) | Variance within +/-5% and absolute <$50K |
+| 严重（红色） | 收入/利润低于预算 >10%，费用超出 >10%，或绝对值 >$100K |
+| 警告（黄色） | 收入/利润低于 5-10%，费用超出 5-10%，或绝对值 $50K-$100K |
+| 正常（绿色） | 差异在 +/-5% 以内且绝对值 <$50K |
 
-### Step 5: Generate Commentary
+### 步骤 5：生成评注
 
-For each flagged item, provide automated commentary explaining what happened (variance in dollars and percentage), possible drivers (2-3 likely causes), and recommended action.
+对于每个标记的项目，提供自动评注，解释发生了什么（差异金额和百分比）、可能的驱动因素（2-3 个可能原因）和建议的行动。
 
-### Step 6: Build 3-Sheet Report
+### 步骤 6：构建 3 工作表报告
 
-Use the Excel MCP server to create:
+使用 Excel MCP 服务器创建：
 
-**Sheet 1 - Variance Summary:** Table with columns: Line Item, Budget, Actual, Variance, % Var, Flag, Commentary. Conditional formatting (green/yellow/red) based on flagging rules.
+**工作表 1 - 差异摘要：** 包含以下列的表格：行项目、预算、实际、差异、差异百分比、标记、评注。基于标记规则的条件格式（绿色/黄色/红色）。
 
-**Sheet 2 - Executive Summary:** Performance highlights, top 5 unfavorable variances, top 5 favorable variances, key action items.
+**工作表 2 - 执行摘要：** 绩效亮点、前 5 个不利差异、前 5 个有利差异、关键行动项目。
 
-**Sheet 3 - Trend Analysis** (if multiple periods provided): Variance % by month/quarter with trend indicators (improving/worsening/flat).
+**工作表 3 - 趋势分析**（如果提供了多个期间）：按月/季度的差异百分比及趋势指标（改善/恶化/持平）。
 
-### Step 7: Format Professionally
+### 步骤 7：专业格式化
 
-- Currency: $1,000K or $1.0M
-- Percentages: 1 decimal place
-- Variance: $(50K) for unfavorable, $50K for favorable
-- Conditional formatting: green (favorable >5%), yellow (within +/-5%), red (unfavorable >5%)
-- Bold headers, freeze top row and left column
+- 货币：$1,000K 或 $1.0M
+- 百分比：1 位小数
+- 差异：$(50K) 表示不利，$50K 表示有利
+- 条件格式：绿色（有利 >5%）、黄色（+/-5% 以内）、红色（不利 >5%）
+- 粗体标题，冻结首行和首列
 
-### Step 8: Return Results
+### 步骤 8：返回结果
 
-Report overall performance summary, top 3 critical variances with drivers, recommended actions, and offer follow-up (trend analysis, drill-down, forecast scenarios).
+报告整体绩效摘要、前 3 个关键差异及驱动因素、建议的行动，并提供后续分析（趋势分析、钻取、预测场景）。
 
-## Output
+## 输出
 
-- `.xlsx` file with 3 sheets: Variance Summary, Executive Summary, Trend Analysis
-- Summary text with performance highlights and critical variances
-- Actionable recommendations for each flagged item
+- `.xlsx` 文件，包含 3 个工作表：差异摘要、执行摘要、趋势分析
+- 包含绩效亮点和关键差异的摘要文本
+- 每个标记项目的可操作建议
 
-## Examples
+## 示例
 
-### Standard Variance Analysis
-
-```
-User: "Analyze Q1 budget vs actual"
-
-Results:
-- Revenue: $2,850K vs $3,000K budget (-5.0%)
-- EBITDA: $270K vs $450K budget (-40.0%)
-- Key driver: OpEx 12% over budget ($90K)
-- Action: Review Q2 pipeline, evaluate marketing ROI
-
-Saved to: Q1_2025_Variance_Analysis.xlsx
-```
-
-### Drill-Down Request
+### 标准差异分析
 
 ```
-User: "Why is marketing over budget?"
+用户："分析 Q1 预算与实际"
 
-Response: Breaks down marketing by subcategory:
-- Digital Ads: +$30K (campaign expansion)
-- Events: +$15K (added trade show)
-- Agencies: +$15K (new retainer)
-Primary driver: Digital ads campaign expansion.
+结果：
+- 收入：$2,850K vs $3,000K 预算（-5.0%）
+- EBITDA：$270K vs $450K 预算（-40.0%）
+- 关键驱动因素：运营费用超出预算 12%（$90K）
+- 行动：审查 Q2 管线，评估营销 ROI
+
+保存到：Q1_2025_Variance_Analysis.xlsx
 ```
 
-## Error Handling
+### 钻取请求
 
-| Scenario | Response |
+```
+用户："为什么营销超出预算？"
+
+响应：按子类别分解营销：
+- 数字广告：+$30K（活动扩展）
+- 活动：+$15K（增加贸易展）
+- 代理商：+$15K（新固定费用）
+主要驱动因素：数字广告活动扩展。
+```
+
+## 错误处理
+
+| 场景 | 响应 |
 |----------|----------|
-| Budget and actual don't match | List mismatches, ask user to reconcile |
-| Division by zero (budget = $0) | Show absolute variance only, flag for review |
-| All variances within threshold | Report clean bill of health, suggest lowering thresholds |
-| Negative budget values | Ask user to confirm sign convention |
+| 预算和实际不匹配 | 列出不匹配项，请用户核对 |
+| 除以零（预算 = $0） | 仅显示绝对差异，标记供审查 |
+| 所有差异在阈值内 | 报告健康状态，建议降低阈值 |
+| 负预算值 | 请用户确认符号约定 |
 
-## Edge Cases
+## 边缘情况
 
-- If no period specified, ask user or default to most recent month
-- If user provides only one dataset, ask for the comparison dataset
-- If data includes non-financial line items, exclude from variance calculations
-- If user wants forecast comparison instead of budget, same workflow applies
+- 如果未指定期间，请用户或默认为最近月份
+- 如果用户仅提供一个数据集，请提供比较数据集
+- 如果数据包含非财务行项目，从差异计算中排除
+- 如果用户想要预测比较而非预算，相同工作流适用
 
-## Resources
+## 资源
 
-- ${CLAUDE_SKILL_DIR}/references/REFERENCE.md - Variance analysis best practices, sign conventions
+- ${CLAUDE_SKILL_DIR}/references/REFERENCE.md - 差异分析最佳实践、符号约定

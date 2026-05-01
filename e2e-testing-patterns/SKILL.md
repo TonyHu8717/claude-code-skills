@@ -1,67 +1,67 @@
 ---
 name: e2e-testing-patterns
-description: Master end-to-end testing with Playwright and Cypress to build reliable test suites that catch bugs, improve confidence, and enable fast deployment. Use when implementing E2E tests, debugging flaky tests, or establishing testing standards.
+description: 掌握使用 Playwright 和 Cypress 进行端到端测试，构建可靠的测试套件以捕获错误、提高信心并实现快速部署。在实现 E2E 测试、调试不稳定测试或建立测试标准时使用。
 ---
 
-# E2E Testing Patterns
+# E2E 测试模式
 
-Build reliable, fast, and maintainable end-to-end test suites that provide confidence to ship code quickly and catch regressions before users do.
+构建可靠、快速且可维护的端到端测试套件，为快速发布代码提供信心，并在用户之前捕获回归问题。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Implementing end-to-end test automation
-- Debugging flaky or unreliable tests
-- Testing critical user workflows
-- Setting up CI/CD test pipelines
-- Testing across multiple browsers
-- Validating accessibility requirements
-- Testing responsive designs
-- Establishing E2E testing standards
+- 实现端到端测试自动化
+- 调试不稳定或不可靠的测试
+- 测试关键用户工作流
+- 设置 CI/CD 测试流水线
+- 跨多个浏览器测试
+- 验证无障碍访问要求
+- 测试响应式设计
+- 建立 E2E 测试标准
 
-## Core Concepts
+## 核心概念
 
-### 1. E2E Testing Fundamentals
+### 1. E2E 测试基础
 
-**What to Test with E2E:**
+**E2E 应该测试什么：**
 
-- Critical user journeys (login, checkout, signup)
-- Complex interactions (drag-and-drop, multi-step forms)
-- Cross-browser compatibility
-- Real API integration
-- Authentication flows
+- 关键用户旅程（登录、结账、注册）
+- 复杂交互（拖放、多步骤表单）
+- 跨浏览器兼容性
+- 真实 API 集成
+- 身份验证流程
 
-**What NOT to Test with E2E:**
+**E2E 不应该测试什么：**
 
-- Unit-level logic (use unit tests)
-- API contracts (use integration tests)
-- Edge cases (too slow)
-- Internal implementation details
+- 单元级逻辑（使用单元测试）
+- API 契约（使用集成测试）
+- 边缘情况（太慢）
+- 内部实现细节
 
-### 2. Test Philosophy
+### 2. 测试理念
 
-**The Testing Pyramid:**
+**测试金字塔：**
 
 ```
         /\
-       /E2E\         ← Few, focused on critical paths
+       /E2E\         ← 少量，专注于关键路径
       /─────\
-     /Integr\        ← More, test component interactions
+     /Integr\        ← 更多，测试组件交互
     /────────\
-   /Unit Tests\      ← Many, fast, isolated
+   /Unit Tests\      ← 大量，快速，隔离
   /────────────\
 ```
 
-**Best Practices:**
+**最佳实践：**
 
-- Test user behavior, not implementation
-- Keep tests independent
-- Make tests deterministic
-- Optimize for speed
-- Use data-testid, not CSS selectors
+- 测试用户行为，而非实现
+- 保持测试独立性
+- 使测试具有确定性
+- 优化速度
+- 使用 data-testid，而非 CSS 选择器
 
-## Playwright Patterns
+## Playwright 模式
 
-### Setup and Configuration
+### 设置和配置
 
 ```typescript
 // playwright.config.ts
@@ -93,7 +93,7 @@ export default defineConfig({
 });
 ```
 
-### Pattern 1: Page Object Model
+### 模式 1：页面对象模型
 
 ```typescript
 // pages/LoginPage.ts
@@ -129,7 +129,7 @@ export class LoginPage {
   }
 }
 
-// Test using Page Object
+// 使用页面对象的测试
 import { test, expect } from "@playwright/test";
 import { LoginPage } from "./pages/LoginPage";
 
@@ -152,7 +152,7 @@ test("failed login shows error", async ({ page }) => {
 });
 ```
 
-### Pattern 2: Fixtures for Test Data
+### 模式 2：测试数据 Fixture
 
 ```typescript
 // fixtures/test-data.ts
@@ -177,10 +177,10 @@ export const test = base.extend<TestData>({
       password: "Test123!@#",
       name: "Test User",
     };
-    // Setup: Create user in database
+    // 设置：在数据库中创建用户
     await createTestUser(user);
     await use(user);
-    // Teardown: Clean up user
+    // 清理：删除用户
     await deleteTestUser(user.email);
   },
 
@@ -192,7 +192,7 @@ export const test = base.extend<TestData>({
   },
 });
 
-// Usage in tests
+// 测试中的用法
 import { test } from "./fixtures/test-data";
 
 test("user can update profile", async ({ page, testUser }) => {
@@ -209,22 +209,22 @@ test("user can update profile", async ({ page, testUser }) => {
 });
 ```
 
-### Pattern 3: Waiting Strategies
+### 模式 3：等待策略
 
 ```typescript
-// ❌ Bad: Fixed timeouts
-await page.waitForTimeout(3000); // Flaky!
+// ❌ 不好：固定超时
+await page.waitForTimeout(3000); // 不稳定！
 
-// ✅ Good: Wait for specific conditions
+// ✅ 好：等待特定条件
 await page.waitForLoadState("networkidle");
 await page.waitForURL("/dashboard");
 await page.waitForSelector('[data-testid="user-profile"]');
 
-// ✅ Better: Auto-waiting with assertions
+// ✅ 更好：使用断言自动等待
 await expect(page.getByText("Welcome")).toBeVisible();
 await expect(page.getByRole("button", { name: "Submit" })).toBeEnabled();
 
-// Wait for API response
+// 等待 API 响应
 const responsePromise = page.waitForResponse(
   (response) =>
     response.url().includes("/api/users") && response.status() === 200,
@@ -234,7 +234,7 @@ const response = await responsePromise;
 const data = await response.json();
 expect(data.users).toHaveLength(10);
 
-// Wait for multiple conditions
+// 等待多个条件
 await Promise.all([
   page.waitForURL("/success"),
   page.waitForLoadState("networkidle"),
@@ -242,10 +242,10 @@ await Promise.all([
 ]);
 ```
 
-### Pattern 4: Network Mocking and Interception
+### 模式 4：网络模拟和拦截
 
 ```typescript
-// Mock API responses
+// 模拟 API 响应
 test("displays error when API fails", async ({ page }) => {
   await page.route("**/api/users", (route) => {
     route.fulfill({
@@ -259,13 +259,13 @@ test("displays error when API fails", async ({ page }) => {
   await expect(page.getByText("Failed to load users")).toBeVisible();
 });
 
-// Intercept and modify requests
+// 拦截并修改请求
 test("can modify API request", async ({ page }) => {
   await page.route("**/api/users", async (route) => {
     const request = route.request();
     const postData = JSON.parse(request.postData() || "{}");
 
-    // Modify request
+    // 修改请求
     postData.role = "admin";
 
     await route.continue({
@@ -273,10 +273,10 @@ test("can modify API request", async ({ page }) => {
     });
   });
 
-  // Test continues...
+  // 测试继续...
 });
 
-// Mock third-party services
+// 模拟第三方服务
 test("payment flow with mocked Stripe", async ({ page }) => {
   await page.route("**/api/stripe/**", (route) => {
     route.fulfill({
@@ -288,13 +288,13 @@ test("payment flow with mocked Stripe", async ({ page }) => {
     });
   });
 
-  // Test payment flow with mocked response
+  // 使用模拟响应测试支付流程
 });
 ```
 
-## Cypress Patterns
+## Cypress 模式
 
-### Setup and Configuration
+### 设置和配置
 
 ```typescript
 // cypress.config.ts
@@ -310,13 +310,13 @@ export default defineConfig({
     defaultCommandTimeout: 10000,
     requestTimeout: 10000,
     setupNodeEvents(on, config) {
-      // Implement node event listeners
+      // 实现节点事件监听器
     },
   },
 });
 ```
 
-### Pattern 1: Custom Commands
+### 模式 1：自定义命令
 
 ```typescript
 // cypress/support/commands.ts
@@ -346,15 +346,15 @@ Cypress.Commands.add("dataCy", (value: string) => {
   return cy.get(`[data-cy="${value}"]`);
 });
 
-// Usage
+// 用法
 cy.login("user@example.com", "password");
 cy.dataCy("submit-button").click();
 ```
 
-### Pattern 2: Cypress Intercept
+### 模式 2：Cypress 拦截
 
 ```typescript
-// Mock API calls
+// 模拟 API 调用
 cy.intercept("GET", "/api/users", {
   statusCode: 200,
   body: [
@@ -367,30 +367,30 @@ cy.visit("/users");
 cy.wait("@getUsers");
 cy.get('[data-testid="user-list"]').children().should("have.length", 2);
 
-// Modify responses
+// 修改响应
 cy.intercept("GET", "/api/users", (req) => {
   req.reply((res) => {
-    // Modify response
+    // 修改响应
     res.body.users = res.body.users.slice(0, 5);
     res.send();
   });
 });
 
-// Simulate slow network
+// 模拟慢速网络
 cy.intercept("GET", "/api/data", (req) => {
   req.reply((res) => {
-    res.delay(3000); // 3 second delay
+    res.delay(3000); // 3 秒延迟
     res.send();
   });
 });
 ```
 
-## Advanced Patterns
+## 高级模式
 
-### Pattern 1: Visual Regression Testing
+### 模式 1：视觉回归测试
 
 ```typescript
-// With Playwright
+// 使用 Playwright
 import { test, expect } from "@playwright/test";
 
 test("homepage looks correct", async ({ page }) => {
@@ -406,20 +406,20 @@ test("button in all states", async ({ page }) => {
 
   const button = page.getByRole("button", { name: "Submit" });
 
-  // Default state
+  // 默认状态
   await expect(button).toHaveScreenshot("button-default.png");
 
-  // Hover state
+  // 悬停状态
   await button.hover();
   await expect(button).toHaveScreenshot("button-hover.png");
 
-  // Disabled state
+  // 禁用状态
   await button.evaluate((el) => el.setAttribute("disabled", "true"));
   await expect(button).toHaveScreenshot("button-disabled.png");
 });
 ```
 
-### Pattern 2: Parallel Testing with Sharding
+### 模式 2：分片并行测试
 
 ```typescript
 // playwright.config.ts
@@ -436,19 +436,19 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
       shard: { current: 2, total: 4 },
     },
-    // ... more shards
+    // ... 更多分片
   ],
 });
 
-// Run in CI
+// 在 CI 中运行
 // npx playwright test --shard=1/4
 // npx playwright test --shard=2/4
 ```
 
-### Pattern 3: Accessibility Testing
+### 模式 3：无障碍访问测试
 
 ```typescript
-// Install: npm install @axe-core/playwright
+// 安装：npm install @axe-core/playwright
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
@@ -471,53 +471,53 @@ test("form is accessible", async ({ page }) => {
 });
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Use Data Attributes**: `data-testid` or `data-cy` for stable selectors
-2. **Avoid Brittle Selectors**: Don't rely on CSS classes or DOM structure
-3. **Test User Behavior**: Click, type, see - not implementation details
-4. **Keep Tests Independent**: Each test should run in isolation
-5. **Clean Up Test Data**: Create and destroy test data in each test
-6. **Use Page Objects**: Encapsulate page logic
-7. **Meaningful Assertions**: Check actual user-visible behavior
-8. **Optimize for Speed**: Mock when possible, parallel execution
+1. **使用数据属性**：`data-testid` 或 `data-cy` 作为稳定选择器
+2. **避免脆弱选择器**：不要依赖 CSS 类或 DOM 结构
+3. **测试用户行为**：点击、输入、查看 — 而非实现细节
+4. **保持测试独立**：每个测试应独立运行
+5. **清理测试数据**：在每个测试中创建和销毁测试数据
+6. **使用页面对象**：封装页面逻辑
+7. **有意义的断言**：检查实际用户可见的行为
+8. **优化速度**：尽可能模拟，并行执行
 
 ```typescript
-// ❌ Bad selectors
+// ❌ 不好的选择器
 cy.get(".btn.btn-primary.submit-button").click();
 cy.get("div > form > div:nth-child(2) > input").type("text");
 
-// ✅ Good selectors
+// ✅ 好的选择器
 cy.getByRole("button", { name: "Submit" }).click();
 cy.getByLabel("Email address").type("user@example.com");
 cy.get('[data-testid="email-input"]').type("user@example.com");
 ```
 
-## Common Pitfalls
+## 常见陷阱
 
-- **Flaky Tests**: Use proper waits, not fixed timeouts
-- **Slow Tests**: Mock external APIs, use parallel execution
-- **Over-Testing**: Don't test every edge case with E2E
-- **Coupled Tests**: Tests should not depend on each other
-- **Poor Selectors**: Avoid CSS classes and nth-child
-- **No Cleanup**: Clean up test data after each test
-- **Testing Implementation**: Test user behavior, not internals
+- **不稳定测试**：使用适当的等待，而非固定超时
+- **慢速测试**：模拟外部 API，使用并行执行
+- **过度测试**：不要用 E2E 测试每个边缘情况
+- **耦合测试**：测试不应相互依赖
+- **糟糕的选择器**：避免 CSS 类和 nth-child
+- **无清理**：每个测试后清理测试数据
+- **测试实现**：测试用户行为，而非内部实现
 
-## Debugging Failing Tests
+## 调试失败的测试
 
 ```typescript
-// Playwright debugging
-// 1. Run in headed mode
+// Playwright 调试
+// 1. 以有头模式运行
 npx playwright test --headed
 
-// 2. Run in debug mode
+// 2. 以调试模式运行
 npx playwright test --debug
 
-// 3. Use trace viewer
+// 3. 使用追踪查看器
 await page.screenshot({ path: 'screenshot.png' });
 await page.video()?.saveAs('video.webm');
 
-// 4. Add test.step for better reporting
+// 4. 添加 test.step 以获得更好的报告
 test('checkout flow', async ({ page }) => {
     await test.step('Add item to cart', async () => {
         await page.goto('/products');
@@ -530,6 +530,6 @@ test('checkout flow', async ({ page }) => {
     });
 });
 
-// 5. Inspect page state
-await page.pause();  // Pauses execution, opens inspector
+// 5. 检查页面状态
+await page.pause();  // 暂停执行，打开检查器
 ```

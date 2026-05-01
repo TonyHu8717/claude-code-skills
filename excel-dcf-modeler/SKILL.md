@@ -1,14 +1,11 @@
 ---
 name: excel-dcf-modeler
 description: |
-  Builds discounted cash flow (DCF) valuation models in Excel with free cash flow
-  projections, WACC calculations, and sensitivity analysis. Targets investment banking
-  and corporate finance workflows.
-  Use when asked to create a DCF model, calculate enterprise value, value a company,
-  or build a valuation model.
-  Trigger with "create a DCF model", "build a valuation", "calculate enterprise value",
-  or "value this company".
-  Make sure to use whenever the user needs company valuation or DCF analysis in Excel.
+  在 Excel 中构建折现现金流 (DCF) 估值模型，包含自由现金流预测、
+  WACC 计算和敏感性分析。面向投资银行和企业金融工作流。
+  当要求创建 DCF 模型、计算企业价值、对公司估值或构建估值模型时使用。
+  使用"创建 DCF 模型"、"构建估值"、"计算企业价值"或"对这家公司估值"触发。
+  确保在用户需要 Excel 中的公司估值或 DCF 分析时使用。
 allowed-tools: "Read,Write,Edit,Glob,Grep,Bash(npx:*),AskUserQuestion"
 model: inherit
 version: "2.0.0"
@@ -18,132 +15,130 @@ compatible-with: claude-code
 tags: [dcf, valuation, financial-modeling, excel, investment-banking]
 ---
 
-# Excel DCF Modeler
+# Excel DCF 建模器
 
-## Table of Contents
-- [Overview](#overview) — [Prerequisites](#prerequisites) — [Instructions](#instructions) — [Output](#output) — [Examples](#examples) — [Error Handling](#error-handling) — [Resources](#resources)
+## 目录
+- [概述](#概述) — [先决条件](#先决条件) — [指令](#指令) — [输出](#输出) — [示例](#示例) — [错误处理](#错误处理) — [资源](#资源)
 
-## Overview
+## 概述
 
-Generates professional 4-sheet DCF valuation models following investment banking standards.
-Automates free cash flow projections, terminal value calculations, and sensitivity analysis
-so analysts can produce IB-grade valuations from natural language inputs instead of building
-Excel models from scratch.
+生成专业的 4 工作表 DCF 估值模型，遵循投资银行标准。自动执行自由现金流预测、
+终值计算和敏感性分析，使分析师能够从自然语言输入生成 IB 级别的估值，而无需从头构建 Excel 模型。
 
-## Prerequisites
+## 先决条件
 
 - Node.js 18+
-- `@negokaz/excel-mcp-server` MCP server configured
+- 已配置 `@negokaz/excel-mcp-server` MCP 服务器
 - Claude Code 1.0+
 
-## Instructions
+## 指令
 
-### Step 1: Gather Inputs
+### 步骤 1：收集输入
 
-Use AskUserQuestion to collect:
+使用 AskUserQuestion 收集：
 
-**Required:**
-- Company name and ticker symbol
-- Base year revenue (most recent fiscal year)
-- Revenue growth rates for Years 1-5 (e.g., 15%, 12%, 10%, 8%, 6%)
-- EBITDA margin %
-- Tax rate % (default: 21% for US)
+**必需：**
+- 公司名称和股票代码
+- 基年收入（最近财年）
+- 第 1-5 年的收入增长率（例如 15%、12%、10%、8%、6%）
+- EBITDA 利润率 %
+- 税率 %（默认：美国 21%）
 
-**Optional (use defaults if not provided):**
-- D&A as % of revenue (default: 5%)
-- CapEx as % of revenue (default: 4%)
-- NWC as % of revenue (default: 10%)
-- Terminal growth rate (default: 2.5%)
-- WACC / discount rate (default: 10%)
-- Net debt amount (default: $0)
-- Shares outstanding (for per-share value)
+**可选（未提供时使用默认值）：**
+- 折旧摊销占收入百分比（默认：5%）
+- 资本支出占收入百分比（默认：4%）
+- 净营运资本占收入百分比（默认：10%）
+- 终值增长率（默认：2.5%）
+- WACC / 折现率（默认：10%）
+- 净债务金额（默认：$0）
+- 流通股数（用于每股价值）
 
-### Step 2: Validate Inputs
+### 步骤 2：验证输入
 
-Before building, verify:
-- Revenue growth rates are 0-30%
-- EBITDA margin is positive
-- Tax rate is 0-40%
-- Terminal growth < WACC (model breaks if g >= WACC)
-- WACC is 7-15%
+构建前验证：
+- 收入增长率为 0-30%
+- EBITDA 利润率为正
+- 税率为 0-40%
+- 终值增长率 < WACC（如果 g >= WACC 模型会失效）
+- WACC 为 7-15%
 
-If validation fails, explain the issue and ask for corrected inputs.
+如果验证失败，解释问题并请求修正输入。
 
-### Step 3: Build 4-Sheet Model
+### 步骤 3：构建 4 工作表模型
 
-Use the Excel MCP server to create:
+使用 Excel MCP 服务器创建：
 
-**Sheet 1 - Assumptions:**
-Company info, revenue growth rates, profitability metrics, working capital, CapEx, tax rate, terminal growth, WACC. Color-code: blue for inputs, black for formulas.
+**工作表 1 - 假设：**
+公司信息、收入增长率、盈利能力指标、营运资本、资本支出、税率、终值增长率、WACC。颜色编码：蓝色表示输入，黑色表示公式。
 
-**Sheet 2 - FCF Projections (5 years):**
-Revenue -> EBITDA -> EBIT -> NOPAT -> add back D&A -> subtract CapEx -> subtract Change in NWC -> Unlevered Free Cash Flow. All formulas link to Assumptions sheet. No hard-coded values.
+**工作表 2 - FCF 预测（5 年）：**
+收入 -> EBITDA -> EBIT -> NOPAT -> 加回折旧摊销 -> 减去资本支出 -> 减去净营运资本变化 -> 无杠杆自由现金流。所有公式链接到假设工作表。无硬编码值。
 
-**Sheet 3 - Valuation:**
-PV of each year's FCF, terminal value via Gordon Growth Model, PV of terminal value, enterprise value, equity value, per-share value.
+**工作表 3 - 估值：**
+每年 FCF 的现值、通过戈登增长模型计算终值、终值现值、企业价值、股权价值、每股价值。
 
-**Sheet 4 - Sensitivity Analysis:**
-Two-way table: WACC (rows, +/-2% from base) vs Terminal Growth (columns, 1.5%-3.5%). Output: Enterprise Value at each combination. Apply conditional formatting (green=high, red=low).
+**工作表 4 - 敏感性分析：**
+双向表：WACC（行，基准 +/-2%）vs 终值增长率（列，1.5%-3.5%）。输出：每种组合的企业价值。应用条件格式（绿色=高，红色=低）。
 
-### Step 4: Format Professionally
+### 步骤 4：专业格式化
 
-- Currency format for monetary values
-- Percentage format for rates (1 decimal)
-- Freeze top row and left column
-- Bold headers, cell borders
-- Conditional formatting on sensitivity table
+- 货币格式用于金额值
+- 百分比格式用于比率（1 位小数）
+- 冻结首行和首列
+- 粗体标题，单元格边框
+- 敏感性表的条件格式
 
-### Step 5: Return Results
+### 步骤 5：返回结果
 
-Report enterprise value, equity value, per-share value, terminal value as % of EV (flag if >80%), key assumptions used, and brief commentary on reasonableness vs industry.
+报告企业价值、股权价值、每股价值、终值占 EV 的百分比（如果 >80% 则标记）、使用的关键假设、以及与行业相比的合理性简评。
 
-## Output
+## 输出
 
-- `.xlsx` file with 4 sheets: Assumptions, FCF Projections, Valuation, Sensitivity Analysis
-- Summary text with enterprise value, equity value, and key metrics
-- Warnings for any concerning assumptions (e.g., terminal value >80% of EV)
+- `.xlsx` 文件，包含 4 个工作表：假设、FCF 预测、估值、敏感性分析
+- 包含企业价值、股权价值和关键指标的摘要文本
+- 对令人担忧的假设的警告（例如终值 >80% EV）
 
-## Examples
+## 示例
 
-### Basic DCF Request
-
-```
-User: "Create a DCF model for Tesla"
-
-Response: Gathers inputs via questions, builds 4-sheet model.
-
-Results:
-- Enterprise Value: $847.3B
-- Terminal Value: 68% of EV
-- Implied per share: $243
-
-Saved to: Tesla_DCF_Model.xlsx
-```
-
-### Minimal Inputs
+### 基本 DCF 请求
 
 ```
-User: "Build a DCF but I don't have all the numbers"
+用户："为特斯拉创建 DCF 模型"
 
-Response: Uses industry-average assumptions for the company's sector.
-All defaults documented in Assumptions sheet for easy adjustment.
+响应：通过问题收集输入，构建 4 工作表模型。
+
+结果：
+- 企业价值：$847.3B
+- 终值：占 EV 的 68%
+- 隐含每股：$243
+
+保存到：Tesla_DCF_Model.xlsx
 ```
 
-## Error Handling
+### 最小输入
 
-| Scenario | Response |
+```
+用户："构建 DCF 但我没有所有数字"
+
+响应：使用该行业的行业平均假设。
+所有假设记录在假设工作表中，便于调整。
+```
+
+## 错误处理
+
+| 场景 | 响应 |
 |----------|----------|
-| Terminal growth >= WACC | Explain mathematical issue, ask for corrected values |
-| Missing critical inputs | Build with industry defaults, document clearly |
-| Terminal value >80% of EV | Flag as warning, recommend revisiting growth assumptions |
-| Negative FCF in projection | Flag concern, suggest reviewing margin/CapEx assumptions |
+| 终值增长率 >= WACC | 解释数学问题，请求修正值 |
+| 缺少关键输入 | 使用行业默认值构建，清晰记录 |
+| 终值 >80% EV | 标记为警告，建议重新审视增长假设 |
+| 预测中出现负 FCF | 标记关注，建议审查利润率/资本支出假设 |
 
-## Edge Cases
+## 边缘情况
 
-- If user provides no company name, use "Company" as placeholder
-- If revenue is in different currencies, note currency in all outputs
-- If user wants multiple scenarios, create separate columns (Base/Bull/Bear)
+- 如果用户未提供公司名称，使用"Company"作为占位符
+- 如果收入为不同货币，在所有输出中注明货币
+- 如果用户需要多个场景，创建单独的列（基准/牛市/熊市）
 
-## Resources
+## 资源
 
-- ${CLAUDE_SKILL_DIR}/references/REFERENCE.md - DCF best practices, industry assumptions, common mistakes
+- ${CLAUDE_SKILL_DIR}/references/REFERENCE.md - DCF 最佳实践、行业假设、常见错误

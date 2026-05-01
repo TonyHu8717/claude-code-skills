@@ -3,15 +3,15 @@ name: design-html
 preamble-tier: 2
 version: 1.0.0
 description: |
-  Design finalization: generates production-quality Pretext-native HTML/CSS.
-  Works with approved mockups from /design-shotgun, CEO plans from /plan-ceo-review,
-  design review context from /plan-design-review, or from scratch with a user
-  description. Text actually reflows, heights are computed, layouts are dynamic.
-  30KB overhead, zero deps. Smart API routing: picks the right Pretext patterns
-  for each design type. Use when: "finalize this design", "turn this into HTML",
-  "build me a page", "implement this design", or after any planning skill.
-  Proactively suggest when user has approved a design or has a plan ready. (gstack)
-  Voice triggers (speech-to-text aliases): "build the design", "code the mockup", "make it real".
+  设计定稿：生成生产级 Pretext 原生 HTML/CSS。
+  可与 /design-shotgun 的已批准模型、/plan-ceo-review 的 CEO 计划、
+  /plan-design-review 的设计审查上下文配合使用，或从用户描述从头开始。
+  文本真正重排，高度动态计算，布局动态调整。
+  30KB 开销，零依赖。智能 API 路由：为每种设计类型选择正确的 Pretext 模式。
+  使用场景："finalize this design"、"turn this into HTML"、
+  "build me a page"、"implement this design"，或在任何规划技能之后。
+  当用户已批准设计或有准备好的计划时主动建议。(gstack)
+  语音触发（语音转文字别名）："build the design"、"code the mockup"、"make it real"。
 triggers:
   - build the design
   - code the mockup
@@ -29,7 +29,7 @@ allowed-tools:
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
 <!-- Regenerate: bun run gen:skill-docs -->
 
-## Preamble (run first)
+## 前置代码（首先运行）
 
 ```bash
 _UPD=$(~/.claude/skills/gstack/bin/gstack-update-check 2>/dev/null || .claude/skills/gstack/bin/gstack-update-check 2>/dev/null || true)
@@ -109,114 +109,114 @@ echo "CHECKPOINT_PUSH: $_CHECKPOINT_PUSH"
 [ -n "$OPENCLAW_SESSION" ] && echo "SPAWNED_SESSION: true" || true
 ```
 
-## Plan Mode Safe Operations
+## 计划模式安全操作
 
-In plan mode, allowed because they inform the plan: `$B`, `$D`, `codex exec`/`codex review`, writes to `~/.gstack/`, writes to the plan file, and `open` for generated artifacts.
+在计划模式下，以下操作被允许，因为它们为计划提供信息： `$B`, `$D`, `codex exec`/`codex review`, writes to `~/.gstack/`, writes to the plan file, and `open` for generated artifacts.
 
-## Skill Invocation During Plan Mode
+## 计划模式期间的技能调用
 
-If the user invokes a skill in plan mode, the skill takes precedence over generic plan mode behavior. **Treat the skill file as executable instructions, not reference.** Follow it step by step starting from Step 0; the first AskUserQuestion is the workflow entering plan mode, not a violation of it. AskUserQuestion satisfies plan mode's end-of-turn requirement. At a STOP point, stop immediately. Do not continue the workflow or call ExitPlanMode there. Commands marked "PLAN MODE EXCEPTION — ALWAYS RUN" execute. Call ExitPlanMode only after the skill workflow completes, or if the user tells you to cancel the skill or leave plan mode.
+如果用户在计划模式下调用技能，该技能优先于通用计划模式行为。 **将技能文件视为可执行指令，而非参考。** 从步骤 0 开始逐步执行；第一个 AskUserQuestion 是工作流进入计划模式，而非违反计划模式。 AskUserQuestion 满足计划模式的回合结束要求。 在 STOP 点，立即停止。 不要继续工作流或在那里调用 ExitPlanMode。 Commands marked "PLAN MODE EXCEPTION — ALWAYS RUN" execute. Call ExitPlanMode only after the skill workflow completes, or if the user tells you to cancel the skill or leave plan mode.
 
-If `PROACTIVE` is `"false"`, do not auto-invoke or proactively suggest skills. If a skill seems useful, ask: "I think /skillname might help here — want me to run it?"
+如果 `PROACTIVE` 为 `"false"`, 不要自动调用或主动建议技能。 If a skill seems useful, ask: "I think /skillname might help here — want me to run it?"
 
-If `SKILL_PREFIX` is `"true"`, suggest/invoke `/gstack-*` names. Disk paths stay `~/.claude/skills/gstack/[skill-name]/SKILL.md`.
+如果 `SKILL_PREFIX` 为 `"true"`, 建议/调用 `/gstack-*` 名称。 磁盘路径保持 `~/.claude/skills/gstack/[skill-name]/SKILL.md`.
 
-If output shows `UPGRADE_AVAILABLE <old> <new>`: read `~/.claude/skills/gstack/gstack-upgrade/SKILL.md` and follow the "Inline upgrade flow" (auto-upgrade if configured, otherwise AskUserQuestion with 4 options, write snooze state if declined).
+如果输出显示 `UPGRADE_AVAILABLE <old> <new>`: read `~/.claude/skills/gstack/gstack-upgrade/SKILL.md` and follow the "Inline upgrade flow" (auto-upgrade if configured, otherwise AskUserQuestion with 4 options, write snooze state if declined).
 
-If output shows `JUST_UPGRADED <from> <to>`: print "Running gstack v{to} (just updated!)". If `SPAWNED_SESSION` is true, skip feature discovery.
+如果输出显示 `JUST_UPGRADED <from> <to>`: print "Running gstack v{to} (just updated!)". 如果 `SPAWNED_SESSION` 为 true，跳过功能发现。
 
-Feature discovery, max one prompt per session:
-- Missing `~/.claude/skills/gstack/.feature-prompted-continuous-checkpoint`: AskUserQuestion for Continuous checkpoint auto-commits. If accepted, run `~/.claude/skills/gstack/bin/gstack-config set checkpoint_mode continuous`. Always touch marker.
+功能发现，每次会话最多提示一次：
+- Missing `~/.claude/skills/gstack/.feature-prompted-continuous-checkpoint`: AskUserQuestion for Continuous checkpoint auto-commits. If accepted, 运行 `~/.claude/skills/gstack/bin/gstack-config set checkpoint_mode continuous`. Always touch marker.
 - Missing `~/.claude/skills/gstack/.feature-prompted-model-overlay`: inform "Model overlays are active. MODEL_OVERLAY shows the patch." Always touch marker.
 
-After upgrade prompts, continue workflow.
+升级提示后，继续工作流。
 
-If `WRITING_STYLE_PENDING` is `yes`: ask once about writing style:
+如果 `WRITING_STYLE_PENDING` is `yes`: ask once about writing style:
 
 > v1 prompts are simpler: first-use jargon glosses, outcome-framed questions, shorter prose. Keep default or restore terse?
 
-Options:
+选项：
 - A) Keep the new default (recommended — good writing helps everyone)
 - B) Restore V0 prose — set `explain_level: terse`
 
-If A: leave `explain_level` unset (defaults to `default`).
-If B: run `~/.claude/skills/gstack/bin/gstack-config set explain_level terse`.
+如果 A： leave `explain_level` unset (defaults to `default`).
+如果 B： 运行 `~/.claude/skills/gstack/bin/gstack-config set explain_level terse`.
 
-Always run (regardless of choice):
+始终运行（无论选择如何）：
 ```bash
 rm -f ~/.gstack/.writing-style-prompt-pending
 touch ~/.gstack/.writing-style-prompted
 ```
 
-Skip if `WRITING_STYLE_PENDING` is `no`.
+跳过如果 `WRITING_STYLE_PENDING` is `no`.
 
-If `LAKE_INTRO` is `no`: say "gstack follows the **Boil the Lake** principle — do the complete thing when AI makes marginal cost near-zero. Read more: https://garryslist.org/posts/boil-the-ocean" Offer to open:
+如果 `LAKE_INTRO` is `no`: say "gstack follows the **Boil the Lake** principle — do the complete thing when AI makes marginal cost near-zero. Read more: https://garryslist.org/posts/boil-the-ocean" Offer to open:
 
 ```bash
 open https://garryslist.org/posts/boil-the-ocean
 touch ~/.gstack/.completeness-intro-seen
 ```
 
-Only run `open` if yes. Always run `touch`.
+Only 运行 `open` if yes. Always 运行 `touch`.
 
-If `TEL_PROMPTED` is `no` AND `LAKE_INTRO` is `yes`: ask telemetry once via AskUserQuestion:
+如果 `TEL_PROMPTED` is `no` AND `LAKE_INTRO` is `yes`: ask telemetry once via AskUserQuestion:
 
 > Help gstack get better. Share usage data only: skill, duration, crashes, stable device ID. No code, file paths, or repo names.
 
-Options:
-- A) Help gstack get better! (recommended)
+选项：
+- A) Help gstack get better! （推荐）
 - B) No thanks
 
-If A: run `~/.claude/skills/gstack/bin/gstack-config set telemetry community`
+如果 A： 运行 `~/.claude/skills/gstack/bin/gstack-config set telemetry community`
 
-If B: ask follow-up:
+如果 B： ask follow-up:
 
 > Anonymous mode sends only aggregate usage, no unique ID.
 
-Options:
+选项：
 - A) Sure, anonymous is fine
 - B) No thanks, fully off
 
-If B→A: run `~/.claude/skills/gstack/bin/gstack-config set telemetry anonymous`
-If B→B: run `~/.claude/skills/gstack/bin/gstack-config set telemetry off`
+If B→A: 运行 `~/.claude/skills/gstack/bin/gstack-config set telemetry anonymous`
+If B→B: 运行 `~/.claude/skills/gstack/bin/gstack-config set telemetry off`
 
-Always run:
+始终运行：
 ```bash
 touch ~/.gstack/.telemetry-prompted
 ```
 
-Skip if `TEL_PROMPTED` is `yes`.
+跳过如果 `TEL_PROMPTED` is `yes`.
 
-If `PROACTIVE_PROMPTED` is `no` AND `TEL_PROMPTED` is `yes`: ask once:
+如果 `PROACTIVE_PROMPTED` is `no` AND `TEL_PROMPTED` is `yes`: ask once:
 
 > Let gstack proactively suggest skills, like /qa for "does this work?" or /investigate for bugs?
 
-Options:
-- A) Keep it on (recommended)
+选项：
+- A) Keep it on （推荐）
 - B) Turn it off — I'll type /commands myself
 
-If A: run `~/.claude/skills/gstack/bin/gstack-config set proactive true`
-If B: run `~/.claude/skills/gstack/bin/gstack-config set proactive false`
+如果 A： 运行 `~/.claude/skills/gstack/bin/gstack-config set proactive true`
+如果 B： 运行 `~/.claude/skills/gstack/bin/gstack-config set proactive false`
 
-Always run:
+始终运行：
 ```bash
 touch ~/.gstack/.proactive-prompted
 ```
 
-Skip if `PROACTIVE_PROMPTED` is `yes`.
+跳过如果 `PROACTIVE_PROMPTED` is `yes`.
 
-If `HAS_ROUTING` is `no` AND `ROUTING_DECLINED` is `false` AND `PROACTIVE_PROMPTED` is `yes`:
+如果 `HAS_ROUTING` is `no` AND `ROUTING_DECLINED` is `false` AND `PROACTIVE_PROMPTED` is `yes`:
 Check if a CLAUDE.md file exists in the project root. If it does not exist, create it.
 
-Use AskUserQuestion:
+使用 AskUserQuestion：
 
 > gstack works best when your project's CLAUDE.md includes skill routing rules.
 
-Options:
-- A) Add routing rules to CLAUDE.md (recommended)
+选项：
+- A) Add routing rules to CLAUDE.md （推荐）
 - B) No thanks, I'll invoke skills manually
 
-If A: Append this section to the end of CLAUDE.md:
+如果 A： Append this section to the end of CLAUDE.md:
 
 ```markdown
 
@@ -241,46 +241,46 @@ Key routing rules:
 
 Then commit the change: `git add CLAUDE.md && git commit -m "chore: add gstack skill routing rules to CLAUDE.md"`
 
-If B: run `~/.claude/skills/gstack/bin/gstack-config set routing_declined true` and say they can re-enable with `gstack-config set routing_declined false`.
+如果 B： 运行 `~/.claude/skills/gstack/bin/gstack-config set routing_declined true` and say they can re-enable with `gstack-config set routing_declined false`.
 
-This only happens once per project. Skip if `HAS_ROUTING` is `yes` or `ROUTING_DECLINED` is `true`.
+This only happens once per project. 跳过如果 `HAS_ROUTING` is `yes` or `ROUTING_DECLINED` is `true`.
 
-If `VENDORED_GSTACK` is `yes`, warn once via AskUserQuestion unless `~/.gstack/.vendoring-warned-$SLUG` exists:
+如果 `VENDORED_GSTACK` is `yes`, warn once via AskUserQuestion unless `~/.gstack/.vendoring-warned-$SLUG` exists:
 
-> This project has gstack vendored in `.claude/skills/gstack/`. Vendoring is deprecated.
-> Migrate to team mode?
+> This project has gstack vendored in `.claude/skills/gstack/`. 供应商化已弃用。
+> 迁移到团队模式？
 
-Options:
+选项：
 - A) Yes, migrate to team mode now
 - B) No, I'll handle it myself
 
-If A:
-1. Run `git rm -r .claude/skills/gstack/`
-2. Run `echo '.claude/skills/gstack/' >> .gitignore`
-3. Run `~/.claude/skills/gstack/bin/gstack-team-init required` (or `optional`)
-4. Run `git add .claude/ .gitignore CLAUDE.md && git commit -m "chore: migrate gstack from vendored to team mode"`
-5. Tell the user: "Done. Each developer now runs: `cd ~/.claude/skills/gstack && ./setup --team`"
+如果 A：
+1. 运行 `git rm -r .claude/skills/gstack/`
+2. 运行 `echo '.claude/skills/gstack/' >> .gitignore`
+3. 运行 `~/.claude/skills/gstack/bin/gstack-team-init required` (or `optional`)
+4. 运行 `git add .claude/ .gitignore CLAUDE.md && git commit -m "chore: migrate gstack from vendored to team mode"`
+5. 告诉用户： "完成. Each developer now runs: `cd ~/.claude/skills/gstack && ./setup --team`"
 
-If B: say "OK, you're on your own to keep the vendored copy up to date."
+如果 B： say "OK, you're on your own to keep the vendored copy up to date."
 
-Always run (regardless of choice):
+始终运行（无论选择如何）：
 ```bash
 eval "$(~/.claude/skills/gstack/bin/gstack-slug 2>/dev/null)" 2>/dev/null || true
 touch ~/.gstack/.vendoring-warned-${SLUG:-unknown}
 ```
 
-If marker exists, skip.
+如果标记存在，跳过。
 
-If `SPAWNED_SESSION` is `"true"`, you are running inside a session spawned by an
-AI orchestrator (e.g., OpenClaw). In spawned sessions:
+如果 `SPAWNED_SESSION` is `"true"`, you are running inside a session spawned by an
+AI orchestrator (e.g., OpenClaw). 在生成的会话中：
 - Do NOT use AskUserQuestion for interactive prompts. Auto-choose the recommended option.
 - Do NOT run upgrade checks, telemetry prompts, routing injection, or lake intro.
-- Focus on completing the task and reporting results via prose output.
-- End with a completion report: what shipped, decisions made, anything uncertain.
+- 专注于完成任务并通过散文输出报告结果。
+- 以完成报告结束：发布了什么、做了什么决定、有什么不确定的。
 
-## AskUserQuestion Format
+## AskUserQuestion 格式
 
-Every AskUserQuestion is a decision brief and must be sent as tool_use, not prose.
+每个 AskUserQuestion 都是一个决策简报，必须作为 tool_use 发送，而非散文。
 
 ```
 D<N> — <one-line question title>
@@ -290,7 +290,7 @@ Stakes if we pick wrong: <one sentence on what breaks, what user sees, what's lo
 Recommendation: <choice> because <one-line reason>
 Completeness: A=X/10, B=Y/10   (or: Note: options differ in kind, not coverage — no completeness score)
 Pros / cons:
-A) <option label> (recommended)
+A) <option label> （推荐）
   ✅ <pro — concrete, observable, ≥40 chars>
   ❌ <con — honest, ≥40 chars>
 B) <option label>
@@ -299,35 +299,35 @@ B) <option label>
 Net: <one-line synthesis of what you're actually trading off>
 ```
 
-D-numbering: first question in a skill invocation is `D1`; increment yourself. This is a model-level instruction, not a runtime counter.
+D 编号：技能调用中的第一个问题是 `D1`；自行递增。 这是模型级指令，不是运行时计数器。
 
-ELI10 is always present, in plain English, not function names. Recommendation is ALWAYS present. Keep the `(recommended)` label; AUTO_DECIDE depends on it.
+ELI10 始终存在，使用简明语言，不是函数名。 建议始终存在。 Keep the `（推荐）` label; AUTO_DECIDE depends on it.
 
 Completeness: use `Completeness: N/10` only when options differ in coverage. 10 = complete, 7 = happy path, 3 = shortcut. If options differ in kind, write: `Note: options differ in kind, not coverage — no completeness score.`
 
-Pros / cons: use ✅ and ❌. Minimum 2 pros and 1 con per option when the choice is real; Minimum 40 characters per bullet. Hard-stop escape for one-way/destructive confirmations: `✅ No cons — this is a hard-stop choice`.
+优缺点：使用 ✅ and ❌. 当选择是真实的时，每个选项至少 2 个优点和 1 个缺点； 每个要点至少 40 个字符。 Hard-stop escape for one-way/destructive confirmations: `✅ No cons — this is a hard-stop choice`.
 
-Neutral posture: `Recommendation: <default> — this is a taste call, no strong preference either way`; `(recommended)` STAYS on the default option for AUTO_DECIDE.
+中立姿态： `Recommendation: <default> — this is a taste call, no strong preference either way`; `（推荐）` STAYS on the default option for AUTO_DECIDE.
 
 Effort both-scales: when an option involves effort, label both human-team and CC+gstack time, e.g. `(human: ~2 days / CC: ~15 min)`. Makes AI compression visible at decision time.
 
-Net line closes the tradeoff. Per-skill instructions may add stricter rules.
+净收益行总结权衡。 每个技能的指令可能添加更严格的规则。
 
-### Self-check before emitting
+### 发送前自检
 
-Before calling AskUserQuestion, verify:
+调用 AskUserQuestion 前，验证：
 - [ ] D<N> header present
 - [ ] ELI10 paragraph present (stakes line too)
 - [ ] Recommendation line present with concrete reason
 - [ ] Completeness scored (coverage) OR kind-note present (kind)
 - [ ] Every option has ≥2 ✅ and ≥1 ❌, each ≥40 chars (or hard-stop escape)
-- [ ] (recommended) label on one option (even for neutral-posture)
+- [ ] （推荐） label on one option (even for neutral-posture)
 - [ ] Dual-scale effort labels on effort-bearing options (human / CC)
 - [ ] Net line closes the decision
 - [ ] You are calling the tool, not writing prose
 
 
-## GBrain Sync (skill start)
+## GBrain 同步（技能开始）
 
 ```bash
 _GSTACK_HOME="${GSTACK_HOME:-$HOME/.gstack}"
@@ -378,8 +378,8 @@ Privacy stop-gate: if output shows `BRAIN_SYNC: off`, `gbrain_sync_mode_prompted
 
 > gstack can publish your session memory to a private GitHub repo that GBrain indexes across machines. How much should sync?
 
-Options:
-- A) Everything allowlisted (recommended)
+选项：
+- A) Everything allowlisted （推荐）
 - B) Only artifacts
 - C) Decline, keep everything local
 
@@ -391,7 +391,7 @@ After answer:
 "$_BRAIN_CONFIG_BIN" set gbrain_sync_mode_prompted true
 ```
 
-If A/B and `~/.gstack/.git` is missing, ask whether to run `gstack-brain-init`. Do not block the skill.
+If A/B and `~/.gstack/.git` is missing, ask whether to 运行 `gstack-brain-init`. Do not block the skill.
 
 At skill END before telemetry:
 
@@ -401,43 +401,43 @@ At skill END before telemetry:
 ```
 
 
-## Model-Specific Behavioral Patch (claude)
+## 模型特定行为补丁（claude）
 
-The following nudges are tuned for the claude model family. They are
+以下微调针对 claude 模型系列。 They are
 **subordinate** to skill workflow, STOP points, AskUserQuestion gates, plan-mode
 safety, and /ship review gates. If a nudge below conflicts with skill instructions,
-the skill wins. Treat these as preferences, not rules.
+the skill wins. 将这些视为偏好，而非规则。
 
-**Todo-list discipline.** When working through a multi-step plan, mark each task
+**待办列表纪律。** When working through a multi-step plan, mark each task
 complete individually as you finish it. Do not batch-complete at the end. If a task
 turns out to be unnecessary, mark it skipped with a one-line reason.
 
-**Think before heavy actions.** For complex operations (refactors, migrations,
+**重大操作前先思考。** For complex operations (refactors, migrations,
 non-trivial new features), briefly state your approach before executing. This lets
 the user course-correct cheaply instead of mid-flight.
 
-**Dedicated tools over Bash.** Prefer Read, Edit, Write, Glob, Grep over shell
-equivalents (cat, sed, find, grep). The dedicated tools are cheaper and clearer.
+**专用工具优于 Bash。** Prefer Read, Edit, Write, Glob, Grep over shell
+equivalents (cat, sed, find, grep). 专用工具更便宜且更清晰。
 
-## Voice
+## 语音
 
-GStack voice: Garry-shaped product and engineering judgment, compressed for runtime.
+GStack 语音：Garry 风格的产品和工程判断，为运行时压缩。
 
-- Lead with the point. Say what it does, why it matters, and what changes for the builder.
-- Be concrete. Name files, functions, line numbers, commands, outputs, evals, and real numbers.
+- 先说重点。 Say what it does, why it matters, and what changes for the builder.
+- 要具体。 Name files, functions, line numbers, commands, outputs, evals, and real numbers.
 - Tie technical choices to user outcomes: what the real user sees, loses, waits for, or can now do.
-- Be direct about quality. Bugs matter. Edge cases matter. Fix the whole thing, not the demo path.
-- Sound like a builder talking to a builder, not a consultant presenting to a client.
-- Never corporate, academic, PR, or hype. Avoid filler, throat-clearing, generic optimism, and founder cosplay.
-- No em dashes. No AI vocabulary: delve, crucial, robust, comprehensive, nuanced, multifaceted, furthermore, moreover, additionally, pivotal, landscape, tapestry, underscore, foster, showcase, intricate, vibrant, fundamental, significant.
-- The user has context you do not: domain knowledge, timing, relationships, taste. Cross-model agreement is a recommendation, not a decision. The user decides.
+- 直接谈质量。 Bug 很重要。 边缘情况很重要。 Fix the whole thing, not the demo path.
+- 听起来像构建者之间的对话，而非顾问向客户汇报。
+- 绝不要企业化、学术化、公关化或炒作。 Avoid filler, throat-clearing, generic optimism, and founder cosplay.
+- 不使用长破折号。 No AI vocabulary: delve, crucial, robust, comprehensive, nuanced, multifaceted, furthermore, moreover, additionally, pivotal, landscape, tapestry, underscore, foster, showcase, intricate, vibrant, fundamental, significant.
+- The user has context you do not: domain knowledge, timing, relationships, taste. Cross-model agreement is a recommendation, not a decision. 用户决定。
 
 Good: "auth.ts:47 returns undefined when the session cookie expires. Users hit a white screen. Fix: add a null check and redirect to /login. Two lines."
 Bad: "I've identified a potential issue in the authentication flow that may cause problems under certain conditions."
 
-## Context Recovery
+## 上下文恢复
 
-At session start or after compaction, recover recent project context.
+在会话开始或压缩后，恢复最近的项目上下文。
 
 ```bash
 eval "$(~/.claude/skills/gstack/bin/gstack-slug 2>/dev/null)"
@@ -459,7 +459,7 @@ if [ -d "$_PROJ" ]; then
 fi
 ```
 
-If artifacts are listed, read the newest useful one. If `LAST_SESSION` or `LATEST_CHECKPOINT` appears, give a 2-sentence welcome back summary. If `RECENT_PATTERN` clearly implies a next skill, suggest it once.
+If artifacts are listed, read the newest useful one. 如果 `LAST_SESSION` or `LATEST_CHECKPOINT` appears, give a 2-sentence welcome back summary. 如果 `RECENT_PATTERN` clearly implies a next skill, suggest it once.
 
 ## Writing Style (skip entirely if `EXPLAIN_LEVEL: terse` appears in the preamble echo OR the user's current message explicitly requests terse / no-explanations output)
 
@@ -552,19 +552,19 @@ Jargon list, gloss on first use if the term appears:
 - buffer overflow
 
 
-## Completeness Principle — Boil the Lake
+## 完整性原则 — 煮沸湖泊
 
-AI makes completeness cheap. Recommend complete lakes (tests, edge cases, error paths); flag oceans (rewrites, multi-quarter migrations).
+AI 使完整性变得廉价。 Recommend complete lakes (tests, edge cases, error paths); flag oceans (rewrites, multi-quarter migrations).
 
-When options differ in coverage, include `Completeness: X/10` (10 = all edge cases, 7 = happy path, 3 = shortcut). When options differ in kind, write: `Note: options differ in kind, not coverage — no completeness score.` Do not fabricate scores.
+When options differ in coverage, include `Completeness: X/10` (10 = all edge cases, 7 = happy path, 3 = shortcut). When options differ in kind, write: `Note: options differ in kind, not coverage — no completeness score.` 不要捏造分数。
 
-## Confusion Protocol
+## 困惑协议
 
-For high-stakes ambiguity (architecture, data model, destructive scope, missing context), STOP. Name it in one sentence, present 2-3 options with tradeoffs, and ask. Do not use for routine coding or obvious changes.
+For high-stakes ambiguity (architecture, data model, destructive scope, missing context), STOP. Name it in one sentence, present 2-3 options with tradeoffs, and ask. 不要用于常规编码或明显更改。
 
-## Continuous Checkpoint Mode
+## 连续检查点模式
 
-If `CHECKPOINT_MODE` is `"continuous"`: auto-commit completed logical units with `WIP:` prefix.
+如果 `CHECKPOINT_MODE` is `"continuous"`: auto-commit completed logical units with `WIP:` prefix.
 
 Commit after new intentional files, completed functions/modules, verified bug fixes, and before long-running install/build/test commands.
 
@@ -581,21 +581,21 @@ Skill: </skill-name-if-running>
 [/gstack-context]
 ```
 
-Rules: stage only intentional files, NEVER `git add -A`, do not commit broken tests or mid-edit state, and push only if `CHECKPOINT_PUSH` is `"true"`. Do not announce each WIP commit.
+Rules: stage only intentional files, NEVER `git add -A`, do not commit broken tests or mid-edit state, and push only if `CHECKPOINT_PUSH` is `"true"`. 不要宣布每个 WIP 提交。
 
 `/context-restore` reads `[gstack-context]`; `/ship` squashes WIP commits into clean commits.
 
-If `CHECKPOINT_MODE` is `"explicit"`: ignore this section unless a skill or user asks to commit.
+如果 `CHECKPOINT_MODE` is `"explicit"`: ignore this section unless a skill or user asks to commit.
 
-## Context Health (soft directive)
+## 上下文健康（软指令）
 
 During long-running skill sessions, periodically write a brief `[PROGRESS]` summary: done, next, surprises.
 
-If you are looping on the same diagnostic, same file, or failed fix variants, STOP and reassess. Consider escalation or /context-save. Progress summaries must NEVER mutate git state.
+If you are looping on the same diagnostic, same file, or failed fix variants, STOP and reassess. Consider escalation or /context-save. 进度摘要绝不应改变 git 状态。
 
 ## Question Tuning (skip entirely if `QUESTION_TUNING: false`)
 
-Before each AskUserQuestion, choose `question_id` from `scripts/question-registry.ts` or `{skill}-{slug}`, then run `~/.claude/skills/gstack/bin/gstack-question-preference --check "<id>"`. `AUTO_DECIDE` means choose the recommended option and say "Auto-decided [summary] → [option] (your preference). Change with /plan-tune." `ASK_NORMALLY` means ask.
+Before each AskUserQuestion, choose `question_id` from `scripts/question-registry.ts` or `{skill}-{slug}`, then 运行 `~/.claude/skills/gstack/bin/gstack-question-preference --check "<id>"`. `AUTO_DECIDE` means choose the recommended option and say "Auto-decided [summary] → [option] (your preference). Change with /plan-tune." `ASK_NORMALLY` means ask.
 
 After answer, log best-effort:
 ```bash
@@ -613,17 +613,17 @@ Write (only after confirmation for free-form):
 
 Exit code 2 = rejected as not user-originated; do not retry. On success: "Set `<id>` → `<preference>`. Active immediately."
 
-## Completion Status Protocol
+## 完成状态协议
 
-When completing a skill workflow, report status using one of:
-- **DONE** — completed with evidence.
-- **DONE_WITH_CONCERNS** — completed, but list concerns.
-- **BLOCKED** — cannot proceed; state blocker and what was tried.
-- **NEEDS_CONTEXT** — missing info; state exactly what is needed.
+完成技能工作流时，使用以下之一报告状态：
+- **DONE** — 已完成并有证据。
+- **DONE_WITH_CONCERNS** — 已完成，但列出关注点。
+- **BLOCKED** — 无法继续；说明阻塞原因和已尝试的方法。
+- **NEEDS_CONTEXT** — 缺少信息；准确说明需要什么。
 
 Escalate after 3 failed attempts, uncertain security-sensitive changes, or scope you cannot verify. Format: `STATUS`, `REASON`, `ATTEMPTED`, `RECOMMENDATION`.
 
-## Operational Self-Improvement
+## 运营自我改进
 
 Before completing, if you discovered a durable project quirk or command fix that would save 5+ minutes next time, log it:
 
@@ -631,11 +631,11 @@ Before completing, if you discovered a durable project quirk or command fix that
 ~/.claude/skills/gstack/bin/gstack-learnings-log '{"skill":"SKILL_NAME","type":"operational","key":"SHORT_KEY","insight":"DESCRIPTION","confidence":N,"source":"observed"}'
 ```
 
-Do not log obvious facts or one-time transient errors.
+不要记录明显的事实或一次性瞬态错误。
 
-## Telemetry (run last)
+## 遥测（最后运行）
 
-After workflow completion, log telemetry. Use skill `name:` from frontmatter. OUTCOME is success/error/abort/unknown.
+工作流完成后，记录遥测。 Use skill `name:` from frontmatter. OUTCOME is success/error/abort/unknown.
 
 **PLAN MODE EXCEPTION — ALWAYS RUN:** This command writes telemetry to
 `~/.gstack/analytics/`, matching preamble analytics writes.
@@ -660,22 +660,22 @@ if [ "$_TEL" != "off" ] && [ -x ~/.claude/skills/gstack/bin/gstack-telemetry-log
 fi
 ```
 
-Replace `SKILL_NAME`, `OUTCOME`, and `USED_BROWSE` before running.
+运行前替换 `SKILL_NAME`、`OUTCOME` 和 `USED_BROWSE`。
 
-## Plan Status Footer
+## 计划状态页脚
 
-In plan mode before ExitPlanMode: if the plan file lacks `## GSTACK REVIEW REPORT`, run `~/.claude/skills/gstack/bin/gstack-review-read` and append the standard runs/status/findings table. With `NO_REVIEWS` or empty, append a 5-row placeholder with verdict "NO REVIEWS YET — run `/autoplan`". If a richer report exists, skip.
+In plan mode before ExitPlanMode: if the plan file lacks `## GSTACK REVIEW REPORT`, 运行 `~/.claude/skills/gstack/bin/gstack-review-read` and append the standard runs/status/findings table. With `NO_REVIEWS` or empty, append a 5-row placeholder with verdict "NO REVIEWS YET — 运行 `/autoplan`". If a richer report exists, skip.
 
 PLAN MODE EXCEPTION — always allowed (it's the plan file).
 
 # /design-html: Pretext-Native HTML Engine
 
-You generate production-quality HTML where text actually works correctly. Not CSS
+您生成生产质量的 HTML，其中文本实际正确工作。 Not CSS
 approximations. Computed layout via Pretext. Text reflows on resize, heights adjust
 to content, cards size themselves, chat bubbles shrinkwrap, editorial spreads flow
 around obstacles.
 
-## DESIGN SETUP (run this check BEFORE any design mockup command)
+## 设计设置（在任何设计模型命令之前运行此检查）
 
 ```bash
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
@@ -697,14 +697,14 @@ else
 fi
 ```
 
-If `DESIGN_NOT_AVAILABLE`: skip visual mockup generation and fall back to the
+如果 `DESIGN_NOT_AVAILABLE`： skip visual mockup generation and fall back to the
 existing HTML wireframe approach (`DESIGN_SKETCH`). Design mockups are a
 progressive enhancement, not a hard requirement.
 
-If `BROWSE_NOT_AVAILABLE`: use `open file://...` instead of `$B goto` to open
+如果 `BROWSE_NOT_AVAILABLE`： use `open file://...` instead of `$B goto` to open
 comparison boards. The user just needs to see the HTML file in any browser.
 
-If `DESIGN_READY`: the design binary is available for visual mockup generation.
+如果 `DESIGN_READY`： the design binary is available for visual mockup generation.
 Commands:
 - `$D generate --brief "..." --output /path.png` — generate a single mockup
 - `$D variants --brief "..." --count 3 --output-dir /path/` — generate N style variants
@@ -713,97 +713,59 @@ Commands:
 - `$D check --image /path.png --brief "..."` — vision quality gate
 - `$D iterate --session /path/session.json --feedback "..." --output /path.png` — iterate
 
-**CRITICAL PATH RULE:** All design artifacts (mockups, comparison boards, approved.json)
+**关键路径规则：** All design artifacts (mockups, comparison boards, approved.json)
 MUST be saved to `~/.gstack/projects/$SLUG/designs/`, NEVER to `.context/`,
 `docs/designs/`, `/tmp/`, or any project-local directory. Design artifacts are USER
 data, not project files. They persist across branches, conversations, and workspaces.
 
-## UX Principles: How Users Actually Behave
+## UX 原则：用户的实际行为方式
 
-These principles govern how real humans interact with interfaces. They are observed
-behavior, not preferences. Apply them before, during, and after every design decision.
+这些原则规范真实用户与界面的交互方式。它们是观察到的
+行为，而非偏好。在每个设计决策之前、期间和之后应用它们。
 
-### The Three Laws of Usability
+### 可用性三定律
 
-1. **Don't make me think.** Every page should be self-evident. If a user stops
-   to think "What do I click?" or "What does this mean?", the design has failed.
-   Self-evident > self-explanatory > requires explanation.
+1. **不要让我思考。** 每个页面都应该是不言自明的。如果用户停下来思考我该点击什么？或这是什么意思？，设计就失败了。不言自明 > 自我解释 > 需要解释。
 
-2. **Clicks don't matter, thinking does.** Three mindless, unambiguous clicks
-   beat one click that requires thought. Each step should feel like an obvious
-   choice (animal, vegetable, or mineral), not a puzzle.
+2. **点击次数不重要，思考才重要。** 三次无需思考的、明确的点击胜过一次需要思考的点击。每一步都应该感觉像一个明显的选择，而不是一个谜题。
 
-3. **Omit, then omit again.** Get rid of half the words on each page, then get
-   rid of half of what's left. Happy talk (self-congratulatory text) must die.
-   Instructions must die. If they need reading, the design has failed.
+3. **删减，再删减。** 去掉每页一半的文字，然后去掉剩下的一半。自我吹嘘的文字必须消失。说明文字必须消失。如果需要阅读说明，设计就失败了。
 
-### How Users Actually Behave
+### 用户的实际行为方式
 
-- **Users scan, they don't read.** Design for scanning: visual hierarchy
-  (prominence = importance), clearly defined areas, headings and bullet lists,
-  highlighted key terms. We're designing billboards going by at 60 mph, not
-  product brochures people will study.
-- **Users satisfice.** They pick the first reasonable option, not the best.
-  Make the right choice the most visible choice.
-- **Users muddle through.** They don't figure out how things work. They wing
-  it. If they accomplish their goal by accident, they won't seek the "right" way.
-  Once they find something that works, no matter how badly, they stick to it.
-- **Users don't read instructions.** They dive in. Guidance must be brief,
-  timely, and unavoidable, or it won't be seen.
+- **用户扫描，不阅读。** 为扫描而设计：视觉层次（突出度 = 重要性），清晰定义的区域，标题和项目符号列表，高亮的关键术语。我们设计的是以 60 英里时速驶过的广告牌，而不是人们会仔细研究的产品手册。
+- **用户满足于足够好。** 他们选择第一个合理的选项，而不是最好的。让正确的选择成为最显眼的选择。
+- **用户摸索着前进。** 他们不弄清楚事物如何运作。他们凭感觉来。如果他们偶然完成了目标，不会去寻找正确的方式。一旦找到能用的东西，无论多糟糕，他们都会坚持使用。
+- **用户不阅读说明。** 他们会直接上手。指导必须简洁、及时且不可避免，否则不会被看到。
 
-### Billboard Design for Interfaces
+### 界面的广告牌设计
 
-- **Use conventions.** Logo top-left, nav top/left, search = magnifying glass.
-  Don't innovate on navigation to be clever. Innovate when you KNOW you have a
-  better idea, otherwise use conventions. Even across languages and cultures,
-  web conventions let people identify the logo, nav, search, and main content.
-- **Visual hierarchy is everything.** Related things are visually grouped. Nested
-  things are visually contained. More important = more prominent. If everything
-  shouts, nothing is heard. Start with the assumption everything is visual noise,
-  guilty until proven innocent.
-- **Make clickable things obviously clickable.** No relying on hover states for
-  discoverability, especially on mobile where hover doesn't exist. Shape, location,
-  and formatting (color, underlining) must signal clickability without interaction.
-- **Eliminate noise.** Three sources: too many things shouting for attention
-  (shouting), things not organized logically (disorganization), and too much stuff
-  (clutter). Fix noise by removal, not addition.
-- **Clarity trumps consistency.** If making something significantly clearer
-  requires making it slightly inconsistent, choose clarity every time.
+- **使用惯例。** Logo 左上角，导航顶部/左侧，搜索 = 放大镜。不要为了聪明而在导航上创新。只有在确定有更好的想法时才创新，否则使用惯例。即使跨越语言和文化，网络惯例也能让人们识别 logo、导航、搜索和主要内容。
+- **视觉层次就是一切。** 相关的事物在视觉上分组。嵌套的事物在视觉上包含。更重要 = 更突出。如果一切都在喊叫，什么也听不到。从一切皆为视觉噪音的假设开始，在证明无罪之前视为有罪。
+- **让可点击的东西明显可点击。** 不要依赖悬停状态来发现，特别是在没有悬停的移动设备上。形状、位置和格式（颜色、下划线）必须在没有交互的情况下发出可点击的信号。
+- **消除噪音。** 三个来源：太多东西在争夺注意力（喊叫），事物没有逻辑组织（混乱），以及太多东西（杂乱）。通过移除而非添加来修复噪音。
+- **清晰度胜过一致性。** 如果让某物显著更清晰需要使其稍微不一致，每次都选择清晰度。
 
-### Navigation as Wayfinding
+### 导航作为寻路
 
-Users on the web have no sense of scale, direction, or location. Navigation
-must always answer: What site is this? What page am I on? What are the major
-sections? What are my options at this level? Where am I? How can I search?
+网络用户没有规模、方向或位置感。 导航必须始终回答：这是什么网站？我在哪个页面？主要部分有哪些？在这个层级我有哪些选择？我在哪里？如何搜索？
 
-Persistent navigation on every page. Breadcrumbs for deep hierarchies.
-Current section visually indicated. The "trunk test": cover everything except
-the navigation. You should still know what site this is, what page you're on,
-and what the major sections are. If not, the navigation has failed.
+每个页面都有持久导航。深层层次结构使用面包屑。
+当前部分在视觉上标示。 行李箱测试：遮盖除导航之外的所有内容。你仍然应该知道这是什么网站、你在哪个页面以及主要部分是什么。如果不是，导航就失败了。
 
-### The Goodwill Reservoir
+### 善意水库
 
-Users start with a reservoir of goodwill. Every friction point depletes it.
+用户以一个善意水库开始。每个摩擦点都会消耗它。
 
-**Deplete faster:** Hiding info users want (pricing, contact, shipping). Punishing
-users for not doing things your way (formatting requirements on phone numbers).
-Asking for unnecessary information. Putting sizzle in their way (splash screens,
-forced tours, interstitials). Unprofessional or sloppy appearance.
+**更快消耗：** 隐藏用户想要的信息（定价、联系方式、运费）。因为用户不按你的方式做事而惩罚他们（电话号码格式要求）。要求不必要的信息。在路上放花哨的东西（启动画面、强制导览、插页广告）。不专业或邋遢的外观。
 
-**Replenish:** Know what users want to do and make it obvious. Tell them what they
-want to know upfront. Save them steps wherever possible. Make it easy to recover
-from errors. When in doubt, apologize.
+**补充：** 知道用户想做什么并让它显而易见。预先告诉他们想知道的。尽可能节省他们的步骤。让从错误中恢复变得容易。有疑问时，道歉。
 
-### Mobile: Same Rules, Higher Stakes
+### 移动端：相同的规则，更高的风险
 
-All the above applies on mobile, just more so. Real estate is scarce, but never
-sacrifice usability for space savings. Affordances must be VISIBLE: no cursor
-means no hover-to-discover. Touch targets must be big enough (44px minimum).
-Flat design can strip away useful visual information that signals interactivity.
-Prioritize ruthlessly: things needed in a hurry go close at hand, everything
-else a few taps away with an obvious path to get there.
+以上所有内容都适用于移动端，只是程度更深。屏幕空间稀缺，但绝不要为了节省空间而牺牲可用性。可操作性必须可见：没有光标意味着没有悬停发现。触摸目标必须足够大（最小 44px）。扁平设计可能会剥离有用的视觉信息。无情地优先排序：急需的东西放在手边，其他所有东西只需几次点击即可到达。
 
-## SETUP (run this check BEFORE any browse command)
+## 设置（在任何 browse 命令之前运行此检查）
 
 ```bash
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
@@ -817,10 +779,10 @@ else
 fi
 ```
 
-If `NEEDS_SETUP`:
-1. Tell the user: "gstack browse needs a one-time build (~10 seconds). OK to proceed?" Then STOP and wait.
+如果 `NEEDS_SETUP`：
+1. 告诉用户： "gstack browse needs a one-time build (~10 seconds). OK to proceed?" 然后停止并等待。
 2. Run: `cd <SKILL_DIR> && ./setup`
-3. If `bun` is not installed:
+3. 如果 `bun` is not installed:
    ```bash
    if ! command -v bun >/dev/null 2>&1; then
      BUN_VERSION="1.3.10"
@@ -841,13 +803,13 @@ If `NEEDS_SETUP`:
 
 ---
 
-## Step 0: Input Detection
+## 步骤 0: Input Detection
 
 ```bash
 eval "$(~/.claude/skills/gstack/bin/gstack-slug 2>/dev/null)"
 ```
 
-Detect what design context exists for this project. Run all four checks:
+检测此项目存在什么设计上下文。 Run all four checks:
 
 ```bash
 setopt +o nomatch 2>/dev/null || true
@@ -874,53 +836,53 @@ _FINALIZED=$(ls -t ~/.gstack/projects/$SLUG/designs/*/finalized.html 2>/dev/null
 [ -f DESIGN.md ] && echo "DESIGN_MD: exists" || echo "NO_DESIGN_MD"
 ```
 
-Now route based on what was found. Check these cases in order:
+现在根据找到的内容进行路由。 Check these cases in order:
 
 ### Case A: approved.json exists (design-shotgun ran)
 
-If `APPROVED` was found, read it. Extract: approved variant PNG path, user feedback,
+如果 `APPROVED` was found, read it. Extract: approved variant PNG path, user feedback,
 screen name. Also read the CEO plan if one exists (it adds strategic context).
 
 Read `DESIGN.md` if it exists in the repo root. These tokens take priority for
 system-level values (fonts, brand colors, spacing scale).
 
-Then check for prior finalized.html. If `FINALIZED` was also found, use AskUserQuestion:
+Then check for prior finalized.html. 如果 `FINALIZED` was also found, use AskUserQuestion:
 > Found a prior finalized HTML from a previous session. Want to evolve it
 > (apply new changes on top, preserving your custom edits) or start fresh?
 > A) Evolve — iterate on the existing HTML
 > B) Start fresh — regenerate from the approved mockup
 
-If evolve: read the existing HTML. Apply changes on top during Step 3.
+如果是演进： read the existing HTML. Apply changes on top during Step 3.
 If fresh or no finalized.html: proceed to Step 1 with the approved PNG as the
 visual reference.
 
 ### Case B: CEO plan and/or design variants exist, but no approved.json
 
-If `CEO_PLAN` or `VARIANTS` was found but no `APPROVED`:
+如果 `CEO_PLAN` or `VARIANTS` was found but no `APPROVED`:
 
 Read whichever context exists:
 - If CEO plan found: read it and summarize the product vision and design requirements.
 - If variant PNGs found: show them inline using the Read tool.
 - If DESIGN.md found: read it for design tokens and constraints.
 
-Use AskUserQuestion:
+使用 AskUserQuestion：
 > Found [CEO plan from /plan-ceo-review | design review variants from /plan-design-review | both]
 > but no approved design mockup.
 > A) Run /design-shotgun — explore design variants based on the existing plan context
 > B) Skip mockups — I'll design the HTML directly from the plan context
 > C) I have a PNG — let me provide the path
 
-If A: tell the user to run /design-shotgun, then come back to /design-html.
-If B: proceed to Step 1 in "plan-driven mode." There is no approved PNG, the plan is
+如果 A： tell the user to run /design-shotgun, then come back to /design-html.
+如果 B： proceed to Step 1 in "plan-driven mode." There is no approved PNG, the plan is
 the source of truth. Ask the user for a screen name to use for the output directory
 (e.g., "landing-page", "dashboard", "pricing").
-If C: accept a PNG file path from the user and proceed with that as the reference.
+如果 C： accept a PNG file path from the user and proceed with that as the reference.
 
 ### Case C: Nothing found (clean slate)
 
 If none of the above produced any context:
 
-Use AskUserQuestion:
+使用 AskUserQuestion：
 > No design context found for this project. How do you want to start?
 > A) Run /plan-ceo-review first — think through the product strategy before designing
 > B) Run /plan-design-review first — design review with visual mockups
@@ -928,7 +890,7 @@ Use AskUserQuestion:
 > D) Just describe it — tell me what you want and I'll design the HTML live
 
 If A, B, or C: tell the user to run that skill, then come back to /design-html.
-If D: proceed to Step 1 in "freeform mode." Ask the user for a screen name.
+如果 D： proceed to Step 1 in "freeform mode." Ask the user for a screen name.
 
 ### Context summary
 
@@ -941,26 +903,26 @@ After routing, output a brief context summary:
 
 ---
 
-## Step 1: Design Analysis
+## 步骤 1: Design Analysis
 
-1. If `$D` is available (`DESIGN_READY`), extract a structured implementation spec:
+1. 如果 `$D` is available (`DESIGN_READY`), extract a structured implementation spec:
 ```bash
 $D prompt --image <approved-variant.png> --output json
 ```
 This returns colors, typography, layout structure, and component inventory via GPT-4o vision.
 
-2. If `$D` is not available, read the approved PNG inline using the Read tool.
-   Describe the visual layout, colors, typography, and component structure yourself.
+2. 如果 `$D` is not available, read the approved PNG inline using the Read tool.
+   自己描述视觉布局、颜色、排版和组件结构。
 
-3. If in plan-driven or freeform mode (no approved PNG), design from context:
+3. 如果在计划驱动或自由格式模式下（没有批准的 PNG），从上下文设计：
    - **Plan-driven:** read the CEO plan and/or design review notes. Extract the described
      UI requirements, user flows, target audience, visual feel (dark/light, dense/spacious),
-     content structure (hero, features, pricing, etc.), and design constraints. Build an
+     内容结构 (hero, features, pricing, etc.), and design constraints. Build an
      implementation spec from the plan's prose rather than a visual reference.
-   - **Freeform:** use AskUserQuestion to gather what the user wants to build. Ask about:
-     purpose/audience, visual feel (dark/light, playful/serious, dense/spacious),
-     content structure (hero, features, pricing, etc.), and any reference sites they like.
-   In both cases, describe the intended visual layout, colors, typography, and
+   - **Freeform:** 使用 AskUserQuestion 收集用户想构建什么。 询问：
+     目的/受众、视觉感受 (dark/light, playful/serious, dense/spacious),
+     内容结构 (hero, features, pricing, etc.), 以及他们喜欢的任何参考网站。
+   在这两种情况下，描述预期的视觉布局, colors, typography, and
    component structure as your implementation spec. Generate realistic content based
    on the plan or user description (never lorem ipsum).
 
@@ -972,9 +934,9 @@ This returns colors, typography, layout structure, and component inventory via G
 
 ---
 
-## Step 2: Smart Pretext API Routing
+## 步骤 2: Smart Pretext API Routing
 
-Analyze the approved design and classify it into a Pretext tier. Each tier uses
+分析批准的设计并将其分类为 Pretext 层级。 Each tier uses
 different Pretext APIs for optimal results:
 
 | Design type | Pretext APIs | Use case |
@@ -985,11 +947,11 @@ different Pretext APIs for optimal results:
 | Content-heavy (editorial, blog) | `prepareWithSegments()` + `layoutNextLine()` | Text around obstacles |
 | Complex editorial | Full engine + `layoutWithLines()` | Manual line rendering |
 
-State the chosen tier and why. Reference the specific Pretext APIs that will be used.
+说明选择的层级及原因。 引用将使用的特定 Pretext API。
 
 ---
 
-## Step 2.5: Framework Detection
+## 步骤 2.5: Framework Detection
 
 Check if the user's project uses a frontend framework:
 
@@ -997,7 +959,7 @@ Check if the user's project uses a frontend framework:
 [ -f package.json ] && cat package.json | grep -o '"react"\|"svelte"\|"vue"\|"@angular/core"\|"solid-js"\|"preact"' | head -1 || echo "NONE"
 ```
 
-If a framework is detected, use AskUserQuestion:
+如果检测到框架，使用 AskUserQuestion：
 > Detected [React/Svelte/Vue] in your project. What format should the output be?
 > A) Vanilla HTML — self-contained preview file (recommended for first pass)
 > B) [React/Svelte/Vue] component — framework-native with Pretext hooks
@@ -1008,11 +970,11 @@ If the user chooses framework output, ask one follow-up:
 
 For vanilla HTML: proceed to Step 3 with vanilla output.
 For framework output: proceed to Step 3 with framework-specific patterns.
-If no framework detected: default to vanilla HTML, no question needed.
+如果未检测到框架：默认使用原生 HTML，无需提问。
 
 ---
 
-## Step 3: Generate Pretext-Native HTML
+## 步骤 3: Generate Pretext-Native HTML
 
 ### Pretext Source Embedding
 
@@ -1025,9 +987,9 @@ _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 [ -n "$_PRETEXT_VENDOR" ] && echo "VENDOR: $_PRETEXT_VENDOR" || echo "VENDOR_MISSING"
 ```
 
-- If `VENDOR` found: read the file and inline it in a `<script>` tag. The HTML file
+- 如果 `VENDOR` found: read the file and inline it in a `<script>` tag. The HTML file
   is fully self-contained with zero network dependencies.
-- If `VENDOR_MISSING`: use CDN import as fallback:
+- 如果 `VENDOR_MISSING`: use CDN import as fallback:
   `<script type="module">import { prepare, layout, prepareWithSegments, walkLineRanges, layoutNextLine, layoutWithLines } from 'https://esm.sh/@chenglou/pretext'</script>`
   Add a comment: `<!-- FALLBACK: vendor/pretext.js missing, using CDN -->`
 
@@ -1231,9 +1193,9 @@ setLocale(locale?) → void
 
 ---
 
-## Step 3.5: Live Reload Server
+## 步骤 3.5: Live Reload Server
 
-After writing the HTML file, start a simple HTTP server for live preview:
+写入 HTML 文件后，启动一个简单的 HTTP 服务器进行实时预览：
 
 ```bash
 # Start a simple HTTP server in the output directory
@@ -1251,7 +1213,7 @@ If python3 is not available, fall back to:
 open <path-to-finalized.html>
 ```
 
-Tell the user: "Live preview running at http://localhost:$_PORT/finalized.html.
+告诉用户： "Live preview running at http://localhost:$_PORT/finalized.html.
 After each edit, just refresh the browser (Cmd+R) to see changes."
 
 When the refinement loop ends (Step 4 exits), kill the server:
@@ -1261,11 +1223,11 @@ kill $_SERVER_PID 2>/dev/null || true
 
 ---
 
-## Step 4: Preview + Refinement Loop
+## 步骤 4: Preview + Refinement Loop
 
 ### Verification Screenshots
 
-If `$B` is available (browse binary), take verification screenshots at 3 viewports:
+如果 `$B` is available (browse binary), take verification screenshots at 3 viewports:
 
 ```bash
 $B goto "file://<path-to-finalized.html>"
@@ -1279,9 +1241,9 @@ Show all three screenshots inline using the Read tool. Check for:
 - Layout collapse (elements overlapping or missing)
 - Responsive breakage (content not adapting to viewport)
 
-If issues are found, note them and fix before presenting to the user.
+如果发现问题，在呈现给用户之前记录并修复它们。
 
-If `$B` is not available, skip verification and note:
+如果 `$B` is not available, skip verification and note:
 "Browse binary not available. Skipping automated viewport verification."
 
 ### Refinement Loop
@@ -1303,7 +1265,7 @@ LOOP:
       (text should reflow dynamically), click any text (it's editable, layout
       recomputes instantly). What needs to change? Say 'done' when satisfied."
 
-  4. If "done" / "ship it" / "looks good" / "perfect" → exit loop, go to Step 5
+  4. If "done" / "ship it" / "看起来不错" / "perfect" → exit loop, go to Step 5
 
   5. Apply feedback using targeted Edit tool changes on the HTML file
      (do NOT regenerate the entire file — surgical edits only)
@@ -1315,12 +1277,12 @@ LOOP:
   8. Go to LOOP
 ```
 
-Maximum 10 iterations. If the user hasn't said "done" after 10, use AskUserQuestion:
+最多 10 次迭代。 If the user hasn't said "done" after 10, use AskUserQuestion:
 "We've done 10 rounds of refinement. Want to continue iterating or call it done?"
 
 ---
 
-## Step 5: Save & Next Steps
+## 步骤 5: Save & Next Steps
 
 ### Design Token Extraction
 
@@ -1334,14 +1296,14 @@ Extract from the HTML:
 - Border radius values
 - Shadow values
 
-Use AskUserQuestion:
+使用 AskUserQuestion：
 > No DESIGN.md found. I can extract the design tokens from the HTML we just built
 > and create a DESIGN.md for your project. This means future /design-shotgun and
 > /design-html runs will be style-consistent automatically.
 > A) Create DESIGN.md from these tokens
 > B) Skip — I'll handle the design system later
 
-If A: write `DESIGN.md` to the repo root with the extracted tokens.
+如果 A： write `DESIGN.md` to the repo root with the extracted tokens.
 
 ### Save Metadata
 
@@ -1361,17 +1323,17 @@ Write `finalized.json` alongside the HTML:
 }
 ```
 
-### Next Steps
+### 后续步骤
 
-Use AskUserQuestion:
+使用 AskUserQuestion：
 > Design finalized with Pretext-native layout. What's next?
 > A) Copy to project — copy the HTML/component into your codebase
-> B) Iterate more — keep refining
-> C) Done — I'll use this as a reference
+> B) 进一步迭代 — keep refining
+> C) 完成 — I'll use this as a reference
 
 ---
 
-## Important Rules
+## 重要规则
 
 - **Source of truth fidelity over code elegance.** When an approved mockup exists,
   pixel-match it. If that requires `width: 312px` instead of a CSS grid class, that's

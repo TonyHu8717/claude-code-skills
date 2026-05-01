@@ -1,40 +1,40 @@
 ---
 name: python-observability
-description: Python observability patterns including structured logging, metrics, and distributed tracing. Use when adding logging, implementing metrics collection, setting up tracing, or debugging production systems.
+description: Python 可观测性模式，包括结构化日志、指标和分布式追踪。在添加日志、实现指标收集、设置追踪或调试生产系统时使用。
 ---
 
-# Python Observability
+# Python 可观测性
 
-Instrument Python applications with structured logs, metrics, and traces. When something breaks in production, you need to answer "what, where, and why" without deploying new code.
+使用结构化日志、指标和追踪来检测 Python 应用程序。当生产环境出现问题时，你需要在不部署新代码的情况下回答"什么、在哪里以及为什么"。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Adding structured logging to applications
-- Implementing metrics collection with Prometheus
-- Setting up distributed tracing across services
-- Propagating correlation IDs through request chains
-- Debugging production issues
-- Building observability dashboards
+- 为应用程序添加结构化日志
+- 使用 Prometheus 实现指标收集
+- 跨服务设置分布式追踪
+- 在请求链中传播关联 ID
+- 调试生产问题
+- 构建可观测性仪表板
 
-## Core Concepts
+## 核心概念
 
-### 1. Structured Logging
+### 1. 结构化日志
 
-Emit logs as JSON with consistent fields for production environments. Machine-readable logs enable powerful queries and alerts. For local development, consider human-readable formats.
+在生产环境中以 JSON 形式发出日志，包含一致的字段。机器可读的日志支持强大的查询和告警。对于本地开发，考虑使用人类可读的格式。
 
-### 2. The Four Golden Signals
+### 2. 四个黄金信号
 
-Track latency, traffic, errors, and saturation for every service boundary.
+跟踪每个服务边界的延迟、流量、错误和饱和度。
 
-### 3. Correlation IDs
+### 3. 关联 ID
 
-Thread a unique ID through all logs and spans for a single request, enabling end-to-end tracing.
+为单个请求在所有日志和 span 中贯穿唯一 ID，实现端到端追踪。
 
-### 4. Bounded Cardinality
+### 4. 有界基数
 
-Keep metric label values bounded. Unbounded labels (like user IDs) explode storage costs.
+保持指标标签值有界。无界标签（如用户 ID）会导致存储成本爆炸。
 
-## Quick Start
+## 快速开始
 
 ```python
 import structlog
@@ -50,11 +50,11 @@ logger = structlog.get_logger()
 logger.info("Request processed", user_id="123", duration_ms=45)
 ```
 
-## Fundamental Patterns
+## 基础模式
 
-### Pattern 1: Structured Logging with Structlog
+### 模式 1：使用 Structlog 的结构化日志
 
-Configure structlog for JSON output with consistent fields.
+配置 structlog 以输出包含一致字段的 JSON。
 
 ```python
 import logging
@@ -84,9 +84,9 @@ configure_logging("INFO")
 logger = structlog.get_logger()
 ```
 
-### Pattern 2: Consistent Log Fields
+### 模式 2：一致的日志字段
 
-Every log entry should include standard fields for filtering and correlation.
+每个日志条目应包含用于过滤和关联的标准字段。
 
 ```python
 import structlog
@@ -126,16 +126,16 @@ def process_request(request: Request) -> Response:
         raise
 ```
 
-### Pattern 3: Semantic Log Levels
+### 模式 3：语义化日志级别
 
-Use log levels consistently across the application.
+在整个应用程序中一致地使用日志级别。
 
-| Level | Purpose | Examples |
+| 级别 | 用途 | 示例 |
 |-------|---------|----------|
-| `DEBUG` | Development diagnostics | Variable values, internal state |
-| `INFO` | Request lifecycle, operations | Request start/end, job completion |
-| `WARNING` | Recoverable anomalies | Retry attempts, fallback used |
-| `ERROR` | Failures needing attention | Exceptions, service unavailable |
+| `DEBUG` | 开发诊断 | 变量值、内部状态 |
+| `INFO` | 请求生命周期、操作 | 请求开始/结束、作业完成 |
+| `WARNING` | 可恢复的异常 | 重试尝试、使用回退 |
+| `ERROR` | 需要关注的失败 | 异常、服务不可用 |
 
 ```python
 # DEBUG: Detailed internal information
@@ -161,11 +161,11 @@ logger.error(
 )
 ```
 
-Never log expected behavior at `ERROR`. A user entering a wrong password is `INFO`, not `ERROR`.
+永远不要将预期行为记录为 `ERROR`。用户输入错误密码是 `INFO`，而不是 `ERROR`。
 
-### Pattern 4: Correlation ID Propagation
+### 模式 4：关联 ID 传播
 
-Generate a unique ID at ingress and thread it through all operations.
+在入口生成唯一 ID 并在所有操作中贯穿。
 
 ```python
 from contextvars import ContextVar
@@ -195,7 +195,7 @@ async def correlation_middleware(request: Request, call_next):
     return response
 ```
 
-Propagate to outbound requests:
+传播到出站请求：
 
 ```python
 import httpx
@@ -211,11 +211,11 @@ async def call_downstream_service(endpoint: str, data: dict) -> dict:
         return response.json()
 ```
 
-## Advanced Patterns
+## 高级模式
 
-### Pattern 5: The Four Golden Signals with Prometheus
+### 模式 5：使用 Prometheus 的四个黄金信号
 
-Track these metrics for every service boundary:
+为每个服务边界跟踪这些指标：
 
 ```python
 from prometheus_client import Counter, Histogram, Gauge
@@ -249,7 +249,7 @@ DB_POOL_USAGE = Gauge(
 )
 ```
 
-Instrument your endpoints:
+为端点添加检测：
 
 ```python
 import time
@@ -283,9 +283,9 @@ def track_request(func):
     return wrapper
 ```
 
-### Pattern 6: Bounded Cardinality
+### 模式 6：有界基数
 
-Avoid labels with unbounded values to prevent metric explosion.
+避免使用无界值的标签以防止指标爆炸。
 
 ```python
 # BAD: User ID has potentially millions of values
@@ -305,9 +305,9 @@ REQUEST_COUNT.labels(
 )
 ```
 
-### Pattern 7: Timed Operations with Context Manager
+### 模式 7：带上下文管理器的计时操作
 
-Create a reusable timing context manager for operations.
+创建可复用的计时上下文管理器用于操作。
 
 ```python
 from contextlib import contextmanager
@@ -348,11 +348,11 @@ with timed_operation("fetch_user_orders", user_id=user.id):
     orders = await order_repository.get_by_user(user.id)
 ```
 
-### Pattern 8: OpenTelemetry Tracing
+### 模式 8：OpenTelemetry 追踪
 
-Set up distributed tracing with OpenTelemetry.
+使用 OpenTelemetry 设置分布式追踪。
 
-**Note:** OpenTelemetry is actively evolving. Check the [official Python documentation](https://opentelemetry.io/docs/languages/python/) for the latest API patterns and best practices.
+**注意：** OpenTelemetry 正在积极发展中。请查看[官方 Python 文档](https://opentelemetry.io/docs/languages/python/)了解最新的 API 模式和最佳实践。
 
 ```python
 from opentelemetry import trace
@@ -386,15 +386,15 @@ async def process_order(order_id: str) -> Order:
         return order
 ```
 
-## Best Practices Summary
+## 最佳实践总结
 
-1. **Use structured logging** - JSON logs with consistent fields
-2. **Propagate correlation IDs** - Thread through all requests and logs
-3. **Track the four golden signals** - Latency, traffic, errors, saturation
-4. **Bound label cardinality** - Never use unbounded values as metric labels
-5. **Log at appropriate levels** - Don't cry wolf with ERROR
-6. **Include context** - User ID, request ID, operation name in logs
-7. **Use context managers** - Consistent timing and error handling
-8. **Separate concerns** - Observability code shouldn't pollute business logic
-9. **Test your observability** - Verify logs and metrics in integration tests
-10. **Set up alerts** - Metrics are useless without alerting
+1. **使用结构化日志** - 带有一致字段的 JSON 日志
+2. **传播关联 ID** - 在所有请求和日志中贯穿
+3. **跟踪四个黄金信号** - 延迟、流量、错误、饱和度
+4. **限制标签基数** - 永远不要使用无界值作为指标标签
+5. **在适当的级别记录** - 不要用 ERROR 虚报狼来了
+6. **包含上下文** - 日志中的用户 ID、请求 ID、操作名称
+7. **使用上下文管理器** - 一致的计时和错误处理
+8. **关注点分离** - 可观测性代码不应污染业务逻辑
+9. **测试可观测性** - 在集成测试中验证日志和指标
+10. **设置告警** - 没有告警的指标是无用的

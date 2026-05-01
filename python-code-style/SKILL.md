@@ -1,40 +1,40 @@
 ---
 name: python-code-style
-description: Python code style, linting, formatting, naming conventions, and documentation standards. Use when writing new code, reviewing style, configuring linters, writing docstrings, or establishing project standards.
+description: Python 代码风格、代码检查、格式化、命名规范和文档标准。在编写新代码、审查风格、配置代码检查工具、编写文档字符串或制定项目标准时使用。
 ---
 
-# Python Code Style & Documentation
+# Python 代码风格与文档
 
-Consistent code style and clear documentation make codebases maintainable and collaborative. This skill covers modern Python tooling, naming conventions, and documentation standards.
+一致的代码风格和清晰的文档使代码库易于维护和协作。此技能涵盖现代 Python 工具、命名规范和文档标准。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Setting up linting and formatting for a new project
-- Writing or reviewing docstrings
-- Establishing team coding standards
-- Configuring ruff, mypy, or pyright
-- Reviewing code for style consistency
-- Creating project documentation
+- 为新项目设置代码检查和格式化
+- 编写或审查文档字符串
+- 制定团队编码标准
+- 配置 ruff、mypy 或 pyright
+- 审查代码风格一致性
+- 创建项目文档
 
-## Core Concepts
+## 核心概念
 
-### 1. Automated Formatting
+### 1. 自动化格式化
 
-Let tools handle formatting debates. Configure once, enforce automatically.
+让工具处理格式化争论。配置一次，自动执行。
 
-### 2. Consistent Naming
+### 2. 一致的命名
 
-Follow PEP 8 conventions with meaningful, descriptive names.
+遵循 PEP 8 规范，使用有意义的描述性名称。
 
-### 3. Documentation as Code
+### 3. 文档即代码
 
-Docstrings should be maintained alongside the code they describe.
+文档字符串应与其描述的代码一起维护。
 
-### 4. Type Annotations
+### 4. 类型注解
 
-Modern Python code should include type hints for all public APIs.
+现代 Python 代码应为所有公共 API 包含类型提示。
 
-## Quick Start
+## 快速开始
 
 ```bash
 # Install modern tooling
@@ -49,11 +49,11 @@ target-version = "py312"  # Adjust based on your project's minimum Python versio
 strict = true
 ```
 
-## Fundamental Patterns
+## 基础模式
 
-### Pattern 1: Modern Python Tooling
+### 模式 1：现代 Python 工具
 
-Use `ruff` as an all-in-one linter and formatter. It replaces flake8, isort, and black with a single fast tool.
+使用 `ruff` 作为一体化的代码检查和格式化工具。它用一个快速工具取代了 flake8、isort 和 black。
 
 ```toml
 # pyproject.toml
@@ -79,16 +79,16 @@ quote-style = "double"
 indent-style = "space"
 ```
 
-Run with:
+运行命令：
 
 ```bash
 ruff check --fix .  # Lint and auto-fix
 ruff format .       # Format code
 ```
 
-### Pattern 2: Type Checking Configuration
+### 模式 2：类型检查配置
 
-Configure strict type checking for production code.
+为生产代码配置严格的类型检查。
 
 ```toml
 # pyproject.toml
@@ -105,7 +105,7 @@ module = "tests.*"
 disallow_untyped_defs = false
 ```
 
-Alternative: Use `pyright` for faster checking.
+替代方案：使用 `pyright` 进行更快的检查。
 
 ```toml
 [tool.pyright]
@@ -113,11 +113,11 @@ pythonVersion = "3.12"
 typeCheckingMode = "strict"
 ```
 
-### Pattern 3: Naming Conventions
+### 模式 3：命名规范
 
-Follow PEP 8 with emphasis on clarity over brevity.
+遵循 PEP 8，强调清晰性优于简洁性。
 
-**Files and Modules:**
+**文件和模块：**
 
 ```python
 # Good: Descriptive snake_case
@@ -131,7 +131,7 @@ ord_proc.py
 http_cli.py
 ```
 
-**Classes and Functions:**
+**类和函数：**
 
 ```python
 # Classes: PascalCase
@@ -147,7 +147,7 @@ def get_user_by_email(email: str) -> User | None:
     max_connections = 100
 ```
 
-**Constants:**
+**常量：**
 
 ```python
 # Module-level constants: SCREAMING_SNAKE_CASE
@@ -156,9 +156,9 @@ DEFAULT_TIMEOUT_SECONDS = 30
 API_BASE_URL = "https://api.example.com"
 ```
 
-### Pattern 4: Import Organization
+### 模式 4：导入组织
 
-Group imports in a consistent order: standard library, third-party, local.
+按一致的顺序分组导入：标准库、第三方、本地。
 
 ```python
 # Standard library
@@ -176,7 +176,7 @@ from myproject.models import User
 from myproject.services import UserService
 ```
 
-Use absolute imports exclusively:
+仅使用绝对导入：
 
 ```python
 # Preferred
@@ -186,13 +186,13 @@ from myproject.utils import retry_decorator
 from ..utils import retry_decorator
 ```
 
-## Advanced Patterns
+## 高级模式
 
-### Pattern 5: Google-Style Docstrings
+### 模式 5：Google 风格文档字符串
 
-Write docstrings for all public classes, methods, and functions.
+为所有公共类、方法和函数编写文档字符串。
 
-**Simple Function:**
+**简单函数：**
 
 ```python
 def get_user(user_id: str) -> User:
@@ -200,7 +200,7 @@ def get_user(user_id: str) -> User:
     ...
 ```
 
-**Complex Function:**
+**复杂函数：**
 
 ```python
 def process_batch(
@@ -233,7 +233,7 @@ def process_batch(
     ...
 ```
 
-**Class Docstring:**
+**类文档字符串：**
 
 ```python
 class UserService:
@@ -262,9 +262,9 @@ class UserService:
         self.logger = logger
 ```
 
-### Pattern 6: Line Length and Formatting
+### 模式 6：行长度和格式化
 
-Set line length to 120 characters for modern displays while maintaining readability.
+将行长度设置为 120 个字符以适应现代显示器，同时保持可读性。
 
 ```python
 # Good: Readable line breaks
@@ -293,9 +293,9 @@ error_message = (
 )
 ```
 
-### Pattern 7: Project Documentation
+### 模式 7：项目文档
 
-**README Structure:**
+**README 结构：**
 
 ```markdown
 # Project Name
@@ -329,7 +329,7 @@ pytest
 \`\`\`
 ```
 
-**CHANGELOG Format (Keep a Changelog):**
+**CHANGELOG 格式（Keep a Changelog）：**
 
 ```markdown
 # Changelog
@@ -346,15 +346,15 @@ pytest
 - Bug in Z
 ```
 
-## Best Practices Summary
+## 最佳实践总结
 
-1. **Use ruff** - Single tool for linting and formatting
-2. **Enable strict mypy** - Catch type errors before runtime
-3. **120 character lines** - Modern standard for readability
-4. **Descriptive names** - Clarity over brevity
-5. **Absolute imports** - More maintainable than relative
-6. **Google-style docstrings** - Consistent, readable documentation
-7. **Document public APIs** - Every public function needs a docstring
-8. **Keep docs updated** - Treat documentation as code
-9. **Automate in CI** - Run linters on every commit
-10. **Target Python 3.10+** - For new projects, Python 3.12+ is recommended for modern language features
+1. **使用 ruff** - 一体化的代码检查和格式化工具
+2. **启用严格 mypy** - 在运行前捕获类型错误
+3. **120 字符行长度** - 现代可读性标准
+4. **描述性名称** - 清晰性优于简洁性
+5. **绝对导入** - 比相对导入更易维护
+6. **Google 风格文档字符串** - 一致、可读的文档
+7. **记录公共 API** - 每个公共函数都需要文档字符串
+8. **保持文档更新** - 将文档视为代码
+9. **在 CI 中自动化** - 每次提交都运行代码检查工具
+10. **目标 Python 3.10+** - 对于新项目，建议使用 Python 3.12+ 以获得现代语言特性

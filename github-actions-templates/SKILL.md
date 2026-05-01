@@ -1,27 +1,27 @@
 ---
 name: github-actions-templates
-description: Create production-ready GitHub Actions workflows for automated testing, building, and deploying applications. Use when setting up CI/CD with GitHub Actions, automating development workflows, or creating reusable workflow templates.
+description: 创建生产就绪的 GitHub Actions 工作流，用于自动化测试、构建和部署应用。在使用 GitHub Actions 设置 CI/CD、自动化开发工作流或创建可复用的工作流模板时使用。
 ---
 
-# GitHub Actions Templates
+# GitHub Actions 模板
 
-Production-ready GitHub Actions workflow patterns for testing, building, and deploying applications.
+用于测试、构建和部署应用的生产就绪 GitHub Actions 工作流模式。
 
-## Purpose
+## 目的
 
-Create efficient, secure GitHub Actions workflows for continuous integration and deployment across various tech stacks.
+为各种技术栈创建高效、安全的 GitHub Actions 工作流，用于持续集成和部署。
 
-## When to Use
+## 何时使用
 
-- Automate testing and deployment
-- Build Docker images and push to registries
-- Deploy to Kubernetes clusters
-- Run security scans
-- Implement matrix builds for multiple environments
+- 自动化测试和部署
+- 构建 Docker 镜像并推送到仓库
+- 部署到 Kubernetes 集群
+- 运行安全扫描
+- 实现多环境矩阵构建
 
-## Common Workflow Patterns
+## 常见工作流模式
 
-### Pattern 1: Test Workflow
+### 模式 1：测试工作流
 
 ```yaml
 name: Test
@@ -64,9 +64,9 @@ jobs:
           files: ./coverage/lcov.info
 ```
 
-**Reference:** See `assets/test-workflow.yml`
+**参考：** 见 `assets/test-workflow.yml`
 
-### Pattern 2: Build and Push Docker Image
+### 模式 2：构建和推送 Docker 镜像
 
 ```yaml
 name: Build and Push
@@ -119,9 +119,9 @@ jobs:
           cache-to: type=gha,mode=max
 ```
 
-**Reference:** See `assets/deploy-workflow.yml`
+**参考：** 见 `assets/deploy-workflow.yml`
 
-### Pattern 3: Deploy to Kubernetes
+### 模式 3：部署到 Kubernetes
 
 ```yaml
 name: Deploy to Kubernetes
@@ -160,7 +160,7 @@ jobs:
           kubectl describe deployment my-app -n production
 ```
 
-### Pattern 4: Matrix Build
+### 模式 4：矩阵构建
 
 ```yaml
 name: Matrix Build
@@ -193,22 +193,22 @@ jobs:
         run: pytest
 ```
 
-**Reference:** See `assets/matrix-build.yml`
+**参考：** 见 `assets/matrix-build.yml`
 
-## Workflow Best Practices
+## 工作流最佳实践
 
-1. **Use specific action versions** (@v4, not @latest)
-2. **Cache dependencies** to speed up builds
-3. **Use secrets** for sensitive data
-4. **Implement status checks** on PRs
-5. **Use matrix builds** for multi-version testing
-6. **Set appropriate permissions**
-7. **Use reusable workflows** for common patterns
-8. **Implement approval gates** for production
-9. **Add notification steps** for failures
-10. **Use self-hosted runners** for sensitive workloads
+1. **使用特定的 action 版本**（@v4，而非 @latest）
+2. **缓存依赖** 以加速构建
+3. **使用 secrets** 存储敏感数据
+4. **在 PR 上实现状态检查**
+5. **使用矩阵构建** 进行多版本测试
+6. **设置适当的权限**
+7. **使用可复用工作流** 处理常见模式
+8. **为生产环境实现审批门**
+9. **添加失败通知步骤**
+10. **使用自托管运行器** 处理敏感工作负载
 
-## Reusable Workflows
+## 可复用工作流
 
 ```yaml
 # .github/workflows/reusable-test.yml
@@ -236,7 +236,7 @@ jobs:
       - run: npm test
 ```
 
-**Use reusable workflow:**
+**使用可复用工作流：**
 
 ```yaml
 jobs:
@@ -248,7 +248,7 @@ jobs:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 ```
 
-## Security Scanning
+## 安全扫描
 
 ```yaml
 name: Security Scan
@@ -285,7 +285,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 ```
 
-## Deployment with Approvals
+## 带审批的部署
 
 ```yaml
 name: Deploy to Production
@@ -307,7 +307,7 @@ jobs:
       - name: Deploy application
         run: |
           echo "Deploying to production..."
-          # Deployment commands here
+          # 此处放置部署命令
 
       - name: Notify Slack
         if: success()
@@ -321,8 +321,8 @@ jobs:
 ```
 
 
-## Related Skills
+## 相关技能
 
-- `gitlab-ci-patterns` - For GitLab CI workflows
-- `deployment-pipeline-design` - For pipeline architecture
-- `secrets-management` - For secrets handling
+- `gitlab-ci-patterns` - 用于 GitLab CI 工作流
+- `deployment-pipeline-design` - 用于管道架构
+- `secrets-management` - 用于密钥处理

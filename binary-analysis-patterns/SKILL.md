@@ -1,136 +1,136 @@
 ---
 name: binary-analysis-patterns
-description: Master binary analysis patterns including disassembly, decompilation, control flow analysis, and code pattern recognition. Use when analyzing executables, understanding compiled code, or performing static analysis on binaries.
+description: 掌握二进制分析模式，包括反汇编、反编译、控制流分析和代码模式识别。适用于分析可执行文件、理解编译后的代码或对二进制文件进行静态分析。
 ---
 
-# Binary Analysis Patterns
+# 二进制分析模式
 
-Comprehensive patterns and techniques for analyzing compiled binaries, understanding assembly code, and reconstructing program logic.
+用于分析编译后的二进制文件、理解汇编代码和重建程序逻辑的综合模式与技术。
 
-## Disassembly Fundamentals
+## 反汇编基础
 
-### x86-64 Instruction Patterns
+### x86-64 指令模式
 
-#### Function Prologue/Epilogue
+#### 函数序言/尾声
 
 ```asm
-; Standard prologue
-push rbp           ; Save base pointer
-mov rbp, rsp       ; Set up stack frame
-sub rsp, 0x20      ; Allocate local variables
+; 标准序言
+push rbp           ; 保存基址指针
+mov rbp, rsp       ; 设置栈帧
+sub rsp, 0x20      ; 分配局部变量
 
-; Leaf function (no calls)
-; May skip frame pointer setup
-sub rsp, 0x18      ; Just allocate locals
+; 叶函数（无调用）
+; 可能跳过帧指针设置
+sub rsp, 0x18      ; 仅分配局部变量
 
-; Standard epilogue
-mov rsp, rbp       ; Restore stack pointer
-pop rbp            ; Restore base pointer
+; 标准尾声
+mov rsp, rbp       ; 恢复栈指针
+pop rbp            ; 恢复基址指针
 ret
 
-; Leave instruction (equivalent)
+; leave 指令（等效）
 leave              ; mov rsp, rbp; pop rbp
 ret
 ```
 
-#### Calling Conventions
+#### 调用约定
 
-**System V AMD64 (Linux, macOS)**
+**System V AMD64（Linux、macOS）**
 
 ```asm
-; Arguments: RDI, RSI, RDX, RCX, R8, R9, then stack
-; Return: RAX (and RDX for 128-bit)
-; Caller-saved: RAX, RCX, RDX, RSI, RDI, R8-R11
-; Callee-saved: RBX, RBP, R12-R15
+; 参数：RDI、RSI、RDX、RCX、R8、R9，然后是栈
+; 返回：RAX（128位时还有 RDX）
+; 调用者保存：RAX、RCX、RDX、RSI、RDI、R8-R11
+; 被调用者保存：RBX、RBP、R12-R15
 
-; Example: func(a, b, c, d, e, f, g)
-mov rdi, [a]       ; 1st arg
-mov rsi, [b]       ; 2nd arg
-mov rdx, [c]       ; 3rd arg
-mov rcx, [d]       ; 4th arg
-mov r8, [e]        ; 5th arg
-mov r9, [f]        ; 6th arg
-push [g]           ; 7th arg on stack
+; 示例：func(a, b, c, d, e, f, g)
+mov rdi, [a]       ; 第1个参数
+mov rsi, [b]       ; 第2个参数
+mov rdx, [c]       ; 第3个参数
+mov rcx, [d]       ; 第4个参数
+mov r8, [e]        ; 第5个参数
+mov r9, [f]        ; 第6个参数
+push [g]           ; 第7个参数在栈上
 call func
 ```
 
-**Microsoft x64 (Windows)**
+**Microsoft x64（Windows）**
 
 ```asm
-; Arguments: RCX, RDX, R8, R9, then stack
-; Shadow space: 32 bytes reserved on stack
-; Return: RAX
+; 参数：RCX、RDX、R8、R9，然后是栈
+; 影子空间：栈上保留32字节
+; 返回：RAX
 
-; Example: func(a, b, c, d, e)
-sub rsp, 0x28      ; Shadow space + alignment
-mov rcx, [a]       ; 1st arg
-mov rdx, [b]       ; 2nd arg
-mov r8, [c]        ; 3rd arg
-mov r9, [d]        ; 4th arg
-mov [rsp+0x20], [e] ; 5th arg on stack
+; 示例：func(a, b, c, d, e)
+sub rsp, 0x28      ; 影子空间 + 对齐
+mov rcx, [a]       ; 第1个参数
+mov rdx, [b]       ; 第2个参数
+mov r8, [c]        ; 第3个参数
+mov r9, [d]        ; 第4个参数
+mov [rsp+0x20], [e] ; 第5个参数在栈上
 call func
 add rsp, 0x28
 ```
 
-### ARM Assembly Patterns
+### ARM 汇编模式
 
-#### ARM64 (AArch64) Calling Convention
+#### ARM64（AArch64）调用约定
 
 ```asm
-; Arguments: X0-X7
-; Return: X0 (and X1 for 128-bit)
-; Frame pointer: X29
-; Link register: X30
+; 参数：X0-X7
+; 返回：X0（128位时还有 X1）
+; 帧指针：X29
+; 链接寄存器：X30
 
-; Function prologue
-stp x29, x30, [sp, #-16]!  ; Save FP and LR
-mov x29, sp                 ; Set frame pointer
+; 函数序言
+stp x29, x30, [sp, #-16]!  ; 保存 FP 和 LR
+mov x29, sp                 ; 设置帧指针
 
-; Function epilogue
-ldp x29, x30, [sp], #16    ; Restore FP and LR
+; 函数尾声
+ldp x29, x30, [sp], #16    ; 恢复 FP 和 LR
 ret
 ```
 
-#### ARM32 Calling Convention
+#### ARM32 调用约定
 
 ```asm
-; Arguments: R0-R3, then stack
-; Return: R0 (and R1 for 64-bit)
-; Link register: LR (R14)
+; 参数：R0-R3，然后是栈
+; 返回：R0（64位时还有 R1）
+; 链接寄存器：LR（R14）
 
-; Function prologue
+; 函数序言
 push {fp, lr}
 add fp, sp, #4
 
-; Function epilogue
-pop {fp, pc}    ; Return by popping PC
+; 函数尾声
+pop {fp, pc}    ; 通过弹出 PC 返回
 ```
 
-## Control Flow Patterns
+## 控制流模式
 
-### Conditional Branches
+### 条件分支
 
 ```asm
 ; if (a == b)
 cmp eax, ebx
 jne skip_block
-; ... if body ...
+; ... if 主体 ...
 skip_block:
 
-; if (a < b) - signed
+; if (a < b) - 有符号
 cmp eax, ebx
-jge skip_block    ; Jump if greater or equal
-; ... if body ...
+jge skip_block    ; 大于或等于时跳转
+; ... if 主体 ...
 skip_block:
 
-; if (a < b) - unsigned
+; if (a < b) - 无符号
 cmp eax, ebx
-jae skip_block    ; Jump if above or equal
-; ... if body ...
+jae skip_block    ; 高于或等于时跳转
+; ... if 主体 ...
 skip_block:
 ```
 
-### Loop Patterns
+### 循环模式
 
 ```asm
 ; for (int i = 0; i < n; i++)
@@ -138,7 +138,7 @@ xor ecx, ecx           ; i = 0
 loop_start:
 cmp ecx, [n]           ; i < n
 jge loop_end
-; ... loop body ...
+; ... 循环主体 ...
 inc ecx                ; i++
 jmp loop_start
 loop_end:
@@ -146,28 +146,28 @@ loop_end:
 ; while (condition)
 jmp loop_check
 loop_body:
-; ... body ...
+; ... 主体 ...
 loop_check:
 cmp eax, ebx
 jl loop_body
 
 ; do-while
 loop_body:
-; ... body ...
+; ... 主体 ...
 cmp eax, ebx
 jl loop_body
 ```
 
-### Switch Statement Patterns
+### switch 语句模式
 
 ```asm
-; Jump table pattern
+; 跳转表模式
 mov eax, [switch_var]
 cmp eax, max_case
 ja default_case
 jmp [jump_table + eax*8]
 
-; Sequential comparison (small switch)
+; 顺序比较（小型 switch）
 cmp eax, 1
 je case_1
 cmp eax, 2
@@ -177,64 +177,64 @@ je case_3
 jmp default_case
 ```
 
-## Data Structure Patterns
+## 数据结构模式
 
-### Array Access
+### 数组访问
 
 ```asm
-; array[i] - 4-byte elements
-mov eax, [rbx + rcx*4]        ; rbx=base, rcx=index
+; array[i] - 4字节元素
+mov eax, [rbx + rcx*4]        ; rbx=基址, rcx=索引
 
-; array[i] - 8-byte elements
+; array[i] - 8字节元素
 mov rax, [rbx + rcx*8]
 
-; Multi-dimensional array[i][j]
+; 多维数组 array[i][j]
 ; arr[i][j] = base + (i * cols + j) * element_size
 imul eax, [cols]
 add eax, [j]
 mov edx, [rbx + rax*4]
 ```
 
-### Structure Access
+### 结构体访问
 
 ```c
 struct Example {
-    int a;      // offset 0
-    char b;     // offset 4
-    // padding  // offset 5-7
-    long c;     // offset 8
-    short d;    // offset 16
+    int a;      // 偏移 0
+    char b;     // 偏移 4
+    // 填充     // 偏移 5-7
+    long c;     // 偏移 8
+    short d;    // 偏移 16
 };
 ```
 
 ```asm
-; Accessing struct fields
+; 访问结构体字段
 mov rdi, [struct_ptr]
-mov eax, [rdi]         ; s->a (offset 0)
-movzx eax, byte [rdi+4] ; s->b (offset 4)
-mov rax, [rdi+8]       ; s->c (offset 8)
-movzx eax, word [rdi+16] ; s->d (offset 16)
+mov eax, [rdi]         ; s->a（偏移 0）
+movzx eax, byte [rdi+4] ; s->b（偏移 4）
+mov rax, [rdi+8]       ; s->c（偏移 8）
+movzx eax, word [rdi+16] ; s->d（偏移 16）
 ```
 
-### Linked List Traversal
+### 链表遍历
 
 ```asm
 ; while (node != NULL)
 list_loop:
 test rdi, rdi          ; node == NULL?
 jz list_done
-; ... process node ...
-mov rdi, [rdi+8]       ; node = node->next (assuming next at offset 8)
+; ... 处理节点 ...
+mov rdi, [rdi+8]       ; node = node->next（假设 next 在偏移 8 处）
 jmp list_loop
 list_done:
 ```
 
-## Common Code Patterns
+## 常见代码模式
 
-### String Operations
+### 字符串操作
 
 ```asm
-; strlen pattern
+; strlen 模式
 xor ecx, ecx
 strlen_loop:
 cmp byte [rdi + rcx], 0
@@ -242,9 +242,9 @@ je strlen_done
 inc ecx
 jmp strlen_loop
 strlen_done:
-; ecx contains length
+; ecx 包含长度
 
-; strcpy pattern
+; strcpy 模式
 strcpy_loop:
 mov al, [rsi]
 mov [rdi], al
@@ -255,17 +255,17 @@ inc rdi
 jmp strcpy_loop
 strcpy_done:
 
-; memcpy using rep movsb
+; 使用 rep movsb 的 memcpy
 mov rdi, dest
 mov rsi, src
 mov rcx, count
 rep movsb
 ```
 
-### Arithmetic Patterns
+### 算术模式
 
 ```asm
-; Multiplication by constant
+; 常量乘法
 ; x * 3
 lea eax, [rax + rax*2]
 
@@ -276,129 +276,129 @@ lea eax, [rax + rax*4]
 lea eax, [rax + rax*4]  ; x * 5
 add eax, eax            ; * 2
 
-; Division by power of 2 (signed)
+; 2的幂次除法（有符号）
 mov eax, [x]
-cdq                     ; Sign extend to EDX:EAX
-and edx, 7              ; For divide by 8
-add eax, edx            ; Adjust for negative
-sar eax, 3              ; Arithmetic shift right
+cdq                     ; 符号扩展到 EDX:EAX
+and edx, 7              ; 用于除以 8
+add eax, edx            ; 负数调整
+sar eax, 3              ; 算术右移
 
-; Modulo power of 2
+; 2的幂次取模
 and eax, 7              ; x % 8
 ```
 
-### Bit Manipulation
+### 位操作
 
 ```asm
-; Test specific bit
-test eax, 0x80          ; Test bit 7
+; 测试特定位
+test eax, 0x80          ; 测试第7位
 jnz bit_set
 
-; Set bit
-or eax, 0x10            ; Set bit 4
+; 设置位
+or eax, 0x10            ; 设置第4位
 
-; Clear bit
-and eax, ~0x10          ; Clear bit 4
+; 清除位
+and eax, ~0x10          ; 清除第4位
 
-; Toggle bit
-xor eax, 0x10           ; Toggle bit 4
+; 翻转位
+xor eax, 0x10           ; 翻转第4位
 
-; Count leading zeros
-bsr eax, ecx            ; Bit scan reverse
-xor eax, 31             ; Convert to leading zeros
+; 计算前导零
+bsr eax, ecx            ; 反向位扫描
+xor eax, 31             ; 转换为前导零数
 
-; Population count (popcnt)
-popcnt eax, ecx         ; Count set bits
+; 人口计数（popcnt）
+popcnt eax, ecx         ; 计算已设置的位数
 ```
 
-## Decompilation Patterns
+## 反编译模式
 
-### Variable Recovery
+### 变量恢复
 
 ```asm
-; Local variable at rbp-8
-mov qword [rbp-8], rax  ; Store to local
-mov rax, [rbp-8]        ; Load from local
+; rbp-8 处的局部变量
+mov qword [rbp-8], rax  ; 存储到局部变量
+mov rax, [rbp-8]        ; 从局部变量加载
 
-; Stack-allocated array
-lea rax, [rbp-0x40]     ; Array starts at rbp-0x40
+; 栈分配的数组
+lea rax, [rbp-0x40]     ; 数组从 rbp-0x40 开始
 mov [rax], edx          ; array[0] = value
 mov [rax+4], ecx        ; array[1] = value
 ```
 
-### Function Signature Recovery
+### 函数签名恢复
 
 ```asm
-; Identify parameters by register usage
+; 通过寄存器使用识别参数
 func:
-    ; rdi used as first param (System V)
-    mov [rbp-8], rdi    ; Save param to local
-    ; rsi used as second param
+    ; rdi 用作第一个参数（System V）
+    mov [rbp-8], rdi    ; 保存参数到局部变量
+    ; rsi 用作第二个参数
     mov [rbp-16], rsi
-    ; Identify return by RAX at end
+    ; 通过末尾的 RAX 识别返回值
     mov rax, [result]
     ret
 ```
 
-### Type Recovery
+### 类型恢复
 
 ```asm
-; 1-byte operations suggest char/bool
-movzx eax, byte [rdi]   ; Zero-extend byte
-movsx eax, byte [rdi]   ; Sign-extend byte
+; 1字节操作暗示 char/bool
+movzx eax, byte [rdi]   ; 零扩展字节
+movsx eax, byte [rdi]   ; 符号扩展字节
 
-; 2-byte operations suggest short
+; 2字节操作暗示 short
 movzx eax, word [rdi]
 movsx eax, word [rdi]
 
-; 4-byte operations suggest int/float
+; 4字节操作暗示 int/float
 mov eax, [rdi]
-movss xmm0, [rdi]       ; Float
+movss xmm0, [rdi]       ; 浮点数
 
-; 8-byte operations suggest long/double/pointer
+; 8字节操作暗示 long/double/指针
 mov rax, [rdi]
-movsd xmm0, [rdi]       ; Double
+movsd xmm0, [rdi]       ; 双精度浮点数
 ```
 
-## Ghidra Analysis Tips
+## Ghidra 分析技巧
 
-### Improving Decompilation
+### 改进反编译
 
 ```java
-// In Ghidra scripting
-// Fix function signature
+// 在 Ghidra 脚本中
+// 修复函数签名
 Function func = getFunctionAt(toAddr(0x401000));
 func.setReturnType(IntegerDataType.dataType, SourceType.USER_DEFINED);
 
-// Create structure type
+// 创建结构体类型
 StructureDataType struct = new StructureDataType("MyStruct", 0);
 struct.add(IntegerDataType.dataType, "field_a", null);
 struct.add(PointerDataType.dataType, "next", null);
 
-// Apply to memory
+// 应用到内存
 createData(toAddr(0x601000), struct);
 ```
 
-### Pattern Matching Scripts
+### 模式匹配脚本
 
 ```python
-# Find all calls to dangerous functions
+# 查找所有对危险函数的调用
 for func in currentProgram.getFunctionManager().getFunctions(True):
     for ref in getReferencesTo(func.getEntryPoint()):
         if func.getName() in ["strcpy", "sprintf", "gets"]:
             print(f"Dangerous call at {ref.getFromAddress()}")
 ```
 
-## IDA Pro Patterns
+## IDA Pro 模式
 
-### IDAPython Analysis
+### IDAPython 分析
 
 ```python
 import idaapi
 import idautils
 import idc
 
-# Find all function calls
+# 查找所有函数调用
 def find_calls(func_name):
     for func_ea in idautils.Functions():
         for head in idautils.Heads(func_ea, idc.find_func_end(func_ea)):
@@ -407,32 +407,32 @@ def find_calls(func_name):
                 if idc.get_func_name(target) == func_name:
                     print(f"Call to {func_name} at {hex(head)}")
 
-# Rename functions based on strings
+# 基于字符串自动重命名函数
 def auto_rename():
     for s in idautils.Strings():
         for xref in idautils.XrefsTo(s.ea):
             func = idaapi.get_func(xref.frm)
             if func and "sub_" in idc.get_func_name(func.start_ea):
-                # Use string as hint for naming
+                # 使用字符串作为命名提示
                 pass
 ```
 
-## Best Practices
+## 最佳实践
 
-### Analysis Workflow
+### 分析工作流程
 
-1. **Initial triage**: File type, architecture, imports/exports
-2. **String analysis**: Identify interesting strings, error messages
-3. **Function identification**: Entry points, exports, cross-references
-4. **Control flow mapping**: Understand program structure
-5. **Data structure recovery**: Identify structs, arrays, globals
-6. **Algorithm identification**: Crypto, hashing, compression
-7. **Documentation**: Comments, renamed symbols, type definitions
+1. **初步分类**：文件类型、架构、导入/导出
+2. **字符串分析**：识别有趣的字符串、错误消息
+3. **函数识别**：入口点、导出、交叉引用
+4. **控制流映射**：理解程序结构
+5. **数据结构恢复**：识别结构体、数组、全局变量
+6. **算法识别**：加密、哈希、压缩
+7. **文档化**：注释、重命名的符号、类型定义
 
-### Common Pitfalls
+### 常见陷阱
 
-- **Optimizer artifacts**: Code may not match source structure
-- **Inline functions**: Functions may be expanded inline
-- **Tail call optimization**: `jmp` instead of `call` + `ret`
-- **Dead code**: Unreachable code from optimization
-- **Position-independent code**: RIP-relative addressing
+- **优化器产物**：代码可能与源代码结构不匹配
+- **内联函数**：函数可能被内联展开
+- **尾调用优化**：使用 `jmp` 代替 `call` + `ret`
+- **死代码**：优化产生的不可达代码
+- **位置无关代码**：RIP 相对寻址

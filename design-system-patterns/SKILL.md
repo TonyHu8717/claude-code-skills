@@ -1,64 +1,64 @@
 ---
 name: design-system-patterns
-description: Build scalable design systems with design tokens, theming infrastructure, and component architecture patterns. Use when creating design tokens, implementing theme switching, building component libraries, or establishing design system foundations.
+description: 使用设计令牌、主题基础设施和组件架构模式构建可扩展的设计系统。在创建设计令牌、实现主题切换、构建组件库或建立设计系统基础时使用。
 ---
 
-# Design System Patterns
+# 设计系统模式
 
-Master design system architecture to create consistent, maintainable, and scalable UI foundations across web and mobile applications.
+掌握设计系统架构，为 Web 和移动应用程序创建一致、可维护和可扩展的 UI 基础。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Creating design tokens for colors, typography, spacing, and shadows
-- Implementing light/dark theme switching with CSS custom properties
-- Building multi-brand theming systems
-- Architecting component libraries with consistent APIs
-- Establishing design-to-code workflows with Figma tokens
-- Creating semantic token hierarchies (primitive, semantic, component)
-- Setting up design system documentation and guidelines
+- 为颜色、排版、间距和阴影创建设计令牌
+- 使用 CSS 自定义属性实现亮/暗主题切换
+- 构建多品牌主题系统
+- 使用一致的 API 架构组件库
+- 使用 Figma 令牌建立设计到代码的工作流
+- 创建语义令牌层级（原始、语义、组件）
+- 设置设计系统文档和指南
 
-## Core Capabilities
+## 核心能力
 
-### 1. Design Tokens
+### 1. 设计令牌
 
-- Primitive tokens (raw values: colors, sizes, fonts)
-- Semantic tokens (contextual meaning: text-primary, surface-elevated)
-- Component tokens (specific usage: button-bg, card-border)
-- Token naming conventions and organization
-- Multi-platform token generation (CSS, iOS, Android)
+- 原始令牌（原始值：颜色、大小、字体）
+- 语义令牌（上下文含义：text-primary、surface-elevated）
+- 组件令牌（特定用途：button-bg、card-border）
+- 令牌命名约定和组织
+- 多平台令牌生成（CSS、iOS、Android）
 
-### 2. Theming Infrastructure
+### 2. 主题基础设施
 
-- CSS custom properties architecture
-- Theme context providers in React
-- Dynamic theme switching
-- System preference detection (prefers-color-scheme)
-- Persistent theme storage
-- Reduced motion and high contrast modes
+- CSS 自定义属性架构
+- React 中的主题上下文提供者
+- 动态主题切换
+- 系统偏好检测（prefers-color-scheme）
+- 持久主题存储
+- 减少动效和高对比度模式
 
-### 3. Component Architecture
+### 3. 组件架构
 
-- Compound component patterns
-- Polymorphic components (as prop)
-- Variant and size systems
-- Slot-based composition
-- Headless UI patterns
-- Style props and responsive variants
+- 复合组件模式
+- 多态组件（as prop）
+- 变体和尺寸系统
+- 基于插槽的组合
+- Headless UI 模式
+- 样式属性和响应式变体
 
-### 4. Token Pipeline
+### 4. 令牌管道
 
-- Figma to code synchronization
-- Style Dictionary configuration
-- Token transformation and formatting
-- CI/CD integration for token updates
+- Figma 到代码同步
+- Style Dictionary 配置
+- 令牌转换和格式化
+- 令牌更新的 CI/CD 集成
 
-## Quick Start
+## 快速开始
 
 ```typescript
-// Design tokens with CSS custom properties
+// 使用 CSS 自定义属性的设计令牌
 const tokens = {
   colors: {
-    // Primitive tokens
+    // 原始令牌
     gray: {
       50: "#fafafa",
       100: "#f5f5f5",
@@ -69,7 +69,7 @@ const tokens = {
       600: "#2563eb",
     },
   },
-  // Semantic tokens (reference primitives)
+  // 语义令牌（引用原始值）
   semantic: {
     light: {
       "text-primary": "var(--color-gray-900)",
@@ -91,12 +91,12 @@ const tokens = {
 };
 ```
 
-## Key Patterns
+## 关键模式
 
-### Pattern 1: Token Hierarchy
+### 模式 1：令牌层级
 
 ```css
-/* Layer 1: Primitive tokens (raw values) */
+/* 第 1 层：原始令牌（原始值） */
 :root {
   --color-blue-500: #3b82f6;
   --color-blue-600: #2563eb;
@@ -116,7 +116,7 @@ const tokens = {
   --radius-lg: 1rem;
 }
 
-/* Layer 2: Semantic tokens (meaning) */
+/* 第 2 层：语义令牌（含义） */
 :root {
   --text-primary: var(--color-gray-900);
   --text-secondary: var(--color-gray-600);
@@ -125,7 +125,7 @@ const tokens = {
   --interactive-primary-hover: var(--color-blue-600);
 }
 
-/* Layer 3: Component tokens (specific usage) */
+/* 第 3 层：组件令牌（特定用途） */
 :root {
   --button-bg: var(--interactive-primary);
   --button-bg-hover: var(--interactive-primary-hover);
@@ -136,7 +136,7 @@ const tokens = {
 }
 ```
 
-### Pattern 2: Theme Switching with React
+### 模式 2：使用 React 切换主题
 
 ```tsx
 import { createContext, useContext, useEffect, useState } from "react";
@@ -200,14 +200,14 @@ export const useTheme = () => {
 };
 ```
 
-### Pattern 3: Variant System with CVA
+### 模式 3：使用 CVA 的变体系统
 
 ```tsx
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  // Base styles
+  // 基础样式
   "inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
@@ -253,7 +253,7 @@ export function Button({ className, variant, size, ...props }: ButtonProps) {
 }
 ```
 
-### Pattern 4: Style Dictionary Configuration
+### 模式 4：Style Dictionary 配置
 
 ```javascript
 // style-dictionary.config.js
@@ -268,7 +268,7 @@ module.exports = {
           destination: "variables.css",
           format: "css/variables",
           options: {
-            outputReferences: true, // Preserve token references
+            outputReferences: true, // 保留令牌引用
           },
         },
       ],
@@ -309,21 +309,21 @@ module.exports = {
 };
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Name Tokens by Purpose**: Use semantic names (text-primary) not visual descriptions (dark-gray)
-2. **Maintain Token Hierarchy**: Primitives > Semantic > Component tokens
-3. **Document Token Usage**: Include usage guidelines with token definitions
-4. **Version Tokens**: Treat token changes as API changes with semver
-5. **Test Theme Combinations**: Verify all themes work with all components
-6. **Automate Token Pipeline**: CI/CD for Figma-to-code synchronization
-7. **Provide Migration Paths**: Deprecate tokens gradually with clear alternatives
+1. **按用途命名令牌**：使用语义名称（text-primary）而非视觉描述（dark-gray）
+2. **维护令牌层级**：原始 > 语义 > 组件令牌
+3. **记录令牌用途**：在令牌定义中包含使用指南
+4. **版本化令牌**：将令牌变更视为 API 变更，使用语义版本
+5. **测试主题组合**：验证所有主题与所有组件配合工作
+6. **自动化令牌管道**：CI/CD 用于 Figma 到代码同步
+7. **提供迁移路径**：逐步弃用令牌并提供清晰的替代方案
 
-## Common Issues
+## 常见问题
 
-- **Token Sprawl**: Too many tokens without clear hierarchy
-- **Inconsistent Naming**: Mixed conventions (camelCase vs kebab-case)
-- **Missing Dark Mode**: Tokens that don't adapt to theme changes
-- **Hardcoded Values**: Using raw values instead of tokens
-- **Circular References**: Tokens referencing each other in loops
-- **Platform Gaps**: Tokens missing for some platforms (web but not mobile)
+- **令牌膨胀**：太多令牌没有清晰的层级
+- **命名不一致**：混合约定（camelCase vs kebab-case）
+- **缺少暗色模式**：令牌不适应主题变化
+- **硬编码值**：使用原始值而非令牌
+- **循环引用**：令牌相互引用形成循环
+- **平台差距**：某些平台缺少令牌（Web 有但移动端没有）

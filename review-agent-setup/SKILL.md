@@ -1,49 +1,43 @@
 ---
 name: review-agent-setup
-description: Configure human-in-the-loop gating for AI agent review actions in Claude Code. Use when setting up a project where an agent may post PR reviews, comments, merges, or edit CI configuration, and you want a cryptographically auditable approval trail with Cedar-enforced gates.
+description: 在 Claude Code 中为 AI 代理审查操作配置人工审批门控。当设置一个代理可能发布 PR 审查、评论、合并或编辑 CI 配置的项目时使用，并且您需要具有密码学可审计审批跟踪和 Cedar 强制执行的门控。
 ---
 
-# review-agent-governance — Setup
+# review-agent-governance — 设置
 
-Gate AI agent review actions (PR reviews, comments, merges, CI edits) behind
-explicit human approval. Every attempt, approved or denied, produces an
-Ed25519-signed receipt.
+将 AI 代理审查操作（PR 审查、评论、合并、CI 编辑）置于显式人工审批之后。每次尝试（无论批准还是拒绝）都会产生一个 Ed25519 签名的收据。
 
-## When to use this plugin
+## 何时使用此插件
 
-Install it in projects where a Claude Code agent:
+在以下项目的 Claude Code 代理中安装：
 
-- Reviews, comments on, or merges pull requests (`gh pr review`, `gh pr merge`)
-- Triages issues (`gh issue comment`, `gh issue close`)
-- Publishes releases (`gh release create`)
-- Modifies CI configuration (`.github/workflows/`, `.gitlab-ci.yml`)
-- Pushes to protected branches (`main`, `master`, `release`, `production`)
-- Posts to external notification surfaces (Slack webhooks, Discord)
+- 审查、评论或合并拉取请求（`gh pr review`、`gh pr merge`）
+- 分诊问题（`gh issue comment`、`gh issue close`）
+- 发布版本（`gh release create`）
+- 修改 CI 配置（`.github/workflows/`、`.gitlab-ci.yml`）
+- 推送到受保护分支（`main`、`master`、`release`、`production`）
+- 发布到外部通知渠道（Slack webhooks、Discord）
 
-If the agent is only doing local file edits and running tests, this plugin is
-overkill. Use `protect-mcp` for general tool-call policy enforcement and skip
-this one.
+如果代理仅执行本地文件编辑和运行测试，则此插件过于繁琐。使用 `protect-mcp` 进行通用工具调用策略执行，跳过此插件。
 
-## One-time setup
+## 一次性设置
 
-### 1. Install the plugin
+### 1. 安装插件
 
 ```bash
 claude plugin install wshobson/agents/review-agent-governance
 ```
 
-### 2. Copy the default policy to your project
+### 2. 将默认策略复制到您的项目
 
 ```bash
 cp .claude/plugins/review-agent-governance/policies/review-agent-governance.cedar \
    ./review-governance.cedar
 ```
 
-You can edit this file to match your project's specific rules. See
-`../agents/review-policy-author.md` for guidance on authoring review
-policies.
+您可以编辑此文件以匹配项目的特定规则。参见 `../agents/review-policy-author.md` 获取审查策略编写指南。
 
-### 3. Create a receipts directory and sign key
+### 3. 创建收据目录和签名密钥
 
 ```bash
 mkdir -p ./review-receipts
@@ -52,103 +46,92 @@ echo "./review-governance.key" >> .gitignore
 echo "./.review-approved" >> .gitignore
 ```
 
-The first invocation of `protect-mcp sign` will create the key. Commit the
-public key from the first receipt so auditors can verify later.
+首次调用 `protect-mcp sign` 将创建密钥。提交第一个收据中的公钥，以便审计人员稍后验证。
 
-## Per-session workflow
+## 每会话工作流
 
-The Cedar policy denies review-surface actions unconditionally. To approve
-a specific action, open an approval window before it and close it after.
+Cedar 策略无条件拒绝审查表面操作。要批准特定操作，请在其之前打开批准窗口并在其之后关闭。
 
-### Flag file (simplest)
+### 标志文件（最简单）
 
 ```bash
-# Before the action you want to approve
+# 在您要批准的操作之前
 touch ./.review-approved
 
-# Let Claude Code run the review / comment / merge
+# 让 Claude Code 运行审查/评论/合并
 
-# Immediately after
+# 之后立即执行
 rm ./.review-approved
 ```
 
-### Slash command (from within Claude Code)
+### 斜杠命令（在 Claude Code 内）
 
 ```
 /approve-review "Reviewing PR #123 authored by contributor X"
 ```
 
-This creates `./.review-approved` with the given reason embedded as a note,
-and writes a human-approved receipt to the chain. A follow-up `rm` is still
-needed to close the window.
+这将创建 `./.review-approved`，并将给定原因作为注释嵌入，同时向链中写入一个人工批准的收据。仍需要后续的 `rm` 来关闭窗口。
 
-### Dry-run everything (force full policy evaluation)
+### 试运行一切（强制完整策略评估）
 
-If you want every tool call to go through Cedar with no approval bypass:
+如果您希望每个工具调用都通过 Cedar 而不进行批准绕过：
 
 ```bash
 export REVIEW_APPROVAL_FLAG=./.never-approve
 ```
 
-Any tool call matching a forbid rule will be denied; approved windows have
-no effect. Useful for CI or for a locked-down audit run.
+任何匹配禁止规则的工具调用都将被拒绝；批准窗口无效。适用于 CI 或锁定的审计运行。
 
-## Verifying the chain
+## 验证链
 
-List all receipts:
+列出所有收据：
 
 ```bash
 ls -la ./review-receipts/
 ```
 
-Verify the entire chain offline:
+离线验证整个链：
 
 ```bash
 npx @veritasacta/verify ./review-receipts/*.json
 ```
 
-Exit 0 means every receipt is authentic and the chain is intact. Exit 1
-means one receipt has been tampered with. Exit 2 means a receipt is
-malformed.
+退出码 0 表示每个收据都是真实的且链完整。退出码 1 表示某个收据被篡改。退出码 2 表示收据格式错误。
 
-Look at recent denials:
+查看最近的拒绝：
 
 ```
 /list-pending
 ```
 
-Within Claude Code this slash command walks the receipt chain and prints
-any recent `decision: deny` entries with the tool name, command pattern,
-and timestamp.
+在 Claude Code 中，此斜杠命令遍历收据链并打印任何最近的 `decision: deny` 条目，包括工具名称、命令模式和时间戳。
 
-## Example: approving a PR review
+## 示例：批准 PR 审查
 
 ```bash
-# 1. Human reviews the agent's proposed comment
+# 1. 人工审查代理提出的评论
 $ /list-pending
   Recent denials:
   - 2026-04-17T14:23:01Z  Bash "gh pr review 42 --approve --body 'LGTM'"
   - 2026-04-17T14:23:02Z  Bash "gh pr comment 42 --body 'Looking good'"
 
-# 2. Human decides the first one is appropriate, approves it
+# 2. 人工决定第一个是合适的，批准它
 $ /approve-review "Approving LGTM on PR 42 after visual inspection"
   ./.review-approved created
 
-# 3. Agent retries the action; this time it succeeds
+# 3. 代理重试操作；这次成功了
 $ agent: gh pr review 42 --approve --body "LGTM"
   [receipt: rec_XXX, decision=allow, reason=human_approved]
 
-# 4. Human closes the window
+# 4. 人工关闭窗口
 $ rm ./.review-approved
 ```
 
-Every step is in the receipt chain. The chain is offline-verifiable for
-regulators, counterparties, or downstream auditors who want to confirm
-that no review action bypassed the human gate.
+每一步都在收据链中。该链可供监管机构、交易对手或下游审计人员离线验证，以确认没有审查操作绕过人工门控。
 
-## Composing with protect-mcp
+## 与 protect-mcp 组合使用
 
-If both plugins are installed, run them side by side:
+如果两个插件都已安装，请并行运行它们：
 
 ```json
 {
@@ -177,12 +160,11 @@ If both plugins are installed, run them side by side:
 }
 ```
 
-Both hooks must pass for the tool call to proceed. Cedar deny in either
-policy blocks it.
+两个钩子都必须通过才能继续执行工具调用。任一策略中的 Cedar 拒绝都会阻止它。
 
-## Standards
+## 标准
 
-- **Ed25519** — RFC 8032 (digital signatures)
-- **JCS** — RFC 8785 (deterministic JSON canonicalization)
-- **Cedar** — AWS's open authorization policy language
-- **IETF draft** — [draft-farley-acta-signed-receipts](https://datatracker.ietf.org/doc/draft-farley-acta-signed-receipts/)
+- **Ed25519** — RFC 8032（数字签名）
+- **JCS** — RFC 8785（确定性 JSON 规范化）
+- **Cedar** — AWS 的开放授权策略语言
+- **IETF 草案** — [draft-farley-acta-signed-receipts](https://datatracker.ietf.org/doc/draft-farley-acta-signed-receipts/)

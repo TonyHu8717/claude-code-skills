@@ -1,24 +1,24 @@
 ---
 name: attack-tree-construction
-description: Build comprehensive attack trees to visualize threat paths. Use when mapping attack scenarios, identifying defense gaps, or communicating security risks to stakeholders.
+description: 构建全面的攻击树以可视化威胁路径。在映射攻击场景、识别防御缺口或向利益相关者沟通安全风险时使用。
 ---
 
-# Attack Tree Construction
+# 攻击树构建
 
-Systematic attack path visualization and analysis.
+系统化的攻击路径可视化和分析。
 
-## When to Use This Skill
+## 使用场景
 
-- Visualizing complex attack scenarios
-- Identifying defense gaps and priorities
-- Communicating risks to stakeholders
-- Planning defensive investments
-- Penetration test planning
-- Security architecture review
+- 可视化复杂攻击场景
+- 识别防御缺口和优先级
+- 向利益相关者沟通风险
+- 规划防御投资
+- 渗透测试规划
+- 安全架构审查
 
-## Core Concepts
+## 核心概念
 
-### 1. Attack Tree Structure
+### 1. 攻击树结构
 
 ```
                     [Root Goal]
@@ -34,26 +34,26 @@ Systematic attack path visualization and analysis.
     (leaf)     (leaf)        (leaf)     (leaf)
 ```
 
-### 2. Node Types
+### 2. 节点类型
 
-| Type     | Symbol    | Description             |
-| -------- | --------- | ----------------------- |
-| **OR**   | Oval      | Any child achieves goal |
-| **AND**  | Rectangle | All children required   |
-| **Leaf** | Box       | Atomic attack step      |
+| 类型 | 符号 | 描述 |
+| ---- | ---- | ---- |
+| **OR** | 椭圆 | 任一子节点实现目标 |
+| **AND** | 矩形 | 所有子节点必需 |
+| **叶节点** | 方框 | 原子攻击步骤 |
 
-### 3. Attack Attributes
+### 3. 攻击属性
 
-| Attribute     | Description             | Values             |
-| ------------- | ----------------------- | ------------------ |
-| **Cost**      | Resources needed        | $, $$, $$$         |
-| **Time**      | Duration to execute     | Hours, Days, Weeks |
-| **Skill**     | Expertise required      | Low, Medium, High  |
-| **Detection** | Likelihood of detection | Low, Medium, High  |
+| 属性 | 描述 | 值 |
+| ---- | ---- | ---- |
+| **成本** | 所需资源 | $、$$、$$$ |
+| **时间** | 执行持续时间 | 小时、天、周 |
+| **技能** | 所需专业知识 | 低、中、高 |
+| **检测** | 被检测的可能性 | 低、中、高 |
 
-## Templates
+## 模板
 
-### Template 1: Attack Tree Data Model
+### 模板 1：攻击树数据模型
 
 ```python
 from dataclasses import dataclass, field
@@ -250,7 +250,7 @@ class AttackTree:
         }, indent=2)
 ```
 
-### Template 2: Attack Tree Builder
+### 模板 2：攻击树构建器
 
 ```python
 class AttackTreeBuilder:
@@ -417,7 +417,7 @@ def build_account_takeover_tree() -> AttackTree:
     )
 ```
 
-### Template 3: Mermaid Diagram Generator
+### 模板 3：Mermaid 图表生成器
 
 ```python
 class MermaidExporter:
@@ -508,7 +508,7 @@ class PlantUMLExporter:
             self._export_node(child, lines, depth + 1)
 ```
 
-### Template 4: Attack Path Analysis
+### 模板 4：攻击路径分析
 
 ```python
 from typing import Set, Tuple
@@ -662,20 +662,20 @@ class AttackPathAnalyzer:
         return sorted(recommendations, key=lambda x: x["coverage_impact"], reverse=True)
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该
 
-- **Start with clear goals** - Define what attacker wants
-- **Be exhaustive** - Consider all attack vectors
-- **Attribute attacks** - Cost, skill, and detection
-- **Update regularly** - New threats emerge
-- **Validate with experts** - Red team review
+- **从清晰的目标开始** — 定义攻击者想要什么
+- **穷举** — 考虑所有攻击向量
+- **归因攻击** — 成本、技能和检测
+- **定期更新** — 新威胁不断出现
+- **专家验证** — 红队审查
 
-### Don'ts
+### 不应该
 
-- **Don't oversimplify** - Real attacks are complex
-- **Don't ignore dependencies** - AND nodes matter
-- **Don't forget insider threats** - Not all attackers are external
-- **Don't skip mitigations** - Trees are for defense planning
-- **Don't make it static** - Threat landscape evolves
+- **不要过度简化** — 真实攻击很复杂
+- **不要忽略依赖** — AND 节点很重要
+- **不要忘记内部威胁** — 并非所有攻击者都是外部的
+- **不要跳过缓解** — 树是为了防御规划
+- **不要使其静态** — 威胁格局在演变

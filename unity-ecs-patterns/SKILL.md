@@ -1,47 +1,47 @@
 ---
 name: unity-ecs-patterns
-description: Master Unity ECS (Entity Component System) with DOTS, Jobs, and Burst for high-performance game development. Use when building data-oriented games, optimizing performance, or working with large entity counts.
+description: 掌握 Unity ECS（实体组件系统）以及 DOTS、Jobs 和 Burst，用于高性能游戏开发。适用于构建数据导向的游戏、优化性能或处理大量实体。
 ---
 
-# Unity ECS Patterns
+# Unity ECS 模式
 
-Production patterns for Unity's Data-Oriented Technology Stack (DOTS) including Entity Component System, Job System, and Burst Compiler.
+Unity 面向数据技术栈（DOTS）的生产模式，包括实体组件系统、Job 系统和 Burst 编译器。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Building high-performance Unity games
-- Managing thousands of entities efficiently
-- Implementing data-oriented game systems
-- Optimizing CPU-bound game logic
-- Converting OOP game code to ECS
-- Using Jobs and Burst for parallelization
+- 构建高性能 Unity 游戏
+- 高效管理数千个实体
+- 实现数据导向的游戏系统
+- 优化 CPU 密集型游戏逻辑
+- 将 OOP 游戏代码转换为 ECS
+- 使用 Jobs 和 Burst 进行并行化
 
-## Core Concepts
+## 核心概念
 
 ### 1. ECS vs OOP
 
-| Aspect      | Traditional OOP   | ECS/DOTS        |
+| 方面      | 传统 OOP   | ECS/DOTS        |
 | ----------- | ----------------- | --------------- |
-| Data layout | Object-oriented   | Data-oriented   |
-| Memory      | Scattered         | Contiguous      |
-| Processing  | Per-object        | Batched         |
-| Scaling     | Poor with count   | Linear scaling  |
-| Best for    | Complex behaviors | Mass simulation |
+| 数据布局 | 面向对象   | 面向数据   |
+| 内存      | 分散         | 连续      |
+| 处理  | 逐对象        | 批量处理         |
+| 扩展性     | 数量增长时差   | 线性扩展  |
+| 最适合    | 复杂行为 | 大规模模拟 |
 
-### 2. DOTS Components
+### 2. DOTS 组件
 
 ```
-Entity: Lightweight ID (no data)
-Component: Pure data (no behavior)
-System: Logic that processes components
-World: Container for entities
-Archetype: Unique combination of components
-Chunk: Memory block for same-archetype entities
+Entity: 轻量级 ID（无数据）
+Component: 纯数据（无行为）
+System: 处理组件的逻辑
+World: 实体的容器
+Archetype: 组件的唯一组合
+Chunk: 相同原型实体的内存块
 ```
 
-## Patterns
+## 模式
 
-### Pattern 1: Basic ECS Setup
+### 模式 1：基本 ECS 设置
 
 ```csharp
 using Unity.Entities;
@@ -50,7 +50,7 @@ using Unity.Transforms;
 using Unity.Burst;
 using Unity.Collections;
 
-// Component: Pure data, no methods
+// 组件：纯数据，无方法
 public struct Speed : IComponentData
 {
     public float Value;
@@ -67,11 +67,11 @@ public struct Target : IComponentData
     public Entity Value;
 }
 
-// Tag component (zero-size marker)
+// 标签组件（零大小标记）
 public struct EnemyTag : IComponentData { }
 public struct PlayerTag : IComponentData { }
 
-// Buffer component (variable-size array)
+// 缓冲区组件（可变大小数组）
 [InternalBufferCapacity(8)]
 public struct InventoryItem : IBufferElementData
 {
@@ -79,14 +79,14 @@ public struct InventoryItem : IBufferElementData
     public int Quantity;
 }
 
-// Shared component (grouped entities)
+// 共享组件（分组实体）
 public struct TeamId : ISharedComponentData
 {
     public int Value;
 }
 ```
 
-### Pattern 2: Systems with ISystem (Recommended)
+### 模式 2：使用 ISystem 的系统（推荐）
 
 ```csharp
 using Unity.Entities;
@@ -94,14 +94,14 @@ using Unity.Transforms;
 using Unity.Mathematics;
 using Unity.Burst;
 
-// ISystem: Unmanaged, Burst-compatible, highest performance
+// ISystem：非托管、Burst 兼容、最高性能
 [BurstCompile]
 public partial struct MovementSystem : ISystem
 {
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        // Require components before system runs
+        // 系统运行前需要组件
         state.RequireForUpdate<Speed>();
     }
 
@@ -110,7 +110,7 @@ public partial struct MovementSystem : ISystem
     {
         float deltaTime = SystemAPI.Time.DeltaTime;
 
-        // Simple foreach - auto-generates job
+        // 简单 foreach - 自动生成 job
         foreach (var (transform, speed) in
             SystemAPI.Query<RefRW<LocalTransform>, RefRO<Speed>>())
         {
@@ -123,7 +123,7 @@ public partial struct MovementSystem : ISystem
     public void OnDestroy(ref SystemState state) { }
 }
 
-// With explicit job for more control
+// 使用显式 job 以获得更多控制
 [BurstCompile]
 public partial struct MovementJobSystem : ISystem
 {
@@ -151,7 +151,7 @@ public partial struct MoveJob : IJobEntity
 }
 ```
 
-### Pattern 3: Entity Queries
+### 模式 3：实体查询
 
 ```csharp
 [BurstCompile]
@@ -161,7 +161,7 @@ public partial struct QueryExamplesSystem : ISystem
 
     public void OnCreate(ref SystemState state)
     {
-        // Build query manually for complex cases
+        // 为复杂情况手动构建查询
         _enemyQuery = new EntityQueryBuilder(Allocator.Temp)
             .WithAll<EnemyTag, Health, LocalTransform>()
             .WithNone<Dead>()
@@ -172,7 +172,7 @@ public partial struct QueryExamplesSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        // SystemAPI.Query - simplest approach
+        // SystemAPI.Query - 最简单的方法
         foreach (var (health, entity) in
             SystemAPI.Query<RefRW<Health>>()
                 .WithAll<EnemyTag>()
@@ -180,29 +180,29 @@ public partial struct QueryExamplesSystem : ISystem
         {
             if (health.ValueRO.Current <= 0)
             {
-                // Mark for destruction
+                // 标记销毁
                 SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
                     .CreateCommandBuffer(state.WorldUnmanaged)
                     .DestroyEntity(entity);
             }
         }
 
-        // Get count
+        // 获取数量
         int enemyCount = _enemyQuery.CalculateEntityCount();
 
-        // Get all entities
+        // 获取所有实体
         var enemies = _enemyQuery.ToEntityArray(Allocator.Temp);
 
-        // Get component arrays
+        // 获取组件数组
         var healths = _enemyQuery.ToComponentDataArray<Health>(Allocator.Temp);
     }
 }
 ```
 
-### Pattern 4: Entity Command Buffers (Structural Changes)
+### 模式 4：实体命令缓冲区（结构变更）
 
 ```csharp
-// Structural changes (create/destroy/add/remove) require command buffers
+// 结构变更（创建/销毁/添加/移除）需要命令缓冲区
 [BurstCompile]
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 public partial struct SpawnSystem : ISystem
@@ -222,10 +222,10 @@ public partial struct SpawnSystem : ISystem
             {
                 spawner.ValueRW.Timer = spawner.ValueRO.Interval;
 
-                // Create entity (deferred until sync point)
+                // 创建实体（延迟到同步点）
                 Entity newEntity = ecb.Instantiate(spawner.ValueRO.Prefab);
 
-                // Set component values
+                // 设置组件值
                 ecb.SetComponent(newEntity, new LocalTransform
                 {
                     Position = transform.ValueRO.Position,
@@ -233,14 +233,14 @@ public partial struct SpawnSystem : ISystem
                     Scale = 1f
                 });
 
-                // Add component
+                // 添加组件
                 ecb.AddComponent(newEntity, new Speed { Value = 5f });
             }
         }
     }
 }
 
-// Parallel ECB usage
+// 并行 ECB 使用
 [BurstCompile]
 public partial struct ParallelSpawnJob : IJobEntity
 {
@@ -254,14 +254,14 @@ public partial struct ParallelSpawnJob : IJobEntity
 }
 ```
 
-### Pattern 5: Aspect (Grouping Components)
+### 模式 5：Aspect（组件分组）
 
 ```csharp
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
 
-// Aspect: Groups related components for cleaner code
+// Aspect：将相关组件分组以获得更清晰的代码
 public readonly partial struct CharacterAspect : IAspect
 {
     public readonly Entity Entity;
@@ -270,11 +270,11 @@ public readonly partial struct CharacterAspect : IAspect
     private readonly RefRO<Speed> _speed;
     private readonly RefRW<Health> _health;
 
-    // Optional component
+    // 可选组件
     [Optional]
     private readonly RefRO<Shield> _shield;
 
-    // Buffer
+    // 缓冲区
     private readonly DynamicBuffer<InventoryItem> _inventory;
 
     public float3 Position
@@ -296,7 +296,7 @@ public readonly partial struct CharacterAspect : IAspect
 
         if (HasShield && _shield.ValueRO.Amount > 0)
         {
-            // Shield absorbs damage first
+            // 护盾先吸收伤害
             remaining = math.max(0, amount - _shield.ValueRO.Amount);
         }
 
@@ -314,7 +314,7 @@ public readonly partial struct CharacterAspect : IAspect
     }
 }
 
-// Using aspect in system
+// 在系统中使用 aspect
 [BurstCompile]
 public partial struct CharacterSystem : ISystem
 {
@@ -329,17 +329,17 @@ public partial struct CharacterSystem : ISystem
 
             if (character.CurrentHealth < character.MaxHealth * 0.5f)
             {
-                // Low health logic
+                // 低血量逻辑
             }
         }
     }
 }
 ```
 
-### Pattern 6: Singleton Components
+### 模式 6：单例组件
 
 ```csharp
-// Singleton: Exactly one entity with this component
+// 单例：恰好一个实体拥有此组件
 public struct GameConfig : IComponentData
 {
     public float DifficultyMultiplier;
@@ -354,7 +354,7 @@ public struct GameState : IComponentData
     public float TimeRemaining;
 }
 
-// Create singleton on world creation
+// 在世界创建时创建单例
 public partial struct GameInitSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
@@ -375,21 +375,21 @@ public partial struct GameInitSystem : ISystem
     }
 }
 
-// Access singleton in system
+// 在系统中访问单例
 [BurstCompile]
 public partial struct ScoreSystem : ISystem
 {
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        // Read singleton
+        // 读取单例
         var config = SystemAPI.GetSingleton<GameConfig>();
 
-        // Write singleton
+        // 写入单例
         ref var gameState = ref SystemAPI.GetSingletonRW<GameState>().ValueRW;
         gameState.TimeRemaining -= SystemAPI.Time.DeltaTime;
 
-        // Check exists
+        // 检查是否存在
         if (SystemAPI.HasSingleton<GameConfig>())
         {
             // ...
@@ -398,13 +398,13 @@ public partial struct ScoreSystem : ISystem
 }
 ```
 
-### Pattern 7: Baking (Converting GameObjects)
+### 模式 7：Baking（转换 GameObjects）
 
 ```csharp
 using Unity.Entities;
 using UnityEngine;
 
-// Authoring component (MonoBehaviour in Editor)
+// 授权组件（编辑器中的 MonoBehaviour）
 public class EnemyAuthoring : MonoBehaviour
 {
     public float Speed = 5f;
@@ -436,7 +436,7 @@ public class EnemyAuthoring : MonoBehaviour
     }
 }
 
-// Complex baking with dependencies
+// 带依赖的复杂 baking
 public class SpawnerAuthoring : MonoBehaviour
 {
     public GameObject[] Prefabs;
@@ -454,7 +454,7 @@ public class SpawnerAuthoring : MonoBehaviour
                 Timer = 0f
             });
 
-            // Bake buffer of prefabs
+            // Bake 预制体缓冲区
             var buffer = AddBuffer<SpawnPrefabElement>(entity);
             foreach (var prefab in authoring.Prefabs)
             {
@@ -464,14 +464,14 @@ public class SpawnerAuthoring : MonoBehaviour
                 });
             }
 
-            // Declare dependencies
+            // 声明依赖
             DependsOn(authoring.Prefabs);
         }
     }
 }
 ```
 
-### Pattern 8: Jobs with Native Collections
+### 模式 8：带原生集合的 Jobs
 
 ```csharp
 using Unity.Jobs;
@@ -485,7 +485,7 @@ public struct SpatialHashJob : IJobParallelFor
     [ReadOnly]
     public NativeArray<float3> Positions;
 
-    // Thread-safe write to hash map
+    // 线程安全的哈希表写入
     public NativeParallelMultiHashMap<int, int>.ParallelWriter HashMap;
 
     public float CellSize;
@@ -530,7 +530,7 @@ public partial struct SpatialHashSystem : ISystem
 
         int count = query.CalculateEntityCount();
 
-        // Resize if needed
+        // 需要时调整大小
         if (_hashMap.Capacity < count)
         {
             _hashMap.Capacity = count * 2;
@@ -538,7 +538,7 @@ public partial struct SpatialHashSystem : ISystem
 
         _hashMap.Clear();
 
-        // Get positions
+        // 获取位置
         var positions = query.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
         var posFloat3 = new NativeArray<float3>(count, Allocator.TempJob);
 
@@ -547,7 +547,7 @@ public partial struct SpatialHashSystem : ISystem
             posFloat3[i] = positions[i].Position;
         }
 
-        // Build hash map
+        // 构建哈希表
         var hashJob = new SpatialHashJob
         {
             Positions = posFloat3,
@@ -557,31 +557,31 @@ public partial struct SpatialHashSystem : ISystem
 
         state.Dependency = hashJob.Schedule(count, 64, state.Dependency);
 
-        // Cleanup
+        // 清理
         positions.Dispose(state.Dependency);
         posFloat3.Dispose(state.Dependency);
     }
 }
 ```
 
-## Performance Tips
+## 性能技巧
 
 ```csharp
-// 1. Use Burst everywhere
+// 1. 到处使用 Burst
 [BurstCompile]
 public partial struct MySystem : ISystem { }
 
-// 2. Prefer IJobEntity over manual iteration
+// 2. 优先使用 IJobEntity 而非手动迭代
 [BurstCompile]
 partial struct OptimizedJob : IJobEntity
 {
     void Execute(ref LocalTransform transform) { }
 }
 
-// 3. Schedule parallel when possible
+// 3. 尽可能使用 ScheduleParallel
 state.Dependency = job.ScheduleParallel(state.Dependency);
 
-// 4. Use ScheduleParallel with chunk iteration
+// 4. 使用 ScheduleParallel 配合 chunk 迭代
 [BurstCompile]
 partial struct ChunkJob : IJobChunk
 {
@@ -593,30 +593,30 @@ partial struct ChunkJob : IJobChunk
         var healths = chunk.GetNativeArray(ref HealthHandle);
         for (int i = 0; i < chunk.Count; i++)
         {
-            // Process
+            // 处理
         }
     }
 }
 
-// 5. Avoid structural changes in hot paths
-// Use enableable components instead of add/remove
+// 5. 热路径中避免结构变更
+// 使用可启用组件代替 add/remove
 public struct Disabled : IComponentData, IEnableableComponent { }
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该做的
 
-- **Use ISystem over SystemBase** - Better performance
-- **Burst compile everything** - Massive speedup
-- **Batch structural changes** - Use ECB
-- **Profile with Profiler** - Identify bottlenecks
-- **Use Aspects** - Clean component grouping
+- **使用 ISystem 而非 SystemBase** - 更好的性能
+- **Burst 编译一切** - 大幅加速
+- **批量结构变更** - 使用 ECB
+- **使用 Profiler 分析** - 识别瓶颈
+- **使用 Aspects** - 清晰的组件分组
 
-### Don'ts
+### 不应该做的
 
-- **Don't use managed types** - Breaks Burst
-- **Don't structural change in jobs** - Use ECB
-- **Don't over-architect** - Start simple
-- **Don't ignore chunk utilization** - Group similar entities
-- **Don't forget disposal** - Native collections leak
+- **不要使用托管类型** - 破坏 Burst
+- **不要在 job 中进行结构变更** - 使用 ECB
+- **不要过度架构** - 从简单开始
+- **不要忽略 chunk 利用率** - 分组相似实体
+- **不要忘记释放** - 原生集合会泄漏

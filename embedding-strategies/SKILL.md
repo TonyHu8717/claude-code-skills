@@ -1,76 +1,76 @@
 ---
 name: embedding-strategies
-description: Select and optimize embedding models for semantic search and RAG applications. Use when choosing embedding models, implementing chunking strategies, or optimizing embedding quality for specific domains.
+description: 为语义搜索和 RAG 应用选择和优化嵌入模型。在选择嵌入模型、实现分块策略或为特定领域优化嵌入质量时使用。
 ---
 
-# Embedding Strategies
+# 嵌入策略
 
-Guide to selecting and optimizing embedding models for vector search applications.
+为向量搜索应用选择和优化嵌入模型的指南。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Choosing embedding models for RAG
-- Optimizing chunking strategies
-- Fine-tuning embeddings for domains
-- Comparing embedding model performance
-- Reducing embedding dimensions
-- Handling multilingual content
+- 为 RAG 选择嵌入模型
+- 优化分块策略
+- 为领域微调嵌入
+- 比较嵌入模型性能
+- 降低嵌入维度
+- 处理多语言内容
 
-## Core Concepts
+## 核心概念
 
-### 1. Embedding Model Comparison (2026)
+### 1. 嵌入模型比较（2026）
 
-| Model                      | Dimensions | Max Tokens | Best For                            |
+| 模型                      | 维度 | 最大令牌数 | 最适合                            |
 | -------------------------- | ---------- | ---------- | ----------------------------------- |
-| **voyage-3-large**         | 1024       | 32000      | Claude apps (Anthropic recommended) |
-| **voyage-3**               | 1024       | 32000      | Claude apps, cost-effective         |
-| **voyage-code-3**          | 1024       | 32000      | Code search                         |
-| **voyage-finance-2**       | 1024       | 32000      | Financial documents                 |
-| **voyage-law-2**           | 1024       | 32000      | Legal documents                     |
-| **text-embedding-3-large** | 3072       | 8191       | OpenAI apps, high accuracy          |
-| **text-embedding-3-small** | 1536       | 8191       | OpenAI apps, cost-effective         |
-| **bge-large-en-v1.5**      | 1024       | 512        | Open source, local deployment       |
-| **all-MiniLM-L6-v2**       | 384        | 256        | Fast, lightweight                   |
-| **multilingual-e5-large**  | 1024       | 512        | Multi-language                      |
+| **voyage-3-large**         | 1024       | 32000      | Claude 应用（Anthropic 推荐）|
+| **voyage-3**               | 1024       | 32000      | Claude 应用，性价比高         |
+| **voyage-code-3**          | 1024       | 32000      | 代码搜索                         |
+| **voyage-finance-2**       | 1024       | 32000      | 金融文档                 |
+| **voyage-law-2**           | 1024       | 32000      | 法律文档                     |
+| **text-embedding-3-large** | 3072       | 8191       | OpenAI 应用，高精度          |
+| **text-embedding-3-small** | 1536       | 8191       | OpenAI 应用，性价比高         |
+| **bge-large-en-v1.5**      | 1024       | 512        | 开源，本地部署       |
+| **all-MiniLM-L6-v2**       | 384        | 256        | 快速，轻量                   |
+| **multilingual-e5-large**  | 1024       | 512        | 多语言                      |
 
-### 2. Embedding Pipeline
+### 2. 嵌入管道
 
 ```
-Document → Chunking → Preprocessing → Embedding Model → Vector
-                ↓
-        [Overlap, Size]  [Clean, Normalize]  [API/Local]
+文档 → 分块 → 预处理 → 嵌入模型 → 向量
+              ↓
+      [重叠, 大小]  [清理, 标准化]  [API/本地]
 ```
 
-## Templates
+## 模板
 
-### Template 1: Voyage AI Embeddings (Recommended for Claude)
+### 模板 1：Voyage AI 嵌入（Claude 推荐）
 
 ```python
 from langchain_voyageai import VoyageAIEmbeddings
 from typing import List
 import os
 
-# Initialize Voyage AI embeddings (recommended by Anthropic for Claude)
+# 初始化 Voyage AI 嵌入（Anthropic 为 Claude 推荐）
 embeddings = VoyageAIEmbeddings(
     model="voyage-3-large",
     voyage_api_key=os.environ.get("VOYAGE_API_KEY")
 )
 
 def get_embeddings(texts: List[str]) -> List[List[float]]:
-    """Get embeddings from Voyage AI."""
+    """从 Voyage AI 获取嵌入。"""
     return embeddings.embed_documents(texts)
 
 def get_query_embedding(query: str) -> List[float]:
-    """Get single query embedding."""
+    """获取单个查询嵌入。"""
     return embeddings.embed_query(query)
 
-# Specialized models for domains
+# 领域专用模型
 code_embeddings = VoyageAIEmbeddings(model="voyage-code-3")
 finance_embeddings = VoyageAIEmbeddings(model="voyage-finance-2")
 legal_embeddings = VoyageAIEmbeddings(model="voyage-law-2")
 ```
 
-### Template 2: OpenAI Embeddings
+### 模板 2：OpenAI 嵌入
 
 ```python
 from openai import OpenAI
@@ -84,8 +84,8 @@ def get_embeddings(
     model: str = "text-embedding-3-small",
     dimensions: int = None
 ) -> List[List[float]]:
-    """Get embeddings from OpenAI with optional dimension reduction."""
-    # Handle batching for large lists
+    """从 OpenAI 获取嵌入，支持可选的维度降低。"""
+    # 处理大列表的批处理
     batch_size = 100
     all_embeddings = []
 
@@ -94,7 +94,7 @@ def get_embeddings(
 
         kwargs = {"input": batch, "model": model}
         if dimensions:
-            # Matryoshka dimensionality reduction
+            # Matryoshka 维度降低
             kwargs["dimensions"] = dimensions
 
         response = client.embeddings.create(**kwargs)
@@ -105,13 +105,13 @@ def get_embeddings(
 
 
 def get_embedding(text: str, **kwargs) -> List[float]:
-    """Get single embedding."""
+    """获取单个嵌入。"""
     return get_embeddings([text], **kwargs)[0]
 
 
-# Dimension reduction with Matryoshka embeddings
+# 使用 Matryoshka 嵌入降低维度
 def get_reduced_embedding(text: str, dimensions: int = 512) -> List[float]:
-    """Get embedding with reduced dimensions (Matryoshka)."""
+    """获取降低维度的嵌入（Matryoshka）。"""
     return get_embedding(
         text,
         model="text-embedding-3-small",
@@ -119,7 +119,7 @@ def get_reduced_embedding(text: str, dimensions: int = 512) -> List[float]:
     )
 ```
 
-### Template 3: Local Embeddings with Sentence Transformers
+### 模板 3：使用 Sentence Transformers 的本地嵌入
 
 ```python
 from sentence_transformers import SentenceTransformer
@@ -127,7 +127,7 @@ from typing import List, Optional
 import numpy as np
 
 class LocalEmbedder:
-    """Local embedding with sentence-transformers."""
+    """使用 sentence-transformers 的本地嵌入。"""
 
     def __init__(
         self,
@@ -143,7 +143,7 @@ class LocalEmbedder:
         normalize: bool = True,
         show_progress: bool = False
     ) -> np.ndarray:
-        """Embed texts with optional normalization."""
+        """嵌入文本，支持可选标准化。"""
         embeddings = self.model.encode(
             texts,
             normalize_embeddings=normalize,
@@ -153,32 +153,32 @@ class LocalEmbedder:
         return embeddings
 
     def embed_query(self, query: str) -> np.ndarray:
-        """Embed a query with appropriate prefix for retrieval models."""
-        # BGE and similar models benefit from query prefix
+        """嵌入查询，为检索模型添加适当的前缀。"""
+        # BGE 和类似模型受益于查询前缀
         if "bge" in self.model_name.lower():
             query = f"Represent this sentence for searching relevant passages: {query}"
         return self.embed([query])[0]
 
     def embed_documents(self, documents: List[str]) -> np.ndarray:
-        """Embed documents for indexing."""
+        """嵌入文档用于索引。"""
         return self.embed(documents)
 
 
-# E5 model with instructions
+# 带指令的 E5 模型
 class E5Embedder:
     def __init__(self, model_name: str = "intfloat/multilingual-e5-large"):
         self.model = SentenceTransformer(model_name)
 
     def embed_query(self, query: str) -> np.ndarray:
-        """E5 requires 'query:' prefix for queries."""
+        """E5 查询需要 'query:' 前缀。"""
         return self.model.encode(f"query: {query}")
 
     def embed_document(self, document: str) -> np.ndarray:
-        """E5 requires 'passage:' prefix for documents."""
+        """E5 文档需要 'passage:' 前缀。"""
         return self.model.encode(f"passage: {document}")
 ```
 
-### Template 4: Chunking Strategies
+### 模板 4：分块策略
 
 ```python
 from typing import List, Tuple
@@ -190,7 +190,7 @@ def chunk_by_tokens(
     chunk_overlap: int = 50,
     tokenizer=None
 ) -> List[str]:
-    """Chunk text by token count."""
+    """按令牌数分块文本。"""
     import tiktoken
     tokenizer = tokenizer or tiktoken.get_encoding("cl100k_base")
 
@@ -213,7 +213,7 @@ def chunk_by_sentences(
     max_chunk_size: int = 1000,
     min_chunk_size: int = 100
 ) -> List[str]:
-    """Chunk text by sentences, respecting size limits."""
+    """按句子分块文本，遵守大小限制。"""
     import nltk
     sentences = nltk.sent_tokenize(text)
 
@@ -242,7 +242,7 @@ def chunk_by_semantic_sections(
     text: str,
     headers_pattern: str = r'^#{1,3}\s+.+$'
 ) -> List[Tuple[str, str]]:
-    """Chunk markdown by headers, preserving hierarchy."""
+    """按标题分块 markdown，保留层次结构。"""
     lines = text.split('\n')
     chunks = []
     current_header = ""
@@ -269,7 +269,7 @@ def recursive_character_splitter(
     chunk_overlap: int = 200,
     separators: List[str] = None
 ) -> List[str]:
-    """LangChain-style recursive splitter."""
+    """LangChain 风格的递归分割器。"""
     separators = separators or ["\n\n", "\n", ". ", " ", ""]
 
     def split_text(text: str, separators: List[str]) -> List[str]:
@@ -280,7 +280,7 @@ def recursive_character_splitter(
         remaining_separators = separators[1:]
 
         if separator == "":
-            # Character-level split
+            # 字符级分割
             return [text[i:i+chunk_size] for i in range(0, len(text), chunk_size - chunk_overlap)]
 
         splits = text.split(separator)
@@ -294,13 +294,13 @@ def recursive_character_splitter(
             if current_length + split_length > chunk_size and current_chunk:
                 chunk_text = separator.join(current_chunk)
 
-                # Recursively split if still too large
+                # 如果仍然太大则递归分割
                 if len(chunk_text) > chunk_size and remaining_separators:
                     chunks.extend(split_text(chunk_text, remaining_separators))
                 else:
                     chunks.append(chunk_text)
 
-                # Start new chunk with overlap
+                # 带重叠开始新块
                 overlap_splits = []
                 overlap_length = 0
                 for s in reversed(current_chunk):
@@ -323,7 +323,7 @@ def recursive_character_splitter(
     return split_text(text, separators)
 ```
 
-### Template 5: Domain-Specific Embedding Pipeline
+### 模板 5：领域专用嵌入管道
 
 ```python
 import re
@@ -340,7 +340,7 @@ class EmbeddedDocument:
     metadata: dict
 
 class DomainEmbeddingPipeline:
-    """Pipeline for domain-specific embeddings."""
+    """领域专用嵌入管道。"""
 
     def __init__(
         self,
@@ -355,10 +355,10 @@ class DomainEmbeddingPipeline:
         self.preprocess = preprocessing_fn or self._default_preprocess
 
     def _default_preprocess(self, text: str) -> str:
-        """Default preprocessing."""
-        # Remove excessive whitespace
+        """默认预处理。"""
+        # 移除多余空白
         text = re.sub(r'\s+', ' ', text)
-        # Remove special characters (customize for your domain)
+        # 移除特殊字符（根据您的领域自定义）
         text = re.sub(r'[^\w\s.,!?-]', '', text)
         return text.strip()
 
@@ -369,31 +369,31 @@ class DomainEmbeddingPipeline:
         content_field: str = "content",
         metadata_fields: Optional[List[str]] = None
     ) -> List[EmbeddedDocument]:
-        """Process documents for vector storage."""
+        """处理文档用于向量存储。"""
         processed = []
 
         for doc in documents:
             content = doc[content_field]
             doc_id = doc[id_field]
 
-            # Preprocess
+            # 预处理
             cleaned = self.preprocess(content)
 
-            # Chunk
+            # 分块
             chunks = chunk_by_tokens(
                 cleaned,
                 self.chunk_size,
                 self.chunk_overlap
             )
 
-            # Create embeddings
+            # 创建嵌入
             embeddings = await self.embeddings.aembed_documents(chunks)
 
-            # Create records
+            # 创建记录
             for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
                 metadata = {"document_id": doc_id, "chunk_index": i}
 
-                # Add specified metadata fields
+                # 添加指定的元数据字段
                 if metadata_fields:
                     for field in metadata_fields:
                         if field in doc:
@@ -411,31 +411,31 @@ class DomainEmbeddingPipeline:
         return processed
 
 
-# Code-specific pipeline
+# 代码专用管道
 class CodeEmbeddingPipeline:
-    """Specialized pipeline for code embeddings."""
+    """代码嵌入专用管道。"""
 
     def __init__(self):
-        # Use Voyage's code-specific model
+        # 使用 Voyage 的代码专用模型
         self.embeddings = VoyageAIEmbeddings(model="voyage-code-3")
 
     def chunk_code(self, code: str, language: str) -> List[dict]:
-        """Chunk code by functions/classes using tree-sitter."""
+        """使用 tree-sitter 按函数/类分块代码。"""
         try:
             import tree_sitter_languages
             parser = tree_sitter_languages.get_parser(language)
             tree = parser.parse(bytes(code, "utf8"))
 
             chunks = []
-            # Extract function and class definitions
+            # 提取函数和类定义
             self._extract_nodes(tree.root_node, code, chunks)
             return chunks
         except ImportError:
-            # Fallback to simple chunking
+            # 回退到简单分块
             return [{"text": code, "type": "module"}]
 
     def _extract_nodes(self, node, source_code: str, chunks: list):
-        """Recursively extract function/class definitions."""
+        """递归提取函数/类定义。"""
         if node.type in ['function_definition', 'class_definition', 'method_definition']:
             text = source_code[node.start_byte:node.end_byte]
             chunks.append({
@@ -449,7 +449,7 @@ class CodeEmbeddingPipeline:
             self._extract_nodes(child, source_code, chunks)
 
     def _get_name(self, node) -> str:
-        """Extract name from function/class node."""
+        """从函数/类节点提取名称。"""
         for child in node.children:
             if child.type == 'identifier' or child.type == 'name':
                 return child.text.decode('utf8')
@@ -460,7 +460,7 @@ class CodeEmbeddingPipeline:
         chunk: str,
         context: str = ""
     ) -> List[float]:
-        """Embed code with surrounding context."""
+        """带上下文嵌入代码。"""
         if context:
             combined = f"Context: {context}\n\nCode:\n{chunk}"
         else:
@@ -468,7 +468,7 @@ class CodeEmbeddingPipeline:
         return await self.embeddings.aembed_query(combined)
 ```
 
-### Template 6: Embedding Quality Evaluation
+### 模板 6：嵌入质量评估
 
 ```python
 import numpy as np
@@ -476,11 +476,11 @@ from typing import List, Dict
 
 def evaluate_retrieval_quality(
     queries: List[str],
-    relevant_docs: List[List[str]],  # List of relevant doc IDs per query
-    retrieved_docs: List[List[str]],  # List of retrieved doc IDs per query
+    relevant_docs: List[List[str]],  # 每个查询的相关文档 ID 列表
+    retrieved_docs: List[List[str]],  # 每个查询的检索文档 ID 列表
     k: int = 10
 ) -> Dict[str, float]:
-    """Evaluate embedding quality for retrieval."""
+    """评估检索的嵌入质量。"""
 
     def precision_at_k(relevant: set, retrieved: List[str], k: int) -> float:
         retrieved_k = retrieved[:k]
@@ -528,9 +528,9 @@ def compute_embedding_similarity(
     embeddings2: np.ndarray,
     metric: str = "cosine"
 ) -> np.ndarray:
-    """Compute similarity matrix between embedding sets."""
+    """计算嵌入集之间的相似度矩阵。"""
     if metric == "cosine":
-        # Normalize and compute dot product
+        # 标准化并计算点积
         norm1 = embeddings1 / np.linalg.norm(embeddings1, axis=1, keepdims=True)
         norm2 = embeddings2 / np.linalg.norm(embeddings2, axis=1, keepdims=True)
         return norm1 @ norm2.T
@@ -550,27 +550,27 @@ def compare_embedding_models(
     relevant_indices: List[List[int]],
     k: int = 5
 ) -> Dict[str, Dict[str, float]]:
-    """Compare multiple embedding models on retrieval quality."""
+    """比较多个嵌入模型的检索质量。"""
     results = {}
 
     for model_name, embed_fn in models.items():
-        # Embed all texts
+        # 嵌入所有文本
         doc_embeddings = np.array(embed_fn(texts))
 
         retrieved_per_query = []
         for query in queries:
             query_embedding = np.array(embed_fn([query])[0])
-            # Compute similarities
+            # 计算相似度
             similarities = compute_embedding_similarity(
                 query_embedding.reshape(1, -1),
                 doc_embeddings,
                 metric="cosine"
             )[0]
-            # Get top-k indices
+            # 获取 top-k 索引
             top_k_indices = np.argsort(similarities)[::-1][:k]
             retrieved_per_query.append([str(i) for i in top_k_indices])
 
-        # Convert relevant indices to string IDs
+        # 将相关索引转换为字符串 ID
         relevant_docs = [[str(i) for i in indices] for indices in relevant_indices]
 
         results[model_name] = evaluate_retrieval_quality(
@@ -580,21 +580,21 @@ def compare_embedding_models(
     return results
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该做
 
-- **Match model to use case**: Code vs prose vs multilingual
-- **Chunk thoughtfully**: Preserve semantic boundaries
-- **Normalize embeddings**: For cosine similarity search
-- **Batch requests**: More efficient than one-by-one
-- **Cache embeddings**: Avoid recomputing for static content
-- **Use Voyage AI for Claude apps**: Recommended by Anthropic
+- **匹配模型与用例**：代码 vs 文本 vs 多语言
+- **精心分块**：保留语义边界
+- **标准化嵌入**：用于余弦相似度搜索
+- **批量请求**：比逐个更高效
+- **缓存嵌入**：避免对静态内容重新计算
+- **为 Claude 应用使用 Voyage AI**：Anthropic 推荐
 
-### Don'ts
+### 不应该做
 
-- **Don't ignore token limits**: Truncation loses information
-- **Don't mix embedding models**: Incompatible vector spaces
-- **Don't skip preprocessing**: Garbage in, garbage out
-- **Don't over-chunk**: Lose important context
-- **Don't forget metadata**: Essential for filtering and debugging
+- **不要忽略令牌限制**：截断会丢失信息
+- **不要混合嵌入模型**：向量空间不兼容
+- **不要跳过预处理**：垃圾进，垃圾出
+- **不要过度分块**：会丢失重要上下文
+- **不要忘记元数据**：对过滤和调试至关重要

@@ -1,26 +1,26 @@
 ---
 name: skill
-description: Manage local skills - list, add, remove, search, edit, setup wizard
+description: 管理本地技能 — 列表、添加、删除、搜索、编辑、设置向导
 argument-hint: "<command> [args]"
 level: 2
 ---
 
-# Skill Management CLI
+# 技能管理 CLI
 
-Meta-skill for managing oh-my-claudecode skills via CLI-like commands.
+用于通过类 CLI 命令管理 oh-my-claudecode 技能的元技能。
 
-## Subcommands
+## 子命令
 
 ### /skill list
 
-Show all available skills organized by scope.
+显示按范围组织的所有可用技能。
 
-**Behavior:**
-1. Scan bundled built-in skills in the plugin `skills/` directory (read-only)
-2. Scan user skills at `${CLAUDE_CONFIG_DIR:-~/.claude}/skills/omc-learned/`
-3. Scan project skills at `.omc/skills/`
-4. Parse YAML frontmatter for metadata
-5. Display in organized table format:
+**行为：**
+1. 扫描插件 `skills/` 目录中的捆绑内置技能（只读）
+2. 扫描 `${CLAUDE_CONFIG_DIR:-~/.claude}/skills/omc-learned/` 中的用户技能
+3. 扫描 `.omc/skills/` 中的项目技能
+4. 解析 YAML 前置数据获取元数据
+5. 以有组织的表格格式显示：
 
 ```
 BUILT-IN SKILLS (bundled with oh-my-claudecode):
@@ -41,29 +41,29 @@ PROJECT SKILLS (.omc/skills/):
 | test-runner       | test, run          | 92%     | 15    | project |
 ```
 
-**Fallback:** If quality/usage stats not available, show "N/A"
+**回退：**如果质量/使用统计不可用，显示 "N/A"
 
-**Built-in skill note:** Built-in skills are bundled with oh-my-claudecode and are discoverable/readable, but not removed or edited through `/skill remove` or `/skill edit`.
+**内置技能说明：**内置技能与 oh-my-claudecode 捆绑，可发现/可读取，但不能通过 `/skill remove` 或 `/skill edit` 移除或编辑。
 
 ---
 
 ### /skill add [name]
 
-Interactive wizard for creating a new skill.
+创建新技能的交互式向导。
 
-**Behavior:**
-1. **Ask for skill name** (if not provided in command)
-   - Validate: lowercase, hyphens only, no spaces
-2. **Ask for description**
-   - Clear, concise one-liner
-3. **Ask for triggers** (comma-separated keywords)
-   - Example: "error, fix, debug"
-4. **Ask for argument hint** (optional)
-   - Example: "<file> [options]"
-5. **Ask for scope:**
+**行为：**
+1. **询问技能名称**（如果命令中未提供）
+   - 验证：小写、仅连字符、无空格
+2. **询问描述**
+   - 清晰、简洁的一行
+3. **询问触发器**（逗号分隔的关键词）
+   - 示例："error, fix, debug"
+4. **询问参数提示**（可选）
+   - 示例："<file> [options]"
+5. **询问范围：**
    - `user` → `${CLAUDE_CONFIG_DIR:-~/.claude}/skills/omc-learned/<name>/SKILL.md`
    - `project` → `.omc/skills/<name>/SKILL.md`
-6. **Create skill file** with template:
+6. **创建技能文件**使用模板：
 
 ```yaml
 ---
@@ -102,10 +102,10 @@ argument-hint: "<args>"
 [Additional context, edge cases, gotchas]
 ```
 
-7. **Report success** with file path
-8. **Suggest:** "Edit `/skill edit <name>` to customize content"
+7. **报告成功**及文件路径
+8. **建议：**"Edit `/skill edit <name>` to customize content"
 
-**Example:**
+**示例：**
 ```
 User: /skill add custom-logger
 Assistant: Creating new skill 'custom-logger'...
@@ -123,24 +123,24 @@ Scope (user/project): user
 
 ### /skill remove <name>
 
-Remove a skill by name.
+按名称移除技能。
 
-**Behavior:**
-1. **Search for skill** in both scopes:
+**行为：**
+1. **搜索技能**在两个范围中：
    - `${CLAUDE_CONFIG_DIR:-~/.claude}/skills/omc-learned/<name>/SKILL.md`
    - `.omc/skills/<name>/SKILL.md`
-2. **If found:**
-   - Display skill info (name, description, scope)
-   - **Ask for confirmation:** "Delete '<name>' skill from <scope>? (yes/no)"
-3. **If confirmed:**
-   - Delete entire skill directory (e.g., `${CLAUDE_CONFIG_DIR:-~/.claude}/skills/omc-learned/<name>/`)
-   - Report: "✓ Removed skill '<name>' from <scope>"
-4. **If not found:**
-   - Report: "✗ Skill '<name>' not found in user or project scope"
+2. **如果找到：**
+   - 显示技能信息（name、description、scope）
+   - **请求确认：**"Delete '<name>' skill from <scope>? (yes/no)"
+3. **如果确认：**
+   - 删除整个技能目录（例如 `${CLAUDE_CONFIG_DIR:-~/.claude}/skills/omc-learned/<name>/`）
+   - 报告："✓ Removed skill '<name>' from <scope>"
+4. **如果未找到：**
+   - 报告："✗ Skill '<name>' not found in user or project scope"
 
-**Safety:** Never delete without explicit user confirmation.
+**安全：**没有明确用户确认绝不删除。
 
-**Example:**
+**示例：**
 ```
 User: /skill remove old-logger
 Assistant: Found skill 'old-logger' in user scope:
@@ -157,12 +157,12 @@ Assistant: ✓ Removed skill 'old-logger' from user scope
 
 ### /skill edit <name>
 
-Edit an existing skill interactively.
+交互式编辑现有技能。
 
-**Behavior:**
-1. **Find skill** by name (search both scopes)
-2. **Read current content** via Read tool
-3. **Display current values:**
+**行为：**
+1. **查找技能**按名称（搜索两个范围）
+2. **读取当前内容**通过 Read 工具
+3. **显示当前值：**
    ```
    Current skill 'custom-logger':
    - Description: Enhanced logging with structured output
@@ -170,21 +170,21 @@ Edit an existing skill interactively.
    - Argument hint: <level> [message]
    - Scope: user
    ```
-4. **Ask what to change:**
-   - `description` - Update description
-   - `triggers` - Update trigger keywords
-   - `argument-hint` - Update argument hint
-   - `content` - Edit full markdown content
-   - `rename` - Rename skill (move file)
-   - `cancel` - Exit without changes
-5. **For selected field:**
-   - Show current value
-   - Ask for new value
-   - Update YAML frontmatter or content
-   - Write back to file
-6. **Report success** with summary of changes
+4. **询问要更改什么：**
+   - `description` - 更新描述
+   - `triggers` - 更新触发关键词
+   - `argument-hint` - 更新参数提示
+   - `content` - 编辑完整 markdown 内容
+   - `rename` - 重命名技能（移动文件）
+   - `cancel` - 退出不更改
+5. **对于选定字段：**
+   - 显示当前值
+   - 询问新值
+   - 更新 YAML 前置数据或内容
+   - 写回文件
+6. **报告成功**及变更摘要
 
-**Example:**
+**示例：**
 ```
 User: /skill edit custom-logger
 Assistant: Current skill 'custom-logger':
@@ -205,16 +205,16 @@ New triggers (comma-separated): log, logger, logging, trace
 
 ### /skill search <query>
 
-Search skills by content, triggers, name, or description.
+按内容、触发器、名称或描述搜索技能。
 
-**Behavior:**
-1. **Scan all skills** in both scopes
-2. **Match query** (case-insensitive) against:
-   - Skill name
-   - Description
-   - Triggers
-   - Full markdown content
-3. **Display matches** with context:
+**行为：**
+1. **扫描所有技能**在两个范围中
+2. **匹配查询**（不区分大小写）对：
+   - 技能名称
+   - 描述
+   - 触发器
+   - 完整 markdown 内容
+3. **显示匹配**及上下文：
 
 ```
 Found 3 skills matching "typescript error":
@@ -232,9 +232,9 @@ Found 3 skills matching "typescript error":
    Match: "TypeScript ESLint error resolution"
 ```
 
-**Ranking:** Prioritize matches in name/triggers over content matches
+**排名：**优先 name/triggers 中的匹配而不是内容匹配
 
-**Example:**
+**示例：**
 ```
 User: /skill search api endpoint
 Assistant: Found 2 skills matching "api endpoint":
@@ -252,12 +252,12 @@ Assistant: Found 2 skills matching "api endpoint":
 
 ### /skill info <name>
 
-Show detailed information about a skill.
+显示技能的详细信息。
 
-**Behavior:**
-1. **Find skill** by name (search both scopes)
-2. **Parse YAML frontmatter** and content
-3. **Display complete details:**
+**行为：**
+1. **查找技能**按名称（搜索两个范围）
+2. **解析 YAML 前置数据**和内容
+3. **显示完整详情：**
 
 ```
 Skill: custom-logger
@@ -273,9 +273,9 @@ File Path: /home/user/.claude/skills/omc-learned/custom-logger/SKILL.md
 [entire markdown content]
 ```
 
-**If not found:** Report error with suggestion to use `/skill search`
+**如果未找到：**报告错误并建议使用 `/skill search`
 
-**Example:**
+**示例：**
 ```
 User: /skill info custom-logger
 Assistant: Skill: custom-logger
@@ -296,17 +296,17 @@ Enhanced logging with structured JSON output...
 
 ### /skill sync
 
-Sync skills between user and project scopes.
+在用户和项目范围之间同步技能。
 
-**Behavior:**
-1. **Scan both scopes:**
-   - User skills: `${CLAUDE_CONFIG_DIR:-~/.claude}/skills/omc-learned/`
-   - Project skills: `.omc/skills/`
-2. **Compare and categorize:**
-   - User-only skills (not in project)
-   - Project-only skills (not in user)
-   - Common skills (in both)
-3. **Display sync opportunities:**
+**行为：**
+1. **扫描两个范围：**
+   - 用户技能：`${CLAUDE_CONFIG_DIR:-~/.claude}/skills/omc-learned/`
+   - 项目技能：`.omc/skills/`
+2. **比较和分类：**
+   - 仅用户技能（不在项目中）
+   - 仅项目技能（不在用户中）
+   - 公共技能（两者都有）
+3. **显示同步机会：**
 
 ```
 SYNC REPORT:
@@ -334,15 +334,15 @@ Options:
   [4] Cancel
 ```
 
-4. **Handle user choice:**
-   - Option 1: Select skill(s) to copy to project
-   - Option 2: Select skill(s) to copy to user
-   - Option 3: Show side-by-side diff for common skills
-   - Option 4: Exit
+4. **处理用户选择：**
+   - 选项 1：选择要复制到项目的技能
+   - 选项 2：选择要复制到用户的技能
+   - 选项 3：为公共技能显示并排差异
+   - 选项 4：退出
 
-**Safety:** Never overwrite without confirmation
+**安全：**没有确认绝不覆盖
 
-**Example:**
+**示例：**
 ```
 User: /skill sync
 Assistant: Found 5 user-only skills and 2 project-only skills.
@@ -360,13 +360,13 @@ User: skip
 
 ### /skill setup
 
-Interactive wizard for setting up and managing local skills (formerly local-skills-setup).
+用于设置和管理本地技能的交互式向导（原 local-skills-setup）。
 
-**Behavior:**
+**行为：**
 
-#### Step 1: Directory Check and Setup
+#### 步骤 1：目录检查和设置
 
-First, check if skill directories exist and create them if needed:
+首先，检查技能目录是否存在，如果需要则创建：
 
 ```bash
 # Check and create user-level skills directory
@@ -388,9 +388,9 @@ else
 fi
 ```
 
-#### Step 2: Skill Scan and Inventory
+#### 步骤 2：技能扫描和清单
 
-Scan both directories and show a comprehensive inventory:
+扫描两个目录并显示全面清单：
 
 ```bash
 # Scan user-level skills
@@ -447,57 +447,57 @@ echo "=== SUMMARY ==="
 echo "Total skills across all directories: $TOTAL"
 ```
 
-#### Step 3: Quick Actions Menu
+#### 步骤 3：快速操作菜单
 
-After scanning, use the AskUserQuestion tool to offer these options:
+扫描后，使用 AskUserQuestion 工具提供这些选项：
 
-**Question:** "What would you like to do with your local skills?"
+**问题：**"What would you like to do with your local skills?"
 
-**Options:**
-1. **Add new skill** - Start the skill creation wizard (invoke `/skill add`)
-2. **List all skills with details** - Show comprehensive skill inventory (invoke `/skill list`)
-3. **Scan conversation for patterns** - Analyze current conversation for skill-worthy patterns
-4. **Import skill** - Import a skill from URL or paste content
-5. **Done** - Exit the wizard
+**选项：**
+1. **添加新技能** — 启动技能创建向导（调用 `/skill add`）
+2. **列出所有技能详情** — 显示全面技能清单（调用 `/skill list`）
+3. **扫描对话寻找模式** — 分析当前对话寻找适合技能的模式
+4. **导入技能** — 从 URL 导入技能或粘贴内容
+5. **完成** — 退出向导
 
-**Option 3: Scan Conversation for Patterns**
+**选项 3：扫描对话寻找模式**
 
-Analyze the current conversation context to identify potential skill-worthy patterns. Look for:
-- Recent debugging sessions with non-obvious solutions
-- Tricky bugs that required investigation
-- Codebase-specific workarounds discovered
-- Error patterns that took time to resolve
+分析当前对话上下文以识别潜在的适合技能的模式。查找：
+- 具有非明显解决方案的最近调试会话
+- 需要调查的棘手错误
+- 发现的代码库特定解决方法
+- 花时间解决的错误模式
 
-Report findings and ask if user wants to extract any as skills (invoke `/learner` if yes).
+报告发现并询问用户是否想提取任何作为技能（如果是则调用 `/learner`）。
 
-**Option 4: Import Skill**
+**选项 4：导入技能**
 
-Ask user to provide either:
-- **URL**: Download skill from a URL (e.g., GitHub gist)
-- **Paste content**: Paste skill markdown content directly
+要求用户提供：
+- **URL**：从 URL 下载技能（例如 GitHub gist）
+- **粘贴内容**：直接粘贴技能 markdown 内容
 
-Then ask for scope:
-- **User-level** (~/.claude/skills/omc-learned/) - Available across all projects
-- **Project-level** (.omc/skills/) - Only for this project
+然后询问范围：
+- **用户级**（~/.claude/skills/omc-learned/）— 跨所有项目可用
+- **项目级**（.omc/skills/）— 仅用于此项目
 
-Validate the skill format and save to the chosen location.
+验证技能格式并保存到选定位置。
 
 ---
 
 ### /skill scan
 
-Quick command to scan both skill directories (subset of `/skill setup`).
+扫描两个技能目录的快速命令（`/skill setup` 的子集）。
 
-**Behavior:**
-Run the scan from Step 2 of `/skill setup` without the interactive wizard.
+**行为：**
+运行 `/skill setup` 步骤 2 的扫描，不带交互式向导。
 
 ---
 
-## Skill Templates
+## 技能模板
 
-When creating skills via `/skill add` or `/skill setup`, offer quick templates for common skill types:
+通过 `/skill add` 或 `/skill setup` 创建技能时，为常见技能类型提供快速模板：
 
-### Error Solution Template
+### 错误解决方案模板
 
 ```markdown
 ---
@@ -539,7 +539,7 @@ Step-by-step solution:
 \`\`\`
 ```
 
-### Workflow Skill Template
+### 工作流技能模板
 
 ```markdown
 ---
@@ -575,7 +575,7 @@ When should you use this workflow?
 - [Edge case and how to handle it]
 ```
 
-### Code Pattern Template
+### 代码模式模板
 
 ```markdown
 ---
@@ -618,7 +618,7 @@ What NOT to do and why:
 \`\`\`
 ```
 
-### Integration Skill Template
+### 集成技能模板
 
 ```markdown
 ---
@@ -657,16 +657,16 @@ How to work with this integration correctly:
 
 ---
 
-## Error Handling
+## 错误处理
 
-**All commands must handle:**
-- File/directory doesn't exist
-- Permission errors
-- Invalid YAML frontmatter
-- Duplicate skill names
-- Invalid skill names (spaces, special chars)
+**所有命令必须处理：**
+- 文件/目录不存在
+- 权限错误
+- 无效的 YAML 前置数据
+- 重复的技能名称
+- 无效的技能名称（空格、特殊字符）
 
-**Error format:**
+**错误格式：**
 ```
 ✗ Error: <clear message>
 → Suggestion: <helpful next step>
@@ -674,7 +674,7 @@ How to work with this integration correctly:
 
 ---
 
-## Usage Examples
+## 使用示例
 
 ```bash
 # List all skills
@@ -705,67 +705,67 @@ How to work with this integration correctly:
 /skill scan
 ```
 
-## Usage Modes
+## 使用模式
 
-### Direct Command Mode
+### 直接命令模式
 
-When invoked with an argument, skip the interactive wizard:
+带参数调用时，跳过交互式向导：
 
-- `/oh-my-claudecode:skill list` - Show detailed skill inventory
-- `/oh-my-claudecode:skill add` - Start skill creation (invoke learner)
-- `/oh-my-claudecode:skill scan` - Scan both skill directories
+- `/oh-my-claudecode:skill list` — 显示详细技能清单
+- `/oh-my-claudecode:skill add` — 启动技能创建（调用 learner）
+- `/oh-my-claudecode:skill scan` — 扫描两个技能目录
 
-### Interactive Mode
+### 交互模式
 
-When invoked without arguments, run the full guided wizard.
-
----
-
-## Benefits of Local Skills
-
-**Automatic Application**: Claude detects triggers and applies skills automatically - no need to remember or search for solutions.
-
-**Version Control**: Project-level skills (`.omc/skills/`) are intended to be committed with your code so the whole team benefits. In linked worktrees, uncommitted skills remain local to that worktree and disappear if it is removed.
-
-**Evolving Knowledge**: Skills improve over time as you discover better approaches and refine triggers.
-
-**Reduced Token Usage**: Instead of re-solving the same problems, Claude applies known patterns efficiently.
-
-**Codebase Memory**: Preserves institutional knowledge that would otherwise be lost in conversation history.
+不带参数调用时，运行完整引导向导。
 
 ---
 
-## Skill Quality Guidelines
+## 本地技能的好处
 
-Good skills are:
+**自动应用**：Claude 检测触发器并自动应用技能 — 无需记住或搜索解决方案。
 
-1. **Non-Googleable** - Can't easily find via search
-   - BAD: "How to read files in TypeScript"
-   - GOOD: "This codebase uses custom path resolution requiring fileURLToPath"
+**版本控制**：项目级技能（`.omc/skills/`）旨在与代码一起提交，使整个团队受益。在链接的 worktree 中，未提交的技能保持在该 worktree 本地，如果移除则消失。
 
-2. **Context-Specific** - References actual files/errors from THIS codebase
-   - BAD: "Use try/catch for error handling"
-   - GOOD: "The aiohttp proxy in server.py:42 crashes on ClientDisconnectedError"
+**演进知识**：随着您发现更好的方法和完善触发器，技能随时间改进。
 
-3. **Actionable with Precision** - Tells exactly WHAT to do and WHERE
-   - BAD: "Handle edge cases"
-   - GOOD: "When seeing 'Cannot find module' in dist/, check tsconfig.json moduleResolution"
+**减少 Token 使用**：Claude 不是重新解决相同的问题，而是高效地应用已知模式。
 
-4. **Hard-Won** - Required significant debugging effort
-   - BAD: Generic programming patterns
-   - GOOD: "Race condition in worker.ts - Promise.all at line 89 needs await"
+**代码库记忆**：保留否则会在对话历史中丢失的机构知识。
 
 ---
 
-## Related Skills
+## 技能质量指南
 
-- `/oh-my-claudecode:learner` - Extract a skill from current conversation
-- `/oh-my-claudecode:note` - Save quick notes (less formal than skills)
-- `/oh-my-claudecode:deepinit` - Generate AGENTS.md codebase hierarchy
+好的技能是：
+
+1. **不可谷歌搜索** — 不能轻易通过搜索找到
+   - 差："How to read files in TypeScript"
+   - 好："This codebase uses custom path resolution requiring fileURLToPath"
+
+2. **上下文特定** — 引用此代码库的实际文件/错误
+   - 差："Use try/catch for error handling"
+   - 好："The aiohttp proxy in server.py:42 crashes on ClientDisconnectedError"
+
+3. **精确可操作** — 准确告诉做什么和在哪里
+   - 差："Handle edge cases"
+   - 好："When seeing 'Cannot find module' in dist/, check tsconfig.json moduleResolution"
+
+4. **来之不易** — 需要大量的调试努力
+   - 差：通用编程模式
+   - 好："Race condition in worker.ts - Promise.all at line 89 needs await"
 
 ---
 
-## Example Session
+## 相关技能
+
+- `/oh-my-claudecode:learner` — 从当前对话提取技能
+- `/oh-my-claudecode:note` — 保存快速笔记（不如技能正式）
+- `/oh-my-claudecode:deepinit` — 生成 AGENTS.md 代码库层次结构
+
+---
+
+## 示例会话
 
 ```
 > /oh-my-claudecode:skill list
@@ -809,39 +809,39 @@ What would you like to do?
 
 ---
 
-## Tips for Users
+## 用户提示
 
-- Run `/oh-my-claudecode:skill list` periodically to review your skill library
-- After solving a tricky bug, immediately run learner to capture it
-- Use project-level skills for codebase-specific knowledge
-- Use user-level skills for general patterns that apply everywhere
-- Review and refine triggers over time to improve matching accuracy
-
----
-
-## Implementation Notes
-
-1. **YAML Parsing:** Use frontmatter extraction for metadata
-2. **File Operations:** Use Read/Write tools, never Edit for new files
-3. **User Confirmation:** Always confirm destructive operations
-4. **Clear Feedback:** Use checkmarks (✓), crosses (✗), arrows (→) for clarity
-5. **Scope Resolution:** Always check both user and project scopes
-6. **Validation:** Enforce naming conventions (lowercase, hyphens only)
+- 定期运行 `/oh-my-claudecode:skill list` 以审查技能库
+- 解决棘手错误后，立即运行 learner 捕获它
+- 使用项目级技能存储代码库特定知识
+- 使用用户级技能存储通用模式
+- 随时间审查和完善触发器以提高匹配准确性
 
 ---
 
-## Related Skills
+## 实现说明
 
-- `/oh-my-claudecode:learner` - Extract a skill from current conversation
-- `/oh-my-claudecode:note` - Save quick notes (less formal than skills)
-- `/oh-my-claudecode:deepinit` - Generate AGENTS.md codebase hierarchy
+1. **YAML 解析：**使用前置数据提取获取元数据
+2. **文件操作：**使用 Read/Write 工具，新文件绝不使用 Edit
+3. **用户确认：**始终确认破坏性操作
+4. **清晰反馈：**使用勾号（✓）、叉号（✗）、箭头（→）提高清晰度
+5. **范围解析：**始终检查用户和项目两个范围
+6. **验证：**强制命名约定（小写、仅连字符）
 
 ---
 
-## Future Enhancements
+## 相关技能
 
-- `/skill export <name>` - Export skill as shareable file
-- `/skill import <file>` - Import skill from file
-- `/skill stats` - Show usage statistics across all skills
-- `/skill validate` - Check all skills for format errors
-- `/skill template <type>` - Create from predefined templates
+- `/oh-my-claudecode:learner` — 从当前对话提取技能
+- `/oh-my-claudecode:note` — 保存快速笔记（不如技能正式）
+- `/oh-my-claudecode:deepinit` — 生成 AGENTS.md 代码库层次结构
+
+---
+
+## 未来增强
+
+- `/skill export <name>` — 将技能导出为可共享文件
+- `/skill import <file>` — 从文件导入技能
+- `/skill stats` — 显示所有技能的使用统计
+- `/skill validate` — 检查所有技能的格式错误
+- `/skill template <type>` — 从预定义模板创建

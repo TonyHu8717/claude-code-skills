@@ -1,81 +1,81 @@
 ---
 name: api-design-principles
-description: Master REST and GraphQL API design principles to build intuitive, scalable, and maintainable APIs that delight developers. Use when designing new APIs, reviewing API specifications, or establishing API design standards.
+description: 掌握 REST 和 GraphQL API 设计原则，构建直观、可扩展且可维护的 API，让开发者满意。在设计新 API、审查 API 规范或建立 API 设计标准时使用。
 ---
 
-# API Design Principles
+# API 设计原则
 
-Master REST and GraphQL API design principles to build intuitive, scalable, and maintainable APIs that delight developers and stand the test of time.
+掌握 REST 和 GraphQL API 设计原则，构建直观、可扩展且可维护的 API，让开发者满意并经得起时间考验。
 
-## When to Use This Skill
+## 使用场景
 
-- Designing new REST or GraphQL APIs
-- Refactoring existing APIs for better usability
-- Establishing API design standards for your team
-- Reviewing API specifications before implementation
-- Migrating between API paradigms (REST to GraphQL, etc.)
-- Creating developer-friendly API documentation
-- Optimizing APIs for specific use cases (mobile, third-party integrations)
+- 设计新的 REST 或 GraphQL API
+- 重构现有 API 以提高可用性
+- 为团队建立 API 设计标准
+- 在实现前审查 API 规范
+- 在 API 范式之间迁移（REST 到 GraphQL 等）
+- 创建开发者友好的 API 文档
+- 针对特定用例优化 API（移动、第三方集成）
 
-## Core Concepts
+## 核心概念
 
-### 1. RESTful Design Principles
+### 1. RESTful 设计原则
 
-**Resource-Oriented Architecture**
+**面向资源的架构**
 
-- Resources are nouns (users, orders, products), not verbs
-- Use HTTP methods for actions (GET, POST, PUT, PATCH, DELETE)
-- URLs represent resource hierarchies
-- Consistent naming conventions
+- 资源是名词（用户、订单、产品），不是动词
+- 使用 HTTP 方法执行操作（GET、POST、PUT、PATCH、DELETE）
+- URL 表示资源层次结构
+- 一致的命名约定
 
-**HTTP Methods Semantics:**
+**HTTP 方法语义：**
 
-- `GET`: Retrieve resources (idempotent, safe)
-- `POST`: Create new resources
-- `PUT`: Replace entire resource (idempotent)
-- `PATCH`: Partial resource updates
-- `DELETE`: Remove resources (idempotent)
+- `GET`：检索资源（幂等、安全）
+- `POST`：创建新资源
+- `PUT`：替换整个资源（幂等）
+- `PATCH`：部分资源更新
+- `DELETE`：移除资源（幂等）
 
-### 2. GraphQL Design Principles
+### 2. GraphQL 设计原则
 
-**Schema-First Development**
+**模式优先开发**
 
-- Types define your domain model
-- Queries for reading data
-- Mutations for modifying data
-- Subscriptions for real-time updates
+- 类型定义你的领域模型
+- 查询用于读取数据
+- 变更用于修改数据
+- 订阅用于实时更新
 
-**Query Structure:**
+**查询结构：**
 
-- Clients request exactly what they need
-- Single endpoint, multiple operations
-- Strongly typed schema
-- Introspection built-in
+- 客户端请求 exactly what they need
+- 单一端点，多个操作
+- 强类型模式
+- 内置自省
 
-### 3. API Versioning Strategies
+### 3. API 版本控制策略
 
-**URL Versioning:**
+**URL 版本控制：**
 
 ```
 /api/v1/users
 /api/v2/users
 ```
 
-**Header Versioning:**
+**头部版本控制：**
 
 ```
 Accept: application/vnd.api+json; version=1
 ```
 
-**Query Parameter Versioning:**
+**查询参数版本控制：**
 
 ```
 /api/users?version=1
 ```
 
-## REST API Design Patterns
+## REST API 设计模式
 
-### Pattern 1: Resource Collection Design
+### 模式 1：资源集合设计
 
 ```python
 # Good: Resource-oriented endpoints
@@ -96,7 +96,7 @@ POST   /api/getUserById
 POST   /api/deleteUser
 ```
 
-### Pattern 2: Pagination and Filtering
+### 模式 2：分页和过滤
 
 ```python
 from typing import List, Optional
@@ -157,7 +157,7 @@ async def list_users(
     )
 ```
 
-### Pattern 3: Error Handling and Status Codes
+### 模式 3：错误处理和状态码
 
 ```python
 from fastapi import HTTPException, status
@@ -218,7 +218,7 @@ async def get_user(user_id: str):
     return user
 ```
 
-### Pattern 4: HATEOAS (Hypermedia as the Engine of Application State)
+### 模式 4：HATEOAS（超媒体作为应用状态引擎）
 
 ```python
 class UserResponse(BaseModel):
@@ -248,9 +248,9 @@ class UserResponse(BaseModel):
         )
 ```
 
-## GraphQL Design Patterns
+## GraphQL 设计模式
 
-### Pattern 1: Schema Design
+### 模式 1：模式设计
 
 ```graphql
 # schema.graphql
@@ -347,7 +347,7 @@ type Error {
 }
 ```
 
-### Pattern 2: Resolver Design
+### 模式 2：解析器设计
 
 ```python
 from typing import Optional, List
@@ -440,7 +440,7 @@ async def resolve_create_user(obj, info, input: dict) -> dict:
         }
 ```
 
-### Pattern 3: DataLoader (N+1 Problem Prevention)
+### 模式 3：DataLoader（N+1 问题预防）
 
 ```python
 from aiodataloader import DataLoader
@@ -485,34 +485,34 @@ def create_context():
     }
 ```
 
-## Best Practices
+## 最佳实践
 
-### REST APIs
+### REST API
 
-1. **Consistent Naming**: Use plural nouns for collections (`/users`, not `/user`)
-2. **Stateless**: Each request contains all necessary information
-3. **Use HTTP Status Codes Correctly**: 2xx success, 4xx client errors, 5xx server errors
-4. **Version Your API**: Plan for breaking changes from day one
-5. **Pagination**: Always paginate large collections
-6. **Rate Limiting**: Protect your API with rate limits
-7. **Documentation**: Use OpenAPI/Swagger for interactive docs
+1. **一致命名**：集合使用复数名词（`/users`，而非 `/user`）
+2. **无状态**：每个请求包含所有必要信息
+3. **正确使用 HTTP 状态码**：2xx 成功，4xx 客户端错误，5xx 服务器错误
+4. **版本化你的 API**：从第一天就计划破坏性变更
+5. **分页**：始终对大集合分页
+6. **速率限制**：用速率限制保护你的 API
+7. **文档**：使用 OpenAPI/Swagger 提供交互式文档
 
-### GraphQL APIs
+### GraphQL API
 
-1. **Schema First**: Design schema before writing resolvers
-2. **Avoid N+1**: Use DataLoaders for efficient data fetching
-3. **Input Validation**: Validate at schema and resolver levels
-4. **Error Handling**: Return structured errors in mutation payloads
-5. **Pagination**: Use cursor-based pagination (Relay spec)
-6. **Deprecation**: Use `@deprecated` directive for gradual migration
-7. **Monitoring**: Track query complexity and execution time
+1. **模式优先**：在编写解析器之前设计模式
+2. **避免 N+1**：使用 DataLoader 进行高效数据获取
+3. **输入验证**：在模式和解析器级别验证
+4. **错误处理**：在变更负载中返回结构化错误
+5. **分页**：使用基于游标的分页（Relay 规范）
+6. **弃用**：使用 `@deprecated` 指令进行渐进迁移
+7. **监控**：跟踪查询复杂性和执行时间
 
-## Common Pitfalls
+## 常见陷阱
 
-- **Over-fetching/Under-fetching (REST)**: Fixed in GraphQL but requires DataLoaders
-- **Breaking Changes**: Version APIs or use deprecation strategies
-- **Inconsistent Error Formats**: Standardize error responses
-- **Missing Rate Limits**: APIs without limits are vulnerable to abuse
-- **Poor Documentation**: Undocumented APIs frustrate developers
-- **Ignoring HTTP Semantics**: POST for idempotent operations breaks expectations
-- **Tight Coupling**: API structure shouldn't mirror database schema
+- **过度获取/获取不足（REST）**：在 GraphQL 中已修复但需要 DataLoader
+- **破坏性变更**：版本化 API 或使用弃用策略
+- **不一致的错误格式**：标准化错误响应
+- **缺少速率限制**：没有限制的 API 容易被滥用
+- **文档差**：无文档的 API 让开发者沮丧
+- **忽略 HTTP 语义**：对幂等操作使用 POST 打破预期
+- **紧耦合**：API 结构不应镜像数据库模式

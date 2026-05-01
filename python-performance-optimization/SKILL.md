@@ -1,51 +1,51 @@
 ---
 name: python-performance-optimization
-description: Profile and optimize Python code using cProfile, memory profilers, and performance best practices. Use when debugging slow Python code, optimizing bottlenecks, or improving application performance.
+description: 使用 cProfile、内存分析器和性能最佳实践来分析和优化 Python 代码。在调试缓慢的 Python 代码、优化瓶颈或提高应用程序性能时使用。
 ---
 
-# Python Performance Optimization
+# Python 性能优化
 
-Comprehensive guide to profiling, analyzing, and optimizing Python code for better performance, including CPU profiling, memory optimization, and implementation best practices.
+分析、分析和优化 Python 代码以获得更好性能的综合指南，包括 CPU 分析、内存优化和实现最佳实践。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Identifying performance bottlenecks in Python applications
-- Reducing application latency and response times
-- Optimizing CPU-intensive operations
-- Reducing memory consumption and memory leaks
-- Improving database query performance
-- Optimizing I/O operations
-- Speeding up data processing pipelines
-- Implementing high-performance algorithms
-- Profiling production applications
+- 识别 Python 应用程序中的性能瓶颈
+- 减少应用程序延迟和响应时间
+- 优化 CPU 密集型操作
+- 减少内存消耗和内存泄漏
+- 提高数据库查询性能
+- 优化 I/O 操作
+- 加速数据处理管道
+- 实现高性能算法
+- 分析生产应用程序
 
-## Core Concepts
+## 核心概念
 
-### 1. Profiling Types
+### 1. 分析类型
 
-- **CPU Profiling**: Identify time-consuming functions
-- **Memory Profiling**: Track memory allocation and leaks
-- **Line Profiling**: Profile at line-by-line granularity
-- **Call Graph**: Visualize function call relationships
+- **CPU 分析**：识别耗时函数
+- **内存分析**：跟踪内存分配和泄漏
+- **行分析**：逐行粒度分析
+- **调用图**：可视化函数调用关系
 
-### 2. Performance Metrics
+### 2. 性能指标
 
-- **Execution Time**: How long operations take
-- **Memory Usage**: Peak and average memory consumption
-- **CPU Utilization**: Processor usage patterns
-- **I/O Wait**: Time spent on I/O operations
+- **执行时间**：操作耗时
+- **内存使用**：峰值和平均内存消耗
+- **CPU 利用率**：处理器使用模式
+- **I/O 等待**：I/O 操作花费的时间
 
-### 3. Optimization Strategies
+### 3. 优化策略
 
-- **Algorithmic**: Better algorithms and data structures
-- **Implementation**: More efficient code patterns
-- **Parallelization**: Multi-threading/processing
-- **Caching**: Avoid redundant computation
-- **Native Extensions**: C/Rust for critical paths
+- **算法**：更好的算法和数据结构
+- **实现**：更高效的代码模式
+- **并行化**：多线程/多处理
+- **缓存**：避免冗余计算
+- **原生扩展**：C/Rust 用于关键路径
 
-## Quick Start
+## 快速开始
 
-### Basic Timing
+### 基本计时
 
 ```python
 import time
@@ -71,9 +71,9 @@ execution_time = timeit.timeit(
 print(f"Average time: {execution_time/100:.6f} seconds")
 ```
 
-## Profiling Tools
+## 分析工具
 
-### Pattern 1: cProfile - CPU Profiling
+### 模式 1：cProfile - CPU 分析
 
 ```python
 import cProfile
@@ -115,7 +115,7 @@ if __name__ == "__main__":
     stats.dump_stats("profile_output.prof")
 ```
 
-**Command-line profiling:**
+**命令行分析：**
 
 ```bash
 # Profile a script
@@ -128,7 +128,7 @@ python -m pstats output.prof
 # stats 10
 ```
 
-### Pattern 2: line_profiler - Line-by-Line Profiling
+### 模式 2：line_profiler - 逐行分析
 
 ```python
 # Install: pip install line-profiler
@@ -147,7 +147,7 @@ def process_data(data):
 # kernprof -l -v script.py
 ```
 
-**Manual line profiling:**
+**手动行分析：**
 
 ```python
 from line_profiler import LineProfiler
@@ -172,7 +172,7 @@ if __name__ == "__main__":
     lp.print_stats()
 ```
 
-### Pattern 3: memory_profiler - Memory Usage
+### 模式 3：memory_profiler - 内存使用
 
 ```python
 # Install: pip install memory-profiler
@@ -200,7 +200,7 @@ if __name__ == "__main__":
 # python -m memory_profiler script.py
 ```
 
-### Pattern 4: py-spy - Production Profiling
+### 模式 4：py-spy - 生产环境分析
 
 ```bash
 # Install: pip install py-spy
@@ -218,9 +218,9 @@ py-spy record -o profile.svg -- python script.py
 py-spy dump --pid 12345
 ```
 
-## Optimization Patterns
+## 优化模式
 
-### Pattern 5: List Comprehensions vs Loops
+### 模式 5：列表推导式 vs 循环
 
 ```python
 import timeit
@@ -254,7 +254,7 @@ def faster_squares(n):
     return list(map(lambda x: x**2, range(n)))
 ```
 
-### Pattern 6: Generator Expressions for Memory
+### 模式 6：生成器表达式节省内存
 
 ```python
 import sys
@@ -279,7 +279,7 @@ print(f"Generator size: {sys.getsizeof(gen_data)} bytes")
 # Generators use constant memory regardless of size
 ```
 
-### Pattern 7: String Concatenation
+### 模式 7：字符串拼接
 
 ```python
 import timeit
@@ -312,7 +312,7 @@ print(f"Join (generator): {fast:.4f}s")
 print(f"Join (list): {faster:.4f}s")
 ```
 
-### Pattern 8: Dictionary Lookups vs List Searches
+### 模式 8：字典查找 vs 列表搜索
 
 ```python
 import timeit
@@ -347,7 +347,7 @@ print(f"Dict search: {dict_time:.6f}s")
 print(f"Speedup: {list_time/dict_time:.0f}x")
 ```
 
-### Pattern 9: Local Variable Access
+### 模式 9：局部变量访问
 
 ```python
 import timeit
@@ -379,7 +379,7 @@ print(f"Local access: {local_time:.4f}s")
 print(f"Speedup: {global_time/local_time:.2f}x")
 ```
 
-### Pattern 10: Function Call Overhead
+### 模式 10：函数调用开销
 
 ```python
 import timeit
@@ -410,28 +410,28 @@ print(f"Inline: {inline_time:.4f}s")
 print(f"Function calls: {function_time:.4f}s")
 ```
 
-For advanced optimization techniques including NumPy vectorization, caching, memory management, parallelization, async I/O, database optimization, and benchmarking tools, see [references/advanced-patterns.md](references/advanced-patterns.md)
+有关高级优化技术，包括 NumPy 向量化、缓存、内存管理、并行化、异步 I/O、数据库优化和基准测试工具，请参阅 [references/advanced-patterns.md](references/advanced-patterns.md)
 
-## Best Practices
+## 最佳实践
 
-1. **Profile before optimizing** - Measure to find real bottlenecks
-2. **Focus on hot paths** - Optimize code that runs most frequently
-3. **Use appropriate data structures** - Dict for lookups, set for membership
-4. **Avoid premature optimization** - Clarity first, then optimize
-5. **Use built-in functions** - They're implemented in C
-6. **Cache expensive computations** - Use lru_cache
-7. **Batch I/O operations** - Reduce system calls
-8. **Use generators** for large datasets
-9. **Consider NumPy** for numerical operations
-10. **Profile production code** - Use py-spy for live systems
+1. **优化前先分析** - 测量以找到真正的瓶颈
+2. **关注热路径** - 优化最频繁运行的代码
+3. **使用适当的数据结构** - 字典用于查找，集合用于成员测试
+4. **避免过早优化** - 清晰性优先，然后优化
+5. **使用内置函数** - 它们是用 C 实现的
+6. **缓存昂贵的计算** - 使用 lru_cache
+7. **批量 I/O 操作** - 减少系统调用
+8. **使用生成器** 处理大数据集
+9. **考虑 NumPy** 进行数值运算
+10. **分析生产代码** - 使用 py-spy 分析在线系统
 
-## Common Pitfalls
+## 常见陷阱
 
-- Optimizing without profiling
-- Using global variables unnecessarily
-- Not using appropriate data structures
-- Creating unnecessary copies of data
-- Not using connection pooling for databases
-- Ignoring algorithmic complexity
-- Over-optimizing rare code paths
-- Not considering memory usage
+- 不分析就优化
+- 不必要地使用全局变量
+- 不使用适当的数据结构
+- 创建不必要的数据副本
+- 不为数据库使用连接池
+- 忽视算法复杂度
+- 过度优化不常见的代码路径
+- 不考虑内存使用

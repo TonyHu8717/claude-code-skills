@@ -1,18 +1,18 @@
 ---
 name: team
-description: N coordinated agents on shared task list using Claude Code native teams
+description: N 个协调代理在共享任务列表上协作，使用 Claude Code 原生团队功能
 argument-hint: "[N:agent-type] [ralph] <task description>"
 aliases: []
 level: 4
 ---
 
-# Team Skill
+# 团队技能
 
-Spawn N coordinated agents working on a shared task list using Claude Code's native team tools. Replaces the legacy `/swarm` skill (SQLite-based) with built-in team management, inter-agent messaging, and task dependencies -- no external dependencies required.
+生成 N 个协调代理在共享任务列表上协作，使用 Claude Code 的原生团队工具。用内置的团队管理、代理间消息传递和任务依赖替代旧版 `/swarm` 技能（基于 SQLite）— 无需外部依赖。
 
-The `swarm` compatibility alias was removed in #1131.
+`swarm` 兼容别名在 #1131 中已移除。
 
-## Usage
+## 用法
 
 ```
 /oh-my-claudecode:team N:agent-type "task description"
@@ -20,14 +20,14 @@ The `swarm` compatibility alias was removed in #1131.
 /oh-my-claudecode:team ralph "task description"
 ```
 
-### Parameters
+### 参数
 
-- **N** - Number of teammate agents (1-20). Optional; defaults to auto-sizing based on task decomposition.
-- **agent-type** - OMC agent to spawn for the `team-exec` stage (e.g., executor, debugger, designer, codex, gemini). Optional; defaults to stage-aware routing. Use `codex` to spawn Codex CLI workers or `gemini` for Gemini CLI workers (requires respective CLIs installed). See Stage Agent Routing below.
-- **task** - High-level task to decompose and distribute among teammates
-- **ralph** - Optional modifier. When present, wraps the team pipeline in Ralph's persistence loop (retry on failure, architect verification before completion). See Team + Ralph Composition below.
+- **N** — 团队友伴代理数量（1-20）。可选；默认根据任务分解自动调整大小。
+- **agent-type** — 用于 `team-exec` 阶段的 OMC 代理（如 executor、debugger、designer、codex、gemini）。可选；默认使用阶段感知路由。使用 `codex` 生成 Codex CLI 工作者或 `gemini` 生成 Gemini CLI 工作者（需要安装相应的 CLI）。参见下方阶段代理路由。
+- **task** — 要在团队友伴之间分解和分配的高级任务
+- **ralph** — 可选修饰符。当存在时，将团队管道包装在 Ralph 的持久化循环中（失败重试、完成前架构师验证）。参见下方团队 + Ralph 组合。
 
-### Examples
+### 示例
 
 ```bash
 /team 5:executor "fix all TypeScript errors across the project"
@@ -35,181 +35,181 @@ The `swarm` compatibility alias was removed in #1131.
 /team 4:designer "implement responsive layouts for all page components"
 /team "refactor the auth module with security review"
 /team ralph "build a complete REST API for user management"
-# With Codex CLI workers (requires: npm install -g @openai/codex)
+# 使用 Codex CLI 工作者（需要：npm install -g @openai/codex）
 /team 2:codex "review architecture and suggest improvements"
-# With Gemini CLI workers (requires: npm install -g @google/gemini-cli)
+# 使用 Gemini CLI 工作者（需要：npm install -g @google/gemini-cli）
 /team 2:gemini "redesign the UI components"
-# Mixed: Codex for backend analysis, Gemini for frontend (use /ccg instead for this)
+# 混合：Codex 用于后端分析，Gemini 用于前端（改用 /ccg）
 ```
 
-## Architecture
+## 架构
 
 ```
-User: "/team 3:executor fix all TypeScript errors"
+用户: "/team 3:executor fix all TypeScript errors"
               |
               v
-      [TEAM ORCHESTRATOR (Lead)]
+      [团队编排器（主控）]
               |
               +-- TeamCreate("fix-ts-errors")
-              |       -> lead becomes team-lead@fix-ts-errors
+              |       -> 主控成为 team-lead@fix-ts-errors
               |
-              +-- Analyze & decompose task into subtasks
-              |       -> explore/architect produces subtask list
+              +-- 分析并分解任务为子任务
+              |       -> explore/architect 生成子任务列表
               |
-              +-- TaskCreate x N (one per subtask)
-              |       -> tasks #1, #2, #3 with dependencies
+              +-- TaskCreate x N（每个子任务一个）
+              |       -> 任务 #1、#2、#3 及依赖关系
               |
-              +-- TaskUpdate x N (pre-assign owners)
-              |       -> task #1 owner=worker-1, etc.
+              +-- TaskUpdate x N（预分配所有者）
+              |       -> 任务 #1 owner=worker-1，等等
               |
               +-- Task(team_name="fix-ts-errors", name="worker-1") x 3
-              |       -> spawns teammates into the team
+              |       -> 将队友生成到团队中
               |
-              +-- Monitor loop
-              |       <- SendMessage from teammates (auto-delivered)
-              |       -> TaskList polling for progress
-              |       -> SendMessage to unblock/coordinate
+              +-- 监控循环
+              |       <- 来自队友的 SendMessage（自动送达）
+              |       -> TaskList 轮询进度
+              |       -> SendMessage 解除阻塞/协调
               |
-              +-- Completion
-                      -> SendMessage(shutdown_request) to each teammate
+              +-- 完成
+                      -> SendMessage(shutdown_request) 发给每个队友
                       <- SendMessage(shutdown_response, approve: true)
                       -> TeamDelete("fix-ts-errors")
                       -> rm .omc/state/team-state.json
 ```
 
-**Storage layout (managed by Claude Code):**
+**存储布局（由 Claude Code 管理）：**
 ```
 ~/.claude/
   teams/fix-ts-errors/
-    config.json          # Team metadata + members array
+    config.json          # 团队元数据 + 成员数组
   tasks/fix-ts-errors/
-    .lock                # File lock for concurrent access
-    1.json               # Subtask #1
-    2.json               # Subtask #2 (may be internal)
-    3.json               # Subtask #3
+    .lock                # 并发访问的文件锁
+    1.json               # 子任务 #1
+    2.json               # 子任务 #2（可能是内部的）
+    3.json               # 子任务 #3
     ...
 ```
 
-## Staged Pipeline (Canonical Team Runtime)
+## 分阶段管道（规范团队运行时）
 
-Team execution follows a staged pipeline:
+团队执行遵循分阶段管道：
 
-`team-plan -> team-prd -> team-exec -> team-verify -> team-fix (loop)`
+`team-plan -> team-prd -> team-exec -> team-verify -> team-fix（循环）`
 
-### Stage Agent Routing
+### 阶段代理路由
 
-Each pipeline stage uses **specialized agents** -- not just executors. The lead selects agents based on the stage and task characteristics.
+每个管道阶段使用**专门代理** — 而不仅仅是执行器。主控根据阶段和任务特征选择代理。
 
-| Stage | Required Agents | Optional Agents | Selection Criteria |
-|-------|----------------|-----------------|-------------------|
-| **team-plan** | `explore` (haiku), `planner` (opus) | `analyst` (opus), `architect` (opus) | Use `analyst` for unclear requirements. Use `architect` for systems with complex boundaries. |
-| **team-prd** | `analyst` (opus) | `critic` (opus) | Use `critic` to challenge scope. |
-| **team-exec** | `executor` (sonnet) | `executor` (opus), `debugger` (sonnet), `designer` (sonnet), `writer` (haiku), `test-engineer` (sonnet) | Match agent to subtask type. Use `executor` (model=opus) for complex autonomous work, `designer` for UI, `debugger` for compilation issues, `writer` for docs, `test-engineer` for test creation. |
-| **team-verify** | `verifier` (sonnet) | `test-engineer` (sonnet), `security-reviewer` (sonnet), `code-reviewer` (opus) | Always run `verifier`. Add `security-reviewer` for auth/crypto changes. Add `code-reviewer` for >20 files or architectural changes. `code-reviewer` also covers style/formatting checks. |
-| **team-fix** | `executor` (sonnet) | `debugger` (sonnet), `executor` (opus) | Use `debugger` for type/build errors and regression isolation. Use `executor` (model=opus) for complex multi-file fixes. |
+| 阶段 | 必需代理 | 可选代理 | 选择标准 |
+|------|---------|---------|---------|
+| **team-plan** | `explore`（haiku）、`planner`（opus） | `analyst`（opus）、`architect`（opus） | 需求不明确时使用 `analyst`。系统边界复杂时使用 `architect`。 |
+| **team-prd** | `analyst`（opus） | `critic`（opus） | 使用 `critic` 挑战范围。 |
+| **team-exec** | `executor`（sonnet） | `executor`（opus）、`debugger`（sonnet）、`designer`（sonnet）、`writer`（haiku）、`test-engineer`（sonnet） | 匹配代理与子任务类型。复杂自主工作使用 `executor`（model=opus），UI 使用 `designer`，编译问题使用 `debugger`，文档使用 `writer`，测试创建使用 `test-engineer`。 |
+| **team-verify** | `verifier`（sonnet） | `test-engineer`（sonnet）、`security-reviewer`（sonnet）、`code-reviewer`（opus） | 始终运行 `verifier`。auth/crypto 变更添加 `security-reviewer`。>20 个文件或架构变更添加 `code-reviewer`。`code-reviewer` 也覆盖风格/格式检查。 |
+| **team-fix** | `executor`（sonnet） | `debugger`（sonnet）、`executor`（opus） | 类型/构建错误和回归隔离使用 `debugger`。复杂多文件修复使用 `executor`（model=opus）。 |
 
-**Routing rules:**
+**路由规则：**
 
-1. **The lead picks agents per stage, not the user.** The user's `N:agent-type` parameter only overrides the `team-exec` stage worker type. All other stages use stage-appropriate specialists.
-2. **Specialist agents complement executor agents.** Route analysis/review to architect/critic Claude agents and UI work to designer agents. Tmux CLI workers are one-shot and don't participate in team communication.
-3. **Cost mode affects model tier.** In downgrade: `opus` agents to `sonnet`, `sonnet` to `haiku` where quality permits. `team-verify` always uses at least `sonnet`.
-4. **Risk level escalates review.** Security-sensitive or >20 file changes must include `security-reviewer` + `code-reviewer` (opus) in `team-verify`.
+1. **主控按阶段选择代理，而非用户。** 用户的 `N:agent-type` 参数仅覆盖 `team-exec` 阶段的工作者类型。所有其他阶段使用阶段适当的专家。
+2. **专家代理补充执行器代理。** 将分析/审查路由到架构师/批评者 Claude 代理，UI 工作路由到 designer 代理。Tmux CLI 工作者是一次性的，不参与团队通信。
+3. **成本模式影响模型层级。** 降级时：`opus` 代理降至 `sonnet`，`sonnet` 降至 `haiku`（质量允许时）。`team-verify` 始终至少使用 `sonnet`。
+4. **风险级别升级审查。** 安全敏感或 >20 个文件变更必须在 `team-verify` 中包含 `security-reviewer` + `code-reviewer`（opus）。
 
-### Stage Entry/Exit Criteria
+### 阶段进入/退出标准
 
 - **team-plan**
-  - Entry: Team invocation is parsed and orchestration starts.
-  - Agents: `explore` scans codebase, `planner` creates task graph, optionally `analyst`/`architect` for complex tasks.
-  - Exit: decomposition is complete and a runnable task graph is prepared.
+  - 进入：团队调用已解析，编排开始。
+  - 代理：`explore` 扫描代码库，`planner` 创建任务图，可选 `analyst`/`architect` 处理复杂任务。
+  - 退出：分解完成，可运行任务图已准备。
 - **team-prd**
-  - Entry: scope is ambiguous or acceptance criteria are missing.
-  - Agents: `analyst` extracts requirements, optionally `critic`.
-  - Exit: acceptance criteria and boundaries are explicit.
+  - 进入：范围模糊或验收标准缺失。
+  - 代理：`analyst` 提取需求，可选 `critic`。
+  - 退出：验收标准和边界明确。
 - **team-exec**
-  - Entry: `TeamCreate`, `TaskCreate`, assignment, and worker spawn are complete.
-  - Agents: workers spawned as the appropriate specialist type per subtask (see routing table).
-  - Exit: execution tasks reach terminal state for the current pass.
+  - 进入：`TeamCreate`、`TaskCreate`、分配和工作者生成完成。
+  - 代理：按子任务生成适当专家类型的工作者（见路由表）。
+  - 退出：执行任务在当前遍历达到终态。
 - **team-verify**
-  - Entry: execution pass finishes.
-  - Agents: `verifier` + task-appropriate reviewers (see routing table).
-  - Exit (pass): verification gates pass with no required follow-up.
-  - Exit (fail): fix tasks are generated and control moves to `team-fix`.
+  - 进入：执行遍历完成。
+  - 代理：`verifier` + 任务适当审查者（见路由表）。
+  - 退出（通过）：验证门通过，无必需后续。
+  - 退出（失败）：生成修复任务，控制转移到 `team-fix`。
 - **team-fix**
-  - Entry: verification found defects/regressions/incomplete criteria.
-  - Agents: `executor`/`debugger` depending on defect type.
-  - Exit: fixes are complete and flow returns to `team-exec` then `team-verify`.
+  - 进入：验证发现缺陷/回归/未完成标准。
+  - 代理：`executor`/`debugger` 取决于缺陷类型。
+  - 退出：修复完成，流程返回 `team-exec` 然后 `team-verify`。
 
-### Verify/Fix Loop and Stop Conditions
+### 验证/修复循环和停止条件
 
-Continue `team-exec -> team-verify -> team-fix` until:
-1. verification passes and no required fix tasks remain, or
-2. work reaches an explicit terminal blocked/failed outcome with evidence.
+继续 `team-exec -> team-verify -> team-fix` 直到：
+1. 验证通过且无必需修复任务剩余，或
+2. 工作达到明确的终态阻塞/失败结果并有证据。
 
-`team-fix` is bounded by max attempts. If fix attempts exceed the configured limit, transition to terminal `failed` (no infinite loop).
+`team-fix` 有最大尝试次数限制。如果修复尝试超过配置限制，转为终态 `failed`（无无限循环）。
 
-### Stage Handoff Convention
+### 阶段交接约定
 
-When transitioning between stages, important context — decisions made, alternatives rejected, risks identified — lives only in the lead's conversation history. If the lead's context compacts or agents restart, this knowledge is lost.
+阶段间转换时，重要上下文 — 做出的决策、被拒绝的替代方案、识别的风险 — 仅存在于主控的对话历史中。如果主控的上下文压缩或代理重启，这些知识会丢失。
 
-**Each completing stage MUST produce a handoff document before transitioning.**
+**每个完成阶段必须在转换前生成交接文档。**
 
-The lead writes handoffs to `.omc/handoffs/<stage-name>.md`.
+主控将交接写入 `.omc/handoffs/<stage-name>.md`。
 
-#### Handoff Format
-
-```markdown
-## Handoff: <current-stage> → <next-stage>
-- **Decided**: [key decisions made in this stage]
-- **Rejected**: [alternatives considered and why they were rejected]
-- **Risks**: [identified risks for the next stage]
-- **Files**: [key files created or modified]
-- **Remaining**: [items left for the next stage to handle]
-```
-
-#### Handoff Rules
-
-1. **Lead reads previous handoff BEFORE spawning next stage's agents.** The handoff content is included in the next stage's agent spawn prompts, ensuring agents start with full context.
-2. **Handoffs accumulate.** The verify stage can read all prior handoffs (plan → prd → exec) for full decision history.
-3. **On team cancellation, handoffs survive** in `.omc/handoffs/` for session resume. They are not deleted by `TeamDelete`.
-4. **Handoffs are lightweight.** 10-20 lines max. They capture decisions and rationale, not full specifications (those live in deliverable files like DESIGN.md).
-
-#### Example
+#### 交接格式
 
 ```markdown
-## Handoff: team-plan → team-exec
-- **Decided**: Microservice architecture with 3 services (auth, api, worker). PostgreSQL for persistence. JWT for auth tokens.
-- **Rejected**: Monolith (scaling concerns), MongoDB (team expertise is SQL), session cookies (API-first design).
-- **Risks**: Worker service needs Redis for job queue — not yet provisioned. Auth service has no rate limiting in initial design.
-- **Files**: DESIGN.md, TEST_STRATEGY.md
-- **Remaining**: Database migration scripts, CI/CD pipeline config, Redis provisioning.
+## 交接：<当前阶段> → <下一阶段>
+- **已决定**：[本阶段做出的关键决策]
+- **已拒绝**：[考虑过的替代方案及拒绝原因]
+- **风险**：[下一阶段的已识别风险]
+- **文件**：[创建或修改的关键文件]
+- **剩余**：[留给下一阶段处理的项目]
 ```
 
-### Resume and Cancel Semantics
+#### 交接规则
 
-- **Resume:** restart from the last non-terminal stage using staged state + live task status. Read `.omc/handoffs/` to recover stage transition context.
-- **Cancel:** `/oh-my-claudecode:cancel` requests teammate shutdown, waits for responses (best effort), marks phase `cancelled` with `active=false`, captures cancellation metadata, then deletes team resources and clears/preserves Team state per policy. Handoff files in `.omc/handoffs/` are preserved for potential resume.
-- Terminal states are `complete`, `failed`, and `cancelled`.
+1. **主控在生成下一阶段代理之前读取上一阶段交接。** 交接内容包含在下一阶段的代理生成提示中，确保代理从完整上下文开始。
+2. **交接累积。** 验证阶段可以读取所有先前交接（plan → prd → exec）以获得完整决策历史。
+3. **团队取消时，交接在 `.omc/handoffs/` 中保留**以供会话恢复。它们不会被 `TeamDelete` 删除。
+4. **交接是轻量级的。** 最多 10-20 行。它们捕获决策和理由，而非完整规范（那些存在于交付文件中如 DESIGN.md）。
 
-## Workflow
+#### 示例
 
-### Phase 1: Parse Input
+```markdown
+## 交接：team-plan → team-exec
+- **已决定**：微服务架构，3 个服务（auth、api、worker）。PostgreSQL 持久化。JWT 认证令牌。
+- **已拒绝**：单体（扩展问题）、MongoDB（团队专长是 SQL）、会话 cookie（API 优先设计）。
+- **风险**：Worker 服务需要 Redis 作任务队列 — 尚未配置。Auth 服务初始设计中无速率限制。
+- **文件**：DESIGN.md、TEST_STRATEGY.md
+- **剩余**：数据库迁移脚本、CI/CD 管道配置、Redis 配置。
+```
 
-- Extract **N** (agent count), validate 1-20
-- Extract **agent-type**, validate it maps to a known OMC subagent
-- Extract **task** description
+### 恢复和取消语义
 
-### Phase 2: Analyze & Decompose
+- **恢复：** 从最后非终态阶段重新开始，使用分阶段状态 + 实时任务状态。读取 `.omc/handoffs/` 恢复阶段转换上下文。
+- **取消：** `/oh-my-claudecode:cancel` 请求队友关闭，等待响应（尽力而为），标记阶段为 `cancelled`（`active=false`），捕获取消元数据，然后删除团队资源并按策略清除/保留团队状态。`.omc/handoffs/` 中的交接文件保留以供潜在恢复。
+- 终态为 `complete`、`failed` 和 `cancelled`。
 
-Use `explore` or `architect` (via MCP or agent) to analyze the codebase and break the task into N subtasks:
+## 工作流程
 
-- Each subtask should be **file-scoped** or **module-scoped** to avoid conflicts
-- Subtasks must be independent or have clear dependency ordering
-- Each subtask needs a concise `subject` and detailed `description`
-- Identify dependencies between subtasks (e.g., "shared types must be fixed before consumers")
+### 阶段 1：解析输入
 
-### Phase 3: Create Team
+- 提取 **N**（代理数量），验证 1-20
+- 提取 **agent-type**，验证其映射到已知 OMC 子代理
+- 提取 **task** 描述
 
-Call `TeamCreate` with a slug derived from the task:
+### 阶段 2：分析与分解
+
+使用 `explore` 或 `architect`（通过 MCP 或代理）分析代码库并将任务分解为 N 个子任务：
+
+- 每个子任务应为**文件范围**或**模块范围**以避免冲突
+- 子任务必须独立或有清晰的依赖排序
+- 每个子任务需要简洁的 `subject` 和详细的 `description`
+- 识别子任务之间的依赖关系（如"共享类型必须在消费者之前修复"）
+
+### 阶段 3：创建团队
+
+使用从任务派生的 slug 调用 `TeamCreate`：
 
 ```json
 {
@@ -218,7 +218,7 @@ Call `TeamCreate` with a slug derived from the task:
 }
 ```
 
-**Response:**
+**响应：**
 ```json
 {
   "team_name": "fix-ts-errors",
@@ -227,9 +227,9 @@ Call `TeamCreate` with a slug derived from the task:
 }
 ```
 
-The current session becomes the team lead (`team-lead@fix-ts-errors`).
+当前会话成为团队主控（`team-lead@fix-ts-errors`）。
 
-Write OMC state using the `state_write` MCP tool for proper session-scoped persistence:
+使用 `state_write` MCP 工具写入 OMC 状态以实现适当的会话范围持久化：
 
 ```
 state_write(mode="team", active=true, current_phase="team-plan", state={
@@ -244,24 +244,24 @@ state_write(mode="team", active=true, current_phase="team-plan", state={
 })
 ```
 
-> **Note:** The MCP `state_write` tool transports all values as strings. Consumers must coerce `agent_count`, `fix_loop_count`, `max_fix_loops` to numbers and `linked_ralph` to boolean when reading state.
+> **注意：** MCP `state_write` 工具将所有值作为字符串传输。消费者读取状态时必须将 `agent_count`、`fix_loop_count`、`max_fix_loops` 强制转换为数字，将 `linked_ralph` 强制转换为布尔值。
 
-**State schema fields:**
+**状态架构字段：**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `active` | boolean | Whether team mode is active |
-| `current_phase` | string | Current pipeline stage: `team-plan`, `team-prd`, `team-exec`, `team-verify`, `team-fix` |
-| `team_name` | string | Slug name for the team |
-| `agent_count` | number | Number of worker agents |
-| `agent_types` | string | Comma-separated agent types used in team-exec |
-| `task` | string | Original task description |
-| `fix_loop_count` | number | Current fix iteration count |
-| `max_fix_loops` | number | Maximum fix iterations before failing (default: 3) |
-| `linked_ralph` | boolean | Whether team is linked to a ralph persistence loop |
-| `stage_history` | string | Comma-separated list of stage transitions with timestamps |
+| 字段 | 类型 | 描述 |
+|------|------|------|
+| `active` | boolean | 团队模式是否激活 |
+| `current_phase` | string | 当前管道阶段：`team-plan`、`team-prd`、`team-exec`、`team-verify`、`team-fix` |
+| `team_name` | string | 团队的 slug 名称 |
+| `agent_count` | number | 工作者代理数量 |
+| `agent_types` | string | team-exec 中使用的代理类型（逗号分隔） |
+| `task` | string | 原始任务描述 |
+| `fix_loop_count` | number | 当前修复迭代计数 |
+| `max_fix_loops` | number | 失败前最大修复迭代次数（默认：3） |
+| `linked_ralph` | boolean | 团队是否链接到 ralph 持久化循环 |
+| `stage_history` | string | 带时间戳的阶段转换列表（逗号分隔） |
 
-**Update state on every stage transition:**
+**每次阶段转换时更新状态：**
 
 ```
 state_write(mode="team", current_phase="team-exec", state={
@@ -269,20 +269,20 @@ state_write(mode="team", current_phase="team-exec", state={
 })
 ```
 
-**Read state for resume detection:**
+**读取状态用于恢复检测：**
 
 ```
 state_read(mode="team")
 ```
 
-If `active=true` and `current_phase` is non-terminal, resume from the last incomplete stage instead of creating a new team.
+如果 `active=true` 且 `current_phase` 为非终态，从最后未完成阶段恢复而非创建新团队。
 
-### Phase 4: Create Tasks
+### 阶段 4：创建任务
 
-Call `TaskCreate` for each subtask. Set dependencies with `TaskUpdate` using `addBlockedBy`.
+对每个子任务调用 `TaskCreate`。使用 `TaskUpdate` 的 `addBlockedBy` 设置依赖关系。
 
 ```json
-// TaskCreate for subtask 1
+// 子任务 1 的 TaskCreate
 {
   "subject": "Fix type errors in src/auth/",
   "description": "Fix all TypeScript errors in src/auth/login.ts, src/auth/session.ts, and src/auth/types.ts. Run tsc --noEmit to verify.",
@@ -290,7 +290,7 @@ Call `TaskCreate` for each subtask. Set dependencies with `TaskUpdate` using `ad
 }
 ```
 
-**Response stores a task file (e.g. `1.json`):**
+**响应存储任务文件（如 `1.json`）：**
 ```json
 {
   "id": "1",
@@ -304,29 +304,29 @@ Call `TaskCreate` for each subtask. Set dependencies with `TaskUpdate` using `ad
 }
 ```
 
-For tasks with dependencies, use `TaskUpdate` after creation:
+有依赖关系的任务，创建后使用 `TaskUpdate`：
 
 ```json
-// Task #3 depends on task #1 (shared types must be fixed first)
+// 任务 #3 依赖任务 #1（共享类型必须先修复）
 {
   "taskId": "3",
   "addBlockedBy": ["1"]
 }
 ```
 
-**Pre-assign owners from the lead** to avoid race conditions (there is no atomic claiming):
+**从主控预分配所有者**以避免竞争条件（没有原子声明）：
 
 ```json
-// Assign task #1 to worker-1
+// 将任务 #1 分配给 worker-1
 {
   "taskId": "1",
   "owner": "worker-1"
 }
 ```
 
-### Phase 5: Spawn Teammates
+### 阶段 5：生成队友
 
-Spawn N teammates using `Task` with `team_name` and `name` parameters. Each teammate gets the team worker preamble (see below) plus their specific assignment.
+使用 `Task` 的 `team_name` 和 `name` 参数生成 N 个队友。每个队友获得团队工作者前言（见下文）加其特定任务分配。
 
 ```json
 {
@@ -337,7 +337,7 @@ Spawn N teammates using `Task` with `team_name` and `name` parameters. Each team
 }
 ```
 
-**Response:**
+**响应：**
 ```json
 {
   "agent_id": "worker-1@fix-ts-errors",
@@ -346,71 +346,71 @@ Spawn N teammates using `Task` with `team_name` and `name` parameters. Each team
 }
 ```
 
-**Side effects:**
-- Teammate added to `config.json` members array
-- An **internal task** is auto-created (with `metadata._internal: true`) tracking the agent lifecycle
-- Internal tasks appear in `TaskList` output -- filter them when counting real tasks
+**副作用：**
+- 队友添加到 `config.json` 成员数组
+- 自动创建**内部任务**（`metadata._internal: true`）跟踪代理生命周期
+- 内部任务出现在 `TaskList` 输出中 — 计算实际任务时过滤它们
 
-**IMPORTANT:** Spawn all teammates in parallel (they are background agents). Do NOT wait for one to finish before spawning the next.
+**重要：** 并行生成所有队友（它们是后台代理）。不要等一个完成再生成下一个。
 
-### Phase 6: Monitor
+### 阶段 6：监控
 
-The lead orchestrator monitors progress through two channels:
+主控编排器通过两个渠道监控进度：
 
-1. **Inbound messages** -- Teammates send `SendMessage` to `team-lead` when they complete tasks or need help. These arrive automatically as new conversation turns (no polling needed).
+1. **入站消息** — 队友完成任务或需要帮助时向 `team-lead` 发送 `SendMessage`。这些作为新对话轮次自动到达（无需轮询）。
 
-2. **TaskList polling** -- Periodically call `TaskList` to check overall progress:
+2. **TaskList 轮询** — 定期调用 `TaskList` 检查整体进度：
    ```
    #1 [completed] Fix type errors in src/auth/ (worker-1)
    #3 [in_progress] Fix type errors in src/api/ (worker-2)
    #5 [pending] Fix type errors in src/utils/ (worker-3)
    ```
-   Format: `#ID [status] subject (owner)`
+   格式：`#ID [status] subject (owner)`
 
-**Coordination actions the lead can take:**
+**主控可以采取的协调操作：**
 
-- **Unblock a teammate:** Send a `message` with guidance or missing context
-- **Reassign work:** If a teammate finishes early, use `TaskUpdate` to assign pending tasks to them and notify via `SendMessage`
-- **Handle failures:** If a teammate reports failure, reassign the task or spawn a replacement
+- **解除队友阻塞：** 发送带有指导或缺失上下文的 `message`
+- **重新分配工作：** 如果队友提前完成，使用 `TaskUpdate` 将待处理任务分配给他们并通过 `SendMessage` 通知
+- **处理失败：** 如果队友报告失败，重新分配任务或生成替代者
 
-#### Task Watchdog Policy
+#### 任务看门狗策略
 
-Monitor for stuck or failed teammates:
+监控卡住或失败的队友：
 
-- **Max in-progress age**: If a task stays `in_progress` for more than 5 minutes without messages, send a status check
-- **Suspected dead worker**: No messages + stuck task for 10+ minutes → reassign task to another worker
-- **Reassign threshold**: If a worker fails 2+ tasks, stop assigning new tasks to it
+- **最大进行中时间**：如果任务在 `in_progress` 状态超过 5 分钟且无消息，发送状态检查
+- **疑似死亡工作者**：无消息 + 卡住任务超过 10 分钟 → 将任务重新分配给其他工作者
+- **重新分配阈值**：如果工作者失败 2+ 个任务，停止向其分配新任务
 
-### Phase 6.5: Stage Transitions (State Persistence)
+### 阶段 6.5：阶段转换（状态持久化）
 
-On every stage transition, update OMC state:
+每次阶段转换时更新 OMC 状态：
 
 ```
-// Entering team-exec after planning
+// 规划后进入 team-exec
 state_write(mode="team", current_phase="team-exec", state={
   "stage_history": "team-plan:T1,team-prd:T2,team-exec:T3"
 })
 
-// Entering team-verify after execution
+// 执行后进入 team-verify
 state_write(mode="team", current_phase="team-verify")
 
-// Entering team-fix after verify failure
+// 验证失败后进入 team-fix
 state_write(mode="team", current_phase="team-fix", state={
   "fix_loop_count": 1
 })
 ```
 
-This enables:
-- **Resume**: If the lead crashes, `state_read(mode="team")` reveals the last stage and team name for recovery
-- **Cancel**: The cancel skill reads `current_phase` to know what cleanup is needed
-- **Ralph integration**: Ralph can read team state to know if the pipeline completed or failed
+这使得：
+- **恢复**：如果主控崩溃，`state_read(mode="team")` 显示最后阶段和团队名称以供恢复
+- **取消**：取消技能读取 `current_phase` 以了解需要什么清理
+- **Ralph 集成**：Ralph 可以读取团队状态以了解管道是完成还是失败
 
-### Phase 7: Completion
+### 阶段 7：完成
 
-When all real tasks (non-internal) are completed or failed:
+当所有实际任务（非内部）完成或失败时：
 
-1. **Verify results** -- Check that all subtasks are marked `completed` via `TaskList`
-2. **Shutdown teammates** -- Send `shutdown_request` to each active teammate:
+1. **验证结果** — 通过 `TaskList` 检查所有子任务标记为 `completed`
+2. **关闭队友** — 向每个活跃队友发送 `shutdown_request`：
    ```json
    {
      "type": "shutdown_request",
@@ -418,12 +418,12 @@ When all real tasks (non-internal) are completed or failed:
      "content": "All work complete, shutting down team"
    }
    ```
-3. **Await responses** -- Each teammate responds with `shutdown_response(approve: true)` and terminates
-4. **Delete team** -- Call `TeamDelete` to clean up:
+3. **等待响应** — 每个队友以 `shutdown_response(approve: true)` 响应并终止
+4. **删除团队** — 调用 `TeamDelete` 清理：
    ```json
    { "team_name": "fix-ts-errors" }
    ```
-   Response:
+   响应：
    ```json
    {
      "success": true,
@@ -431,72 +431,72 @@ When all real tasks (non-internal) are completed or failed:
      "team_name": "fix-ts-errors"
    }
    ```
-5. **Clean OMC state** -- Remove `.omc/state/team-state.json`
-6. **Report summary** -- Present results to the user
+5. **清理 OMC 状态** — 删除 `.omc/state/team-state.json`
+6. **报告摘要** — 向用户展示结果
 
-## Agent Preamble
+## 代理前言
 
-When spawning teammates, include this preamble in the prompt to establish the work protocol. Adapt it per teammate with their specific task assignments.
+生成队友时，在提示中包含此前言以建立工作协议。根据每个队友的特定任务分配进行调整。
 
 ```
-You are a TEAM WORKER in team "{team_name}". Your name is "{worker_name}".
-You report to the team lead ("team-lead").
-You are not the leader and must not perform leader orchestration actions.
+你是团队 "{team_name}" 中的团队工作者。你的名字是 "{worker_name}"。
+你向团队主控（"team-lead"）汇报。
+你不是领导者，不得执行领导者编排操作。
 
-== WORK PROTOCOL ==
+== 工作协议 ==
 
-1. CLAIM: Call TaskList to see your assigned tasks (owner = "{worker_name}").
-   Pick the first task with status "pending" that is assigned to you.
-   Call TaskUpdate to set status "in_progress":
+1. 声明：调用 TaskList 查看你的分配任务（owner = "{worker_name}"）。
+   选择分配给你的第一个状态为 "pending" 的任务。
+   调用 TaskUpdate 设置状态 "in_progress"：
    {"taskId": "ID", "status": "in_progress", "owner": "{worker_name}"}
 
-2. WORK: Execute the task using your tools (Read, Write, Edit, Bash).
-   Do NOT spawn sub-agents. Do NOT delegate. Work directly.
+2. 工作：使用你的工具（Read、Write、Edit、Bash）执行任务。
+   不要生成子代理。不要委托。直接工作。
 
-3. COMPLETE: When done, mark the task completed:
+3. 完成：完成后，标记任务为已完成：
    {"taskId": "ID", "status": "completed"}
 
-4. REPORT: Notify the lead via SendMessage:
+4. 报告：通过 SendMessage 通知主控：
    {"type": "message", "recipient": "team-lead", "content": "Completed task #ID: <summary of what was done>", "summary": "Task #ID complete"}
 
-5. NEXT: Check TaskList for more assigned tasks. If you have more pending tasks, go to step 1.
-   If no more tasks are assigned to you, notify the lead:
+5. 下一个：检查 TaskList 是否有更多分配任务。如果有更多待处理任务，回到步骤 1。
+   如果没有更多任务分配给你，通知主控：
    {"type": "message", "recipient": "team-lead", "content": "All assigned tasks complete. Standing by.", "summary": "All tasks done, standing by"}
 
-6. SHUTDOWN: When you receive a shutdown_request, respond with:
+6. 关闭：当收到 shutdown_request 时，响应：
    {"type": "shutdown_response", "request_id": "<from the request>", "approve": true}
 
-== BLOCKED TASKS ==
-If a task has blockedBy dependencies, skip it until those tasks are completed.
-Check TaskList periodically to see if blockers have been resolved.
+== 阻塞任务 ==
+如果任务有 blockedBy 依赖，跳过它直到那些任务完成。
+定期检查 TaskList 以查看阻塞是否已解决。
 
-== ERRORS ==
-If you cannot complete a task, report the failure to the lead:
+== 错误 ==
+如果无法完成任务，向主控报告失败：
 {"type": "message", "recipient": "team-lead", "content": "FAILED task #ID: <reason>", "summary": "Task #ID failed"}
-Do NOT mark the task as completed. Leave it in_progress so the lead can reassign.
+不要将任务标记为已完成。保持 in_progress 状态以便主控重新分配。
 
-== RULES ==
-- NEVER spawn sub-agents or use the Task tool
-- NEVER run tmux pane/session orchestration commands (for example `tmux split-window`, `tmux new-session`)
-- NEVER run team spawning/orchestration skills or commands (for example `$team`, `$ultrawork`, `$autopilot`, `$ralph`, `omc team ...`, `omx team ...`)
-- ALWAYS use absolute file paths
-- ALWAYS report progress via SendMessage to "team-lead"
-- Use SendMessage with type "message" only -- never "broadcast"
+== 规则 ==
+- 绝不生成子代理或使用 Task 工具
+- 绝不运行 tmux 窗格/会话编排命令（例如 `tmux split-window`、`tmux new-session`）
+- 绝不运行团队生成/编排技能或命令（例如 `$team`、`$ultrawork`、`$autopilot`、`$ralph`、`omc team ...`、`omx team ...`）
+- 始终使用绝对文件路径
+- 始终通过 SendMessage 向 "team-lead" 报告进度
+- 仅使用 type "message" 的 SendMessage — 绝不使用 "broadcast"
 ```
 
-### Agent-Type Prompt Injection (Worker-Specific Addendum)
+### 代理类型提示注入（工作者特定附录）
 
-When composing teammate prompts, append a short addendum based on worker type:
+组合队友提示时，根据工作者类型追加简短附录：
 
-- `claude_worker`: Emphasize strict TaskList/TaskUpdate/SendMessage loop and no orchestration commands.
-- `codex_worker`: Emphasize CLI API lifecycle (`omc team api ... --json`) and explicit failure ACKs with stderr.
-- `gemini_worker`: Emphasize bounded file ownership and milestone ACKs after each completed sub-step.
+- `claude_worker`：强调严格的 TaskList/TaskUpdate/SendMessage 循环和无编排命令。
+- `codex_worker`：强调 CLI API 生命周期（`omc team api ... --json`）和显式失败 ACK（含 stderr）。
+- `gemini_worker`：强调有界文件所有权和每个完成子步骤后的里程碑 ACK。
 
-This addendum must preserve the core rule: **worker = executor only, never leader/orchestrator**.
+此附录必须保留核心规则：**工作者 = 仅执行器，绝不做领导者/编排器**。
 
-## Communication Patterns
+## 通信模式
 
-### Teammate to Lead (task completion report)
+### 队友到主控（任务完成报告）
 
 ```json
 {
@@ -507,7 +507,7 @@ This addendum must preserve the core rule: **worker = executor only, never leade
 }
 ```
 
-### Lead to Teammate (reassignment or guidance)
+### 主控到队友（重新分配或指导）
 
 ```json
 {
@@ -518,7 +518,7 @@ This addendum must preserve the core rule: **worker = executor only, never leade
 }
 ```
 
-### Broadcast (use sparingly -- sends N separate messages)
+### 广播（谨慎使用 — 发送 N 条单独消息）
 
 ```json
 {
@@ -528,18 +528,18 @@ This addendum must preserve the core rule: **worker = executor only, never leade
 }
 ```
 
-### Shutdown Protocol (BLOCKING)
+### 关闭协议（阻塞式）
 
-**CRITICAL: Steps must execute in exact order. Never call TeamDelete before shutdown is confirmed.**
+**关键：步骤必须按精确顺序执行。在确认关闭之前绝不调用 TeamDelete。**
 
-**Step 1: Verify completion**
+**步骤 1：验证完成**
 ```
-Call TaskList — verify all real tasks (non-internal) are completed or failed.
+调用 TaskList — 验证所有实际任务（非内部）已完成或失败。
 ```
 
-**Step 2: Request shutdown from each teammate**
+**步骤 2：向每个队友请求关闭**
 
-**Lead sends:**
+**主控发送：**
 ```json
 {
   "type": "shutdown_request",
@@ -548,12 +548,12 @@ Call TaskList — verify all real tasks (non-internal) are completed or failed.
 }
 ```
 
-**Step 3: Wait for responses (BLOCKING)**
-- Wait up to 30s per teammate for `shutdown_response`
-- Track which teammates confirmed vs timed out
-- If a teammate doesn't respond within 30s: log warning, mark as unresponsive
+**步骤 3：等待响应（阻塞式）**
+- 每个队友等待最多 30 秒的 `shutdown_response`
+- 跟踪哪些队友已确认 vs 超时
+- 如果队友在 30 秒内未响应：记录警告，标记为无响应
 
-**Teammate receives and responds:**
+**队友接收并响应：**
 ```json
 {
   "type": "shutdown_response",
@@ -562,317 +562,315 @@ Call TaskList — verify all real tasks (non-internal) are completed or failed.
 }
 ```
 
-After approval:
-- Teammate process terminates
-- Teammate auto-removed from `config.json` members array
-- Internal task for that teammate completes
+批准后：
+- 队友进程终止
+- 队友从 `config.json` 成员数组自动移除
+- 该队友的内部任务完成
 
-**Step 4: TeamDelete — only after ALL teammates confirmed or timed out**
+**步骤 4：TeamDelete — 仅在所有队友确认或超时后**
 ```json
 { "team_name": "fix-ts-errors" }
 ```
 
-**Step 5: Orphan scan**
+**步骤 5：孤儿扫描**
 
-Check for agent processes that survived TeamDelete:
+检查 TeamDelete 后存活的代理进程：
 ```bash
 node "${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-orphans.mjs" --team-name fix-ts-errors
 ```
 
-This scans for processes matching the team name whose config no longer exists, and terminates them (SIGTERM → 5s wait → SIGKILL). Supports `--dry-run` for inspection.
+扫描匹配团队名称但配置已不存在的进程，并终止它们（SIGTERM → 5 秒等待 → SIGKILL）。支持 `--dry-run` 进行检查。
 
-**Shutdown sequence is BLOCKING:** Do not proceed to TeamDelete until all teammates have either:
-- Confirmed shutdown (`shutdown_response` with `approve: true`), OR
-- Timed out (30s with no response)
+**关闭序列是阻塞式的：** 在所有队友都已确认关闭（`shutdown_response` 且 `approve: true`）或超时（30 秒无响应）之前，不要继续执行 TeamDelete。
 
-**IMPORTANT:** The `request_id` is provided in the shutdown request message that the teammate receives. The teammate must extract it and pass it back. Do NOT fabricate request IDs.
+**重要：** `request_id` 在队友收到的关闭请求消息中提供。队友必须提取它并传回。不要伪造 request ID。
 
-## CLI Workers (Codex and Gemini)
+## CLI 工作者（Codex 和 Gemini）
 
-The team skill supports **hybrid execution** combining Claude agent teammates with external CLI workers (Codex CLI and Gemini CLI). Both types can make code changes -- they differ in capabilities and cost. These are standalone CLI tools, not MCP servers.
+团队技能支持**混合执行**，将 Claude 代理队友与外部 CLI 工作者（Codex CLI 和 Gemini CLI）结合。两种类型都可以进行代码更改 — 它们在能力和成本上有所不同。这些是独立的 CLI 工具，不是 MCP 服务器。
 
-### Execution Modes
+### 执行模式
 
-Tasks are tagged with an execution mode during decomposition:
+任务在分解时标记执行模式：
 
-| Execution Mode | Provider | Capabilities |
-|---------------|----------|-------------|
-| `claude_worker` | Claude agent | Full Claude Code tool access (Read/Write/Edit/Bash/Task). Best for tasks needing Claude's reasoning + iterative tool use. |
-| `codex_worker` | Codex CLI (tmux pane) | Full filesystem access in working_directory. Runs autonomously via tmux pane. Best for code review, security analysis, refactoring, architecture. Requires `npm install -g @openai/codex`. |
-| `gemini_worker` | Gemini CLI (tmux pane) | Full filesystem access in working_directory. Runs autonomously via tmux pane. Best for UI/design work, documentation, large-context tasks. Requires `npm install -g @google/gemini-cli`. |
+| 执行模式 | 提供者 | 能力 |
+|---------|--------|------|
+| `claude_worker` | Claude 代理 | 完整 Claude Code 工具访问（Read/Write/Edit/Bash/Task）。最适合需要 Claude 推理 + 迭代工具使用的任务。 |
+| `codex_worker` | Codex CLI（tmux 窗格） | working_directory 中的完整文件系统访问。通过 tmux 窗格自主运行。最适合代码审查、安全分析、重构、架构。需要 `npm install -g @openai/codex`。 |
+| `gemini_worker` | Gemini CLI（tmux 窗格） | working_directory 中的完整文件系统访问。通过 tmux 窗格自主运行。最适合 UI/设计工作、文档、大上下文任务。需要 `npm install -g @google/gemini-cli`。 |
 
-### How CLI Workers Operate
+### CLI 工作者如何运作
 
-Tmux CLI workers run in dedicated tmux panes with filesystem access. They are **autonomous executors**, not just analysts:
+Tmux CLI 工作者在具有文件系统访问权限的专用 tmux 窗格中运行。它们是**自主执行器**，而不仅仅是分析师：
 
-1. Lead writes task instructions to a prompt file
-2. Lead spawns a tmux CLI worker with `working_directory` set to the project root
-3. The worker reads files, makes changes, runs commands -- all within the working directory
-4. Results/summary are written to an output file
-5. Lead reads the output, marks the task complete, and feeds results to dependent tasks
+1. 主控将任务说明写入提示文件
+2. 主控生成 tmux CLI 工作者，`working_directory` 设置为项目根目录
+3. 工作者读取文件、进行更改、运行命令 — 全部在工作目录内
+4. 结果/摘要写入输出文件
+5. 主控读取输出，标记任务完成，并将结果提供给依赖任务
 
-**Key difference from Claude teammates:**
-- CLI workers operate via tmux, not Claude Code's tool system
-- They cannot use TaskList/TaskUpdate/SendMessage (no team awareness)
-- They run as one-shot autonomous jobs, not persistent teammates
-- The lead manages their lifecycle (spawn, monitor, collect results)
+**与 Claude 队友的关键区别：**
+- CLI 工作者通过 tmux 运行，而非 Claude Code 的工具系统
+- 它们不能使用 TaskList/TaskUpdate/SendMessage（无团队感知）
+- 它们作为一次性自主作业运行，而非持久队友
+- 主控管理它们的生命周期（生成、监控、收集结果）
 
-### When to Route Where
+### 路由决策
 
-| Task Type | Best Route | Why |
-|-----------|-----------|-----|
-| Iterative multi-step work | Claude teammate | Needs tool-mediated iteration + team communication |
-| Code review / security audit | CLI worker or specialist agent | Autonomous execution, good at structured analysis |
-| Architecture analysis / planning | architect Claude agent | Strong analytical reasoning with codebase access |
-| Refactoring (well-scoped) | CLI worker or executor agent | Autonomous execution, good at structured transforms |
-| UI/frontend implementation | designer Claude agent | Design expertise, framework idioms |
-| Large-scale documentation | writer Claude agent | Writing expertise + large context for consistency |
-| Build/test iteration loops | Claude teammate | Needs Bash tool + iterative fix cycles |
-| Tasks needing team coordination | Claude teammate | Needs SendMessage for status updates |
+| 任务类型 | 最佳路由 | 原因 |
+|---------|---------|------|
+| 迭代多步骤工作 | Claude 队友 | 需要工具介导的迭代 + 团队通信 |
+| 代码审查/安全审计 | CLI 工作者或专家代理 | 自主执行，擅长结构化分析 |
+| 架构分析/规划 | architect Claude 代理 | 强分析推理能力，可访问代码库 |
+| 重构（范围明确） | CLI 工作者或执行器代理 | 自主执行，擅长结构化转换 |
+| UI/前端实现 | designer Claude 代理 | 设计专长，框架惯用法 |
+| 大规模文档 | writer Claude 代理 | 写作专长 + 大上下文保持一致性 |
+| 构建/测试迭代循环 | Claude 队友 | 需要 Bash 工具 + 迭代修复循环 |
+| 需要团队协调的任务 | Claude 队友 | 需要 SendMessage 进行状态更新 |
 
-### Example: Hybrid Team with CLI Workers
+### 示例：带 CLI 工作者的混合团队
 
 ```
 /team 3:executor "refactor auth module with security review"
 
-Task decomposition:
-#1 [codex_worker] Security review of current auth code -> output to .omc/research/auth-security.md
-#2 [codex_worker] Refactor auth/login.ts and auth/session.ts (uses #1 findings)
-#3 [claude_worker:designer] Redesign auth UI components (login form, session indicator)
-#4 [claude_worker] Update auth tests + fix integration issues
-#5 [gemini_worker] Final code review of all changes
+任务分解：
+#1 [codex_worker] 当前 auth 代码的安全审查 -> 输出到 .omc/research/auth-security.md
+#2 [codex_worker] 重构 auth/login.ts 和 auth/session.ts（使用 #1 发现）
+#3 [claude_worker:designer] 重新设计 auth UI 组件（登录表单、会话指示器）
+#4 [claude_worker] 更新 auth 测试 + 修复集成问题
+#5 [gemini_worker] 所有变更的最终代码审查
 ```
 
-The lead runs #1 (Codex security analysis), then #2 and #3 in parallel (Codex refactors backend, designer agent redesigns frontend), then #4 (Claude teammate handles test iteration), then #5 (Gemini final review).
+主控运行 #1（Codex 安全分析），然后 #2 和 #3 并行（Codex 重构后端，designer 代理重新设计前端），然后 #4（Claude 队友处理测试迭代），然后 #5（Gemini 最终审查）。
 
-### Pre-flight Analysis (Optional)
+### 预飞分析（可选）
 
-For large ambiguous tasks, run analysis before team creation:
+对于大型模糊任务，在团队创建前运行分析：
 
-1. Spawn `Task(subagent_type="oh-my-claudecode:planner", ...)` with task description + codebase context
-2. Use the analysis to produce better task decomposition
-3. Create team and tasks with enriched context
+1. 使用任务描述 + 代码库上下文生成 `Task(subagent_type="oh-my-claudecode:planner", ...)`
+2. 使用分析产生更好的任务分解
+3. 使用丰富上下文创建团队和任务
 
-This is especially useful when the task scope is unclear and benefits from external reasoning before committing to a specific decomposition.
+当任务范围不明确且在承诺特定分解之前受益于外部推理时，这特别有用。
 
-## Monitor Enhancement: Outbox Auto-Ingestion
+## 监控增强：发件箱自动摄取
 
-The lead can proactively ingest outbox messages from CLI workers using the outbox reader utilities, enabling event-driven monitoring without relying solely on `SendMessage` delivery.
+主控可以使用发件箱读取工具主动从 CLI 工作者摄取发件箱消息，实现事件驱动监控，而不完全依赖 `SendMessage` 传递。
 
-### Outbox Reader Functions
+### 发件箱读取函数
 
-**`readNewOutboxMessages(teamName, workerName)`** -- Read new outbox messages for a single worker using a byte-offset cursor. Each call advances the cursor, so subsequent calls only return messages written since the last read. Mirrors the inbox cursor pattern from `readNewInboxMessages()`.
+**`readNewOutboxMessages(teamName, workerName)`** — 使用字节偏移游标读取单个工作者的新发件箱消息。每次调用推进游标，因此后续调用仅返回自上次读取以来写入的消息。镜像 `readNewInboxMessages()` 的收件箱游标模式。
 
-**`readAllTeamOutboxMessages(teamName)`** -- Read new outbox messages from ALL workers in a team. Returns an array of `{ workerName, messages }` entries, skipping workers with no new messages. Useful for batch polling in the monitor loop.
+**`readAllTeamOutboxMessages(teamName)`** — 读取团队中所有工作者的新发件箱消息。返回 `{ workerName, messages }` 条目数组，跳过无新消息的工作者。适用于监控循环中的批量轮询。
 
-**`resetOutboxCursor(teamName, workerName)`** -- Reset the outbox cursor for a worker back to byte 0. Useful when re-reading historical messages after a lead restart or for debugging.
+**`resetOutboxCursor(teamName, workerName)`** — 将工作者的发件箱游标重置回字节 0。适用于主控重启后重新读取历史消息或调试。
 
-### Using `getTeamStatus()` in the Monitor Phase
+### 在监控阶段使用 `getTeamStatus()`
 
-The `getTeamStatus(teamName, workingDirectory, heartbeatMaxAgeMs?)` function provides a unified snapshot combining:
+`getTeamStatus(teamName, workingDirectory, heartbeatMaxAgeMs?)` 函数提供统一快照，结合：
 
-- **Worker registration** -- Which MCP workers are registered (from shadow registry / config.json)
-- **Heartbeat freshness** -- Whether each worker is alive based on heartbeat age
-- **Task progress** -- Per-worker and team-wide task counts (pending, in_progress, completed)
-- **Current task** -- Which task each worker is actively executing
-- **Recent outbox messages** -- New messages since the last status check
+- **工作者注册** — 哪些 MCP 工作者已注册（来自影子注册表 / config.json）
+- **心跳新鲜度** — 每个工作者是否基于心跳年龄存活
+- **任务进度** — 每个工作者和团队范围的任务计数（pending、in_progress、completed）
+- **当前任务** — 每个工作者正在执行哪个任务
+- **近期发件箱消息** — 自上次状态检查以来的新消息
 
-Example usage in the monitor loop:
+监控循环中的示例用法：
 
 ```typescript
 const status = getTeamStatus('fix-ts-errors', workingDirectory);
 
 for (const worker of status.workers) {
   if (!worker.isAlive) {
-    // Worker is dead -- reassign its in-progress tasks
+    // 工作者已死亡 — 重新分配其进行中任务
   }
   for (const msg of worker.recentMessages) {
     if (msg.type === 'task_complete') {
-      // Mark task complete, unblock dependents
+      // 标记任务完成，解除依赖阻塞
     } else if (msg.type === 'task_failed') {
-      // Handle failure, possibly retry or reassign
+      // 处理失败，可能重试或重新分配
     } else if (msg.type === 'error') {
-      // Log error, check if worker needs intervention
+      // 记录错误，检查工作者是否需要干预
     }
   }
 }
 
 if (status.taskSummary.pending === 0 && status.taskSummary.inProgress === 0) {
-  // All work done -- proceed to shutdown
+  // 所有工作完成 — 继续关闭
 }
 ```
 
-### Event-Based Actions from Outbox Messages
+### 基于事件的发件箱消息操作
 
-| Message Type | Action |
-|-------------|--------|
-| `task_complete` | Mark task completed, check if blocked tasks are now unblocked, notify dependent workers |
-| `task_failed` | Increment failure sidecar, decide retry vs reassign vs skip |
-| `idle` | Worker has no assigned tasks -- assign pending work or begin shutdown |
-| `error` | Log the error, check `consecutiveErrors` in heartbeat for quarantine threshold |
-| `shutdown_ack` | Worker acknowledged shutdown -- safe to remove from team |
-| `heartbeat` | Update liveness tracking (redundant with heartbeat files but useful for latency monitoring) |
+| 消息类型 | 操作 |
+|---------|------|
+| `task_complete` | 标记任务完成，检查阻塞任务是否现在解除，通知依赖工作者 |
+| `task_failed` | 增加失败侧车，决定重试 vs 重新分配 vs 跳过 |
+| `idle` | 工作者无分配任务 — 分配待处理工作或开始关闭 |
+| `error` | 记录错误，检查心跳中的 `consecutiveErrors` 是否达到隔离阈值 |
+| `shutdown_ack` | 工作者确认关闭 — 可安全从团队移除 |
+| `heartbeat` | 更新活跃性跟踪（与心跳文件冗余但对延迟监控有用 |
 
-This approach complements the existing `SendMessage`-based communication by providing a pull-based mechanism for MCP workers that cannot use Claude Code's team messaging tools.
+此方法补充了现有的基于 `SendMessage` 的通信，为无法使用 Claude Code 团队消息工具的 MCP 工作者提供基于拉取的机制。
 
-## Error Handling
+## 错误处理
 
-### Teammate Fails a Task
+### 队友任务失败
 
-1. Teammate sends `SendMessage` to lead reporting the failure
-2. Lead decides: retry (reassign same task to same or different worker) or skip
-3. To reassign: `TaskUpdate` to set new owner, then `SendMessage` to the new owner
+1. 队友向主控发送 `SendMessage` 报告失败
+2. 主控决定：重试（将同一任务重新分配给同一或不同工作者）或跳过
+3. 重新分配：`TaskUpdate` 设置新所有者，然后 `SendMessage` 通知新所有者
 
-### Teammate Gets Stuck (No Messages)
+### 队友卡住（无消息）
 
-1. Lead detects via `TaskList` -- task stuck in `in_progress` for too long
-2. Lead sends `SendMessage` to the teammate asking for status
-3. If no response, consider the teammate dead
-4. Reassign the task to another worker via `TaskUpdate`
+1. 主控通过 `TaskList` 检测 — 任务在 `in_progress` 状态时间过长
+2. 主控向队友发送 `SendMessage` 询问状态
+3. 如果无响应，认为队友已死亡
+4. 通过 `TaskUpdate` 将任务重新分配给其他工作者
 
-### Dependency Blocked
+### 依赖阻塞
 
-1. If a blocking task fails, the lead must decide whether to:
-   - Retry the blocker
-   - Remove the dependency (`TaskUpdate` with modified blockedBy)
-   - Skip the blocked task entirely
-2. Communicate decisions to affected teammates via `SendMessage`
+1. 如果阻塞任务失败，主控必须决定：
+   - 重试阻塞者
+   - 移除依赖（使用修改后的 blockedBy 的 `TaskUpdate`）
+   - 完全跳过被阻塞任务
+2. 通过 `SendMessage` 向受影响队友传达决策
 
-### Teammate Crashes
+### 队友崩溃
 
-1. Internal task for that teammate will show unexpected status
-2. Teammate disappears from `config.json` members
-3. Lead reassigns orphaned tasks to remaining workers
-4. If needed, spawn a replacement teammate with `Task(team_name, name)`
+1. 该队友的内部任务将显示意外状态
+2. 队友从 `config.json` 成员中消失
+3. 主控将孤立任务重新分配给剩余工作者
+4. 如需要，使用 `Task(team_name, name)` 生成替代队友
 
-## Team + Ralph Composition
+## 团队 + Ralph 组合
 
-When the user invokes `/team ralph`, says "team ralph", or combines both keywords, team mode wraps itself in Ralph's persistence loop. This provides:
+当用户调用 `/team ralph`、说"team ralph"或组合两个关键词时，团队模式将自身包装在 Ralph 的持久化循环中。这提供：
 
-- **Team orchestration** -- multi-agent staged pipeline with specialized agents per stage
-- **Ralph persistence** -- retry on failure, architect verification before completion, iteration tracking
+- **团队编排** — 多代理分阶段管道，每阶段有专门代理
+- **Ralph 持久化** — 失败重试、完成前架构师验证、迭代跟踪
 
-### Activation
+### 激活
 
-Team+Ralph activates when:
-1. User invokes `/team ralph "task"` or `/oh-my-claudecode:team ralph "task"`
-2. Keyword detector finds both `team` and `ralph` in the prompt
-3. Hook detects `MAGIC KEYWORD: RALPH` alongside team context
+团队+Ralph 在以下情况激活：
+1. 用户调用 `/team ralph "task"` 或 `/oh-my-claudecode:team ralph "task"`
+2. 关键词检测器在提示中发现 `team` 和 `ralph`
+3. Hook 检测到 `MAGIC KEYWORD: RALPH` 与团队上下文并存
 
-### State Linkage
+### 状态链接
 
-Both modes write their own state files with cross-references:
+两种模式都写入各自的状态文件并相互引用：
 
 ```
-// Team state (via state_write)
+// 团队状态（通过 state_write）
 state_write(mode="team", active=true, current_phase="team-plan", state={
   "team_name": "build-rest-api",
   "linked_ralph": true,
   "task": "build a complete REST API"
 })
 
-// Ralph state (via state_write)
+// Ralph 状态（通过 state_write）
 state_write(mode="ralph", active=true, iteration=1, max_iterations=10, current_phase="execution", state={
   "linked_team": true,
   "team_name": "build-rest-api"
 })
 ```
 
-### Execution Flow
+### 执行流程
 
-1. Ralph outer loop starts (iteration 1)
-2. Team pipeline runs: `team-plan -> team-prd -> team-exec -> team-verify`
-3. If `team-verify` passes: Ralph runs architect verification (STANDARD tier minimum)
-4. If architect approves: both modes complete, run `/oh-my-claudecode:cancel`
-5. If `team-verify` fails OR architect rejects: team enters `team-fix`, then loops back to `team-exec -> team-verify`
-6. If fix loop exceeds `max_fix_loops`: Ralph increments iteration and retries the full pipeline
-7. If Ralph exceeds `max_iterations`: terminal `failed` state
+1. Ralph 外循环开始（迭代 1）
+2. 团队管道运行：`team-plan -> team-prd -> team-exec -> team-verify`
+3. 如果 `team-verify` 通过：Ralph 运行架构师验证（STANDARD 层级最低）
+4. 如果架构师批准：两种模式完成，运行 `/oh-my-claudecode:cancel`
+5. 如果 `team-verify` 失败或架构师拒绝：团队进入 `team-fix`，然后循环回 `team-exec -> team-verify`
+6. 如果修复循环超过 `max_fix_loops`：Ralph 增加迭代并重试完整管道
+7. 如果 Ralph 超过 `max_iterations`：终态 `failed`
 
-### Cancellation
+### 取消
 
-Cancel either mode cancels both:
-- **Cancel Ralph (linked):** Cancel Team first (graceful shutdown), then clear Ralph state
-- **Cancel Team (linked):** Clear Team, mark Ralph iteration cancelled, stop loop
+取消任一模式即取消两者：
+- **取消 Ralph（链接）：** 先取消团队（优雅关闭），然后清除 Ralph 状态
+- **取消团队（链接）：** 清除团队，标记 Ralph 迭代取消，停止循环
 
-See Cancellation section below for details.
+详情参见下方取消部分。
 
-## Idempotent Recovery
+## 幂等恢复
 
-If the lead crashes mid-run, the team skill should detect existing state and resume:
+如果主控在运行中崩溃，团队技能应检测现有状态并恢复：
 
-1. Check `${CLAUDE_CONFIG_DIR:-~/.claude}/teams/` for teams matching the task slug
-2. If found, read `config.json` to discover active members
-3. Resume monitor mode instead of creating a duplicate team
-4. Call `TaskList` to determine current progress
-5. Continue from the monitoring phase
+1. 检查 `${CLAUDE_CONFIG_DIR:-~/.claude}/teams/` 中匹配任务 slug 的团队
+2. 如果找到，读取 `config.json` 发现活跃成员
+3. 恢复监控模式而非创建重复团队
+4. 调用 `TaskList` 确定当前进度
+5. 从监控阶段继续
 
-This prevents duplicate teams and allows graceful recovery from lead failures.
+这防止重复团队并允许从主控失败中优雅恢复。
 
-## Comparison: Team vs Legacy Swarm
+## 对比：团队 vs 旧版 Swarm
 
-| Aspect | Team (Native) | Swarm (Legacy SQLite) |
-|--------|--------------|----------------------|
-| **Storage** | JSON files in `~/.claude/teams/` and `~/.claude/tasks/` | SQLite in `.omc/state/swarm.db` |
-| **Dependencies** | `better-sqlite3` not needed | Requires `better-sqlite3` npm package |
-| **Task claiming** | `TaskUpdate(owner + in_progress)` -- lead pre-assigns | SQLite IMMEDIATE transaction -- atomic |
-| **Race conditions** | Possible if two agents claim same task (mitigate by pre-assigning) | None (SQLite transactions) |
-| **Communication** | `SendMessage` (DM, broadcast, shutdown) | None (fire-and-forget agents) |
-| **Task dependencies** | Built-in `blocks` / `blockedBy` arrays | Not supported |
-| **Heartbeat** | Automatic idle notifications from Claude Code | Manual heartbeat table + polling |
-| **Shutdown** | Graceful request/response protocol | Signal-based termination |
-| **Agent lifecycle** | Auto-tracked via internal tasks + config members | Manual tracking via heartbeat table |
-| **Progress visibility** | `TaskList` shows live status with owner | SQL queries on tasks table |
-| **Conflict prevention** | Owner field (lead-assigned) | Lease-based claiming with timeout |
-| **Crash recovery** | Lead detects via missing messages, reassigns | Auto-release after 5-min lease timeout |
-| **State cleanup** | `TeamDelete` removes everything | Manual `rm` of SQLite database |
+| 方面 | 团队（原生） | Swarm（旧版 SQLite） |
+|------|------------|---------------------|
+| **存储** | `~/.claude/teams/` 和 `~/.claude/tasks/` 中的 JSON 文件 | `.omc/state/swarm.db` 中的 SQLite |
+| **依赖** | 不需要 `better-sqlite3` | 需要 `better-sqlite3` npm 包 |
+| **任务声明** | `TaskUpdate(owner + in_progress)` — 主控预分配 | SQLite IMMEDIATE 事务 — 原子 |
+| **竞争条件** | 如果两个代理声明同一任务可能发生（通过预分配缓解） | 无（SQLite 事务） |
+| **通信** | `SendMessage`（DM、广播、关闭） | 无（即发即忘代理） |
+| **任务依赖** | 内置 `blocks` / `blockedBy` 数组 | 不支持 |
+| **心跳** | Claude Code 的自动空闲通知 | 手动心跳表 + 轮询 |
+| **关闭** | 优雅请求/响应协议 | 基于信号的终止 |
+| **代理生命周期** | 通过内部任务 + 配置成员自动跟踪 | 通过心跳表手动跟踪 |
+| **进度可见性** | `TaskList` 显示带所有者的实时状态 | SQL 查询任务表 |
+| **冲突预防** | Owner 字段（主控分配） | 基于租约的声明（含超时） |
+| **崩溃恢复** | 主控通过缺失消息检测，重新分配 | 5 分钟租约超时后自动释放 |
+| **状态清理** | `TeamDelete` 删除所有内容 | 手动 `rm` SQLite 数据库 |
 
-**When to use Team over Swarm:** Always prefer `/team` for new work. It uses Claude Code's built-in infrastructure, requires no external dependencies, supports inter-agent communication, and has task dependency management.
+**何时使用团队而非 Swarm：** 新工作始终优先使用 `/team`。它使用 Claude Code 的内置基础设施，无需外部依赖，支持代理间通信，并有任务依赖管理。
 
-## Cancellation
+## 取消
 
-The `/oh-my-claudecode:cancel` skill handles team cleanup:
+`/oh-my-claudecode:cancel` 技能处理团队清理：
 
-1. Read team state via `state_read(mode="team")` to get `team_name` and `linked_ralph`
-2. Send `shutdown_request` to all active teammates (from `config.json` members)
-3. Wait for `shutdown_response` from each (15s timeout per member)
-4. Call `TeamDelete` to remove team and task directories
-5. Clear state via `state_clear(mode="team")`
-6. If `linked_ralph` is true, also clear ralph: `state_clear(mode="ralph")`
+1. 通过 `state_read(mode="team")` 读取团队状态获取 `team_name` 和 `linked_ralph`
+2. 向所有活跃队友（来自 `config.json` 成员）发送 `shutdown_request`
+3. 等待每个的 `shutdown_response`（每个成员 15 秒超时）
+4. 调用 `TeamDelete` 删除团队和任务目录
+5. 通过 `state_clear(mode="team")` 清除状态
+6. 如果 `linked_ralph` 为 true，也清除 ralph：`state_clear(mode="ralph")`
 
-### Linked Mode Cancellation (Team + Ralph)
+### 链接模式取消（团队 + Ralph）
 
-When team is linked to ralph, cancellation follows dependency order:
+当团队链接到 ralph 时，取消遵循依赖顺序：
 
-- **Cancel triggered from Ralph context:** Cancel Team first (graceful shutdown of all teammates), then clear Ralph state. This ensures workers are stopped before the persistence loop exits.
-- **Cancel triggered from Team context:** Clear Team state, then mark Ralph as cancelled. Ralph's stop hook will detect the missing team and stop iterating.
-- **Force cancel (`--force`):** Clears both `team` and `ralph` state unconditionally via `state_clear`.
+- **从 Ralph 上下文触发取消：** 先取消团队（优雅关闭所有队友），然后清除 Ralph 状态。这确保工作者在持久化循环退出前停止。
+- **从团队上下文触发取消：** 清除团队状态，然后标记 Ralph 为已取消。Ralph 的停止钩子将检测缺失的团队并停止迭代。
+- **强制取消（`--force`）：** 通过 `state_clear` 无条件清除 `team` 和 `ralph` 状态。
 
-If teammates are unresponsive, `TeamDelete` may fail. In that case, the cancel skill should wait briefly and retry, or inform the user to manually clean up `~/.claude/teams/{team_name}/` and `~/.claude/tasks/{team_name}/`.
+如果队友无响应，`TeamDelete` 可能失败。在这种情况下，取消技能应短暂等待后重试，或告知用户手动清理 `~/.claude/teams/{team_name}/` 和 `~/.claude/tasks/{team_name}/`。
 
-## Runtime V2 (Event-Driven)
+## 运行时 V2（事件驱动）
 
-When `OMC_RUNTIME_V2=1` is set, the team runtime uses an event-driven architecture instead of the legacy done.json polling watchdog:
+当设置 `OMC_RUNTIME_V2=1` 时，团队运行时使用事件驱动架构替代旧版 done.json 轮询看门狗：
 
-- **No done.json**: Task completion is detected via CLI API lifecycle transitions (claim-task, transition-task-status)
-- **Snapshot-based monitoring**: Each poll cycle takes a point-in-time snapshot of tasks and workers, computes deltas, and emits events
-- **Event log**: All team events are appended to `.omc/state/team/{teamName}/events.jsonl`
-- **Worker status files**: Workers write status to `.omc/state/team/{teamName}/workers/{name}/status.json`
-- **Preserved**: Sentinel gate (blocks premature completion), circuit breaker (dead worker detection), failure sidecars
+- **无 done.json**：任务完成通过 CLI API 生命周期转换检测（claim-task、transition-task-status）
+- **基于快照的监控**：每个轮询周期对任务和工作者进行时间点快照，计算增量，并发出事件
+- **事件日志**：所有团队事件追加到 `.omc/state/team/{teamName}/events.jsonl`
+- **工作者状态文件**：工作者将状态写入 `.omc/state/team/{teamName}/workers/{name}/status.json`
+- **保留**：哨兵门（阻止过早完成）、断路器（死亡工作者检测）、失败侧车
 
-The v2 runtime is feature-flagged and can be enabled per-session. The legacy v1 runtime remains the default.
+V2 运行时是功能标记的，可以按会话启用。旧版 V1 运行时仍是默认。
 
-## Dynamic Scaling
+## 动态扩展
 
-When `OMC_TEAM_SCALING_ENABLED=1` is set, the team supports mid-session scaling:
+当设置 `OMC_TEAM_SCALING_ENABLED=1` 时，团队支持会话中扩展：
 
-- **scale_up**: Add workers to a running team (respects max_workers limit)
-- **scale_down**: Remove idle workers with graceful drain (workers finish current task before removal)
-- File-based scaling lock prevents concurrent scale operations
-- Monotonic worker index counter ensures unique worker names across scale events
+- **scale_up**：向运行中的团队添加工作者（遵守 max_workers 限制）
+- **scale_down**：移除空闲工作者（优雅排空 — 工作者在移除前完成当前任务）
+- 基于文件的扩展锁防止并发扩展操作
+- 单调工作者索引计数器确保跨扩展事件的唯一工作者名称
 
-## Configuration
+## 配置
 
-Optional settings live in `.claude/omc.jsonc` (project) or `~/.config/claude-omc/config.jsonc` (user). Project values override user values; `OMC_TEAM_ROLE_OVERRIDES` (env JSON) supersedes both.
+可选设置位于 `.claude/omc.jsonc`（项目）或 `~/.config/claude-omc/config.jsonc`（用户）。项目值覆盖用户值；`OMC_TEAM_ROLE_OVERRIDES`（环境 JSON）优先于两者。
 
 ```jsonc
 {
@@ -887,20 +885,20 @@ Optional settings live in `.claude/omc.jsonc` (project) or `~/.config/claude-omc
 }
 ```
 
-- **ops.maxAgents** - Maximum teammates (default: 20)
-- **ops.defaultAgentType** - CLI provider when a `/team` invocation does not specify one (`claude` | `codex` | `gemini`, default: `claude`)
-- **ops.monitorIntervalMs** - How often to poll `TaskList` (default: 30s)
-- **ops.shutdownTimeoutMs** - How long to wait for shutdown responses (default: 15s)
+- **ops.maxAgents** — 最大队友数（默认：20）
+- **ops.defaultAgentType** — `/team` 调用未指定时的 CLI 提供者（`claude` | `codex` | `gemini`，默认：`claude`）
+- **ops.monitorIntervalMs** — 轮询 `TaskList` 的频率（默认：30 秒）
+- **ops.shutdownTimeoutMs** — 等待关闭响应的时间（默认：15 秒）
 
-> **Note:** Team members do not have a hardcoded model default. Each teammate is a separate Claude Code session that inherits the user's configured model. Since teammates can spawn their own subagents, the session model acts as the orchestration layer while subagents can use any model tier.
+> **注意：** 团队成员没有硬编码的模型默认值。每个队友是独立的 Claude Code 会话，继承用户配置的模型。由于队友可以生成自己的子代理，会话模型充当编排层，而子代理可以使用任何模型层级。
 
-## Per-Role Provider & Model Routing
+## 按角色提供者和模型路由
 
-> **Scope:** Applies to `/team` only. Task-based delegation uses `delegationRouting` (see separate docs). The two systems coexist by design.
+> **范围：** 仅适用于 `/team`。基于任务的委托使用 `delegationRouting`（参见单独文档）。两个系统按设计共存。
 
-Declare which provider (`claude`, `codex`, `gemini`) and which model tier should back each canonical role. Routing is resolved **once** at team creation and persisted in `TeamConfig.resolved_routing` — spawn, scale-up, and restart all read from the snapshot, so a role's worker CLI and model are stable for the lifetime of the team.
+声明哪个提供者（`claude`、`codex`、`gemini`）和哪个模型层级应支持每个规范角色。路由在团队创建时**解析一次**并持久化在 `TeamConfig.resolved_routing` 中 — 生成、扩展和重启都从快照读取，因此角色的工作者 CLI 和模型在团队生命周期内稳定。
 
-### Example — user target mapping
+### 示例 — 用户目标映射
 
 ```jsonc
 // .claude/omc.jsonc
@@ -919,122 +917,122 @@ Declare which provider (`claude`, `codex`, `gemini`) and which model tier should
 }
 ```
 
-| Role | Provider | Model |
-|---|---|---|
-| `orchestrator` | claude (pinned) | inherits invoking session |
-| `planner` | claude | `HIGH` (opus) |
-| `analyst` | claude | `HIGH` (opus) |
-| `executor` | claude | `MEDIUM` (sonnet) |
-| `critic` | codex | codex default |
-| `code-reviewer` | gemini | gemini default |
-| `test-engineer` | gemini | `MEDIUM` (sonnet) |
+| 角色 | 提供者 | 模型 |
+|------|--------|------|
+| `orchestrator` | claude（固定） | 继承调用会话 |
+| `planner` | claude | `HIGH`（opus） |
+| `analyst` | claude | `HIGH`（opus） |
+| `executor` | claude | `MEDIUM`（sonnet） |
+| `critic` | codex | codex 默认 |
+| `code-reviewer` | gemini | gemini 默认 |
+| `test-engineer` | gemini | `MEDIUM`（sonnet） |
 
-### Canonical roles
+### 规范角色
 
-`orchestrator`, `planner`, `analyst`, `architect`, `executor`, `debugger`, `critic`, `code-reviewer`, `security-reviewer`, `test-engineer`, `designer`, `writer`, `code-simplifier`, `explore`, `document-specialist`.
+`orchestrator`、`planner`、`analyst`、`architect`、`executor`、`debugger`、`critic`、`code-reviewer`、`security-reviewer`、`test-engineer`、`designer`、`writer`、`code-simplifier`、`explore`、`document-specialist`。
 
-User-friendly aliases normalize via `normalizeDelegationRole()` — e.g. `reviewer` → `code-reviewer`, `quality-reviewer` → `code-reviewer`, `harsh-critic` → `critic`, `build-fixer` → `debugger`. Accepted alias keys are honored during resolved snapshot creation and later stage routing, not just validation. Unknown roles fail validation at parse time.
+用户友好别名通过 `normalizeDelegationRole()` 规范化 — 如 `reviewer` → `code-reviewer`、`quality-reviewer` → `code-reviewer`、`harsh-critic` → `critic`、`build-fixer` → `debugger`。已接受的别名键在解析快照创建和后续阶段路由中被尊重，不仅仅是验证。未知角色在解析时验证失败。
 
-### Spec fields (`TeamRoleAssignmentSpec`)
+### 规范字段（`TeamRoleAssignmentSpec`）
 
-- **provider** — `"claude" | "codex" | "gemini"`. Omitted → defaults to `claude`.
-- **model** — tier name (`"HIGH" | "MEDIUM" | "LOW"`) or an explicit model ID. Tiers resolve through `routing.tierModels`.
-- **agent** — optional Claude agent name (e.g. `"critic"`, `"executor"`). Only honored when the resolved provider is `claude`.
+- **provider** — `"claude" | "codex" | "gemini"`。省略 → 默认 `claude`。
+- **model** — 层级名称（`"HIGH" | "MEDIUM" | "LOW"`）或显式模型 ID。层级通过 `routing.tierModels` 解析。
+- **agent** — 可选 Claude 代理名称（如 `"critic"`、`"executor"`）。仅在解析的提供者为 `claude` 时被尊重。
 
-`orchestrator` is pinned to `claude`; only `model` is user-configurable. Any other key on `orchestrator` is rejected by the validator.
+`orchestrator` 固定为 `claude`；仅 `model` 可由用户配置。`orchestrator` 上的任何其他键被验证器拒绝。
 
-### Env override
+### 环境覆盖
 
 ```bash
 OMC_TEAM_ROLE_OVERRIDES='{"critic":{"provider":"codex"},"code-reviewer":{"provider":"gemini"}}'
 ```
 
-Precedence: `OMC_TEAM_ROLE_OVERRIDES` > `.claude/omc.jsonc` (project) > `~/.config/claude-omc/config.jsonc` (user) > built-in defaults. Invalid JSON logs a warning and is ignored — env overrides are best-effort and never abort the run.
+优先级：`OMC_TEAM_ROLE_OVERRIDES` > `.claude/omc.jsonc`（项目）> `~/.config/claude-omc/config.jsonc`（用户）> 内置默认值。无效 JSON 记录警告并被忽略 — 环境覆盖是尽力而为的，绝不中止运行。
 
-### Fallback when a CLI is missing
+### CLI 缺失时的回退
 
-If the CLI for a configured provider is absent from `PATH` at spawn time, `buildLaunchArgs()` throws, the team lead emits a visible `SendMessage` warning, and the runtime falls back to a deterministic Claude assignment pre-computed by `buildResolvedRoutingSnapshot` (same tier + same agent, `provider: "claude"`). Fallback is loud by design — silent fallback is a test failure. Probe provider availability with `omc doctor --team-routing`.
+如果配置提供者的 CLI 在生成时不存在于 `PATH` 中，`buildLaunchArgs()` 抛出异常，团队主控发出可见的 `SendMessage` 警告，运行时回退到由 `buildResolvedRoutingSnapshot` 预计算的确定性 Claude 分配（相同层级 + 相同代理，`provider: "claude"`）。回退是有意可见的 — 静默回退是测试失败。使用 `omc doctor --team-routing` 探测提供者可用性。
 
-### Stickiness — resolved once, reused everywhere
+### 粘性 — 解析一次，到处复用
 
-Resolved routing is immutable per team. Editing config mid-team-lifetime does not affect running teams; a new `/team` invocation picks up the new mapping. This guarantees that spawn, scale-up, and worker-restart all see identical routing, including across worktree detaches (the snapshot travels with `TeamConfig`).
+解析的路由在每个团队中不可变。团队生命周期中编辑配置不影响运行中的团队；新的 `/team` 调用获取新映射。这保证生成、扩展和工作者重启都看到相同的路由，包括跨 worktree 分离（快照随 `TeamConfig` 传播）。
 
-### Zero-config behavior
+### 零配置行为
 
-An empty `team.roleRouting` preserves pre-patch behavior: every worker is Claude, model tiers follow `routing.tierModels`, and `/team 3:executor ...` still spawns three Claude Sonnet executors.
+空的 `team.roleRouting` 保留补丁前行为：每个工作者是 Claude，模型层级遵循 `routing.tierModels`，`/team 3:executor ...` 仍然生成三个 Claude Sonnet 执行器。
 
-## State Cleanup
+## 状态清理
 
-On successful completion:
+成功完成时：
 
-1. `TeamDelete` handles all Claude Code state:
-   - Removes `~/.claude/teams/{team_name}/` (config)
-   - Removes `~/.claude/tasks/{team_name}/` (all task files + lock)
-2. OMC state cleanup via MCP tools:
+1. `TeamDelete` 处理所有 Claude Code 状态：
+   - 删除 `~/.claude/teams/{team_name}/`（配置）
+   - 删除 `~/.claude/tasks/{team_name}/`（所有任务文件 + 锁）
+2. 通过 MCP 工具清理 OMC 状态：
    ```
    state_clear(mode="team")
    ```
-   If linked to Ralph:
+   如果链接到 Ralph：
    ```
    state_clear(mode="ralph")
    ```
-3. Or run `/oh-my-claudecode:cancel` which handles all cleanup automatically.
+3. 或运行 `/oh-my-claudecode:cancel` 自动处理所有清理。
 
-**IMPORTANT:** Call `TeamDelete` only AFTER all teammates have been shut down. `TeamDelete` will fail if active members (besides the lead) still exist in the config.
+**重要：** 仅在所有队友关闭后调用 `TeamDelete`。如果配置中仍有活跃成员（除主控外），`TeamDelete` 将失败。
 
-## Git Worktree Integration
+## Git Worktree 集成
 
-MCP workers can operate in isolated git worktrees to prevent file conflicts between concurrent workers.
+MCP 工作者可以在隔离的 git worktree 中操作，以防止并发工作者之间的文件冲突。
 
-### How It Works
+### 工作原理
 
-1. **Worktree creation**: Before spawning a worker, call `createWorkerWorktree(teamName, workerName, repoRoot)` to create an isolated worktree at `.omc/worktrees/{team}/{worker}` with branch `omc-team/{teamName}/{workerName}`.
+1. **Worktree 创建**：生成工作者前，调用 `createWorkerWorktree(teamName, workerName, repoRoot)` 在 `.omc/worktrees/{team}/{worker}` 创建隔离 worktree，分支为 `omc-team/{teamName}/{workerName}`。
 
-2. **Worker isolation**: Pass the worktree path as the `workingDirectory` in the worker's `BridgeConfig`. The worker operates exclusively in its own worktree.
+2. **工作者隔离**：将 worktree 路径作为工作者 `BridgeConfig` 中的 `workingDirectory` 传递。工作者专门在自己的 worktree 中操作。
 
-3. **Merge coordination**: After a worker completes its tasks, use `checkMergeConflicts()` to verify the branch can be cleanly merged, then `mergeWorkerBranch()` to merge with `--no-ff` for clear history.
+3. **合并协调**：工作者完成任务后，使用 `checkMergeConflicts()` 验证分支可以干净合并，然后使用 `mergeWorkerBranch()` 以 `--no-ff` 合并以获得清晰历史。
 
-4. **Team cleanup**: On team shutdown, call `cleanupTeamWorktrees(teamName, repoRoot)` to remove all worktrees and their branches.
+4. **团队清理**：团队关闭时，调用 `cleanupTeamWorktrees(teamName, repoRoot)` 删除所有 worktree 及其分支。
 
-### API Reference
+### API 参考
 
-| Function | Description |
-|----------|-------------|
-| `createWorkerWorktree(teamName, workerName, repoRoot, baseBranch?)` | Create isolated worktree |
-| `removeWorkerWorktree(teamName, workerName, repoRoot)` | Remove worktree and branch |
-| `listTeamWorktrees(teamName, repoRoot)` | List all team worktrees |
-| `cleanupTeamWorktrees(teamName, repoRoot)` | Remove all team worktrees |
-| `checkMergeConflicts(workerBranch, baseBranch, repoRoot)` | Non-destructive conflict check |
-| `mergeWorkerBranch(workerBranch, baseBranch, repoRoot)` | Merge worker branch (--no-ff) |
-| `mergeAllWorkerBranches(teamName, repoRoot, baseBranch?)` | Merge all completed workers |
+| 函数 | 描述 |
+|------|------|
+| `createWorkerWorktree(teamName, workerName, repoRoot, baseBranch?)` | 创建隔离 worktree |
+| `removeWorkerWorktree(teamName, workerName, repoRoot)` | 删除 worktree 和分支 |
+| `listTeamWorktrees(teamName, repoRoot)` | 列出所有团队 worktree |
+| `cleanupTeamWorktrees(teamName, repoRoot)` | 删除所有团队 worktree |
+| `checkMergeConflicts(workerBranch, baseBranch, repoRoot)` | 非破坏性冲突检查 |
+| `mergeWorkerBranch(workerBranch, baseBranch, repoRoot)` | 合并工作者分支（--no-ff） |
+| `mergeAllWorkerBranches(teamName, repoRoot, baseBranch?)` | 合并所有已完成工作者 |
 
-### Important Notes
+### 重要说明
 
-- `createSession()` in `tmux-session.ts` does NOT handle worktree creation — worktree lifecycle is managed separately via `git-worktree.ts`
-- Worktrees are NOT cleaned up on individual worker shutdown — only on team shutdown, to allow post-mortem inspection
-- Branch names are sanitized via `sanitizeName()` to prevent injection
-- All paths are validated against directory traversal
+- `tmux-session.ts` 中的 `createSession()` 不处理 worktree 创建 — worktree 生命周期通过 `git-worktree.ts` 单独管理
+- Worktree 不在单个工作者关闭时清理 — 仅在团队关闭时清理，以允许事后检查
+- 分支名称通过 `sanitizeName()` 净化以防止注入
+- 所有路径都经过目录遍历验证
 
-## Gotchas
+## 注意事项
 
-1. **Internal tasks pollute TaskList** -- When a teammate is spawned, the system auto-creates an internal task with `metadata._internal: true`. These appear in `TaskList` output. Filter them when counting real task progress. The subject of an internal task is the teammate's name.
+1. **内部任务污染 TaskList** — 当队友生成时，系统自动创建 `metadata._internal: true` 的内部任务。这些出现在 `TaskList` 输出中。计算实际任务进度时过滤它们。内部任务的主题是队友的名称。
 
-2. **No atomic claiming** -- Unlike SQLite swarm, there is no transactional guarantee on `TaskUpdate`. Two teammates could race to claim the same task. **Mitigation:** The lead should pre-assign owners via `TaskUpdate(taskId, owner)` before spawning teammates. Teammates should only work on tasks assigned to them.
+2. **无原子声明** — 不像 SQLite swarm，`TaskUpdate` 没有事务保证。两个队友可能竞争声明同一任务。**缓解措施：** 主控应在生成队友前通过 `TaskUpdate(taskId, owner)` 预分配所有者。队友应仅处理分配给他们的任务。
 
-3. **Task IDs are strings** -- IDs are auto-incrementing strings ("1", "2", "3"), not integers. Always pass string values to `taskId` fields.
+3. **任务 ID 是字符串** — ID 是自增字符串（"1"、"2"、"3"），不是整数。始终向 `taskId` 字段传递字符串值。
 
-4. **TeamDelete requires empty team** -- All teammates must be shut down before calling `TeamDelete`. The lead (the only remaining member) is excluded from this check.
+4. **TeamDelete 需要空团队** — 调用 `TeamDelete` 前所有队友必须关闭。主控（唯一剩余成员）被排除在此检查之外。
 
-5. **Messages are auto-delivered** -- Teammate messages arrive to the lead as new conversation turns. No polling or inbox-checking is needed for inbound messages. However, if the lead is mid-turn (processing), messages queue and deliver when the turn ends.
+5. **消息自动送达** — 队友消息作为新对话轮次到达主控。入站消息无需轮询或收件箱检查。但是，如果主控正在处理中（处理中），消息会排队并在轮次结束时送达。
 
-6. **Teammate prompt stored in config** -- The full prompt text is stored in `config.json` members array. Do not put secrets or sensitive data in teammate prompts.
+6. **队友提示存储在配置中** — 完整提示文本存储在 `config.json` 成员数组中。不要在队友提示中放置密钥或敏感数据。
 
-7. **Members auto-removed on shutdown** -- After a teammate approves shutdown and terminates, it is automatically removed from `config.json`. Do not re-read config expecting to find shut-down teammates.
+7. **关闭时成员自动移除** — 队友批准关闭并终止后，自动从 `config.json` 移除。不要重新读取配置期望找到已关闭的队友。
 
-8. **shutdown_response needs request_id** -- The teammate must extract the `request_id` from the incoming shutdown request JSON and pass it back. The format is `shutdown-{timestamp}@{worker-name}`. Fabricating this ID will cause the shutdown to fail silently.
+8. **shutdown_response 需要 request_id** — 队友必须从传入的关闭请求 JSON 中提取 `request_id` 并传回。格式为 `shutdown-{timestamp}@{worker-name}`。伪造此 ID 将导致关闭静默失败。
 
-9. **Team name must be a valid slug** -- Use lowercase letters, numbers, and hyphens. Derive from the task description (e.g., "fix TypeScript errors" becomes "fix-ts-errors").
+9. **团队名称必须是有效的 slug** — 使用小写字母、数字和连字符。从任务描述派生（如"fix TypeScript errors"变为"fix-ts-errors"）。
 
-10. **Broadcast is expensive** -- Each broadcast sends a separate message to every teammate. Use `message` (DM) by default. Only broadcast for truly team-wide critical alerts.
+10. **广播成本高** — 每次广播向每个队友发送单独消息。默认使用 `message`（DM）。仅在真正的团队范围关键警报时广播。
 
-11. **CLI workers are one-shot, not persistent** -- Tmux CLI workers have full filesystem access and CAN make code changes. However, they run as autonomous one-shot jobs -- they cannot use TaskList/TaskUpdate/SendMessage. The lead must manage their lifecycle: write prompt_file, spawn CLI worker, read output_file, mark task complete. They don't participate in team communication like Claude teammates do.
+11. **CLI 工作者是一次性的，不是持久的** — Tmux CLI 工作者有完整文件系统访问权限，可以进行代码更改。但是，它们作为自主一次性作业运行 — 不能使用 TaskList/TaskUpdate/SendMessage。主控必须管理它们的生命周期：写入 prompt_file，生成 CLI 工作者，读取 output_file，标记任务完成。它们不像 Claude 队友那样参与团队通信。

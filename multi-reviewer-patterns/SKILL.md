@@ -1,127 +1,127 @@
 ---
 name: multi-reviewer-patterns
-description: Coordinate parallel code reviews across multiple quality dimensions with finding deduplication, severity calibration, and consolidated reporting. Use this skill when organizing multi-reviewer code reviews, calibrating finding severity, or consolidating review results.
+description: 跨多个质量维度协调并行代码审查，实现发现去重、严重性校准和合并报告。在组织多审查者代码审查、校准发现严重性或合并审查结果时使用此技能。
 version: 1.0.2
 ---
 
-# Multi-Reviewer Patterns
+# 多审查者模式
 
-Patterns for coordinating parallel code reviews across multiple quality dimensions, deduplicating findings, calibrating severity, and producing consolidated reports.
+跨多个质量维度协调并行代码审查、去重发现、校准严重性和生成合并报告的模式。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Organizing a multi-dimensional code review
-- Deciding which review dimensions to assign
-- Deduplicating findings from multiple reviewers
-- Calibrating severity ratings consistently
-- Producing a consolidated review report
+- 组织多维度代码审查
+- 决定分配哪些审查维度
+- 去重来自多个审查者的发现
+- 一致地校准严重性评级
+- 生成合并审查报告
 
-## Review Dimension Allocation
+## 审查维度分配
 
-### Available Dimensions
+### 可用维度
 
-| Dimension         | Focus                                   | When to Include                             |
-| ----------------- | --------------------------------------- | ------------------------------------------- |
-| **Security**      | Vulnerabilities, auth, input validation | Always for code handling user input or auth |
-| **Performance**   | Query efficiency, memory, caching       | When changing data access or hot paths      |
-| **Architecture**  | SOLID, coupling, patterns               | For structural changes or new modules       |
-| **Testing**       | Coverage, quality, edge cases           | When adding new functionality               |
-| **Accessibility** | WCAG, ARIA, keyboard nav                | For UI/frontend changes                     |
+| 维度         | 关注点                                   | 何时包含                             |
+| ------------ | ---------------------------------------- | ------------------------------------ |
+| **安全性**   | 漏洞、认证、输入验证                     | 处理用户输入或认证的代码始终包含     |
+| **性能**     | 查询效率、内存、缓存                     | 更改数据访问或热路径时               |
+| **架构**     | SOLID、耦合、模式                        | 结构性更改或新模块时                 |
+| **测试**     | 覆盖率、质量、边界情况                   | 添加新功能时                         |
+| **无障碍性** | WCAG、ARIA、键盘导航                     | UI/前端更改时                        |
 
-### Recommended Combinations
+### 推荐组合
 
-| Scenario               | Dimensions                                   |
-| ---------------------- | -------------------------------------------- |
-| API endpoint changes   | Security, Performance, Architecture          |
-| Frontend component     | Architecture, Testing, Accessibility         |
-| Database migration     | Performance, Architecture                    |
-| Authentication changes | Security, Testing                            |
-| Full feature review    | Security, Performance, Architecture, Testing |
+| 场景                 | 维度                                       |
+| -------------------- | ------------------------------------------ |
+| API 端点更改         | 安全性、性能、架构                         |
+| 前端组件             | 架构、测试、无障碍性                       |
+| 数据库迁移           | 性能、架构                                 |
+| 认证更改             | 安全性、测试                               |
+| 完整功能审查         | 安全性、性能、架构、测试                   |
 
-## Finding Deduplication
+## 发现去重
 
-When multiple reviewers report issues at the same location:
+当多个审查者报告同一位置的问题时：
 
-### Merge Rules
+### 合并规则
 
-1. **Same file:line, same issue** — Merge into one finding, credit all reviewers
-2. **Same file:line, different issues** — Keep as separate findings
-3. **Same issue, different locations** — Keep separate but cross-reference
-4. **Conflicting severity** — Use the higher severity rating
-5. **Conflicting recommendations** — Include both with reviewer attribution
+1. **同一文件:行号，同一问题** — 合并为一个发现，归功于所有审查者
+2. **同一文件:行号，不同问题** — 保留为独立发现
+3. **同一问题，不同位置** — 保留但交叉引用
+4. **严重性冲突** — 使用较高的严重性评级
+5. **建议冲突** — 包含两者并标注审查者
 
-### Deduplication Process
+### 去重过程
 
 ```
-For each finding in all reviewer reports:
-  1. Check if another finding references the same file:line
-  2. If yes, check if they describe the same issue
-  3. If same issue: merge, keeping the more detailed description
-  4. If different issue: keep both, tag as "co-located"
-  5. Use highest severity among merged findings
+对于所有审查者报告中的每个发现：
+  1. 检查是否有另一个发现引用相同的文件:行号
+  2. 如果是，检查它们是否描述同一问题
+  3. 如果是同一问题：合并，保留更详细的描述
+  4. 如果是不同问题：保留两者，标记为"共存"
+  5. 使用合并发现中的最高严重性
 ```
 
-## Severity Calibration
+## 严重性校准
 
-### Severity Criteria
+### 严重性标准
 
-| Severity     | Impact                                        | Likelihood             | Examples                                     |
-| ------------ | --------------------------------------------- | ---------------------- | -------------------------------------------- |
-| **Critical** | Data loss, security breach, complete failure  | Certain or very likely | SQL injection, auth bypass, data corruption  |
-| **High**     | Significant functionality impact, degradation | Likely                 | Memory leak, missing validation, broken flow |
-| **Medium**   | Partial impact, workaround exists             | Possible               | N+1 query, missing edge case, unclear error  |
-| **Low**      | Minimal impact, cosmetic                      | Unlikely               | Style issue, minor optimization, naming      |
+| 严重性   | 影响                               | 可能性             | 示例                                     |
+| -------- | ---------------------------------- | ------------------ | ---------------------------------------- |
+| **严重** | 数据丢失、安全漏洞、完全失败       | 确定或极有可能     | SQL 注入、认证绕过、数据损坏             |
+| **高**   | 重大功能影响、降级                 | 可能               | 内存泄漏、缺少验证、流程中断             |
+| **中**   | 部分影响、存在变通方案             | 可能               | N+1 查询、缺少边界情况、不清晰的错误     |
+| **低**   | 最小影响、外观问题                 | 不太可能           | 样式问题、轻微优化、命名                 |
 
-### Calibration Rules
+### 校准规则
 
-- Security vulnerabilities exploitable by external users: always Critical or High
-- Performance issues in hot paths: at least Medium
-- Missing tests for critical paths: at least Medium
-- Accessibility violations for core functionality: at least Medium
-- Code style issues with no functional impact: Low
+- 外部用户可利用的安全漏洞：始终为严重或高
+- 热路径中的性能问题：至少为中
+- 关键路径缺少测试：至少为中
+- 核心功能的无障碍性违规：至少为中
+- 无功能影响的代码样式问题：低
 
-## Consolidated Report Template
+## 合并报告模板
 
 ```markdown
-## Code Review Report
+## 代码审查报告
 
-**Target**: {files/PR/directory}
-**Reviewers**: {dimension-1}, {dimension-2}, {dimension-3}
-**Date**: {date}
-**Files Reviewed**: {count}
+**目标**：{文件/PR/目录}
+**审查者**：{维度-1}、{维度-2}、{维度-3}
+**日期**：{日期}
+**已审查文件**：{数量}
 
-### Critical Findings ({count})
+### 严重发现（{数量}）
 
-#### [CR-001] {Title}
+#### [CR-001] {标题}
 
-**Location**: `{file}:{line}`
-**Dimension**: {Security/Performance/etc.}
-**Description**: {what was found}
-**Impact**: {what could happen}
-**Fix**: {recommended remediation}
+**位置**：`{文件}:{行号}`
+**维度**：{安全性/性能/等}
+**描述**：{发现了什么}
+**影响**：{可能发生什么}
+**修复**：{建议的修复方案}
 
-### High Findings ({count})
-
-...
-
-### Medium Findings ({count})
+### 高严重性发现（{数量}）
 
 ...
 
-### Low Findings ({count})
+### 中严重性发现（{数量}）
 
 ...
 
-### Summary
+### 低严重性发现（{数量}）
 
-| Dimension    | Critical | High  | Medium | Low   | Total  |
-| ------------ | -------- | ----- | ------ | ----- | ------ |
-| Security     | 1        | 2     | 3      | 0     | 6      |
-| Performance  | 0        | 1     | 4      | 2     | 7      |
-| Architecture | 0        | 0     | 2      | 3     | 5      |
-| **Total**    | **1**    | **3** | **9**  | **5** | **18** |
+...
 
-### Recommendation
+### 摘要
 
-{Overall assessment and prioritized action items}
+| 维度     | 严重 | 高   | 中   | 低   | 总计 |
+| -------- | ---- | ---- | ---- | ---- | ---- |
+| 安全性   | 1    | 2    | 3    | 0    | 6    |
+| 性能     | 0    | 1    | 4    | 2    | 7    |
+| 架构     | 0    | 0    | 2    | 3    | 5    |
+| **总计** | **1**| **3**| **9**| **5**| **18**|
+
+### 建议
+
+{总体评估和优先行动项}
 ```

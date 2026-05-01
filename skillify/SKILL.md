@@ -1,30 +1,30 @@
 ---
 name: skillify
-description: Turn a repeatable workflow from the current session into a reusable OMC skill draft
+description: 将当前会话中的可重复工作流转换为可复用的 OMC 技能草稿
 ---
 
 # Skillify
 
-Use this skill when the current session uncovered a repeatable workflow that should become a reusable OMC skill.
+当当前会话发现了应成为可复用 OMC 技能的可重复工作流时使用此技能。
 
-## Goal
-Capture a successful multi-step workflow as a concrete skill draft instead of rediscovering it later.
+## 目标
+将成功的多步骤工作流捕获为具体的技能草稿，而不是稍后重新发现它。
 
-## Workflow
-1. Identify the repeatable task the session accomplished.
-2. Extract:
-   - inputs
-   - ordered steps
-   - success criteria
-   - constraints / pitfalls
-   - best target location for the skill
-3. Decide whether the workflow belongs as:
-   - a repo built-in skill
-   - a user/project learned skill
-   - documentation only
-4. When drafting a learned skill file, output a complete skill file that starts with YAML frontmatter.
-   - Never emit plain markdown-only skill files.
-   - Minimum frontmatter:
+## 工作流
+1. 识别会话完成的可重复任务。
+2. 提取：
+   - 输入
+   - 有序步骤
+   - 成功标准
+   - 约束/陷阱
+   - 技能的最佳目标位置
+3. 决定工作流应归类为：
+   - 仓库内置技能
+   - 用户/项目学习技能
+   - 仅文档
+4. 草拟学习技能文件时，输出以 YAML 前置数据开头的完整技能文件。
+   - 绝不输出纯 markdown 技能文件。
+   - 最小前置数据：
      ```yaml
      ---
      name: <skill-name>
@@ -34,20 +34,20 @@ Capture a successful multi-step workflow as a concrete skill draft instead of re
        - <trigger-2>
      ---
      ```
-   - Write learned/user/project skills to:
+   - 将学习/用户/项目技能写入：
      - `${CLAUDE_CONFIG_DIR:-~/.claude}/skills/omc-learned/<skill-name>.md`
      - `.omc/skills/<skill-name>.md`
-5. Draft the rest of the skill file with clear triggers, steps, and success criteria.
-6. Point out anything still too fuzzy to encode safely.
+5. 使用清晰的触发器、步骤和成功标准草拟技能文件的其余部分。
+6. 指出任何仍然太模糊而无法安全编码的内容。
 
-## Rules
-- Only capture workflows that are actually repeatable.
-- Keep the skill practical and scoped.
-- Prefer explicit success criteria over vague prose.
-- If the workflow still has unresolved branching decisions, note them before drafting.
+## 规则
+- 仅捕获实际可重复的工作流。
+- 保持技能实用且范围明确。
+- 优先使用明确的成功标准而非模糊的叙述。
+- 如果工作流仍有未解决的分支决策，在草拟前记录它们。
 
-## Output
-- Proposed skill name
-- Target location
-- Draft workflow structure
-- Open questions, if any
+## 输出
+- 建议的技能名称
+- 目标位置
+- 草拟的工作流结构
+- 开放问题（如有）

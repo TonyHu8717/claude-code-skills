@@ -1,103 +1,103 @@
 ---
 name: ccg
-description: Claude-Codex-Gemini tri-model orchestration via /ask codex + /ask gemini, then Claude synthesizes results
+description: Claude-Codex-Gemini 三模型编排，通过 /ask codex + /ask gemini，然后 Claude 综合结果
 level: 5
 ---
 
-# CCG - Claude-Codex-Gemini Tri-Model Orchestration
+# CCG - Claude-Codex-Gemini 三模型编排
 
-CCG routes through the canonical `/ask` skill (`/ask codex` + `/ask gemini`), then Claude synthesizes both outputs into one answer.
+CCG 通过规范的 `/ask` 技能（`/ask codex` + `/ask gemini`）路由，然后 Claude 将两个输出综合为一个答案。
 
-Use this when you want parallel external perspectives without launching tmux team workers.
+当你想要并行的外部视角而不需要启动 tmux 团队工作者时使用此技能。
 
-## When to Use
+## 使用场景
 
-- Backend/analysis + frontend/UI work in one request
-- Code review from multiple perspectives (architecture + design/UX)
-- Cross-validation where Codex and Gemini may disagree
-- Fast advisor-style parallel input without team runtime orchestration
+- 一个请求中的后端/分析 + 前端/UI 工作
+- 多视角代码审查（架构 + 设计/用户体验）
+- Codex 和 Gemini 可能不同意的交叉验证
+- 无需团队运行时编排的快速顾问式并行输入
 
-## Requirements
+## 要求
 
-- **Codex CLI**: `npm install -g @openai/codex` (or `@openai/codex`)
+- **Codex CLI**: `npm install -g @openai/codex`（或 `@openai/codex`）
 - **Gemini CLI**: `npm install -g @google/gemini-cli`
-- `omc ask` command available
-- If either CLI is unavailable, continue with whichever provider is available and note the limitation
+- `omc ask` 命令可用
+- 如果任一 CLI 不可用，继续使用可用的提供者并注明限制
 
-## How It Works
+## 工作原理
 
 ```text
-1. Claude decomposes the request into two advisor prompts:
-   - Codex prompt (analysis/architecture/backend)
-   - Gemini prompt (UX/design/docs/alternatives)
+1. Claude 将请求分解为两个顾问提示：
+   - Codex 提示（分析/架构/后端）
+   - Gemini 提示（用户体验/设计/文档/替代方案）
 
-2. Claude runs via CLI (skill nesting not supported):
-   - `omc ask codex "<codex prompt>"`
-   - `omc ask gemini "<gemini prompt>"`
+2. Claude 通过 CLI 运行（不支持技能嵌套）：
+   - `omc ask codex "<codex 提示>"`
+   - `omc ask gemini "<gemini 提示>"`
 
-3. Artifacts are written under `.omc/artifacts/ask/`
+3. 工件写入 `.omc/artifacts/ask/` 下
 
-4. Claude synthesizes both outputs into one final response
+4. Claude 将两个输出综合为一个最终响应
 ```
 
-## Execution Protocol
+## 执行协议
 
-When invoked, Claude MUST follow this workflow:
+调用时，Claude 必须遵循此工作流：
 
-### 1. Decompose Request
-Split the user request into:
+### 1. 分解请求
+将用户请求拆分为：
 
-- **Codex prompt:** architecture, correctness, backend, risks, test strategy
-- **Gemini prompt:** UX/content clarity, alternatives, edge-case usability, docs polish
-- **Synthesis plan:** how to reconcile conflicts
+- **Codex 提示：** 架构、正确性、后端、风险、测试策略
+- **Gemini 提示：** 用户体验/内容清晰度、替代方案、边界情况可用性、文档润色
+- **综合计划：** 如何协调冲突
 
-### 2. Invoke advisors via CLI
+### 2. 通过 CLI 调用顾问
 
-> **Note:** Skill nesting (invoking a skill from within an active skill) is not supported in Claude Code. Always use the direct CLI path via Bash tool.
+> **注意：** Claude Code 不支持技能嵌套（在活跃技能内调用技能）。始终通过 Bash 工具使用直接 CLI 路径。
 
-Run both advisors:
+运行两个顾问：
 
 ```bash
-omc ask codex "<codex prompt>"
-omc ask gemini "<gemini prompt>"
+omc ask codex "<codex 提示>"
+omc ask gemini "<gemini 提示>"
 ```
 
-### 3. Collect artifacts
+### 3. 收集工件
 
-Read latest ask artifacts from:
+从以下位置读取最新的 ask 工件：
 
 ```text
 .omc/artifacts/ask/codex-*.md
 .omc/artifacts/ask/gemini-*.md
 ```
 
-### 4. Synthesize
+### 4. 综合
 
-Return one unified answer with:
+返回一个统一的答案，包含：
 
-- Agreed recommendations
-- Conflicting recommendations (explicitly called out)
-- Chosen final direction + rationale
-- Action checklist
+- 一致的建议
+- 冲突的建议（明确指出）
+- 选择的最终方向 + 理由
+- 行动清单
 
-## Fallbacks
+## 回退方案
 
-If one provider is unavailable:
+如果一个提供者不可用：
 
-- Continue with available provider + Claude synthesis
-- Clearly note missing perspective and risk
+- 继续使用可用的提供者 + Claude 综合
+- 清楚注明缺失的视角和风险
 
-If both unavailable:
+如果都不可用：
 
-- Fall back to Claude-only answer and state CCG external advisors were unavailable
+- 回退到仅 Claude 的答案，并说明 CCG 外部顾问不可用
 
-## Invocation
+## 调用方式
 
 ```bash
-/oh-my-claudecode:ccg <task description>
+/oh-my-claudecode:ccg <任务描述>
 ```
 
-Example:
+示例：
 
 ```bash
 /oh-my-claudecode:ccg Review this PR - architecture/security via Codex and UX/readability via Gemini

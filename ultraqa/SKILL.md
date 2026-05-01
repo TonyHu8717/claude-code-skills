@@ -1,45 +1,45 @@
 ---
 name: ultraqa
-description: QA cycling workflow - test, verify, fix, repeat until goal met
+description: QA 循环工作流 - 测试、验证、修复、重复直到达到目标
 argument-hint: "[--tests|--build|--lint|--typecheck|--custom <pattern>] [--interactive]"
 level: 3
 ---
 
-# UltraQA Skill
+# UltraQA 技能
 
-[ULTRAQA ACTIVATED - AUTONOMOUS QA CYCLING]
+[ULTRAQA 已激活 - 自主 QA 循环]
 
-## Overview
+## 概述
 
-You are now in **ULTRAQA** mode - an autonomous QA cycling workflow that runs until your quality goal is met.
+你现在处于 **ULTRAQA** 模式 - 一种自主 QA 循环工作流，会持续运行直到达到你的质量目标。
 
-**Cycle**: qa-tester → architect verification → fix → repeat
+**循环**: qa-tester → 架构师验证 → 修复 → 重复
 
-## Goal Parsing
+## 目标解析
 
-Parse the goal from arguments. Supported formats:
+从参数解析目标。支持的格式：
 
-| Invocation | Goal Type | What to Check |
+| 调用方式 | 目标类型 | 检查内容 |
 |------------|-----------|---------------|
-| `/oh-my-claudecode:ultraqa --tests` | tests | All test suites pass |
-| `/oh-my-claudecode:ultraqa --build` | build | Build succeeds with exit 0 |
-| `/oh-my-claudecode:ultraqa --lint` | lint | No lint errors |
-| `/oh-my-claudecode:ultraqa --typecheck` | typecheck | No TypeScript errors |
-| `/oh-my-claudecode:ultraqa --custom "pattern"` | custom | Custom success pattern in output |
+| `/oh-my-claudecode:ultraqa --tests` | 测试 | 所有测试套件通过 |
+| `/oh-my-claudecode:ultraqa --build` | 构建 | 构建成功，退出码为 0 |
+| `/oh-my-claudecode:ultraqa --lint` | 代码检查 | 无 lint 错误 |
+| `/oh-my-claudecode:ultraqa --typecheck` | 类型检查 | 无 TypeScript 错误 |
+| `/oh-my-claudecode:ultraqa --custom "pattern"` | 自定义 | 输出中的自定义成功模式 |
 
-If no structured goal provided, interpret the argument as a custom goal.
+如果未提供结构化目标，将参数解释为自定义目标。
 
-## Cycle Workflow
+## 循环工作流
 
-### Cycle N (Max 5)
+### 循环 N（最多 5 次）
 
-1. **RUN QA**: Execute verification based on goal type
-   - `--tests`: Run the project's test command
-   - `--build`: Run the project's build command
-   - `--lint`: Run the project's lint command
-   - `--typecheck`: Run the project's type check command
-   - `--custom`: Run appropriate command and check for pattern
-   - `--interactive`: Use qa-tester for interactive CLI/service testing:
+1. **运行 QA**：根据目标类型执行验证
+   - `--tests`：运行项目的测试命令
+   - `--build`：运行项目的构建命令
+   - `--lint`：运行项目的 lint 命令
+   - `--typecheck`：运行项目的类型检查命令
+   - `--custom`：运行适当的命令并检查模式
+   - `--interactive`：使用 qa-tester 进行交互式 CLI/服务测试：
      ```
      Task(subagent_type="oh-my-claudecode:qa-tester", model="sonnet", prompt="TEST:
      Goal: [describe what to verify]
@@ -47,11 +47,11 @@ If no structured goal provided, interpret the argument as a custom goal.
      Test cases: [specific scenarios to verify]")
      ```
 
-2. **CHECK RESULT**: Did the goal pass?
-   - **YES** → Exit with success message
-   - **NO** → Continue to step 3
+2. **检查结果**：目标是否通过？
+   - **是** → 退出并显示成功消息
+   - **否** → 继续到步骤 3
 
-3. **ARCHITECT DIAGNOSIS**: Spawn architect to analyze failure
+3. **架构师诊断**：生成架构师分析失败原因
    ```
    Task(subagent_type="oh-my-claudecode:architect", model="opus", prompt="DIAGNOSE FAILURE:
    Goal: [goal type]
@@ -59,7 +59,7 @@ If no structured goal provided, interpret the argument as a custom goal.
    Provide root cause and specific fix recommendations.")
    ```
 
-4. **FIX ISSUES**: Apply architect's recommendations
+4. **修复问题**：应用架构师的建议
    ```
    Task(subagent_type="oh-my-claudecode:executor", model="sonnet", prompt="FIX:
    Issue: [architect diagnosis]
@@ -67,20 +67,20 @@ If no structured goal provided, interpret the argument as a custom goal.
    Apply the fix precisely as recommended.")
    ```
 
-5. **REPEAT**: Go back to step 1
+5. **重复**：回到步骤 1
 
-## Exit Conditions
+## 退出条件
 
-| Condition | Action |
+| 条件 | 操作 |
 |-----------|--------|
-| **Goal Met** | Exit with success: "ULTRAQA COMPLETE: Goal met after N cycles" |
-| **Cycle 5 Reached** | Exit with diagnosis: "ULTRAQA STOPPED: Max cycles. Diagnosis: ..." |
-| **Same Failure 3x** | Exit early: "ULTRAQA STOPPED: Same failure detected 3 times. Root cause: ..." |
-| **Environment Error** | Exit: "ULTRAQA ERROR: [tmux/port/dependency issue]" |
+| **目标达成** | 退出并显示成功："ULTRAQA COMPLETE: Goal met after N cycles" |
+| **达到第 5 次循环** | 退出并显示诊断："ULTRAQA STOPPED: Max cycles. Diagnosis: ..." |
+| **相同失败 3 次** | 提前退出："ULTRAQA STOPPED: Same failure detected 3 times. Root cause: ..." |
+| **环境错误** | 退出："ULTRAQA ERROR: [tmux/port/dependency issue]" |
 
-## Observability
+## 可观测性
 
-Output progress each cycle:
+每次循环输出进度：
 ```
 [ULTRAQA Cycle 1/5] Running tests...
 [ULTRAQA Cycle 1/5] FAILED - 3 tests failing
@@ -91,9 +91,9 @@ Output progress each cycle:
 [ULTRAQA COMPLETE] Goal met after 2 cycles
 ```
 
-## State Tracking
+## 状态跟踪
 
-Track state in `.omc/ultraqa-state.json`:
+在 `.omc/ultraqa-state.json` 中跟踪状态：
 ```json
 {
   "active": true,
@@ -107,31 +107,31 @@ Track state in `.omc/ultraqa-state.json`:
 }
 ```
 
-## Cancellation
+## 取消
 
-User can cancel with `/oh-my-claudecode:cancel` which clears the state file.
+用户可以使用 `/oh-my-claudecode:cancel` 取消，这会清除状态文件。
 
-## Important Rules
+## 重要规则
 
-1. **PARALLEL when possible** - Run diagnosis while preparing potential fixes
-2. **TRACK failures** - Record each failure to detect patterns
-3. **EARLY EXIT on pattern** - 3x same failure = stop and surface
-4. **CLEAR OUTPUT** - User should always know current cycle and status
-5. **CLEAN UP** - Clear state file on completion or cancellation
+1. **尽可能并行** - 在准备潜在修复的同时运行诊断
+2. **跟踪失败** - 记录每次失败以检测模式
+3. **模式匹配时提前退出** - 相同失败 3 次 = 停止并浮现
+4. **清晰输出** - 用户应始终知道当前循环和状态
+5. **清理** - 完成或取消时清除状态文件
 
-## STATE CLEANUP ON COMPLETION
+## 完成时的状态清理
 
-**IMPORTANT: Delete state files on completion - do NOT just set `active: false`**
+**重要：完成时删除状态文件 - 不要仅设置 `active: false`**
 
-When goal is met OR max cycles reached OR exiting early:
+当目标达成或达到最大循环次数或提前退出时：
 
 ```bash
-# Delete ultraqa state file
+# 删除 ultraqa 状态文件
 rm -f .omc/state/ultraqa-state.json
 ```
 
-This ensures clean state for future sessions. Stale state files with `active: false` should not be left behind.
+这确保未来会话的干净状态。不应留下带有 `active: false` 的过期状态文件。
 
 ---
 
-Begin ULTRAQA cycling now. Parse the goal and start cycle 1.
+立即开始 ULTRAQA 循环。解析目标并开始第 1 次循环。

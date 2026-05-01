@@ -1,66 +1,66 @@
 ---
 name: auth-implementation-patterns
-description: Master authentication and authorization patterns including JWT, OAuth2, session management, and RBAC to build secure, scalable access control systems. Use when implementing auth systems, securing APIs, or debugging security issues.
+description: 掌握认证和授权模式，包括 JWT、OAuth2、会话管理和 RBAC，构建安全、可扩展的访问控制系统。用于实现认证系统、保护 API 安全或调试安全问题时使用。
 ---
 
-# Authentication & Authorization Implementation Patterns
+# 认证与授权实现模式
 
-Build secure, scalable authentication and authorization systems using industry-standard patterns and modern best practices.
+使用行业标准模式和现代最佳实践，构建安全、可扩展的认证和授权系统。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Implementing user authentication systems
-- Securing REST or GraphQL APIs
-- Adding OAuth2/social login
-- Implementing role-based access control (RBAC)
-- Designing session management
-- Migrating authentication systems
-- Debugging auth issues
-- Implementing SSO or multi-tenancy
+- 实现用户认证系统
+- 保护 REST 或 GraphQL API 安全
+- 添加 OAuth2/社交登录
+- 实现基于角色的访问控制（RBAC）
+- 设计会话管理
+- 迁移认证系统
+- 调试认证问题
+- 实现 SSO 或多租户
 
-## Core Concepts
+## 核心概念
 
-### 1. Authentication vs Authorization
+### 1. 认证与授权
 
-**Authentication (AuthN)**: Who are you?
+**认证（AuthN）**：你是谁？
 
-- Verifying identity (username/password, OAuth, biometrics)
-- Issuing credentials (sessions, tokens)
-- Managing login/logout
+- 验证身份（用户名/密码、OAuth、生物识别）
+- 颁发凭证（会话、令牌）
+- 管理登录/登出
 
-**Authorization (AuthZ)**: What can you do?
+**授权（AuthZ）**：你能做什么？
 
-- Permission checking
-- Role-based access control (RBAC)
-- Resource ownership validation
-- Policy enforcement
+- 权限检查
+- 基于角色的访问控制（RBAC）
+- 资源所有权验证
+- 策略执行
 
-### 2. Authentication Strategies
+### 2. 认证策略
 
-**Session-Based:**
+**基于会话：**
 
-- Server stores session state
-- Session ID in cookie
-- Traditional, simple, stateful
+- 服务器存储会话状态
+- Cookie 中存储会话 ID
+- 传统、简单、有状态
 
-**Token-Based (JWT):**
+**基于令牌（JWT）：**
 
-- Stateless, self-contained
-- Scales horizontally
-- Can store claims
+- 无状态、自包含
+- 可水平扩展
+- 可存储声明
 
-**OAuth2/OpenID Connect:**
+**OAuth2/OpenID Connect：**
 
-- Delegate authentication
-- Social login (Google, GitHub)
-- Enterprise SSO
+- 委托认证
+- 社交登录（Google、GitHub）
+- 企业 SSO
 
-## JWT Authentication
+## JWT 认证
 
-### Pattern 1: JWT Implementation
+### 模式 1：JWT 实现
 
 ```typescript
-// JWT structure: header.payload.signature
+// JWT 结构: header.payload.signature
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 
@@ -72,24 +72,24 @@ interface JWTPayload {
   exp: number;
 }
 
-// Generate JWT
+// 生成 JWT
 function generateTokens(userId: string, email: string, role: string) {
   const accessToken = jwt.sign(
     { userId, email, role },
     process.env.JWT_SECRET!,
-    { expiresIn: "15m" }, // Short-lived
+    { expiresIn: "15m" }, // 短期有效
   );
 
   const refreshToken = jwt.sign(
     { userId },
     process.env.JWT_REFRESH_SECRET!,
-    { expiresIn: "7d" }, // Long-lived
+    { expiresIn: "7d" }, // 长期有效
   );
 
   return { accessToken, refreshToken };
 }
 
-// Verify JWT
+// 验证 JWT
 function verifyToken(token: string): JWTPayload {
   try {
     return jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;
@@ -104,7 +104,7 @@ function verifyToken(token: string): JWTPayload {
   }
 }
 
-// Middleware
+// 中间件
 function authenticate(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith("Bearer ")) {
@@ -114,20 +114,20 @@ function authenticate(req: Request, res: Response, next: NextFunction) {
   const token = authHeader.substring(7);
   try {
     const payload = verifyToken(token);
-    req.user = payload; // Attach user to request
+    req.user = payload; // 将用户附加到请求
     next();
   } catch (error) {
     return res.status(401).json({ error: "Invalid token" });
   }
 }
 
-// Usage
+// 使用
 app.get("/api/profile", authenticate, (req, res) => {
   res.json({ user: req.user });
 });
 ```
 
-### Pattern 2: Refresh Token Flow
+### 模式 2：刷新令牌流程
 
 ```typescript
 interface StoredRefreshToken {
@@ -138,19 +138,19 @@ interface StoredRefreshToken {
 }
 
 class RefreshTokenService {
-  // Store refresh token in database
+  // 将刷新令牌存储到数据库
   async storeRefreshToken(userId: string, refreshToken: string) {
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     await db.refreshTokens.create({
-      token: await hash(refreshToken), // Hash before storing
+      token: await hash(refreshToken), // 存储前进行哈希
       userId,
       expiresAt,
     });
   }
 
-  // Refresh access token
+  // 刷新访问令牌
   async refreshAccessToken(refreshToken: string) {
-    // Verify refresh token
+    // 验证刷新令牌
     let payload;
     try {
       payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as {
@@ -160,7 +160,7 @@ class RefreshTokenService {
       throw new Error("Invalid refresh token");
     }
 
-    // Check if token exists in database
+    // 检查令牌是否存在于数据库中
     const storedToken = await db.refreshTokens.findOne({
       where: {
         token: await hash(refreshToken),
@@ -173,13 +173,13 @@ class RefreshTokenService {
       throw new Error("Refresh token not found or expired");
     }
 
-    // Get user
+    // 获取用户
     const user = await db.users.findById(payload.userId);
     if (!user) {
       throw new Error("User not found");
     }
 
-    // Generate new access token
+    // 生成新的访问令牌
     const accessToken = jwt.sign(
       { userId: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET!,
@@ -189,20 +189,20 @@ class RefreshTokenService {
     return { accessToken };
   }
 
-  // Revoke refresh token (logout)
+  // 撤销刷新令牌（登出）
   async revokeRefreshToken(refreshToken: string) {
     await db.refreshTokens.deleteOne({
       token: await hash(refreshToken),
     });
   }
 
-  // Revoke all user tokens (logout all devices)
+  // 撤销所有用户令牌（所有设备登出）
   async revokeAllUserTokens(userId: string) {
     await db.refreshTokens.deleteMany({ userId });
   }
 }
 
-// API endpoints
+// API 端点
 app.post("/api/auth/refresh", async (req, res) => {
   const { refreshToken } = req.body;
   try {
@@ -221,16 +221,16 @@ app.post("/api/auth/logout", authenticate, async (req, res) => {
 });
 ```
 
-## Session-Based Authentication
+## 基于会话的认证
 
-### Pattern 1: Express Session
+### 模式 1：Express 会话
 
 ```typescript
 import session from "express-session";
 import RedisStore from "connect-redis";
 import { createClient } from "redis";
 
-// Setup Redis for session storage
+// 设置 Redis 用于会话存储
 const redisClient = createClient({
   url: process.env.REDIS_URL,
 });
@@ -243,15 +243,15 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === "production", // HTTPS only
-      httpOnly: true, // No JavaScript access
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: "strict", // CSRF protection
+      secure: process.env.NODE_ENV === "production", // 仅限 HTTPS
+      httpOnly: true, // JavaScript 无法访问
+      maxAge: 24 * 60 * 60 * 1000, // 24 小时
+      sameSite: "strict", // CSRF 保护
     },
   }),
 );
 
-// Login
+// 登录
 app.post("/api/auth/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -260,14 +260,14 @@ app.post("/api/auth/login", async (req, res) => {
     return res.status(401).json({ error: "Invalid credentials" });
   }
 
-  // Store user in session
+  // 将用户存储到会话中
   req.session.userId = user.id;
   req.session.role = user.role;
 
   res.json({ user: { id: user.id, email: user.email, role: user.role } });
 });
 
-// Session middleware
+// 会话中间件
 function requireAuth(req: Request, res: Response, next: NextFunction) {
   if (!req.session.userId) {
     return res.status(401).json({ error: "Not authenticated" });
@@ -275,13 +275,13 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
-// Protected route
+// 受保护的路由
 app.get("/api/profile", requireAuth, async (req, res) => {
   const user = await db.users.findById(req.session.userId);
   res.json({ user });
 });
 
-// Logout
+// 登出
 app.post("/api/auth/logout", (req, res) => {
   req.session.destroy((err) => {
     if (err) {
@@ -293,9 +293,9 @@ app.post("/api/auth/logout", (req, res) => {
 });
 ```
 
-## OAuth2 / Social Login
+## OAuth2 / 社交登录
 
-### Pattern 1: OAuth2 with Passport.js
+### 模式 1：使用 Passport.js 的 OAuth2
 
 ```typescript
 import passport from "passport";
@@ -312,7 +312,7 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        // Find or create user
+        // 查找或创建用户
         let user = await db.users.findOne({
           googleId: profile.id,
         });
@@ -334,7 +334,7 @@ passport.use(
   ),
 );
 
-// Routes
+// 路由
 app.get(
   "/api/auth/google",
   passport.authenticate("google", {
@@ -346,9 +346,9 @@ app.get(
   "/api/auth/google/callback",
   passport.authenticate("google", { session: false }),
   (req, res) => {
-    // Generate JWT
+    // 生成 JWT
     const tokens = generateTokens(req.user.id, req.user.email, req.user.role);
-    // Redirect to frontend with token
+    // 重定向到前端并携带令牌
     res.redirect(
       `${process.env.FRONTEND_URL}/auth/callback?token=${tokens.accessToken}`,
     );
@@ -356,9 +356,9 @@ app.get(
 );
 ```
 
-## Authorization Patterns
+## 授权模式
 
-### Pattern 1: Role-Based Access Control (RBAC)
+### 模式 1：基于角色的访问控制（RBAC）
 
 ```typescript
 enum Role {
@@ -377,7 +377,7 @@ function hasRole(userRole: Role, requiredRole: Role): boolean {
   return roleHierarchy[userRole].includes(requiredRole);
 }
 
-// Middleware
+// 中间件
 function requireRole(...roles: Role[]) {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
@@ -392,20 +392,20 @@ function requireRole(...roles: Role[]) {
   };
 }
 
-// Usage
+// 使用
 app.delete(
   "/api/users/:id",
   authenticate,
   requireRole(Role.ADMIN),
   async (req, res) => {
-    // Only admins can delete users
+    // 仅管理员可删除用户
     await db.users.delete(req.params.id);
     res.json({ message: "User deleted" });
   },
 );
 ```
 
-### Pattern 2: Permission-Based Access Control
+### 模式 2：基于权限的访问控制
 
 ```typescript
 enum Permission {
@@ -448,7 +448,7 @@ function requirePermission(...permissions: Permission[]) {
   };
 }
 
-// Usage
+// 使用
 app.get(
   "/api/users",
   authenticate,
@@ -460,10 +460,10 @@ app.get(
 );
 ```
 
-### Pattern 3: Resource Ownership
+### 模式 3：资源所有权
 
 ```typescript
-// Check if user owns resource
+// 检查用户是否拥有资源
 async function requireOwnership(
   resourceType: "post" | "comment",
   resourceIdParam: string = "id",
@@ -475,12 +475,12 @@ async function requireOwnership(
 
     const resourceId = req.params[resourceIdParam];
 
-    // Admins can access anything
+    // 管理员可以访问任何内容
     if (req.user.role === Role.ADMIN) {
       return next();
     }
 
-    // Check ownership
+    // 检查所有权
     let resource;
     if (resourceType === "post") {
       resource = await db.posts.findById(resourceId);
@@ -500,28 +500,28 @@ async function requireOwnership(
   };
 }
 
-// Usage
+// 使用
 app.put(
   "/api/posts/:id",
   authenticate,
   requireOwnership("post"),
   async (req, res) => {
-    // User can only update their own posts
+    // 用户只能更新自己的帖子
     const post = await db.posts.update(req.params.id, req.body);
     res.json({ post });
   },
 );
 ```
 
-## Security Best Practices
+## 安全最佳实践
 
-### Pattern 1: Password Security
+### 模式 1：密码安全
 
 ```typescript
 import bcrypt from "bcrypt";
 import { z } from "zod";
 
-// Password validation schema
+// 密码验证规则
 const passwordSchema = z
   .string()
   .min(12, "Password must be at least 12 characters")
@@ -530,13 +530,13 @@ const passwordSchema = z
   .regex(/[0-9]/, "Password must contain number")
   .regex(/[^A-Za-z0-9]/, "Password must contain special character");
 
-// Hash password
+// 哈希密码
 async function hashPassword(password: string): Promise<string> {
-  const saltRounds = 12; // 2^12 iterations
+  const saltRounds = 12; // 2^12 次迭代
   return bcrypt.hash(password, saltRounds);
 }
 
-// Verify password
+// 验证密码
 async function verifyPassword(
   password: string,
   hash: string,
@@ -544,30 +544,30 @@ async function verifyPassword(
   return bcrypt.compare(password, hash);
 }
 
-// Registration with password validation
+// 带密码验证的注册
 app.post("/api/auth/register", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validate password
+    // 验证密码
     passwordSchema.parse(password);
 
-    // Check if user exists
+    // 检查用户是否已存在
     const existingUser = await db.users.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ error: "Email already registered" });
     }
 
-    // Hash password
+    // 哈希密码
     const passwordHash = await hashPassword(password);
 
-    // Create user
+    // 创建用户
     const user = await db.users.create({
       email,
       passwordHash,
     });
 
-    // Generate tokens
+    // 生成令牌
     const tokens = generateTokens(user.id, user.email, user.role);
 
     res.status(201).json({
@@ -583,56 +583,56 @@ app.post("/api/auth/register", async (req, res) => {
 });
 ```
 
-### Pattern 2: Rate Limiting
+### 模式 2：速率限制
 
 ```typescript
 import rateLimit from "express-rate-limit";
 import RedisStore from "rate-limit-redis";
 
-// Login rate limiter
+// 登录速率限制器
 const loginLimiter = rateLimit({
   store: new RedisStore({ client: redisClient }),
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 attempts
+  windowMs: 15 * 60 * 1000, // 15 分钟
+  max: 5, // 5 次尝试
   message: "Too many login attempts, please try again later",
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-// API rate limiter
+// API 速率限制器
 const apiLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 100, // 100 requests per minute
+  windowMs: 60 * 1000, // 1 分钟
+  max: 100, // 每分钟 100 个请求
   standardHeaders: true,
 });
 
-// Apply to routes
+// 应用到路由
 app.post("/api/auth/login", loginLimiter, async (req, res) => {
-  // Login logic
+  // 登录逻辑
 });
 
 app.use("/api/", apiLimiter);
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Never Store Plain Passwords**: Always hash with bcrypt/argon2
-2. **Use HTTPS**: Encrypt data in transit
-3. **Short-Lived Access Tokens**: 15-30 minutes max
-4. **Secure Cookies**: httpOnly, secure, sameSite flags
-5. **Validate All Input**: Email format, password strength
-6. **Rate Limit Auth Endpoints**: Prevent brute force attacks
-7. **Implement CSRF Protection**: For session-based auth
-8. **Rotate Secrets Regularly**: JWT secrets, session secrets
-9. **Log Security Events**: Login attempts, failed auth
-10. **Use MFA When Possible**: Extra security layer
+1. **永远不要存储明文密码**：始终使用 bcrypt/argon2 进行哈希
+2. **使用 HTTPS**：加密传输中的数据
+3. **短期访问令牌**：最多 15-30 分钟
+4. **安全 Cookie**：设置 httpOnly、secure、sameSite 标志
+5. **验证所有输入**：邮箱格式、密码强度
+6. **对认证端点进行速率限制**：防止暴力破解攻击
+7. **实现 CSRF 保护**：用于基于会话的认证
+8. **定期轮换密钥**：JWT 密钥、会话密钥
+9. **记录安全事件**：登录尝试、认证失败
+10. **尽可能使用 MFA**：额外的安全层
 
-## Common Pitfalls
+## 常见陷阱
 
-- **Weak Passwords**: Enforce strong password policies
-- **JWT in localStorage**: Vulnerable to XSS, use httpOnly cookies
-- **No Token Expiration**: Tokens should expire
-- **Client-Side Auth Checks Only**: Always validate server-side
-- **Insecure Password Reset**: Use secure tokens with expiration
-- **No Rate Limiting**: Vulnerable to brute force
-- **Trusting Client Data**: Always validate on server
+- **弱密码**：强制执行强密码策略
+- **JWT 存储在 localStorage**：容易受到 XSS 攻击，使用 httpOnly Cookie
+- **令牌无过期时间**：令牌应该有过期时间
+- **仅客户端认证检查**：始终在服务器端验证
+- **不安全的密码重置**：使用带过期时间的安全令牌
+- **无速率限制**：容易受到暴力破解攻击
+- **信任客户端数据**：始终在服务器端验证

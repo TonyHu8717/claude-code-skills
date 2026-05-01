@@ -1,75 +1,75 @@
 ---
 name: llm-evaluation
-description: Implement comprehensive evaluation strategies for LLM applications using automated metrics, human feedback, and benchmarking. Use when testing LLM performance, measuring AI application quality, or establishing evaluation frameworks.
+description: 实现全面的 LLM 应用评估策略，涵盖自动化指标、人工反馈和基准测试。用于测试 LLM 性能、衡量 AI 应用质量或建立评估框架。
 ---
 
-# LLM Evaluation
+# LLM 评估
 
-Master comprehensive evaluation strategies for LLM applications, from automated metrics to human evaluation and A/B testing.
+掌握 LLM 应用的全面评估策略，从自动化指标到人工评估和 A/B 测试。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Measuring LLM application performance systematically
-- Comparing different models or prompts
-- Detecting performance regressions before deployment
-- Validating improvements from prompt changes
-- Building confidence in production systems
-- Establishing baselines and tracking progress over time
-- Debugging unexpected model behavior
+- 系统性地衡量 LLM 应用性能
+- 比较不同的模型或提示词
+- 在部署前检测性能回退
+- 验证提示词变更带来的改进
+- 建立对生产系统的信心
+- 建立基线并跟踪进展
+- 调试意外的模型行为
 
-## Core Evaluation Types
+## 核心评估类型
 
-### 1. Automated Metrics
+### 1. 自动化指标
 
-Fast, repeatable, scalable evaluation using computed scores.
+快速、可重复、可扩展的评估，使用计算分数。
 
-**Text Generation:**
+**文本生成：**
 
-- **BLEU**: N-gram overlap (translation)
-- **ROUGE**: Recall-oriented (summarization)
-- **METEOR**: Semantic similarity
-- **BERTScore**: Embedding-based similarity
-- **Perplexity**: Language model confidence
+- **BLEU**：N-gram 重叠（翻译）
+- **ROUGE**：召回导向（摘要）
+- **METEOR**：语义相似度
+- **BERTScore**：基于嵌入的相似度
+- **Perplexity**：语言模型置信度
 
-**Classification:**
+**分类：**
 
-- **Accuracy**: Percentage correct
-- **Precision/Recall/F1**: Class-specific performance
-- **Confusion Matrix**: Error patterns
-- **AUC-ROC**: Ranking quality
+- **Accuracy**：正确百分比
+- **Precision/Recall/F1**：类别级别的性能
+- **Confusion Matrix**：错误模式
+- **AUC-ROC**：排序质量
 
-**Retrieval (RAG):**
+**检索（RAG）：**
 
-- **MRR**: Mean Reciprocal Rank
-- **NDCG**: Normalized Discounted Cumulative Gain
-- **Precision@K**: Relevant in top K
-- **Recall@K**: Coverage in top K
+- **MRR**：平均倒数排名
+- **NDCG**：归一化折损累积增益
+- **Precision@K**：前 K 个中的相关结果
+- **Recall@K**：前 K 个中的覆盖范围
 
-### 2. Human Evaluation
+### 2. 人工评估
 
-Manual assessment for quality aspects difficult to automate.
+对难以自动化的质量方面进行手动评估。
 
-**Dimensions:**
+**维度：**
 
-- **Accuracy**: Factual correctness
-- **Coherence**: Logical flow
-- **Relevance**: Answers the question
-- **Fluency**: Natural language quality
-- **Safety**: No harmful content
-- **Helpfulness**: Useful to the user
+- **准确性**：事实正确性
+- **连贯性**：逻辑流畅性
+- **相关性**：回答了问题
+- **流畅性**：自然语言质量
+- **安全性**：无有害内容
+- **有用性**：对用户有帮助
 
-### 3. LLM-as-Judge
+### 3. LLM 作为评判者
 
-Use stronger LLMs to evaluate weaker model outputs.
+使用更强的 LLM 来评估较弱模型的输出。
 
-**Approaches:**
+**方法：**
 
-- **Pointwise**: Score individual responses
-- **Pairwise**: Compare two responses
-- **Reference-based**: Compare to gold standard
-- **Reference-free**: Judge without ground truth
+- **逐点评分**：对单个响应评分
+- **配对比较**：比较两个响应
+- **基于参考**：与黄金标准对比
+- **无参考**：在没有标准答案的情况下判断
 
-## Quick Start
+## 快速开始
 
 ```python
 from dataclasses import dataclass
@@ -120,7 +120,7 @@ class EvaluationSuite:
             "raw_scores": results
         }
 
-# Usage
+# 使用方式
 suite = EvaluationSuite([
     Metric.accuracy(),
     Metric.bleu(),
@@ -139,15 +139,15 @@ test_cases = [
 results = await suite.evaluate(model=your_model, test_cases=test_cases)
 ```
 
-## Automated Metrics Implementation
+## 自动化指标实现
 
-### BLEU Score
+### BLEU 分数
 
 ```python
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
 
 def calculate_bleu(reference: str, hypothesis: str, **kwargs) -> float:
-    """Calculate BLEU score between reference and hypothesis."""
+    """计算参考文本和假设文本之间的 BLEU 分数。"""
     smoothie = SmoothingFunction().method4
 
     return sentence_bleu(
@@ -157,13 +157,13 @@ def calculate_bleu(reference: str, hypothesis: str, **kwargs) -> float:
     )
 ```
 
-### ROUGE Score
+### ROUGE 分数
 
 ```python
 from rouge_score import rouge_scorer
 
 def calculate_rouge(reference: str, hypothesis: str, **kwargs) -> dict:
-    """Calculate ROUGE scores."""
+    """计算 ROUGE 分数。"""
     scorer = rouge_scorer.RougeScorer(
         ['rouge1', 'rouge2', 'rougeL'],
         use_stemmer=True
@@ -187,7 +187,7 @@ def calculate_bertscore(
     hypotheses: list[str],
     **kwargs
 ) -> dict:
-    """Calculate BERTScore using pre-trained model."""
+    """使用预训练模型计算 BERTScore。"""
     P, R, F1 = score(
         hypotheses,
         references,
@@ -202,11 +202,11 @@ def calculate_bertscore(
     }
 ```
 
-### Custom Metrics
+### 自定义指标
 
 ```python
 def calculate_groundedness(response: str, context: str, **kwargs) -> float:
-    """Check if response is grounded in provided context."""
+    """检查响应是否基于提供的上下文。"""
     from transformers import pipeline
 
     nli = pipeline(
@@ -216,18 +216,18 @@ def calculate_groundedness(response: str, context: str, **kwargs) -> float:
 
     result = nli(f"{context} [SEP] {response}")[0]
 
-    # Return confidence that response is entailed by context
+    # 返回响应被上下文蕴含的置信度
     return result['score'] if result['label'] == 'ENTAILMENT' else 0.0
 
 def calculate_toxicity(text: str, **kwargs) -> float:
-    """Measure toxicity in generated text."""
+    """衡量生成文本中的毒性。"""
     from detoxify import Detoxify
 
     results = Detoxify('original').predict(text)
-    return max(results.values())  # Return highest toxicity score
+    return max(results.values())  # 返回最高毒性分数
 
 def calculate_factuality(claim: str, sources: list[str], **kwargs) -> float:
-    """Verify factual claims against sources."""
+    """根据来源验证事实声明。"""
     from transformers import pipeline
 
     nli = pipeline("text-classification", model="facebook/bart-large-mnli")
@@ -241,9 +241,9 @@ def calculate_factuality(claim: str, sources: list[str], **kwargs) -> float:
     return max(scores) if scores else 0.0
 ```
 
-## LLM-as-Judge Patterns
+## LLM 作为评判者的模式
 
-### Single Output Evaluation
+### 单输出评估
 
 ```python
 from anthropic import Anthropic
@@ -251,35 +251,35 @@ from pydantic import BaseModel, Field
 import json
 
 class QualityRating(BaseModel):
-    accuracy: int = Field(ge=1, le=10, description="Factual correctness")
-    helpfulness: int = Field(ge=1, le=10, description="Answers the question")
-    clarity: int = Field(ge=1, le=10, description="Well-written and understandable")
-    reasoning: str = Field(description="Brief explanation")
+    accuracy: int = Field(ge=1, le=10, description="事实正确性")
+    helpfulness: int = Field(ge=1, le=10, description="回答了问题")
+    clarity: int = Field(ge=1, le=10, description="写作清晰易懂")
+    reasoning: str = Field(description="简要说明")
 
 async def llm_judge_quality(
     response: str,
     question: str,
     context: str = None
 ) -> QualityRating:
-    """Use Claude to judge response quality."""
+    """使用 Claude 评判响应质量。"""
     client = Anthropic()
 
-    system = """You are an expert evaluator of AI responses.
-    Rate responses on accuracy, helpfulness, and clarity (1-10 scale).
-    Provide brief reasoning for your ratings."""
+    system = """你是一位 AI 响应评估专家。
+    对响应的准确性、有用性和清晰度进行评分（1-10 分）。
+    为你的评分提供简要推理。"""
 
-    prompt = f"""Rate the following response:
+    prompt = f"""请对以下响应进行评分：
 
-Question: {question}
-{f'Context: {context}' if context else ''}
-Response: {response}
+问题：{question}
+{f'上下文：{context}' if context else ''}
+响应：{response}
 
-Provide ratings in JSON format:
+请以 JSON 格式提供评分：
 {{
   "accuracy": <1-10>,
   "helpfulness": <1-10>,
   "clarity": <1-10>,
-  "reasoning": "<brief explanation>"
+  "reasoning": "<简要说明>"
 }}"""
 
     message = client.messages.create(
@@ -292,7 +292,7 @@ Provide ratings in JSON format:
     return QualityRating(**json.loads(message.content[0].text))
 ```
 
-### Pairwise Comparison
+### 配对比较
 
 ```python
 from pydantic import BaseModel, Field
@@ -308,23 +308,23 @@ async def compare_responses(
     response_a: str,
     response_b: str
 ) -> ComparisonResult:
-    """Compare two responses using LLM judge."""
+    """使用 LLM 评判者比较两个响应。"""
     client = Anthropic()
 
-    prompt = f"""Compare these two responses and determine which is better.
+    prompt = f"""比较以下两个响应，判断哪个更好。
 
-Question: {question}
+问题：{question}
 
-Response A: {response_a}
+响应 A：{response_a}
 
-Response B: {response_b}
+响应 B：{response_b}
 
-Consider accuracy, helpfulness, and clarity.
+考虑准确性、有用性和清晰度。
 
-Answer with JSON:
+以 JSON 格式回答：
 {{
-  "winner": "A" or "B" or "tie",
-  "reasoning": "<explanation>",
+  "winner": "A" 或 "B" 或 "tie",
+  "reasoning": "<说明>",
   "confidence": <1-10>
 }}"""
 
@@ -337,7 +337,7 @@ Answer with JSON:
     return ComparisonResult(**json.loads(message.content[0].text))
 ```
 
-### Reference-Based Evaluation
+### 基于参考的评估
 
 ```python
 class ReferenceEvaluation(BaseModel):
@@ -351,27 +351,27 @@ async def evaluate_against_reference(
     reference: str,
     question: str
 ) -> ReferenceEvaluation:
-    """Evaluate response against gold standard reference."""
+    """根据黄金标准参考评估响应。"""
     client = Anthropic()
 
-    prompt = f"""Compare the response to the reference answer.
+    prompt = f"""将响应与参考答案进行比较。
 
-Question: {question}
-Reference Answer: {reference}
-Response to Evaluate: {response}
+问题：{question}
+参考答案：{reference}
+待评估响应：{response}
 
-Evaluate:
-1. Semantic similarity (0-1): How similar is the meaning?
-2. Factual accuracy (0-1): Are all facts correct?
-3. Completeness (0-1): Does it cover all key points?
-4. List any specific issues or errors.
+评估以下方面：
+1. 语义相似度 (0-1)：含义有多相似？
+2. 事实准确性 (0-1)：所有事实是否正确？
+3. 完整性 (0-1)：是否涵盖所有要点？
+4. 列出任何具体问题或错误。
 
-Respond in JSON:
+以 JSON 格式回复：
 {{
   "semantic_similarity": <0-1>,
   "factual_accuracy": <0-1>,
   "completeness": <0-1>,
-  "issues": ["issue1", "issue2"]
+  "issues": ["问题1", "问题2"]
 }}"""
 
     message = client.messages.create(
@@ -383,9 +383,9 @@ Respond in JSON:
     return ReferenceEvaluation(**json.loads(message.content[0].text))
 ```
 
-## Human Evaluation Frameworks
+## 人工评估框架
 
-### Annotation Guidelines
+### 标注指南
 
 ```python
 from dataclasses import dataclass, field
@@ -393,7 +393,7 @@ from typing import Optional
 
 @dataclass
 class AnnotationTask:
-    """Structure for human annotation task."""
+    """人工标注任务的结构。"""
     response: str
     question: str
     context: Optional[str] = None
@@ -406,15 +406,15 @@ class AnnotationTask:
             "ratings": {
                 "accuracy": {
                     "scale": "1-5",
-                    "description": "Is the response factually correct?"
+                    "description": "响应是否事实正确？"
                 },
                 "relevance": {
                     "scale": "1-5",
-                    "description": "Does it answer the question?"
+                    "description": "是否回答了问题？"
                 },
                 "coherence": {
                     "scale": "1-5",
-                    "description": "Is it logically consistent?"
+                    "description": "是否逻辑一致？"
                 }
             },
             "issues": {
@@ -427,7 +427,7 @@ class AnnotationTask:
         }
 ```
 
-### Inter-Rater Agreement
+### 评分者间一致性
 
 ```python
 from sklearn.metrics import cohen_kappa_score
@@ -436,21 +436,21 @@ def calculate_agreement(
     rater1_scores: list[int],
     rater2_scores: list[int]
 ) -> dict:
-    """Calculate inter-rater agreement."""
+    """计算评分者间一致性。"""
     kappa = cohen_kappa_score(rater1_scores, rater2_scores)
 
     if kappa < 0:
-        interpretation = "Poor"
+        interpretation = "差"
     elif kappa < 0.2:
-        interpretation = "Slight"
+        interpretation = "轻微"
     elif kappa < 0.4:
-        interpretation = "Fair"
+        interpretation = "一般"
     elif kappa < 0.6:
-        interpretation = "Moderate"
+        interpretation = "中等"
     elif kappa < 0.8:
-        interpretation = "Substantial"
+        interpretation = "较好"
     else:
-        interpretation = "Almost Perfect"
+        interpretation = "几乎完美"
 
     return {
         "kappa": kappa,
@@ -458,9 +458,9 @@ def calculate_agreement(
     }
 ```
 
-## A/B Testing
+## A/B 测试
 
-### Statistical Testing Framework
+### 统计测试框架
 
 ```python
 from scipy import stats
@@ -475,21 +475,21 @@ class ABTest:
     variant_b_scores: list[float] = field(default_factory=list)
 
     def add_result(self, variant: str, score: float):
-        """Add evaluation result for a variant."""
+        """添加变体的评估结果。"""
         if variant == "A":
             self.variant_a_scores.append(score)
         else:
             self.variant_b_scores.append(score)
 
     def analyze(self, alpha: float = 0.05) -> dict:
-        """Perform statistical analysis."""
+        """执行统计分析。"""
         a_scores = np.array(self.variant_a_scores)
         b_scores = np.array(self.variant_b_scores)
 
-        # T-test
+        # T 检验
         t_stat, p_value = stats.ttest_ind(a_scores, b_scores)
 
-        # Effect size (Cohen's d)
+        # 效应量（Cohen's d）
         pooled_std = np.sqrt((np.std(a_scores)**2 + np.std(b_scores)**2) / 2)
         cohens_d = (np.mean(b_scores) - np.mean(a_scores)) / pooled_std
 
@@ -507,21 +507,21 @@ class ABTest:
 
     @staticmethod
     def _interpret_cohens_d(d: float) -> str:
-        """Interpret Cohen's d effect size."""
+        """解释 Cohen's d 效应量。"""
         abs_d = abs(d)
         if abs_d < 0.2:
-            return "negligible"
+            return "可忽略"
         elif abs_d < 0.5:
-            return "small"
+            return "小"
         elif abs_d < 0.8:
-            return "medium"
+            return "中等"
         else:
-            return "large"
+            return "大"
 ```
 
-## Regression Testing
+## 回归测试
 
-### Regression Detection
+### 回归检测
 
 ```python
 from dataclasses import dataclass
@@ -540,7 +540,7 @@ class RegressionDetector:
         self.threshold = threshold
 
     def check_for_regression(self, new_results: dict) -> dict:
-        """Detect if new results show regression."""
+        """检测新结果是否出现回归。"""
         regressions = []
 
         for metric in self.baseline.keys():
@@ -550,10 +550,10 @@ class RegressionDetector:
             if new_score is None:
                 continue
 
-            # Calculate relative change
+            # 计算相对变化
             relative_change = (new_score - baseline_score) / baseline_score
 
-            # Flag if significant decrease
+            # 显著下降时标记为回归
             is_regression = relative_change < -self.threshold
             if is_regression:
                 regressions.append(RegressionResult(
@@ -567,20 +567,20 @@ class RegressionDetector:
         return {
             "has_regression": len(regressions) > 0,
             "regressions": regressions,
-            "summary": f"{len(regressions)} metric(s) regressed"
+            "summary": f"{len(regressions)} 个指标出现回归"
         }
 ```
 
-## LangSmith Evaluation Integration
+## LangSmith 评估集成
 
 ```python
 from langsmith import Client
 from langsmith.evaluation import evaluate, LangChainStringEvaluator
 
-# Initialize LangSmith client
+# 初始化 LangSmith 客户端
 client = Client()
 
-# Create dataset
+# 创建数据集
 dataset = client.create_dataset("qa_test_cases")
 client.create_examples(
     inputs=[{"question": q} for q in questions],
@@ -588,14 +588,14 @@ client.create_examples(
     dataset_id=dataset.id
 )
 
-# Define evaluators
+# 定义评估器
 evaluators = [
-    LangChainStringEvaluator("qa"),           # QA correctness
-    LangChainStringEvaluator("context_qa"),   # Context-grounded QA
-    LangChainStringEvaluator("cot_qa"),       # Chain-of-thought QA
+    LangChainStringEvaluator("qa"),           # QA 正确性
+    LangChainStringEvaluator("context_qa"),   # 基于上下文的 QA
+    LangChainStringEvaluator("cot_qa"),       # 思维链 QA
 ]
 
-# Run evaluation
+# 运行评估
 async def target_function(inputs: dict) -> dict:
     result = await your_chain.ainvoke(inputs)
     return {"answer": result}
@@ -608,12 +608,12 @@ experiment_results = await evaluate(
     metadata={"model": "claude-sonnet-4-6", "version": "1.0.0"}
 )
 
-print(f"Mean score: {experiment_results.aggregate_metrics['qa']['mean']}")
+print(f"平均分：{experiment_results.aggregate_metrics['qa']['mean']}")
 ```
 
-## Benchmarking
+## 基准测试
 
-### Running Benchmarks
+### 运行基准测试
 
 ```python
 from dataclasses import dataclass
@@ -636,14 +636,14 @@ class BenchmarkRunner:
         model,
         metrics: list[Metric]
     ) -> dict[str, BenchmarkResult]:
-        """Run model on benchmark and calculate metrics."""
+        """在基准数据集上运行模型并计算指标。"""
         results = {metric.name: [] for metric in metrics}
 
         for example in self.dataset:
-            # Generate prediction
+            # 生成预测
             prediction = await model.predict(example["input"])
 
-            # Calculate each metric
+            # 计算每个指标
             for metric in metrics:
                 score = metric.fn(
                     prediction=prediction,
@@ -652,7 +652,7 @@ class BenchmarkRunner:
                 )
                 results[metric.name].append(score)
 
-        # Aggregate results
+        # 聚合结果
         return {
             metric: BenchmarkResult(
                 metric=metric,

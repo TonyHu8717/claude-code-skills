@@ -1,127 +1,127 @@
 ---
 name: wcag-audit-patterns
-description: Conduct WCAG 2.2 accessibility audits with automated testing, manual verification, and remediation guidance. Use when auditing websites for accessibility, fixing WCAG violations, or implementing accessible design patterns.
+description: 使用自动化测试、手动验证和修复指导进行 WCAG 2.2 无障碍审计。适用于审计网站无障碍性、修复 WCAG 违规或实现无障碍设计模式。
 ---
 
-# WCAG Audit Patterns
+# WCAG 审计模式
 
-Comprehensive guide to auditing web content against WCAG 2.2 guidelines with actionable remediation strategies.
+根据 WCAG 2.2 指南审计 Web 内容并提供可操作修复策略的综合指南。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Conducting accessibility audits
-- Fixing WCAG violations
-- Implementing accessible components
-- Preparing for accessibility lawsuits
-- Meeting ADA/Section 508 requirements
-- Achieving VPAT compliance
+- 进行无障碍审计
+- 修复 WCAG 违规
+- 实现无障碍组件
+- 为无障碍诉讼做准备
+- 满足 ADA/Section 508 要求
+- 实现 VPAT 合规
 
-## Core Concepts
+## 核心概念
 
-### 1. WCAG Conformance Levels
+### 1. WCAG 合规等级
 
-| Level   | Description            | Required For      |
+| 等级   | 描述            | 适用场景      |
 | ------- | ---------------------- | ----------------- |
-| **A**   | Minimum accessibility  | Legal baseline    |
-| **AA**  | Standard conformance   | Most regulations  |
-| **AAA** | Enhanced accessibility | Specialized needs |
+| **A**   | 最低无障碍性  | 法律基线    |
+| **AA**  | 标准合规   | 大多数法规  |
+| **AAA** | 增强无障碍性 |  specialized needs |
 
-### 2. POUR Principles
-
-```
-Perceivable:  Can users perceive the content?
-Operable:     Can users operate the interface?
-Understandable: Can users understand the content?
-Robust:       Does it work with assistive tech?
-```
-
-### 3. Common Violations by Impact
+### 2. POUR 原则
 
 ```
-Critical (Blockers):
-├── Missing alt text for functional images
-├── No keyboard access to interactive elements
-├── Missing form labels
-└── Auto-playing media without controls
-
-Serious:
-├── Insufficient color contrast
-├── Missing skip links
-├── Inaccessible custom widgets
-└── Missing page titles
-
-Moderate:
-├── Missing language attribute
-├── Unclear link text
-├── Missing landmarks
-└── Improper heading hierarchy
+可感知:  用户能否感知内容？
+可操作:     用户能否操作界面？
+可理解: 用户能否理解内容？
+健壮:       是否能与辅助技术配合工作？
 ```
 
-## Audit Checklist
+### 3. 按影响分类的常见违规
 
-### Perceivable (Principle 1)
+```
+严重（阻塞）：
+├── 功能图片缺少 alt 文本
+├── 交互元素无键盘访问
+├── 表单缺少标签
+└── 自动播放媒体无控件
+
+重大：
+├── 颜色对比度不足
+├── 缺少跳转链接
+├── 不可访问的自定义组件
+└── 缺少页面标题
+
+中等：
+├── 缺少语言属性
+├── 不清晰的链接文本
+├── 缺少地标
+└── 不当的标题层次
+```
+
+## 审计检查清单
+
+### 可感知（原则 1）
 
 ````markdown
-## 1.1 Text Alternatives
+## 1.1 文本替代
 
-### 1.1.1 Non-text Content (Level A)
+### 1.1.1 非文本内容（A 级）
 
-- [ ] All images have alt text
-- [ ] Decorative images have alt=""
-- [ ] Complex images have long descriptions
-- [ ] Icons with meaning have accessible names
-- [ ] CAPTCHAs have alternatives
+- [ ] 所有图片有 alt 文本
+- [ ] 装饰性图片有 alt=""
+- [ ] 复杂图片有长描述
+- [ ] 有意义的图标有无障碍名称
+- [ ] CAPTCHA 有替代方案
 
-Check:
+检查：
 
 ```html
-<!-- Good -->
+<!-- 好 -->
 <img src="chart.png" alt="Sales increased 25% from Q1 to Q2" />
 <img src="decorative-line.png" alt="" />
 
-<!-- Bad -->
+<!-- 差 -->
 <img src="chart.png" />
 <img src="decorative-line.png" alt="decorative line" />
 ```
 ````
 
-## 1.2 Time-based Media
+## 1.2 基于时间的媒体
 
-### 1.2.1 Audio-only and Video-only (Level A)
+### 1.2.1 仅音频和仅视频（A 级）
 
-- [ ] Audio has text transcript
-- [ ] Video has audio description or transcript
+- [ ] 音频有文本转录
+- [ ] 视频有音频描述或转录
 
-### 1.2.2 Captions (Level A)
+### 1.2.2 字幕（A 级）
 
-- [ ] All video has synchronized captions
-- [ ] Captions are accurate and complete
-- [ ] Speaker identification included
+- [ ] 所有视频有同步字幕
+- [ ] 字幕准确且完整
+- [ ] 包含说话人标识
 
-### 1.2.3 Audio Description (Level A)
+### 1.2.3 音频描述（A 级）
 
-- [ ] Video has audio description for visual content
+- [ ] 视频有视觉内容的音频描述
 
-## 1.3 Adaptable
+## 1.3 可适配
 
-### 1.3.1 Info and Relationships (Level A)
+### 1.3.1 信息和关系（A 级）
 
-- [ ] Headings use proper tags (h1-h6)
-- [ ] Lists use ul/ol/dl
-- [ ] Tables have headers
-- [ ] Form inputs have labels
-- [ ] ARIA landmarks present
+- [ ] 标题使用正确的标签（h1-h6）
+- [ ] 列表使用 ul/ol/dl
+- [ ] 表格有表头
+- [ ] 表单输入有标签
+- [ ] 存在 ARIA 地标
 
-Check:
+检查：
 
 ```html
-<!-- Heading hierarchy -->
+<!-- 标题层次 -->
 <h1>Page Title</h1>
 <h2>Section</h2>
 <h3>Subsection</h3>
 <h2>Another Section</h2>
 
-<!-- Table headers -->
+<!-- 表格表头 -->
 <table>
   <thead>
     <tr>
@@ -132,98 +132,98 @@ Check:
 </table>
 ```
 
-### 1.3.2 Meaningful Sequence (Level A)
+### 1.3.2 有意义的序列（A 级）
 
-- [ ] Reading order is logical
-- [ ] CSS positioning doesn't break order
-- [ ] Focus order matches visual order
+- [ ] 阅读顺序是逻辑的
+- [ ] CSS 定位不破坏顺序
+- [ ] 焦点顺序与视觉顺序匹配
 
-### 1.3.3 Sensory Characteristics (Level A)
+### 1.3.3 感官特征（A 级）
 
-- [ ] Instructions don't rely on shape/color alone
-- [ ] "Click the red button" → "Click Submit (red button)"
+- [ ] 说明不依赖形状/颜色
+- "点击红色按钮" → "点击提交（红色按钮）"
 
-## 1.4 Distinguishable
+## 1.4 可辨别
 
-### 1.4.1 Use of Color (Level A)
+### 1.4.1 颜色使用（A 级）
 
-- [ ] Color is not only means of conveying info
-- [ ] Links distinguishable without color
-- [ ] Error states not color-only
+- [ ] 颜色不是传达信息的唯一方式
+- [ ] 链接无需颜色即可区分
+- [ ] 错误状态不仅依赖颜色
 
-### 1.4.3 Contrast (Minimum) (Level AA)
+### 1.4.3 对比度（最小值）（AA 级）
 
-- [ ] Text: 4.5:1 contrast ratio
-- [ ] Large text (18pt+): 3:1 ratio
-- [ ] UI components: 3:1 ratio
+- [ ] 文本：4.5:1 对比度比率
+- [ ] 大文本（18pt+）：3:1 比率
+- [ ] UI 组件：3:1 比率
 
-Tools: WebAIM Contrast Checker, axe DevTools
+工具：WebAIM Contrast Checker、axe DevTools
 
-### 1.4.4 Resize Text (Level AA)
+### 1.4.4 调整文本大小（AA 级）
 
-- [ ] Text resizes to 200% without loss
-- [ ] No horizontal scrolling at 320px
-- [ ] Content reflows properly
+- [ ] 文本可调整到 200% 而不丢失
+- [ ] 320px 时无水平滚动
+- [ ] 内容正确回流
 
-### 1.4.10 Reflow (Level AA)
+### 1.4.10 回流（AA 级）
 
-- [ ] Content reflows at 400% zoom
-- [ ] No two-dimensional scrolling
-- [ ] All content accessible at 320px width
+- [ ] 400% 缩放时内容回流
+- [ ] 无二维滚动
+- [ ] 320px 宽度下所有内容可访问
 
-### 1.4.11 Non-text Contrast (Level AA)
+### 1.4.11 非文本对比度（AA 级）
 
-- [ ] UI components have 3:1 contrast
-- [ ] Focus indicators visible
-- [ ] Graphical objects distinguishable
+- [ ] UI 组件有 3:1 对比度
+- [ ] 焦点指示器可见
+- [ ] 图形对象可辨别
 
-### 1.4.12 Text Spacing (Level AA)
+### 1.4.12 文本间距（AA 级）
 
-- [ ] No content loss with increased spacing
-- [ ] Line height 1.5x font size
-- [ ] Paragraph spacing 2x font size
-- [ ] Letter spacing 0.12x font size
-- [ ] Word spacing 0.16x font size
+- [ ] 增加间距时无内容丢失
+- [ ] 行高 1.5 倍字体大小
+- [ ] 段落间距 2 倍字体大小
+- [ ] 字间距 0.12 倍字体大小
+- [ ] 词间距 0.16 倍字体大小
 
 ````
 
-### Operable (Principle 2)
+### 可操作（原则 2）
 
 ```markdown
-## 2.1 Keyboard Accessible
+## 2.1 键盘可访问
 
-### 2.1.1 Keyboard (Level A)
-- [ ] All functionality keyboard accessible
-- [ ] No keyboard traps
-- [ ] Tab order is logical
-- [ ] Custom widgets are keyboard operable
+### 2.1.1 键盘（A 级）
+- [ ] 所有功能键盘可访问
+- [ ] 无键盘陷阱
+- [ ] Tab 顺序逻辑
+- [ ] 自定义组件键盘可操作
 
-Check:
+检查：
 ```javascript
-// Custom button must be keyboard accessible
+// 自定义按钮必须键盘可访问
 <div role="button" tabindex="0"
      onkeydown="if(event.key === 'Enter' || event.key === ' ') activate()">
 ````
 
-### 2.1.2 No Keyboard Trap (Level A)
+### 2.1.2 无键盘陷阱（A 级）
 
-- [ ] Focus can move away from all components
-- [ ] Modal dialogs trap focus correctly
-- [ ] Focus returns after modal closes
+- [ ] 焦点可以从所有组件移开
+- [ ] 模态对话框正确捕获焦点
+- [ ] 模态关闭后焦点返回
 
-## 2.2 Enough Time
+## 2.2 充足时间
 
-### 2.2.1 Timing Adjustable (Level A)
+### 2.2.1 时间可调（A 级）
 
-- [ ] Session timeouts can be extended
-- [ ] User warned before timeout
-- [ ] Option to disable auto-refresh
+- [ ] 会话超时可延长
+- [ ] 超时前警告用户
+- [ ] 可禁用自动刷新
 
-### 2.2.2 Pause, Stop, Hide (Level A)
+### 2.2.2 暂停、停止、隐藏（A 级）
 
-- [ ] Moving content can be paused
-- [ ] Auto-updating content can be paused
-- [ ] Animations respect prefers-reduced-motion
+- [ ] 移动内容可暂停
+- [ ] 自动更新内容可暂停
+- [ ] 动画尊重 prefers-reduced-motion
 
 ```css
 @media (prefers-reduced-motion: reduce) {
@@ -234,58 +234,58 @@ Check:
 }
 ```
 
-## 2.3 Seizures and Physical Reactions
+## 2.3 癫痫和身体反应
 
-### 2.3.1 Three Flashes (Level A)
+### 2.3.1 三次闪烁（A 级）
 
-- [ ] No content flashes more than 3 times/second
-- [ ] Flashing area is small (<25% viewport)
+- [ ] 内容每秒闪烁不超过 3 次
+- [ ] 闪烁区域小（<25% 视口）
 
-## 2.4 Navigable
+## 2.4 可导航
 
-### 2.4.1 Bypass Blocks (Level A)
+### 2.4.1 跳过区块（A 级）
 
-- [ ] Skip to main content link present
-- [ ] Landmark regions defined
-- [ ] Proper heading structure
+- [ ] 存在跳转到主内容的链接
+- [ ] 定义了地标区域
+- [ ] 正确的标题结构
 
 ```html
 <a href="#main" class="skip-link">Skip to main content</a>
 <main id="main">...</main>
 ```
 
-### 2.4.2 Page Titled (Level A)
+### 2.4.2 页面标题（A 级）
 
-- [ ] Unique, descriptive page titles
-- [ ] Title reflects page content
+- [ ] 唯一、描述性的页面标题
+- [ ] 标题反映页面内容
 
-### 2.4.3 Focus Order (Level A)
+### 2.4.3 焦点顺序（A 级）
 
-- [ ] Focus order matches visual order
-- [ ] tabindex used correctly
+- [ ] 焦点顺序与视觉顺序匹配
+- [ ] 正确使用 tabindex
 
-### 2.4.4 Link Purpose (In Context) (Level A)
+### 2.4.4 链接目的（上下文中）（A 级）
 
-- [ ] Links make sense out of context
-- [ ] No "click here" or "read more" alone
+- [ ] 链接在上下文外有意义
+- [ ] 不要单独使用"点击这里"或"阅读更多"
 
 ```html
-<!-- Bad -->
+<!-- 差 -->
 <a href="report.pdf">Click here</a>
 
-<!-- Good -->
+<!-- 好 -->
 <a href="report.pdf">Download Q4 Sales Report (PDF)</a>
 ```
 
-### 2.4.6 Headings and Labels (Level AA)
+### 2.4.6 标题和标签（AA 级）
 
-- [ ] Headings describe content
-- [ ] Labels describe purpose
+- [ ] 标题描述内容
+- [ ] 标签描述用途
 
-### 2.4.7 Focus Visible (Level AA)
+### 2.4.7 焦点可见（AA 级）
 
-- [ ] Focus indicator visible on all elements
-- [ ] Custom focus styles meet contrast
+- [ ] 所有元素上焦点指示器可见
+- [ ] 自定义焦点样式满足对比度
 
 ```css
 :focus {
@@ -294,105 +294,105 @@ Check:
 }
 ```
 
-### 2.4.11 Focus Not Obscured (Level AA) - WCAG 2.2
+### 2.4.11 焦点不被遮挡（AA 级）- WCAG 2.2
 
-- [ ] Focused element not fully hidden
-- [ ] Sticky headers don't obscure focus
+- [ ] 聚焦的元素不被完全隐藏
+- [ ] 粘性标题不遮挡焦点
 
 ````
 
-### Understandable (Principle 3)
+### 可理解（原则 3）
 
 ```markdown
-## 3.1 Readable
+## 3.1 可读
 
-### 3.1.1 Language of Page (Level A)
-- [ ] HTML lang attribute set
-- [ ] Language correct for content
+### 3.1.1 页面语言（A 级）
+- [ ] 设置了 HTML lang 属性
+- [ ] 语言对内容正确
 
 ```html
 <html lang="en">
 ````
 
-### 3.1.2 Language of Parts (Level AA)
+### 3.1.2 部分语言（AA 级）
 
-- [ ] Language changes marked
+- [ ] 标记了语言变化
 
 ```html
 <p>The French word <span lang="fr">bonjour</span> means hello.</p>
 ```
 
-## 3.2 Predictable
+## 3.2 可预测
 
-### 3.2.1 On Focus (Level A)
+### 3.2.1 聚焦时（A 级）
 
-- [ ] No context change on focus alone
-- [ ] No unexpected popups on focus
+- [ ] 仅聚焦时不改变上下文
+- [ ] 聚焦时无意外弹出
 
-### 3.2.2 On Input (Level A)
+### 3.2.2 输入时（A 级）
 
-- [ ] No automatic form submission
-- [ ] User warned before context change
+- [ ] 无自动表单提交
+- [ ] 上下文变化前警告用户
 
-### 3.2.3 Consistent Navigation (Level AA)
+### 3.2.3 一致的导航（AA 级）
 
-- [ ] Navigation consistent across pages
-- [ ] Repeated components same order
+- [ ] 跨页面导航一致
+- [ ] 重复组件顺序相同
 
-### 3.2.4 Consistent Identification (Level AA)
+### 3.2.4 一致的标识（AA 级）
 
-- [ ] Same functionality = same label
-- [ ] Icons used consistently
+- [ ] 相同功能 = 相同标签
+- [ ] 图标使用一致
 
-## 3.3 Input Assistance
+## 3.3 输入辅助
 
-### 3.3.1 Error Identification (Level A)
+### 3.3.1 错误识别（A 级）
 
-- [ ] Errors clearly identified
-- [ ] Error message describes problem
-- [ ] Error linked to field
+- [ ] 错误被清晰识别
+- [ ] 错误消息描述问题
+- [ ] 错误与字段关联
 
 ```html
 <input aria-describedby="email-error" aria-invalid="true" />
 <span id="email-error" role="alert">Please enter valid email</span>
 ```
 
-### 3.3.2 Labels or Instructions (Level A)
+### 3.3.2 标签或说明（A 级）
 
-- [ ] All inputs have visible labels
-- [ ] Required fields indicated
-- [ ] Format hints provided
+- [ ] 所有输入有可见标签
+- [ ] 标记必填字段
+- [ ] 提供格式提示
 
-### 3.3.3 Error Suggestion (Level AA)
+### 3.3.3 错误建议（AA 级）
 
-- [ ] Errors include correction suggestion
-- [ ] Suggestions are specific
+- [ ] 错误包含纠正建议
+- [ ] 建议是具体的
 
-### 3.3.4 Error Prevention (Level AA)
+### 3.3.4 错误预防（AA 级）
 
-- [ ] Legal/financial forms reversible
-- [ ] Data checked before submission
-- [ ] User can review before submit
+- [ ] 法律/财务表单可逆
+- [ ] 提交前检查数据
+- [ ] 用户可在提交前审查
 
 ````
 
-### Robust (Principle 4)
+### 健壮（原则 4）
 
 ```markdown
-## 4.1 Compatible
+## 4.1 兼容
 
-### 4.1.1 Parsing (Level A) - Obsolete in WCAG 2.2
-- [ ] Valid HTML (good practice)
-- [ ] No duplicate IDs
-- [ ] Complete start/end tags
+### 4.1.1 解析（A 级）- WCAG 2.2 中已废弃
+- [ ] 有效的 HTML（良好实践）
+- [ ] 无重复 ID
+- [ ] 完整的开始/结束标签
 
-### 4.1.2 Name, Role, Value (Level A)
-- [ ] Custom widgets have accessible names
-- [ ] ARIA roles correct
-- [ ] State changes announced
+### 4.1.2 名称、角色、值（A 级）
+- [ ] 自定义组件有无障碍名称
+- [ ] ARIA 角色正确
+- [ ] 状态变化被公告
 
 ```html
-<!-- Accessible custom checkbox -->
+<!-- 无障碍自定义复选框 -->
 <div role="checkbox"
      aria-checked="false"
      tabindex="0"
@@ -401,10 +401,10 @@ Check:
 <span id="label">Accept terms</span>
 ````
 
-### 4.1.3 Status Messages (Level AA)
+### 4.1.3 状态消息（AA 级）
 
-- [ ] Status updates announced
-- [ ] Live regions used correctly
+- [ ] 状态更新被公告
+- [ ] 正确使用实时区域
 
 ```html
 <div role="status" aria-live="polite">3 items added to cart</div>
@@ -414,10 +414,10 @@ Check:
 
 ````
 
-## Automated Testing
+## 自动化测试
 
 ```javascript
-// axe-core integration
+// axe-core 集成
 const axe = require('axe-core');
 
 async function runAccessibilityAudit(page) {
@@ -439,7 +439,7 @@ async function runAccessibilityAudit(page) {
   };
 }
 
-// Playwright test example
+// Playwright 测试示例
 test('should have no accessibility violations', async ({ page }) => {
   await page.goto('/');
   const results = await runAccessibilityAudit(page);
@@ -449,56 +449,56 @@ test('should have no accessibility violations', async ({ page }) => {
 ````
 
 ```bash
-# CLI tools
+# CLI 工具
 npx @axe-core/cli https://example.com
 npx pa11y https://example.com
 lighthouse https://example.com --only-categories=accessibility
 ```
 
-## Remediation Patterns
+## 修复模式
 
-### Fix: Missing Form Labels
+### 修复：缺少表单标签
 
 ```html
-<!-- Before -->
+<!-- 之前 -->
 <input type="email" placeholder="Email" />
 
-<!-- After: Option 1 - Visible label -->
+<!-- 之后：选项 1 - 可见标签 -->
 <label for="email">Email address</label>
 <input id="email" type="email" />
 
-<!-- After: Option 2 - aria-label -->
+<!-- 之后：选项 2 - aria-label -->
 <input type="email" aria-label="Email address" />
 
-<!-- After: Option 3 - aria-labelledby -->
+<!-- 之后：选项 3 - aria-labelledby -->
 <span id="email-label">Email</span>
 <input type="email" aria-labelledby="email-label" />
 ```
 
-### Fix: Insufficient Color Contrast
+### 修复：颜色对比度不足
 
 ```css
-/* Before: 2.5:1 contrast */
+/* 之前：2.5:1 对比度 */
 .text {
   color: #767676;
 }
 
-/* After: 4.5:1 contrast */
+/* 之后：4.5:1 对比度 */
 .text {
   color: #595959;
 }
 
-/* Or add background */
+/* 或添加背景 */
 .text {
   color: #767676;
   background: #000;
 }
 ```
 
-### Fix: Keyboard Navigation
+### 修复：键盘导航
 
 ```javascript
-// Make custom element keyboard accessible
+// 使自定义元素键盘可访问
 class AccessibleDropdown extends HTMLElement {
   connectedCallback() {
     this.setAttribute("tabindex", "0");
@@ -529,20 +529,20 @@ class AccessibleDropdown extends HTMLElement {
 }
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该做的
 
-- **Start early** - Accessibility from design phase
-- **Test with real users** - Disabled users provide best feedback
-- **Automate what you can** - 30-50% issues detectable
-- **Use semantic HTML** - Reduces ARIA needs
-- **Document patterns** - Build accessible component library
+- **尽早开始** - 从设计阶段就考虑无障碍
+- **与真实用户测试** - 残障用户提供最好的反馈
+- **自动化能自动化的** - 30-50% 的问题可被检测
+- **使用语义化 HTML** - 减少 ARIA 需求
+- **记录模式** - 构建无障碍组件库
 
-### Don'ts
+### 不应该做的
 
-- **Don't rely only on automated testing** - Manual testing required
-- **Don't use ARIA as first solution** - Native HTML first
-- **Don't hide focus outlines** - Keyboard users need them
-- **Don't disable zoom** - Users need to resize
-- **Don't use color alone** - Multiple indicators needed
+- **不要仅依赖自动化测试** - 需要手动测试
+- **不要将 ARIA 作为首选方案** - 先用原生 HTML
+- **不要隐藏焦点轮廓** - 键盘用户需要它们
+- **不要禁用缩放** - 用户需要调整大小
+- **不要仅用颜色** - 需要多种指标

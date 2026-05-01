@@ -1,40 +1,40 @@
 ---
 name: python-design-patterns
-description: Python design patterns including KISS, Separation of Concerns, Single Responsibility, and composition over inheritance. Use this skill when designing a new service or component from scratch and choosing how to layer responsibilities, when refactoring a God class or monolithic function that has grown too large, when deciding whether to add a new abstraction or live with duplication, when evaluating a pull request for structural issues like tight coupling or leaking internal types, when choosing between inheritance and composition for a new class hierarchy, or when a codebase is becoming hard to test because of entangled I/O and business logic.
+description: Python 设计模式，包括 KISS、关注点分离、单一职责和组合优于继承。在从头设计新服务或组件并选择如何分层职责时、在重构增长过大的上帝类或单体函数时、在决定是添加新抽象还是接受重复时、在评估拉取请求中的结构问题（如紧耦合或泄露内部类型）时、在为新类层次结构选择继承与组合时、或在代码库因 I/O 和业务逻辑纠缠而变得难以测试时，使用此技能。
 ---
 
-# Python Design Patterns
+# Python 设计模式
 
-Write maintainable Python code using fundamental design principles. These patterns help you build systems that are easy to understand, test, and modify.
+使用基本设计原则编写可维护的 Python 代码。这些模式帮助你构建易于理解、测试和修改的系统。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Designing new components or services
-- Refactoring complex or tangled code
-- Deciding whether to create an abstraction
-- Choosing between inheritance and composition
-- Evaluating code complexity and coupling
-- Planning modular architectures
+- 设计新组件或服务
+- 重构复杂或纠缠的代码
+- 决定是否创建抽象
+- 在继承和组合之间选择
+- 评估代码复杂性和耦合度
+- 规划模块化架构
 
-## Core Concepts
+## 核心概念
 
-### 1. KISS (Keep It Simple)
+### 1. KISS（保持简单）
 
-Choose the simplest solution that works. Complexity must be justified by concrete requirements.
+选择可行的最简单解决方案。复杂性必须由具体需求来证明合理性。
 
-### 2. Single Responsibility (SRP)
+### 2. 单一职责（SRP）
 
-Each unit should have one reason to change. Separate concerns into focused components.
+每个单元应该只有一个变更原因。将关注点分离到专注的组件中。
 
-### 3. Composition Over Inheritance
+### 3. 组合优于继承
 
-Build behavior by combining objects, not extending classes.
+通过组合对象而非扩展类来构建行为。
 
-### 4. Rule of Three
+### 4. 三法则
 
-Wait until you have three instances before abstracting. Duplication is often better than premature abstraction.
+在抽象之前等待有三个实例。重复通常优于过早抽象。
 
-## Quick Start
+## 快速开始
 
 ```python
 # Simple beats clever
@@ -45,11 +45,11 @@ def get_formatter(name: str) -> Formatter:
     return FORMATTERS[name]()
 ```
 
-## Fundamental Patterns
+## 基础模式
 
-### Pattern 1: KISS - Keep It Simple
+### 模式 1：KISS - 保持简单
 
-Before adding complexity, ask: does a simpler solution work?
+在添加复杂性之前，问一下：更简单的解决方案可行吗？
 
 ```python
 # Over-engineered: Factory with registration
@@ -85,11 +85,11 @@ def get_formatter(name: str) -> Formatter:
     return FORMATTERS[name]()
 ```
 
-The factory pattern adds code without adding value here. Save patterns for when they solve real problems.
+工厂模式在这里增加了代码但没有增加价值。将模式保留到它们能解决真正问题的时候。
 
-### Pattern 2: Single Responsibility Principle
+### 模式 2：单一职责原则
 
-Each class or function should have one reason to change.
+每个类或函数应该只有一个变更原因。
 
 ```python
 # BAD: Handler does everything
@@ -135,11 +135,11 @@ class UserHandler:
         return Response(user.to_dict(), status=201)
 ```
 
-Now HTTP changes don't affect business logic, and vice versa.
+现在 HTTP 变更不会影响业务逻辑，反之亦然。
 
-### Pattern 3: Separation of Concerns
+### 模式 3：关注点分离
 
-Organize code into distinct layers with clear responsibilities.
+将代码组织成具有清晰职责的不同层。
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -166,7 +166,7 @@ Organize code into distinct layers with clear responsibilities.
 └─────────────────────────────────────────────────────┘
 ```
 
-Each layer depends only on layers below it:
+每层仅依赖其下层：
 
 ```python
 # Repository: Data access
@@ -195,9 +195,9 @@ async def get_user(user_id: str) -> UserResponse:
     return UserResponse.from_user(user)
 ```
 
-### Pattern 4: Composition Over Inheritance
+### 模式 4：组合优于继承
 
-Build behavior by combining objects rather than inheriting.
+通过组合对象而非继承来构建行为。
 
 ```python
 # Inheritance: Rigid and hard to test
@@ -247,11 +247,11 @@ service = NotificationService(
 )
 ```
 
-## Advanced Patterns
+## 高级模式
 
-### Pattern 5: Rule of Three
+### 模式 5：三法则
 
-Wait until you have three instances before abstracting.
+在抽象之前等待有三个实例。
 
 ```python
 # Two similar functions? Don't abstract yet
@@ -279,13 +279,13 @@ def process_returns(returns: list[Return]) -> list[Result]:
 # But even then, sometimes explicit is better than abstract
 ```
 
-### Pattern 6: Function Size Guidelines
+### 模式 6：函数大小指南
 
-Keep functions focused. Extract when a function:
+保持函数专注。在以下情况下提取函数：
 
-- Exceeds 20-50 lines (varies by complexity)
-- Serves multiple distinct purposes
-- Has deeply nested logic (3+ levels)
+- 超过 20-50 行（因复杂性而异）
+- 服务于多个不同目的
+- 有深层嵌套逻辑（3+ 层）
 
 ```python
 # Too long, multiple concerns mixed
@@ -306,9 +306,9 @@ def process_order(order: Order) -> Result:
     return Result(success=True, order_id=order.id)
 ```
 
-### Pattern 7: Dependency Injection
+### 模式 7：依赖注入
 
-Pass dependencies through constructors for testability.
+通过构造函数传递依赖以实现可测试性。
 
 ```python
 from typing import Protocol
@@ -363,9 +363,9 @@ service = UserService(
 )
 ```
 
-### Pattern 8: Avoiding Common Anti-Patterns
+### 模式 8：避免常见反模式
 
-**Don't expose internal types:**
+**不要暴露内部类型：**
 
 ```python
 # BAD: Leaking ORM model to API
@@ -380,7 +380,7 @@ def get_user(id: str) -> UserResponse:
     return UserResponse.from_orm(user)
 ```
 
-**Don't mix I/O with business logic:**
+**不要将 I/O 与业务逻辑混合：**
 
 ```python
 # BAD: SQL embedded in business logic
@@ -397,37 +397,37 @@ def calculate_discount(user: User, order_history: list[Order]) -> float:
     return 0.0
 ```
 
-## Best Practices Summary
+## 最佳实践总结
 
-1. **Keep it simple** - Choose the simplest solution that works
-2. **Single responsibility** - Each unit has one reason to change
-3. **Separate concerns** - Distinct layers with clear purposes
-4. **Compose, don't inherit** - Combine objects for flexibility
-5. **Rule of three** - Wait before abstracting
-6. **Keep functions small** - 20-50 lines (varies by complexity), one purpose
-7. **Inject dependencies** - Constructor injection for testability
-8. **Delete before abstracting** - Remove dead code, then consider patterns
-9. **Test each layer** - Isolated tests for each concern
-10. **Explicit over clever** - Readable code beats elegant code
+1. **保持简单** - 选择可行的最简单解决方案
+2. **单一职责** - 每个单元只有一个变更原因
+3. **关注点分离** - 具有清晰目的的不同层
+4. **组合，不要继承** - 组合对象以获得灵活性
+5. **三法则** - 在抽象之前等待
+6. **保持函数小** - 20-50 行（因复杂性而异），一个目的
+7. **注入依赖** - 构造函数注入以实现可测试性
+8. **在抽象之前删除** - 删除死代码，然后考虑模式
+9. **测试每层** - 每个关注点的隔离测试
+10. **显式优于巧妙** - 可读代码胜过优雅代码
 
-## Troubleshooting
+## 故障排除
 
-**A class is growing and seems to have multiple responsibilities, but splitting it feels wrong.**
-Apply the "reason to change" test: list every change that could require editing this class. If the list has items from different domains (e.g., HTTP parsing AND business rules AND formatting), split it. If all changes stem from the same domain concern, the class may be appropriately sized.
+**一个类在增长，似乎有多个职责，但拆分感觉不对。**
+应用"变更原因"测试：列出可能需要编辑此类的每个变更。如果列表中有来自不同领域的项目（例如 HTTP 解析和业务规则和格式化），则拆分它。如果所有变更都源于同一个领域关注点，则该类可能大小合适。
 
-**Injecting all dependencies through the constructor is producing constructors with 7+ parameters.**
-This is a sign of too many responsibilities in one class, not a problem with dependency injection. Split the class into smaller units first, then each constructor naturally becomes smaller.
+**通过构造函数注入所有依赖会产生 7+ 个参数的构造函数。**
+这是一个类中有太多职责的迹象，而不是依赖注入的问题。首先将类拆分为更小的单元，然后每个构造函数自然变小。
 
-**Composition is producing deeply nested wrapper objects that are hard to trace.**
-Keep the composition shallow (2-3 levels). If wrapping is the only mechanism, consider whether a Protocol-based approach or simple function composition would be cleaner than a chain of decorator objects.
+**组合产生难以跟踪的深层嵌套包装对象。**
+保持组合浅层（2-3 层）。如果包装是唯一的机制，考虑基于 Protocol 的方法或简单的函数组合是否比装饰器链更干净。
 
-**The rule of three says not to abstract yet, but the duplication is causing bugs when one copy is updated but not the other.**
-Duplication that diverges in dangerous ways should be abstracted sooner. The rule of three is a heuristic, not a law. If the copies are already diverging incorrectly, extract immediately and add a test that exercises the shared behavior.
+**三法则说还不要抽象，但当一份副本更新而另一份未更新时，重复会导致错误。**
+以危险方式分叉的重复应尽早抽象。三法则是启发式，不是法则。如果副本已经在错误地分叉，立即提取并添加一个测试共享行为的测试。
 
-**A service layer is importing from the API layer, breaking the dependency direction.**
-This is a layering violation. The service layer must not import from handlers. Introduce a shared types/models layer that both can import from, keeping the dependency arrow pointing downward (API → Service → Repository).
+**服务层从 API 层导入，破坏了依赖方向。**
+这是一个分层违规。服务层不得从处理程序导入。引入一个共享的类型/模型层，两者都可以从中导入，保持依赖箭头向下（API -> Service -> Repository）。
 
-## Related Skills
+## 相关技能
 
-- [python-testing-patterns](../python-testing-patterns/SKILL.md) — Test each layer in isolation using the dependency injection structure established here
-- [python-project-setup](../python-project-setup/SKILL.md) — Set up project structure and tooling that enforces layer boundaries from the start
+- [python-testing-patterns](../python-testing-patterns/SKILL.md) — 使用此处建立的依赖注入结构隔离测试每一层
+- [python-project-setup](../python-project-setup/SKILL.md) — 设置从一开始就强制分层边界的项目结构和工具

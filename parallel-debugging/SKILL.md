@@ -1,133 +1,133 @@
 ---
 name: parallel-debugging
-description: Debug complex issues using competing hypotheses with parallel investigation, evidence collection, and root cause arbitration. Use this skill when debugging bugs with multiple potential causes, performing root cause analysis, or organizing parallel investigation workflows.
+description: 使用竞争假设进行并行调查、证据收集和根因仲裁来调试复杂问题。在调试具有多个潜在原因的错误、执行根因分析或组织并行调查工作流时使用此技能。
 version: 1.0.2
 ---
 
-# Parallel Debugging
+# 并行调试
 
-Framework for debugging complex issues using the Analysis of Competing Hypotheses (ACH) methodology with parallel agent investigation.
+使用竞争假设分析（ACH）方法论和并行代理调查来调试复杂问题的框架。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Bug has multiple plausible root causes
-- Initial debugging attempts haven't identified the issue
-- Issue spans multiple modules or components
-- Need systematic root cause analysis with evidence
-- Want to avoid confirmation bias in debugging
+- 错误有多个合理的根因
+- 初步调试尝试未识别问题
+- 问题跨越多个模块或组件
+- 需要系统的根因分析和证据
+- 想要避免调试中的确认偏见
 
-## Hypothesis Generation Framework
+## 假设生成框架
 
-Generate hypotheses across 6 failure mode categories:
+在 6 个故障模式类别中生成假设：
 
-### 1. Logic Error
+### 1. 逻辑错误
 
-- Incorrect conditional logic (wrong operator, missing case)
-- Off-by-one errors in loops or array access
-- Missing edge case handling
-- Incorrect algorithm implementation
+- 不正确的条件逻辑（错误的运算符、遗漏的情况）
+- 循环或数组访问中的越界错误
+- 缺少边界情况处理
+- 算法实现不正确
 
-### 2. Data Issue
+### 2. 数据问题
 
-- Invalid or unexpected input data
-- Type mismatch or coercion error
-- Null/undefined/None where value expected
-- Encoding or serialization problem
-- Data truncation or overflow
+- 无效或意外的输入数据
+- 类型不匹配或强制转换错误
+- 期望值处出现 null/undefined/None
+- 编码或序列化问题
+- 数据截断或溢出
 
-### 3. State Problem
+### 3. 状态问题
 
-- Race condition between concurrent operations
-- Stale cache returning outdated data
-- Incorrect initialization or default values
-- Unintended mutation of shared state
-- State machine transition error
+- 并发操作之间的竞态条件
+- 过期缓存返回旧数据
+- 不正确的初始化或默认值
+- 共享状态的意外修改
+- 状态机转换错误
 
-### 4. Integration Failure
+### 4. 集成故障
 
-- API contract violation (request/response mismatch)
-- Version incompatibility between components
-- Configuration mismatch between environments
-- Missing or incorrect environment variables
-- Network timeout or connection failure
+- API 契约违反（请求/响应不匹配）
+- 组件之间的版本不兼容
+- 环境之间的配置不匹配
+- 缺少或不正确的环境变量
+- 网络超时或连接失败
 
-### 5. Resource Issue
+### 5. 资源问题
 
-- Memory leak causing gradual degradation
-- Connection pool exhaustion
-- File descriptor or handle leak
-- Disk space or quota exceeded
-- CPU saturation from inefficient processing
+- 内存泄漏导致逐渐退化
+- 连接池耗尽
+- 文件描述符或句柄泄漏
+- 磁盘空间或配额超出
+- 低效处理导致 CPU 饱和
 
-### 6. Environment
+### 6. 环境
 
-- Missing runtime dependency
-- Wrong library or framework version
-- Platform-specific behavior difference
-- Permission or access control issue
-- Timezone or locale-related behavior
+- 缺少运行时依赖
+- 错误的库或框架版本
+- 平台特定的行为差异
+- 权限或访问控制问题
+- 时区或区域设置相关行为
 
-## Evidence Collection Standards
+## 证据收集标准
 
-### What Constitutes Evidence
+### 什么构成证据
 
-| Evidence Type     | Strength | Example                                                         |
+| 证据类型 | 强度 | 示例 |
 | ----------------- | -------- | --------------------------------------------------------------- |
-| **Direct**        | Strong   | Code at `file.ts:42` shows `if (x > 0)` should be `if (x >= 0)` |
-| **Correlational** | Medium   | Error rate increased after commit `abc123`                      |
-| **Testimonial**   | Weak     | "It works on my machine"                                        |
-| **Absence**       | Variable | No null check found in the code path                            |
+| **直接** | 强 | `file.ts:42` 处的代码显示 `if (x > 0)` 应为 `if (x >= 0)` |
+| **相关** | 中 | 提交 `abc123` 后错误率增加 |
+| **证言** | 弱 | "在我的机器上可以工作" |
+| **缺失** | 可变 | 代码路径中未发现空值检查 |
 
-### Citation Format
+### 引用格式
 
-Always cite evidence with file:line references:
+始终使用 file:line 引用证据：
 
 ```
-**Evidence**: The validation function at `src/validators/user.ts:87`
-does not check for empty strings, only null/undefined. This allows
-empty email addresses to pass validation.
+**证据**：`src/validators/user.ts:87` 处的验证函数
+不检查空字符串，仅检查 null/undefined。这允许
+空电子邮件地址通过验证。
 ```
 
-### Confidence Levels
+### 置信度级别
 
-| Level               | Criteria                                                                            |
+| 级别 | 标准 |
 | ------------------- | ----------------------------------------------------------------------------------- |
-| **High (>80%)**     | Multiple direct evidence pieces, clear causal chain, no contradicting evidence      |
-| **Medium (50-80%)** | Some direct evidence, plausible causal chain, minor ambiguities                     |
-| **Low (<50%)**      | Mostly correlational evidence, incomplete causal chain, some contradicting evidence |
+| **高（>80%）** | 多个直接证据，清晰的因果链，无矛盾证据 |
+| **中（50-80%）** | 一些直接证据，合理的因果链，轻微歧义 |
+| **低（<50%）** | 主要是相关证据，不完整的因果链，一些矛盾证据 |
 
-## Result Arbitration Protocol
+## 结果仲裁协议
 
-After all investigators report:
+所有调查员报告后：
 
-### Step 1: Categorize Results
+### 步骤 1：分类结果
 
-- **Confirmed**: High confidence, strong evidence, clear causal chain
-- **Plausible**: Medium confidence, some evidence, reasonable causal chain
-- **Falsified**: Evidence contradicts the hypothesis
-- **Inconclusive**: Insufficient evidence to confirm or falsify
+- **已确认**：高置信度，强证据，清晰因果链
+- **合理**：中置信度，一些证据，合理因果链
+- **已证伪**：证据与假设矛盾
+- **不确定**：证据不足以确认或证伪
 
-### Step 2: Compare Confirmed Hypotheses
+### 步骤 2：比较已确认的假设
 
-If multiple hypotheses are confirmed, rank by:
+如果多个假设被确认，按以下排序：
 
-1. Confidence level
-2. Number of supporting evidence pieces
-3. Strength of causal chain
-4. Absence of contradicting evidence
+1. 置信度级别
+2. 支持证据数量
+3. 因果链强度
+4. 无矛盾证据
 
-### Step 3: Determine Root Cause
+### 步骤 3：确定根因
 
-- If one hypothesis clearly dominates: declare as root cause
-- If multiple hypotheses are equally likely: may be compound issue (multiple contributing causes)
-- If no hypotheses confirmed: generate new hypotheses based on evidence gathered
+- 如果一个假设明显占优：宣布为根因
+- 如果多个假设同样可能：可能是复合问题（多个促成原因）
+- 如果没有假设被确认：根据收集的证据生成新假设
 
-### Step 4: Validate Fix
+### 步骤 4：验证修复
 
-Before declaring the bug fixed:
+在宣布错误已修复之前：
 
-- [ ] Fix addresses the identified root cause
-- [ ] Fix doesn't introduce new issues
-- [ ] Original reproduction case no longer fails
-- [ ] Related edge cases are covered
-- [ ] Relevant tests are added or updated
+- [ ] 修复针对已识别的根因
+- [ ] 修复不会引入新问题
+- [ ] 原始复现用例不再失败
+- [ ] 相关边界情况已覆盖
+- [ ] 相关测试已添加或更新

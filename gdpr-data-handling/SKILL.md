@@ -1,72 +1,72 @@
 ---
 name: gdpr-data-handling
-description: Implement GDPR-compliant data handling with consent management, data subject rights, and privacy by design. Use when building systems that process EU personal data, implementing privacy controls, or conducting GDPR compliance reviews.
+description: 实现符合 GDPR 的数据处理，包括同意管理、数据主体权利和隐私设计。在构建处理欧盟个人数据的系统、实现隐私控制或进行 GDPR 合规审查时使用。
 ---
 
-# GDPR Data Handling
+# GDPR 数据处理
 
-Practical implementation guide for GDPR-compliant data processing, consent management, and privacy controls.
+符合 GDPR 的数据处理、同意管理和隐私控制的实用实现指南。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Building systems that process EU personal data
-- Implementing consent management
-- Handling data subject requests (DSRs)
-- Conducting GDPR compliance reviews
-- Designing privacy-first architectures
-- Creating data processing agreements
+- 构建处理欧盟个人数据的系统
+- 实现同意管理
+- 处理数据主体请求（DSR）
+- 进行 GDPR 合规审查
+- 设计隐私优先的架构
+- 创建数据处理协议
 
-## Core Concepts
+## 核心概念
 
-### 1. Personal Data Categories
+### 1. 个人数据类别
 
-| Category               | Examples                    | Protection Level   |
+| 类别               | 示例                    | 保护级别   |
 | ---------------------- | --------------------------- | ------------------ |
-| **Basic**              | Name, email, phone          | Standard           |
-| **Sensitive (Art. 9)** | Health, religion, ethnicity | Explicit consent   |
-| **Criminal (Art. 10)** | Convictions, offenses       | Official authority |
-| **Children's**         | Under 16 data               | Parental consent   |
+| **基本**              | 姓名、电子邮件、电话          | 标准           |
+| **敏感（第 9 条）** | 健康、宗教、种族 | 明确同意   |
+| **刑事（第 10 条）** | 定罪、违法行为       | 官方机构 |
+| **儿童**         | 16 岁以下数据               | 父母同意   |
 
-### 2. Legal Bases for Processing
-
-```
-Article 6 - Lawful Bases:
-├── Consent: Freely given, specific, informed
-├── Contract: Necessary for contract performance
-├── Legal Obligation: Required by law
-├── Vital Interests: Protecting someone's life
-├── Public Interest: Official functions
-└── Legitimate Interest: Balanced against rights
-```
-
-### 3. Data Subject Rights
+### 2. 处理的法律依据
 
 ```
-Right to Access (Art. 15)      ─┐
-Right to Rectification (Art. 16) │
-Right to Erasure (Art. 17)       │ Must respond
-Right to Restrict (Art. 18)      │ within 1 month
-Right to Portability (Art. 20)   │
-Right to Object (Art. 21)       ─┘
+第 6 条 - 合法依据：
+├── 同意：自由给予、具体、知情
+├── 合同：履行合同所必需
+├── 法律义务：法律要求
+├── 利益攸关：保护某人生命
+├── 公共利益：官方职能
+└── 正当利益：与权利平衡
 ```
 
-## Implementation Patterns
+### 3. 数据主体权利
 
-### Pattern 1: Consent Management
+```
+访问权（第 15 条）      ─┐
+更正权（第 16 条） │
+删除权（第 17 条）       │ 必须在 1 个月内
+限制权（第 18 条）      │ 响应
+可携权（第 20 条）   │
+反对权（第 21 条）       ─┘
+```
+
+## 实现模式
+
+### 模式 1：同意管理
 
 ```javascript
-// Consent data model
+// 同意数据模型
 const consentSchema = {
   userId: String,
   consents: [
     {
-      purpose: String, // 'marketing', 'analytics', etc.
+      purpose: String, // 'marketing', 'analytics' 等
       granted: Boolean,
       timestamp: Date,
-      source: String, // 'web_form', 'api', etc.
-      version: String, // Privacy policy version
-      ipAddress: String, // For proof
-      userAgent: String, // For proof
+      source: String, // 'web_form', 'api' 等
+      version: String, // 隐私政策版本
+      ipAddress: String, // 用于证明
+      userAgent: String, // 用于证明
     },
   ],
   auditLog: [
@@ -79,7 +79,7 @@ const consentSchema = {
   ],
 };
 
-// Consent service
+// 同意服务
 class ConsentManager {
   async recordConsent(userId, purpose, granted, metadata) {
     const consent = {
@@ -92,7 +92,7 @@ class ConsentManager {
       userAgent: metadata.userAgent,
     };
 
-    // Store consent
+    // 存储同意
     await this.db.consents.updateOne(
       { userId },
       {
@@ -109,7 +109,7 @@ class ConsentManager {
       { upsert: true },
     );
 
-    // Emit event for downstream systems
+    // 发出事件供下游系统使用
     await this.eventBus.emit("consent.changed", {
       userId,
       purpose,
@@ -137,57 +137,57 @@ class ConsentManager {
 ```
 
 ```html
-<!-- GDPR-compliant consent UI -->
+<!-- 符合 GDPR 的同意 UI -->
 <div class="consent-banner" role="dialog" aria-labelledby="consent-title">
-  <h2 id="consent-title">Cookie Preferences</h2>
+  <h2 id="consent-title">Cookie 偏好设置</h2>
 
   <p>
-    We use cookies to improve your experience. Select your preferences below.
+    我们使用 cookie 来改善您的体验。请在下方选择您的偏好。
   </p>
 
   <form id="consent-form">
-    <!-- Necessary - always on, no consent needed -->
+    <!-- 必要 - 始终开启，无需同意 -->
     <div class="consent-category">
       <input type="checkbox" id="necessary" checked disabled />
       <label for="necessary">
-        <strong>Necessary</strong>
-        <span>Required for the website to function. Cannot be disabled.</span>
+        <strong>必要</strong>
+        <span>网站运行所必需。无法禁用。</span>
       </label>
     </div>
 
-    <!-- Analytics - requires consent -->
+    <!-- 分析 - 需要同意 -->
     <div class="consent-category">
       <input type="checkbox" id="analytics" name="analytics" />
       <label for="analytics">
-        <strong>Analytics</strong>
-        <span>Help us understand how you use our site.</span>
+        <strong>分析</strong>
+        <span>帮助我们了解您如何使用我们的网站。</span>
       </label>
     </div>
 
-    <!-- Marketing - requires consent -->
+    <!-- 营销 - 需要同意 -->
     <div class="consent-category">
       <input type="checkbox" id="marketing" name="marketing" />
       <label for="marketing">
-        <strong>Marketing</strong>
-        <span>Personalized ads based on your interests.</span>
+        <strong>营销</strong>
+        <span>基于您兴趣的个性化广告。</span>
       </label>
     </div>
 
     <div class="consent-actions">
-      <button type="button" id="accept-all">Accept All</button>
-      <button type="button" id="reject-all">Reject All</button>
-      <button type="submit">Save Preferences</button>
+      <button type="button" id="accept-all">全部接受</button>
+      <button type="button" id="reject-all">全部拒绝</button>
+      <button type="submit">保存偏好</button>
     </div>
 
     <p class="consent-links">
-      <a href="/privacy-policy">Privacy Policy</a> |
-      <a href="/cookie-policy">Cookie Policy</a>
+      <a href="/privacy-policy">隐私政策</a> |
+      <a href="/cookie-policy">Cookie 政策</a>
     </p>
   </form>
 </div>
 ```
 
-### Pattern 2: Data Subject Access Request (DSAR)
+### 模式 2：数据主体访问请求（DSAR）
 
 ```python
 from datetime import datetime, timedelta
@@ -195,10 +195,10 @@ from typing import Dict, List, Optional
 import json
 
 class DSARHandler:
-    """Handle Data Subject Access Requests."""
+    """处理数据主体访问请求。"""
 
     RESPONSE_DEADLINE_DAYS = 30
-    EXTENSION_ALLOWED_DAYS = 60  # For complex requests
+    EXTENSION_ALLOWED_DAYS = 60  # 对于复杂请求
 
     def __init__(self, data_sources: List['DataSource']):
         self.data_sources = data_sources
@@ -210,7 +210,7 @@ class DSARHandler:
         verified: bool,
         details: Optional[Dict] = None
     ) -> str:
-        """Submit a new DSAR."""
+        """提交新的 DSAR。"""
         request = {
             'id': self.generate_request_id(),
             'type': request_type,
@@ -232,13 +232,13 @@ class DSARHandler:
         return request['id']
 
     async def process_access_request(self, request_id: str) -> Dict:
-        """Process a data access request."""
+        """处理数据访问请求。"""
         request = await self.get_request(request_id)
 
         if request['type'] != 'access':
             raise ValueError("Not an access request")
 
-        # Collect data from all sources
+        # 从所有来源收集数据
         user_data = {}
         for source in self.data_sources:
             try:
@@ -247,7 +247,7 @@ class DSARHandler:
             except Exception as e:
                 user_data[source.name] = {'error': str(e)}
 
-        # Format response
+        # 格式化响应
         response = {
             'request_id': request_id,
             'generated_at': datetime.utcnow().isoformat(),
@@ -258,13 +258,13 @@ class DSARHandler:
             'third_party_recipients': await self.get_recipients()
         }
 
-        # Update request status
+        # 更新请求状态
         await self.update_request(request_id, 'completed', response)
 
         return response
 
     async def process_erasure_request(self, request_id: str) -> Dict:
-        """Process a right to erasure request."""
+        """处理删除权请求。"""
         request = await self.get_request(request_id)
 
         if request['type'] != 'erasure':
@@ -275,7 +275,7 @@ class DSARHandler:
 
         for source in self.data_sources:
             try:
-                # Check for legal exceptions
+                # 检查法律例外
                 can_delete, reason = await source.can_delete(request['user_id'])
 
                 if can_delete:
@@ -284,7 +284,7 @@ class DSARHandler:
                 else:
                     exceptions.append({
                         'source': source.name,
-                        'reason': reason  # e.g., 'legal retention requirement'
+                        'reason': reason  # 例如 'legal retention requirement'
                     })
                     results[source.name] = f'retained: {reason}'
             except Exception as e:
@@ -302,11 +302,11 @@ class DSARHandler:
         return response
 
     async def process_portability_request(self, request_id: str) -> bytes:
-        """Generate portable data export."""
+        """生成可移植数据导出。"""
         request = await self.get_request(request_id)
         user_data = await self.process_access_request(request_id)
 
-        # Convert to machine-readable format (JSON)
+        # 转换为机器可读格式（JSON）
         portable_data = {
             'export_date': datetime.utcnow().isoformat(),
             'format_version': '1.0',
@@ -316,7 +316,7 @@ class DSARHandler:
         return json.dumps(portable_data, indent=2, default=str).encode()
 ```
 
-### Pattern 3: Data Retention
+### 模式 3：数据保留
 
 ```python
 from datetime import datetime, timedelta
@@ -329,24 +329,24 @@ class RetentionBasis(Enum):
     LEGITIMATE_INTEREST = "legitimate_interest"
 
 class DataRetentionPolicy:
-    """Define and enforce data retention policies."""
+    """定义和执行数据保留策略。"""
 
     POLICIES = {
         'user_account': {
-            'retention_period_days': 365 * 3,  # 3 years after last activity
+            'retention_period_days': 365 * 3,  # 最后活动后 3 年
             'basis': RetentionBasis.CONTRACT,
             'trigger': 'last_activity_date',
             'archive_before_delete': True
         },
         'transaction_records': {
-            'retention_period_days': 365 * 7,  # 7 years for tax
+            'retention_period_days': 365 * 7,  # 税务要求 7 年
             'basis': RetentionBasis.LEGAL_OBLIGATION,
             'trigger': 'transaction_date',
             'archive_before_delete': True,
             'legal_reference': 'Tax regulations require 7 year retention'
         },
         'marketing_consent': {
-            'retention_period_days': 365 * 2,  # 2 years
+            'retention_period_days': 365 * 2,  # 2 年
             'basis': RetentionBasis.CONSENT,
             'trigger': 'consent_date',
             'archive_before_delete': False
@@ -358,7 +358,7 @@ class DataRetentionPolicy:
             'archive_before_delete': True
         },
         'analytics_data': {
-            'retention_period_days': 365,  # 1 year
+            'retention_period_days': 365,  # 1 年
             'basis': RetentionBasis.CONSENT,
             'trigger': 'collection_date',
             'archive_before_delete': False,
@@ -367,7 +367,7 @@ class DataRetentionPolicy:
     }
 
     async def apply_retention_policies(self):
-        """Run retention policy enforcement."""
+        """运行保留策略执行。"""
         for data_type, policy in self.POLICIES.items():
             cutoff_date = datetime.utcnow() - timedelta(
                 days=policy['retention_period_days']
@@ -383,8 +383,8 @@ class DataRetentionPolicy:
             await self.log_retention_action(data_type, cutoff_date)
 
     async def anonymize_old_data(self, data_type: str, before_date: datetime):
-        """Anonymize data instead of deleting."""
-        # Example: Replace identifying fields with hashes
+        """匿名化数据而非删除。"""
+        # 示例：用哈希替换标识字段
         if data_type == 'analytics_data':
             await self.db.analytics.update_many(
                 {'collection_date': {'$lt': before_date}},
@@ -398,49 +398,49 @@ class DataRetentionPolicy:
             )
 ```
 
-### Pattern 4: Privacy by Design
+### 模式 4：隐私设计
 
 ```python
 class PrivacyFirstDataModel:
-    """Example of privacy-by-design data model."""
+    """隐私设计数据模型示例。"""
 
-    # Separate PII from behavioral data
+    # 将 PII 与行为数据分离
     user_profile_schema = {
-        'user_id': str,  # UUID, not sequential
-        'email_hash': str,  # Hashed for lookups
+        'user_id': str,  # UUID，非顺序
+        'email_hash': str,  # 用于查找的哈希
         'created_at': datetime,
-        # Minimal data collection
+        # 最小数据收集
         'preferences': {
             'language': str,
             'timezone': str
         }
     }
 
-    # Encrypted at rest
+    # 静态加密
     user_pii_schema = {
         'user_id': str,
-        'email': str,  # Encrypted
-        'name': str,   # Encrypted
-        'phone': str,  # Encrypted (optional)
-        'address': dict,  # Encrypted (optional)
+        'email': str,  # 加密
+        'name': str,   # 加密
+        'phone': str,  # 加密（可选）
+        'address': dict,  # 加密（可选）
         'encryption_key_id': str
     }
 
-    # Pseudonymized behavioral data
+    # 假名化行为数据
     analytics_schema = {
-        'session_id': str,  # Not linked to user_id
-        'pseudonym_id': str,  # Rotating pseudonym
+        'session_id': str,  # 不与 user_id 关联
+        'pseudonym_id': str,  # 轮换假名
         'events': list,
-        'device_category': str,  # Generalized, not specific
-        'country': str,  # Not city-level
+        'device_category': str,  # 泛化，非具体
+        'country': str,  # 非城市级别
     }
 
 class DataMinimization:
-    """Implement data minimization principles."""
+    """实现数据最小化原则。"""
 
     @staticmethod
     def collect_only_needed(form_data: dict, purpose: str) -> dict:
-        """Filter form data to only fields needed for purpose."""
+        """过滤表单数据，仅保留目的所需的字段。"""
         REQUIRED_FIELDS = {
             'account_creation': ['email', 'password'],
             'newsletter': ['email'],
@@ -453,7 +453,7 @@ class DataMinimization:
 
     @staticmethod
     def generalize_location(ip_address: str) -> str:
-        """Generalize IP to country level only."""
+        """将 IP 泛化为国家级别。"""
         import geoip2.database
         reader = geoip2.database.Reader('GeoLite2-Country.mmdb')
         try:
@@ -463,7 +463,7 @@ class DataMinimization:
             return 'UNKNOWN'
 ```
 
-### Pattern 5: Breach Notification
+### 模式 5：泄露通知
 
 ```python
 from datetime import datetime
@@ -476,7 +476,7 @@ class BreachSeverity(Enum):
     CRITICAL = "critical"
 
 class BreachNotificationHandler:
-    """Handle GDPR breach notification requirements."""
+    """处理 GDPR 泄露通知要求。"""
 
     AUTHORITY_NOTIFICATION_HOURS = 72
     AFFECTED_NOTIFICATION_REQUIRED_SEVERITY = BreachSeverity.HIGH
@@ -488,7 +488,7 @@ class BreachNotificationHandler:
         affected_count: int,
         severity: BreachSeverity
     ) -> dict:
-        """Report and handle a data breach."""
+        """报告和处理数据泄露。"""
         breach = {
             'id': self.generate_breach_id(),
             'reported_at': datetime.utcnow(),
@@ -506,18 +506,18 @@ class BreachNotificationHandler:
 
         await self.db.breaches.insert_one(breach)
 
-        # Immediate notifications
+        # 立即通知
         await self.notify_dpo(breach)
         await self.notify_security_team(breach)
 
-        # Authority notification required within 72 hours
+        # 必须在 72 小时内通知监管机构
         if self.requires_authority_notification(severity, data_types):
             breach['authority_notification_deadline'] = (
                 datetime.utcnow() + timedelta(hours=self.AUTHORITY_NOTIFICATION_HOURS)
             )
             await self.schedule_authority_notification(breach)
 
-        # Affected individuals notification
+        # 受影响个人通知
         if severity.value in [BreachSeverity.HIGH.value, BreachSeverity.CRITICAL.value]:
             await self.schedule_individual_notifications(breach)
 
@@ -528,17 +528,17 @@ class BreachNotificationHandler:
         severity: BreachSeverity,
         data_types: List[str]
     ) -> bool:
-        """Determine if supervisory authority must be notified."""
-        # Always notify for sensitive data
+        """确定是否必须通知监管机构。"""
+        # 对敏感数据始终通知
         sensitive_types = ['health', 'financial', 'credentials', 'biometric']
         if any(t in sensitive_types for t in data_types):
             return True
 
-        # Notify for medium+ severity
+        # 中等及以上严重性通知
         return severity in [BreachSeverity.MEDIUM, BreachSeverity.HIGH, BreachSeverity.CRITICAL]
 
     async def generate_authority_report(self, breach_id: str) -> dict:
-        """Generate report for supervisory authority."""
+        """生成监管机构报告。"""
         breach = await self.get_breach(breach_id)
 
         return {
@@ -560,65 +560,65 @@ class BreachNotificationHandler:
         }
 ```
 
-## Compliance Checklist
+## 合规检查清单
 
 ```markdown
-## GDPR Implementation Checklist
+## GDPR 实施检查清单
 
-### Legal Basis
+### 法律依据
 
-- [ ] Documented legal basis for each processing activity
-- [ ] Consent mechanisms meet GDPR requirements
-- [ ] Legitimate interest assessments completed
+- [ ] 每个处理活动都有记录的法律依据
+- [ ] 同意机制符合 GDPR 要求
+- [ ] 正当利益评估已完成
 
-### Transparency
+### 透明度
 
-- [ ] Privacy policy is clear and accessible
-- [ ] Processing purposes clearly stated
-- [ ] Data retention periods documented
+- [ ] 隐私政策清晰且可访问
+- [ ] 处理目的明确说明
+- [ ] 数据保留期限已记录
 
-### Data Subject Rights
+### 数据主体权利
 
-- [ ] Access request process implemented
-- [ ] Erasure request process implemented
-- [ ] Portability export available
-- [ ] Rectification process available
-- [ ] Response within 30-day deadline
+- [ ] 访问请求流程已实现
+- [ ] 删除请求流程已实现
+- [ ] 可携性导出可用
+- [ ] 更正流程可用
+- [ ] 在 30 天截止日期内响应
 
-### Security
+### 安全
 
-- [ ] Encryption at rest implemented
-- [ ] Encryption in transit (TLS)
-- [ ] Access controls in place
-- [ ] Audit logging enabled
+- [ ] 静态加密已实现
+- [ ] 传输加密（TLS）
+- [ ] 访问控制已到位
+- [ ] 审计日志已启用
 
-### Breach Response
+### 泄露响应
 
-- [ ] Breach detection mechanisms
-- [ ] 72-hour notification process
-- [ ] Breach documentation system
+- [ ] 泄露检测机制
+- [ ] 72 小时通知流程
+- [ ] 泄露文档系统
 
-### Documentation
+### 文档
 
-- [ ] Records of processing activities (Art. 30)
-- [ ] Data protection impact assessments
-- [ ] Data processing agreements with vendors
+- [ ] 处理活动记录（第 30 条）
+- [ ] 数据保护影响评估
+- [ ] 与供应商的数据处理协议
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该做
 
-- **Minimize data collection** - Only collect what's needed
-- **Document everything** - Processing activities, legal bases
-- **Encrypt PII** - At rest and in transit
-- **Implement access controls** - Need-to-know basis
-- **Regular audits** - Verify compliance continuously
+- **最小化数据收集** - 仅收集所需数据
+- **记录一切** - 处理活动、法律依据
+- **加密 PII** - 静态和传输中
+- **实现访问控制** - 基于需要知道的原则
+- **定期审计** - 持续验证合规性
 
-### Don'ts
+### 不应该做
 
-- **Don't pre-check consent boxes** - Must be opt-in
-- **Don't bundle consent** - Separate purposes separately
-- **Don't retain indefinitely** - Define and enforce retention
-- **Don't ignore DSARs** - 30-day response required
-- **Don't transfer without safeguards** - SCCs or adequacy decisions
+- **不要预选同意框** - 必须是选择加入
+- **不要捆绑同意** - 单独分隔各目的
+- **不要无限期保留** - 定义并执行保留
+- **不要忽视 DSAR** - 需要 30 天内响应
+- **不要在没有保障的情况下传输** - 标准合同条款或充分性决定

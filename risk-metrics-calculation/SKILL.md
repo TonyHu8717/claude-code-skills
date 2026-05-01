@@ -1,45 +1,45 @@
 ---
 name: risk-metrics-calculation
-description: Calculate portfolio risk metrics including VaR, CVaR, Sharpe, Sortino, and drawdown analysis. Use when measuring portfolio risk, implementing risk limits, or building risk monitoring systems.
+description: 计算投资组合风险指标，包括 VaR、CVaR、Sharpe、Sortino 和回撤分析。在衡量投资组合风险、实施风险限制或构建风险监控系统时使用。
 ---
 
-# Risk Metrics Calculation
+# 风险指标计算
 
-Comprehensive risk measurement toolkit for portfolio management, including Value at Risk, Expected Shortfall, and drawdown analysis.
+投资组合管理的综合风险度量工具包，包括风险价值、预期损失和回撤分析。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Measuring portfolio risk
-- Implementing risk limits
-- Building risk dashboards
-- Calculating risk-adjusted returns
-- Setting position sizes
-- Regulatory reporting
+- 衡量投资组合风险
+- 实施风险限制
+- 构建风险仪表板
+- 计算风险调整后收益
+- 设置头寸规模
+- 监管报告
 
-## Core Concepts
+## 核心概念
 
-### 1. Risk Metric Categories
+### 1. 风险指标类别
 
-| Category          | Metrics         | Use Case             |
-| ----------------- | --------------- | -------------------- |
-| **Volatility**    | Std Dev, Beta   | General risk         |
-| **Tail Risk**     | VaR, CVaR       | Extreme losses       |
-| **Drawdown**      | Max DD, Calmar  | Capital preservation |
-| **Risk-Adjusted** | Sharpe, Sortino | Performance          |
+| 类别          | 指标         | 用例             |
+| ------------- | ------------ | -------------------- |
+| **波动率**    | 标准差、Beta   | 一般风险         |
+| **尾部风险**     | VaR、CVaR       | 极端损失       |
+| **回撤**      | 最大回撤、Calmar  | 资本保全 |
+| **风险调整** | Sharpe、Sortino | 绩效          |
 
-### 2. Time Horizons
+### 2. 时间范围
 
 ```
-Intraday:   Minute/hourly VaR for day traders
-Daily:      Standard risk reporting
-Weekly:     Rebalancing decisions
-Monthly:    Performance attribution
-Annual:     Strategic allocation
+日内：   日内交易者的分钟/小时级 VaR
+日度：      标准风险报告
+周度：     再平衡决策
+月度：    绩效归因
+年度：     战略配置
 ```
 
-## Implementation
+## 实现
 
-### Pattern 1: Core Risk Metrics
+### 模式 1：核心风险指标
 
 ```python
 import numpy as np
@@ -48,28 +48,28 @@ from scipy import stats
 from typing import Dict, Optional, Tuple
 
 class RiskMetrics:
-    """Core risk metric calculations."""
+    """核心风险指标计算。"""
 
     def __init__(self, returns: pd.Series, rf_rate: float = 0.02):
         """
-        Args:
-            returns: Series of periodic returns
-            rf_rate: Annual risk-free rate
+        参数：
+            returns: 周期收益序列
+            rf_rate: 年化无风险利率
         """
         self.returns = returns
         self.rf_rate = rf_rate
-        self.ann_factor = 252  # Trading days per year
+        self.ann_factor = 252  # 每年交易日
 
-    # Volatility Metrics
+    # 波动率指标
     def volatility(self, annualized: bool = True) -> float:
-        """Standard deviation of returns."""
+        """收益的标准差。"""
         vol = self.returns.std()
         if annualized:
             vol *= np.sqrt(self.ann_factor)
         return vol
 
     def downside_deviation(self, threshold: float = 0, annualized: bool = True) -> float:
-        """Standard deviation of returns below threshold."""
+        """低于阈值的收益标准差。"""
         downside = self.returns[self.returns < threshold]
         if len(downside) == 0:
             return 0.0
@@ -79,64 +79,64 @@ class RiskMetrics:
         return dd
 
     def beta(self, market_returns: pd.Series) -> float:
-        """Beta relative to market."""
+        """相对于市场的 Beta。"""
         aligned = pd.concat([self.returns, market_returns], axis=1).dropna()
         if len(aligned) < 2:
             return np.nan
         cov = np.cov(aligned.iloc[:, 0], aligned.iloc[:, 1])
         return cov[0, 1] / cov[1, 1] if cov[1, 1] != 0 else 0
 
-    # Value at Risk
+    # 风险价值
     def var_historical(self, confidence: float = 0.95) -> float:
-        """Historical VaR at confidence level."""
+        """置信水平下的历史 VaR。"""
         return -np.percentile(self.returns, (1 - confidence) * 100)
 
     def var_parametric(self, confidence: float = 0.95) -> float:
-        """Parametric VaR assuming normal distribution."""
+        """假设正态分布的参数 VaR。"""
         z_score = stats.norm.ppf(confidence)
         return self.returns.mean() - z_score * self.returns.std()
 
     def var_cornish_fisher(self, confidence: float = 0.95) -> float:
-        """VaR with Cornish-Fisher expansion for non-normality."""
+        """使用 Cornish-Fisher 展开处理非正态性的 VaR。"""
         z = stats.norm.ppf(confidence)
-        s = stats.skew(self.returns)  # Skewness
-        k = stats.kurtosis(self.returns)  # Excess kurtosis
+        s = stats.skew(self.returns)  # 偏度
+        k = stats.kurtosis(self.returns)  # 超额峰度
 
-        # Cornish-Fisher expansion
+        # Cornish-Fisher 展开
         z_cf = (z + (z**2 - 1) * s / 6 +
                 (z**3 - 3*z) * k / 24 -
                 (2*z**3 - 5*z) * s**2 / 36)
 
         return -(self.returns.mean() + z_cf * self.returns.std())
 
-    # Conditional VaR (Expected Shortfall)
+    # 条件 VaR（预期损失）
     def cvar(self, confidence: float = 0.95) -> float:
-        """Expected Shortfall / CVaR / Average VaR."""
+        """预期损失 / CVaR / 平均 VaR。"""
         var = self.var_historical(confidence)
         return -self.returns[self.returns <= -var].mean()
 
-    # Drawdown Analysis
+    # 回撤分析
     def drawdowns(self) -> pd.Series:
-        """Calculate drawdown series."""
+        """计算回撤序列。"""
         cumulative = (1 + self.returns).cumprod()
         running_max = cumulative.cummax()
         return (cumulative - running_max) / running_max
 
     def max_drawdown(self) -> float:
-        """Maximum drawdown."""
+        """最大回撤。"""
         return self.drawdowns().min()
 
     def avg_drawdown(self) -> float:
-        """Average drawdown."""
+        """平均回撤。"""
         dd = self.drawdowns()
         return dd[dd < 0].mean() if (dd < 0).any() else 0
 
     def drawdown_duration(self) -> Dict[str, int]:
-        """Drawdown duration statistics."""
+        """回撤持续时间统计。"""
         dd = self.drawdowns()
         in_drawdown = dd < 0
 
-        # Find drawdown periods
+        # 查找回撤期间
         drawdown_starts = in_drawdown & ~in_drawdown.shift(1).fillna(False)
         drawdown_ends = ~in_drawdown & in_drawdown.shift(1).fillna(False)
 
@@ -159,27 +159,27 @@ class RiskMetrics:
             "current_duration": current_duration
         }
 
-    # Risk-Adjusted Returns
+    # 风险调整后收益
     def sharpe_ratio(self) -> float:
-        """Annualized Sharpe ratio."""
+        """年化 Sharpe 比率。"""
         excess_return = self.returns.mean() * self.ann_factor - self.rf_rate
         vol = self.volatility(annualized=True)
         return excess_return / vol if vol > 0 else 0
 
     def sortino_ratio(self) -> float:
-        """Sortino ratio using downside deviation."""
+        """使用下行偏差的 Sortino 比率。"""
         excess_return = self.returns.mean() * self.ann_factor - self.rf_rate
         dd = self.downside_deviation(threshold=0, annualized=True)
         return excess_return / dd if dd > 0 else 0
 
     def calmar_ratio(self) -> float:
-        """Calmar ratio (return / max drawdown)."""
+        """Calmar 比率（收益/最大回撤）。"""
         annual_return = (1 + self.returns).prod() ** (self.ann_factor / len(self.returns)) - 1
         max_dd = abs(self.max_drawdown())
         return annual_return / max_dd if max_dd > 0 else 0
 
     def omega_ratio(self, threshold: float = 0) -> float:
-        """Omega ratio."""
+        """Omega 比率。"""
         returns_above = self.returns[self.returns > threshold] - threshold
         returns_below = threshold - self.returns[self.returns <= threshold]
 
@@ -188,55 +188,55 @@ class RiskMetrics:
 
         return returns_above.sum() / returns_below.sum()
 
-    # Information Ratio
+    # 信息比率
     def information_ratio(self, benchmark_returns: pd.Series) -> float:
-        """Information ratio vs benchmark."""
+        """相对于基准的信息比率。"""
         active_returns = self.returns - benchmark_returns
         tracking_error = active_returns.std() * np.sqrt(self.ann_factor)
         active_return = active_returns.mean() * self.ann_factor
         return active_return / tracking_error if tracking_error > 0 else 0
 
-    # Summary
+    # 摘要
     def summary(self) -> Dict[str, float]:
-        """Generate comprehensive risk summary."""
+        """生成综合风险摘要。"""
         dd_stats = self.drawdown_duration()
 
         return {
-            # Returns
+            # 收益
             "total_return": (1 + self.returns).prod() - 1,
             "annual_return": (1 + self.returns).prod() ** (self.ann_factor / len(self.returns)) - 1,
 
-            # Volatility
+            # 波动率
             "annual_volatility": self.volatility(),
             "downside_deviation": self.downside_deviation(),
 
-            # VaR & CVaR
+            # VaR 和 CVaR
             "var_95_historical": self.var_historical(0.95),
             "var_99_historical": self.var_historical(0.99),
             "cvar_95": self.cvar(0.95),
 
-            # Drawdowns
+            # 回撤
             "max_drawdown": self.max_drawdown(),
             "avg_drawdown": self.avg_drawdown(),
             "max_drawdown_duration": dd_stats["max_duration"],
 
-            # Risk-Adjusted
+            # 风险调整
             "sharpe_ratio": self.sharpe_ratio(),
             "sortino_ratio": self.sortino_ratio(),
             "calmar_ratio": self.calmar_ratio(),
             "omega_ratio": self.omega_ratio(),
 
-            # Distribution
+            # 分布
             "skewness": stats.skew(self.returns),
             "kurtosis": stats.kurtosis(self.returns),
         }
 ```
 
-### Pattern 2: Portfolio Risk
+### 模式 2：投资组合风险
 
 ```python
 class PortfolioRisk:
-    """Portfolio-level risk calculations."""
+    """投资组合层面的风险计算。"""
 
     def __init__(
         self,
@@ -244,9 +244,9 @@ class PortfolioRisk:
         weights: Optional[pd.Series] = None
     ):
         """
-        Args:
-            returns: DataFrame with asset returns (columns = assets)
-            weights: Portfolio weights (default: equal weight)
+        参数：
+            returns: 资产收益 DataFrame（列 = 资产）
+            weights: 投资组合权重（默认：等权）
         """
         self.returns = returns
         self.weights = weights if weights is not None else \
@@ -254,31 +254,31 @@ class PortfolioRisk:
         self.ann_factor = 252
 
     def portfolio_return(self) -> float:
-        """Weighted portfolio return."""
+        """加权投资组合收益。"""
         return (self.returns @ self.weights).mean() * self.ann_factor
 
     def portfolio_volatility(self) -> float:
-        """Portfolio volatility."""
+        """投资组合波动率。"""
         cov_matrix = self.returns.cov() * self.ann_factor
         port_var = self.weights @ cov_matrix @ self.weights
         return np.sqrt(port_var)
 
     def marginal_risk_contribution(self) -> pd.Series:
-        """Marginal contribution to risk by asset."""
+        """各资产的边际风险贡献。"""
         cov_matrix = self.returns.cov() * self.ann_factor
         port_vol = self.portfolio_volatility()
 
-        # Marginal contribution
+        # 边际贡献
         mrc = (cov_matrix @ self.weights) / port_vol
         return mrc
 
     def component_risk(self) -> pd.Series:
-        """Component contribution to total risk."""
+        """各成分对总风险的贡献。"""
         mrc = self.marginal_risk_contribution()
         return self.weights * mrc
 
     def risk_parity_weights(self, target_vol: float = None) -> pd.Series:
-        """Calculate risk parity weights."""
+        """计算风险平价权重。"""
         from scipy.optimize import minimize
 
         n = len(self.returns.columns)
@@ -288,13 +288,13 @@ class PortfolioRisk:
             port_vol = np.sqrt(weights @ cov_matrix @ weights)
             mrc = (cov_matrix @ weights) / port_vol
             rc = weights * mrc
-            target_rc = port_vol / n  # Equal risk contribution
+            target_rc = port_vol / n  # 等风险贡献
             return np.sum((rc - target_rc) ** 2)
 
         constraints = [
-            {"type": "eq", "fun": lambda w: np.sum(w) - 1},  # Weights sum to 1
+            {"type": "eq", "fun": lambda w: np.sum(w) - 1},  # 权重之和为 1
         ]
-        bounds = [(0.01, 1.0) for _ in range(n)]  # Min 1%, max 100%
+        bounds = [(0.01, 1.0) for _ in range(n)]  # 最小 1%，最大 100%
         x0 = np.array([1/n] * n)
 
         result = minimize(
@@ -308,18 +308,18 @@ class PortfolioRisk:
         return pd.Series(result.x, index=self.returns.columns)
 
     def correlation_matrix(self) -> pd.DataFrame:
-        """Asset correlation matrix."""
+        """资产相关性矩阵。"""
         return self.returns.corr()
 
     def diversification_ratio(self) -> float:
-        """Diversification ratio (higher = more diversified)."""
+        """分散化比率（越高 = 越分散）。"""
         asset_vols = self.returns.std() * np.sqrt(self.ann_factor)
         weighted_vol = (self.weights * asset_vols).sum()
         port_vol = self.portfolio_volatility()
         return weighted_vol / port_vol if port_vol > 0 else 1
 
     def tracking_error(self, benchmark_returns: pd.Series) -> float:
-        """Tracking error vs benchmark."""
+        """相对于基准的跟踪误差。"""
         port_returns = self.returns @ self.weights
         active_returns = port_returns - benchmark_returns
         return active_returns.std() * np.sqrt(self.ann_factor)
@@ -328,50 +328,50 @@ class PortfolioRisk:
         self,
         threshold_percentile: float = 10
     ) -> pd.DataFrame:
-        """Correlation during stress periods."""
+        """压力期间的相关性。"""
         port_returns = self.returns @ self.weights
         threshold = np.percentile(port_returns, threshold_percentile)
         stress_mask = port_returns <= threshold
         return self.returns[stress_mask].corr()
 ```
 
-### Pattern 3: Rolling Risk Metrics
+### 模式 3：滚动风险指标
 
 ```python
 class RollingRiskMetrics:
-    """Rolling window risk calculations."""
+    """滚动窗口风险计算。"""
 
     def __init__(self, returns: pd.Series, window: int = 63):
         """
-        Args:
-            returns: Return series
-            window: Rolling window size (default: 63 = ~3 months)
+        参数：
+            returns: 收益序列
+            window: 滚动窗口大小（默认：63 = 约 3 个月）
         """
         self.returns = returns
         self.window = window
 
     def rolling_volatility(self, annualized: bool = True) -> pd.Series:
-        """Rolling volatility."""
+        """滚动波动率。"""
         vol = self.returns.rolling(self.window).std()
         if annualized:
             vol *= np.sqrt(252)
         return vol
 
     def rolling_sharpe(self, rf_rate: float = 0.02) -> pd.Series:
-        """Rolling Sharpe ratio."""
+        """滚动 Sharpe 比率。"""
         rolling_return = self.returns.rolling(self.window).mean() * 252
         rolling_vol = self.rolling_volatility()
         return (rolling_return - rf_rate) / rolling_vol
 
     def rolling_var(self, confidence: float = 0.95) -> pd.Series:
-        """Rolling historical VaR."""
+        """滚动历史 VaR。"""
         return self.returns.rolling(self.window).apply(
             lambda x: -np.percentile(x, (1 - confidence) * 100),
             raw=True
         )
 
     def rolling_max_drawdown(self) -> pd.Series:
-        """Rolling maximum drawdown."""
+        """滚动最大回撤。"""
         def max_dd(returns):
             cumulative = (1 + returns).cumprod()
             running_max = cumulative.cummax()
@@ -381,7 +381,7 @@ class RollingRiskMetrics:
         return self.returns.rolling(self.window).apply(max_dd, raw=False)
 
     def rolling_beta(self, market_returns: pd.Series) -> pd.Series:
-        """Rolling beta vs market."""
+        """相对于市场的滚动 Beta。"""
         def calc_beta(window_data):
             port_ret = window_data.iloc[:, 0]
             mkt_ret = window_data.iloc[:, 1]
@@ -399,7 +399,7 @@ class RollingRiskMetrics:
         low_threshold: float = 0.10,
         high_threshold: float = 0.20
     ) -> pd.Series:
-        """Classify volatility regime."""
+        """分类波动率状态。"""
         vol = self.rolling_volatility()
 
         def classify(v):
@@ -413,13 +413,13 @@ class RollingRiskMetrics:
         return vol.apply(classify)
 ```
 
-### Pattern 4: Stress Testing
+### 模式 4：压力测试
 
 ```python
 class StressTester:
-    """Historical and hypothetical stress testing."""
+    """历史和假设压力测试。"""
 
-    # Historical crisis periods
+    # 历史危机期间
     HISTORICAL_SCENARIOS = {
         "2008_financial_crisis": ("2008-09-01", "2009-03-31"),
         "2020_covid_crash": ("2020-02-19", "2020-03-23"),
@@ -437,13 +437,13 @@ class StressTester:
         scenario_name: str,
         historical_data: pd.DataFrame
     ) -> Dict[str, float]:
-        """Test portfolio against historical crisis period."""
+        """针对历史危机期间测试投资组合。"""
         if scenario_name not in self.HISTORICAL_SCENARIOS:
             raise ValueError(f"Unknown scenario: {scenario_name}")
 
         start, end = self.HISTORICAL_SCENARIOS[scenario_name]
 
-        # Get returns during crisis
+        # 获取危机期间的收益
         crisis_returns = historical_data.loc[start:end]
 
         if self.weights is not None:
@@ -469,10 +469,10 @@ class StressTester:
         shocks: Dict[str, float]
     ) -> float:
         """
-        Test portfolio against hypothetical shocks.
+        针对假设冲击测试投资组合。
 
-        Args:
-            shocks: Dict of {asset: shock_return}
+        参数：
+            shocks: {资产: 冲击收益} 字典
         """
         if self.weights is None:
             raise ValueError("Weights required for hypothetical stress test")
@@ -490,7 +490,7 @@ class StressTester:
         horizon_days: int = 21,
         vol_multiplier: float = 2.0
     ) -> Dict[str, float]:
-        """Monte Carlo stress test with elevated volatility."""
+        """蒙特卡洛压力测试，使用提高的波动率。"""
         mean = self.returns.mean()
         vol = self.returns.std() * vol_multiplier
 
@@ -517,35 +517,35 @@ class StressTester:
         return drawdowns.min()
 ```
 
-## Quick Reference
+## 快速参考
 
 ```python
-# Daily usage
+# 日常用法
 metrics = RiskMetrics(returns)
 print(f"Sharpe: {metrics.sharpe_ratio():.2f}")
 print(f"Max DD: {metrics.max_drawdown():.2%}")
 print(f"VaR 95%: {metrics.var_historical(0.95):.2%}")
 
-# Full summary
+# 完整摘要
 summary = metrics.summary()
 for metric, value in summary.items():
     print(f"{metric}: {value:.4f}")
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该做的
 
-- **Use multiple metrics** - No single metric captures all risk
-- **Consider tail risk** - VaR isn't enough, use CVaR
-- **Rolling analysis** - Risk changes over time
-- **Stress test** - Historical and hypothetical
-- **Document assumptions** - Distribution, lookback, etc.
+- **使用多个指标** - 没有单一指标能捕捉所有风险
+- **考虑尾部风险** - VaR 不够，使用 CVaR
+- **滚动分析** - 风险随时间变化
+- **压力测试** - 历史和假设的
+- **记录假设** - 分布、回溯期等
 
-### Don'ts
+### 不应该做的
 
-- **Don't rely on VaR alone** - Underestimates tail risk
-- **Don't assume normality** - Returns are fat-tailed
-- **Don't ignore correlation** - Increases in stress
-- **Don't use short lookbacks** - Miss regime changes
-- **Don't forget transaction costs** - Affects realized risk
+- **不要仅依赖 VaR** - 低估尾部风险
+- **不要假设正态性** - 收益具有厚尾
+- **不要忽略相关性** - 压力期间会增加
+- **不要使用短回溯期** - 会错过状态变化
+- **不要忘记交易成本** - 影响实际风险

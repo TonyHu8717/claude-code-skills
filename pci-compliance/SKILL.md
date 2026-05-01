@@ -1,62 +1,62 @@
 ---
 name: pci-compliance
-description: Implement PCI DSS compliance requirements for secure handling of payment card data and payment systems. Use when securing payment processing, achieving PCI compliance, or implementing payment card security measures.
+description: 实现 PCI DSS 合规要求，用于安全处理支付卡数据和支付系统。在保护支付处理、实现 PCI 合规或实施支付卡安全措施时使用。
 ---
 
-# PCI Compliance
+# PCI 合规
 
-Master PCI DSS (Payment Card Industry Data Security Standard) compliance for secure payment processing and handling of cardholder data.
+掌握 PCI DSS（支付卡行业数据安全标准）合规，用于安全支付处理和持卡人数据处理。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Building payment processing systems
-- Handling credit card information
-- Implementing secure payment flows
-- Conducting PCI compliance audits
-- Reducing PCI compliance scope
-- Implementing tokenization and encryption
-- Preparing for PCI DSS assessments
+- 构建支付处理系统
+- 处理信用卡信息
+- 实现安全支付流程
+- 进行 PCI 合规审计
+- 减少 PCI 合规范围
+- 实现令牌化和加密
+- 准备 PCI DSS 评估
 
-## PCI DSS Requirements (12 Core Requirements)
+## PCI DSS 要求（12 项核心要求）
 
-### Build and Maintain Secure Network
+### 构建和维护安全网络
 
-1. Install and maintain firewall configuration
-2. Don't use vendor-supplied defaults for passwords
+1. 安装和维护防火墙配置
+2. 不要使用供应商提供的默认密码
 
-### Protect Cardholder Data
+### 保护持卡人数据
 
-3. Protect stored cardholder data
-4. Encrypt transmission of cardholder data across public networks
+3. 保护存储的持卡人数据
+4. 加密公共网络上的持卡人数据传输
 
-### Maintain Vulnerability Management
+### 维护漏洞管理
 
-5. Protect systems against malware
-6. Develop and maintain secure systems and applications
+5. 保护系统免受恶意软件侵害
+6. 开发和维护安全的系统和应用程序
 
-### Implement Strong Access Control
+### 实施强访问控制
 
-7. Restrict access to cardholder data by business need-to-know
-8. Identify and authenticate access to system components
-9. Restrict physical access to cardholder data
+7. 按业务需求限制对持卡人数据的访问
+8. 识别和验证对系统组件的访问
+9. 限制对持卡人数据的物理访问
 
-### Monitor and Test Networks
+### 监控和测试网络
 
-10. Track and monitor all access to network resources and cardholder data
-11. Regularly test security systems and processes
+10. 跟踪和监控对网络资源和持卡人数据的所有访问
+11. 定期测试安全系统和流程
 
-### Maintain Information Security Policy
+### 维护信息安全策略
 
-12. Maintain a policy that addresses information security
+12. 维护解决信息安全的策略
 
-## Compliance Levels
+## 合规级别
 
-**Level 1**: > 6 million transactions/year (annual ROC required)
-**Level 2**: 1-6 million transactions/year (annual SAQ)
-**Level 3**: 20,000-1 million e-commerce transactions/year
-**Level 4**: < 20,000 e-commerce or < 1 million total transactions
+**级别 1**：每年 > 600 万笔交易（需要年度 ROC）
+**级别 2**：每年 100-600 万笔交易（年度 SAQ）
+**级别 3**：每年 20,000-100 万笔电子商务交易
+**级别 4**：每年 < 20,000 笔电子商务或 < 100 万笔总交易
 
-## Data Minimization (Never Store)
+## 数据最小化（绝不存储）
 
 ```python
 # NEVER STORE THESE
@@ -102,9 +102,9 @@ class PaymentData:
                 raise SecurityError(f"Attempting to store prohibited field: {field}")
 ```
 
-## Tokenization
+## 令牌化
 
-### Using Payment Processor Tokens
+### 使用支付处理器令牌
 
 ```python
 import stripe
@@ -167,7 +167,7 @@ class TokenizedPayment:
         }
 ```
 
-### Custom Tokenization (Advanced)
+### 自定义令牌化（高级）
 
 ```python
 import secrets
@@ -208,9 +208,9 @@ class TokenVault:
         self.vault.pop(token, None)
 ```
 
-## Encryption
+## 加密
 
-### Data at Rest
+### 静态数据
 
 ```python
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
@@ -253,7 +253,7 @@ encrypted_pan = storage.encrypt("4242424242424242")
 # Store encrypted_pan in database
 ```
 
-### Data in Transit
+### 传输中数据
 
 ```python
 # Always use TLS 1.2 or higher
@@ -267,7 +267,7 @@ from flask_talisman import Talisman
 Talisman(app, force_https=True)
 ```
 
-## Access Control
+## 访问控制
 
 ```python
 from functools import wraps
@@ -302,7 +302,7 @@ def get_payment_methods():
     pass
 ```
 
-## Audit Logging
+## 审计日志
 
 ```python
 import logging
@@ -346,9 +346,9 @@ audit = PCIAuditLogger()
 audit.log_access(user_id=123, resource='payment_methods', action='read', result='success')
 ```
 
-## Security Best Practices
+## 安全最佳实践
 
-### Input Validation
+### 输入验证
 
 ```python
 import re
@@ -385,27 +385,27 @@ def sanitize_input(user_input):
     pass
 ```
 
-## PCI DSS SAQ (Self-Assessment Questionnaire)
+## PCI DSS SAQ（自评估问卷）
 
-### SAQ A (Least Requirements)
+### SAQ A（最少要求）
 
-- E-commerce using hosted payment page
-- No card data on your systems
-- ~20 questions
+- 使用托管支付页面的电子商务
+- 你的系统上没有卡数据
+- 约 20 个问题
 
 ### SAQ A-EP
 
-- E-commerce with embedded payment form
-- Uses JavaScript to handle card data
-- ~180 questions
+- 使用嵌入式支付表单的电子商务
+- 使用 JavaScript 处理卡数据
+- 约 180 个问题
 
-### SAQ D (Most Requirements)
+### SAQ D（最多要求）
 
-- Store, process, or transmit card data
-- Full PCI DSS requirements
-- ~300 questions
+- 存储、处理或传输卡数据
+- 完整的 PCI DSS 要求
+- 约 300 个问题
 
-## Compliance Checklist
+## 合规清单
 
 ```python
 PCI_COMPLIANCE_CHECKLIST = {

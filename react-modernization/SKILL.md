@@ -1,49 +1,49 @@
 ---
 name: react-modernization
-description: Upgrade React applications to latest versions, migrate from class components to hooks, and adopt concurrent features. Use when modernizing React codebases, migrating to React Hooks, or upgrading to latest React versions.
+description: 升级 React 应用到最新版本，从类组件迁移到 hooks，并采用并发特性。在现代化 React 代码库、迁移到 React Hooks 或升级到最新 React 版本时使用。
 ---
 
-# React Modernization
+# React 现代化
 
-Master React version upgrades, class to hooks migration, concurrent features adoption, and codemods for automated transformation.
+掌握 React 版本升级、类到 hooks 迁移、并发特性采用和用于自动转换的 codemods。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Upgrading React applications to latest versions
-- Migrating class components to functional components with hooks
-- Adopting concurrent React features (Suspense, transitions)
-- Applying codemods for automated refactoring
-- Modernizing state management patterns
-- Updating to TypeScript
-- Improving performance with React 18+ features
+- 将 React 应用升级到最新版本
+- 将类组件迁移到带有 hooks 的函数组件
+- 采用并发 React 特性（Suspense、transitions）
+- 应用 codemods 进行自动重构
+- 现代化状态管理模式
+- 更新到 TypeScript
+- 使用 React 18+ 特性改进性能
 
-## Version Upgrade Path
+## 版本升级路径
 
 ### React 16 → 17 → 18
 
-**Breaking Changes by Version:**
+**按版本的破坏性更改：**
 
-**React 17:**
+**React 17：**
 
-- Event delegation changes
-- No event pooling
-- Effect cleanup timing
-- JSX transform (no React import needed)
+- 事件委托更改
+- 无事件池
+- Effect 清理时机
+- JSX 转换（不再需要 React 导入）
 
-**React 18:**
+**React 18：**
 
-- Automatic batching
-- Concurrent rendering
-- Strict Mode changes (double invocation)
-- New root API
-- Suspense on server
+- 自动批处理
+- 并发渲染
+- 严格模式更改（双重调用）
+- 新的 root API
+- 服务端 Suspense
 
-## Class to Hooks Migration
+## 类到 Hooks 迁移
 
-### State Management
+### 状态管理
 
 ```javascript
-// Before: Class component
+// 之前：类组件
 class Counter extends React.Component {
   constructor(props) {
     super(props);
@@ -67,7 +67,7 @@ class Counter extends React.Component {
   }
 }
 
-// After: Functional component with hooks
+// 之后：带 hooks 的函数组件
 function Counter() {
   const [count, setCount] = useState(0);
   const [name, setName] = useState("");
@@ -85,10 +85,10 @@ function Counter() {
 }
 ```
 
-### Lifecycle Methods to Hooks
+### 生命周期方法到 Hooks
 
 ```javascript
-// Before: Lifecycle methods
+// 之前：生命周期方法
 class DataFetcher extends React.Component {
   state = { data: null, loading: true };
 
@@ -112,7 +112,7 @@ class DataFetcher extends React.Component {
   };
 
   cancelRequest = () => {
-    // Cleanup
+    // 清理
   };
 
   render() {
@@ -121,7 +121,7 @@ class DataFetcher extends React.Component {
   }
 }
 
-// After: useEffect hook
+// 之后：useEffect hook
 function DataFetcher({ id }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -147,21 +147,21 @@ function DataFetcher({ id }) {
 
     fetchData();
 
-    // Cleanup function
+    // 清理函数
     return () => {
       cancelled = true;
     };
-  }, [id]); // Re-run when id changes
+  }, [id]); // id 变化时重新运行
 
   if (loading) return <div>Loading...</div>;
   return <div>{data}</div>;
 }
 ```
 
-### Context and HOCs to Hooks
+### Context 和 HOCs 到 Hooks
 
 ```javascript
-// Before: Context consumer and HOC
+// 之前：Context consumer 和 HOC
 const ThemeContext = React.createContext();
 
 class ThemedButton extends React.Component {
@@ -176,14 +176,14 @@ class ThemedButton extends React.Component {
   }
 }
 
-// After: useContext hook
+// 之后：useContext hook
 function ThemedButton({ children }) {
   const { theme } = useContext(ThemeContext);
 
   return <button style={{ background: theme }}>{children}</button>;
 }
 
-// Before: HOC for data fetching
+// 之前：用于数据获取的 HOC
 function withUser(Component) {
   return class extends React.Component {
     state = { user: null };
@@ -198,7 +198,7 @@ function withUser(Component) {
   };
 }
 
-// After: Custom hook
+// 之后：自定义 hook
 function useUser() {
   const [user, setUser] = useState(null);
 
@@ -216,49 +216,49 @@ function UserProfile() {
 }
 ```
 
-## React 18 Concurrent Features
+## React 18 并发特性
 
-### New Root API
+### 新的 Root API
 
 ```javascript
-// Before: React 17
+// 之前：React 17
 import ReactDOM from "react-dom";
 
 ReactDOM.render(<App />, document.getElementById("root"));
 
-// After: React 18
+// 之后：React 18
 import { createRoot } from "react-dom/client";
 
 const root = createRoot(document.getElementById("root"));
 root.render(<App />);
 ```
 
-### Automatic Batching
+### 自动批处理
 
 ```javascript
-// React 18: All updates are batched
+// React 18：所有更新都被批处理
 function handleClick() {
   setCount((c) => c + 1);
   setFlag((f) => !f);
-  // Only one re-render (batched)
+  // 只有一次重新渲染（批处理）
 }
 
-// Even in async:
+// 即使在异步中：
 setTimeout(() => {
   setCount((c) => c + 1);
   setFlag((f) => !f);
-  // Still batched in React 18!
+  // 在 React 18 中仍然批处理！
 }, 1000);
 
-// Opt out if needed
+// 需要时退出
 import { flushSync } from "react-dom";
 
 flushSync(() => {
   setCount((c) => c + 1);
 });
-// Re-render happens here
+// 这里发生重新渲染
 setFlag((f) => !f);
-// Another re-render
+// 另一次重新渲染
 ```
 
 ### Transitions
@@ -272,10 +272,10 @@ function SearchResults() {
   const [isPending, startTransition] = useTransition();
 
   const handleChange = (e) => {
-    // Urgent: Update input immediately
+    // 紧急：立即更新输入
     setQuery(e.target.value);
 
-    // Non-urgent: Update results (can be interrupted)
+    // 非紧急：更新结果（可被中断）
     startTransition(() => {
       setResults(searchResults(e.target.value));
     });
@@ -291,12 +291,12 @@ function SearchResults() {
 }
 ```
 
-### Suspense for Data Fetching
+### Suspense 用于数据获取
 
 ```javascript
 import { Suspense } from "react";
 
-// Resource-based data fetching (with React 18)
+// 基于资源的数据获取（使用 React 18）
 const resource = fetchProfileData();
 
 function ProfilePage() {
@@ -311,7 +311,7 @@ function ProfilePage() {
 }
 
 function ProfileDetails() {
-  // This will suspend if data not ready
+  // 如果数据未就绪将挂起
   const user = resource.user.read();
   return <h1>{user.name}</h1>;
 }
@@ -322,31 +322,31 @@ function ProfileTimeline() {
 }
 ```
 
-## Codemods for Automation
+## 用于自动化的 Codemods
 
-### Run React Codemods
+### 运行 React Codemods
 
 ```bash
-# Rename unsafe lifecycle methods
+# 重命名不安全的生命周期方法
 npx jscodeshift -t https://raw.githubusercontent.com/reactjs/react-codemod/master/transforms/rename-unsafe-lifecycles.js src/
 
-# Update React imports (React 17+)
+# 更新 React 导入（React 17+）
 npx jscodeshift -t https://raw.githubusercontent.com/reactjs/react-codemod/master/transforms/update-react-imports.js src/
 
-# Add error boundaries
+# 添加错误边界
 npx jscodeshift -t https://raw.githubusercontent.com/reactjs/react-codemod/master/transforms/error-boundaries.js src/
 
-# For TypeScript files
+# 用于 TypeScript 文件
 npx jscodeshift -t https://raw.githubusercontent.com/reactjs/react-codemod/master/transforms/rename-unsafe-lifecycles.js --parser=tsx src/
 
-# Dry run to preview changes
+# 干运行预览更改
 npx jscodeshift -t https://raw.githubusercontent.com/reactjs/react-codemod/master/transforms/rename-unsafe-lifecycles.js --dry --print src/
 
-# Class to Hooks (third-party)
+# 类到 Hooks（第三方）
 npx codemod react/hooks/convert-class-to-function src/
 ```
 
-### Custom Codemod Example
+### 自定义 Codemod 示例
 
 ```javascript
 // custom-codemod.js
@@ -354,7 +354,7 @@ module.exports = function (file, api) {
   const j = api.jscodeshift;
   const root = j(file.source);
 
-  // Find setState calls
+  // 查找 setState 调用
   root
     .find(j.CallExpression, {
       callee: {
@@ -363,36 +363,36 @@ module.exports = function (file, api) {
       },
     })
     .forEach((path) => {
-      // Transform to useState
-      // ... transformation logic
+      // 转换为 useState
+      // ... 转换逻辑
     });
 
   return root.toSource();
 };
 
-// Run: jscodeshift -t custom-codemod.js src/
+// 运行：jscodeshift -t custom-codemod.js src/
 ```
 
-## Performance Optimization
+## 性能优化
 
-### useMemo and useCallback
+### useMemo 和 useCallback
 
 ```javascript
 function ExpensiveComponent({ items, filter }) {
-  // Memoize expensive calculation
+  // 缓存昂贵的计算
   const filteredItems = useMemo(() => {
     return items.filter((item) => item.category === filter);
   }, [items, filter]);
 
-  // Memoize callback to prevent child re-renders
+  // 缓存回调以防止子组件重新渲染
   const handleClick = useCallback((id) => {
     console.log("Clicked:", id);
-  }, []); // No dependencies, never changes
+  }, []); // 无依赖，永不改变
 
   return <List items={filteredItems} onClick={handleClick} />;
 }
 
-// Child component with memo
+// 带 memo 的子组件
 const List = React.memo(({ items, onClick }) => {
   return items.map((item) => (
     <Item key={item.id} item={item} onClick={onClick} />
@@ -400,12 +400,12 @@ const List = React.memo(({ items, onClick }) => {
 });
 ```
 
-### Code Splitting
+### 代码分割
 
 ```javascript
 import { lazy, Suspense } from "react";
 
-// Lazy load components
+// 懒加载组件
 const Dashboard = lazy(() => import("./Dashboard"));
 const Settings = lazy(() => import("./Settings"));
 
@@ -421,15 +421,15 @@ function App() {
 }
 ```
 
-## TypeScript Migration
+## TypeScript 迁移
 
 ```typescript
-// Before: JavaScript
+// 之前：JavaScript
 function Button({ onClick, children }) {
   return <button onClick={onClick}>{children}</button>;
 }
 
-// After: TypeScript
+// 之后：TypeScript
 interface ButtonProps {
   onClick: () => void;
   children: React.ReactNode;
@@ -439,7 +439,7 @@ function Button({ onClick, children }: ButtonProps) {
   return <button onClick={onClick}>{children}</button>;
 }
 
-// Generic components
+// 泛型组件
 interface ListProps<T> {
   items: T[];
   renderItem: (item: T) => React.ReactNode;
@@ -450,48 +450,48 @@ function List<T>({ items, renderItem }: ListProps<T>) {
 }
 ```
 
-## Migration Checklist
+## 迁移清单
 
 ```markdown
-### Pre-Migration
+### 迁移前
 
-- [ ] Update dependencies incrementally (not all at once)
-- [ ] Review breaking changes in release notes
-- [ ] Set up testing suite
-- [ ] Create feature branch
+- [ ] 逐步更新依赖（不要一次性全部更新）
+- [ ] 审查发布说明中的破坏性更改
+- [ ] 设置测试套件
+- [ ] 创建功能分支
 
-### Class → Hooks Migration
+### 类 → Hooks 迁移
 
-- [ ] Identify class components to migrate
-- [ ] Start with leaf components (no children)
-- [ ] Convert state to useState
-- [ ] Convert lifecycle to useEffect
-- [ ] Convert context to useContext
-- [ ] Extract custom hooks
-- [ ] Test thoroughly
+- [ ] 识别要迁移的类组件
+- [ ] 从叶子组件开始（无子组件）
+- [ ] 将 state 转换为 useState
+- [ ] 将生命周期转换为 useEffect
+- [ ] 将 context 转换为 useContext
+- [ ] 提取自定义 hooks
+- [ ] 充分测试
 
-### React 18 Upgrade
+### React 18 升级
 
-- [ ] Update to React 17 first (if needed)
-- [ ] Update react and react-dom to 18
-- [ ] Update @types/react if using TypeScript
-- [ ] Change to createRoot API
-- [ ] Test with StrictMode (double invocation)
-- [ ] Address concurrent rendering issues
-- [ ] Adopt Suspense/Transitions where beneficial
+- [ ] 先更新到 React 17（如需要）
+- [ ] 更新 react 和 react-dom 到 18
+- [ ] 如果使用 TypeScript 则更新 @types/react
+- [ ] 更改为 createRoot API
+- [ ] 使用 StrictMode 测试（双重调用）
+- [ ] 处理并发渲染问题
+- [ ] 在有益的地方采用 Suspense/Transitions
 
-### Performance
+### 性能
 
-- [ ] Identify performance bottlenecks
-- [ ] Add React.memo where appropriate
-- [ ] Use useMemo/useCallback for expensive operations
-- [ ] Implement code splitting
-- [ ] Optimize re-renders
+- [ ] 识别性能瓶颈
+- [ ] 在适当的地方添加 React.memo
+- [ ] 对昂贵操作使用 useMemo/useCallback
+- [ ] 实现代码分割
+- [ ] 优化重新渲染
 
-### Testing
+### 测试
 
-- [ ] Update test utilities (React Testing Library)
-- [ ] Test with React 18 features
-- [ ] Check for warnings in console
-- [ ] Performance testing
+- [ ] 更新测试工具（React Testing Library）
+- [ ] 使用 React 18 特性测试
+- [ ] 检查控制台中的警告
+- [ ] 性能测试
 ```

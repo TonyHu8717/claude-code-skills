@@ -1,33 +1,33 @@
 ---
 name: airflow-dag-patterns
-description: Build production Apache Airflow DAGs with best practices for operators, sensors, testing, and deployment. Use when creating data pipelines, orchestrating workflows, or scheduling batch jobs.
+description: 使用操作器、传感器、测试和部署的最佳实践构建生产级 Apache Airflow DAG。在创建数据管道、编排工作流或调度批处理作业时使用。
 ---
 
-# Apache Airflow DAG Patterns
+# Apache Airflow DAG 模式
 
-Production-ready patterns for Apache Airflow including DAG design, operators, sensors, testing, and deployment strategies.
+Apache Airflow 的生产就绪模式，包括 DAG 设计、操作器、传感器、测试和部署策略。
 
-## When to Use This Skill
+## 使用场景
 
-- Creating data pipeline orchestration with Airflow
-- Designing DAG structures and dependencies
-- Implementing custom operators and sensors
-- Testing Airflow DAGs locally
-- Setting up Airflow in production
-- Debugging failed DAG runs
+- 使用 Airflow 创建数据管道编排
+- 设计 DAG 结构和依赖关系
+- 实现自定义操作器和传感器
+- 在本地测试 Airflow DAG
+- 在生产环境中设置 Airflow
+- 调试失败的 DAG 运行
 
-## Core Concepts
+## 核心概念
 
-### 1. DAG Design Principles
+### 1. DAG 设计原则
 
-| Principle       | Description                         |
-| --------------- | ----------------------------------- |
-| **Idempotent**  | Running twice produces same result  |
-| **Atomic**      | Tasks succeed or fail completely    |
-| **Incremental** | Process only new/changed data       |
-| **Observable**  | Logs, metrics, alerts at every step |
+| 原则 | 描述 |
+| ---- | ---- |
+| **幂等** | 运行两次产生相同结果 |
+| **原子** | 任务完全成功或完全失败 |
+| **增量** | 仅处理新的/已更改的数据 |
+| **可观察** | 每一步都有日志、指标、告警 |
 
-### 2. Task Dependencies
+### 2. 任务依赖
 
 ```python
 # Linear
@@ -44,7 +44,7 @@ task1 >> task2 >> task4
 task1 >> task3 >> task4
 ```
 
-## Quick Start
+## 快速开始
 
 ```python
 # dags/example_dag.py
@@ -92,9 +92,9 @@ with DAG(
     start >> extract >> end
 ```
 
-## Patterns
+## 模式
 
-### Pattern 1: TaskFlow API (Airflow 2.0+)
+### 模式 1：TaskFlow API（Airflow 2.0+）
 
 ```python
 # dags/taskflow_example.py
@@ -154,7 +154,7 @@ def taskflow_etl():
 taskflow_etl()
 ```
 
-### Pattern 2: Dynamic DAG Generation
+### 模式 2：动态 DAG 生成
 
 ```python
 # dags/dynamic_dag_factory.py
@@ -227,7 +227,7 @@ for config in PIPELINE_CONFIGS:
     globals()[f"dag_{config['name']}"] = create_dag(config)
 ```
 
-### Pattern 3: Branching and Conditional Logic
+### 模式 3：分支和条件逻辑
 
 ```python
 # dags/branching_example.py
@@ -284,7 +284,7 @@ def branching_pipeline():
 branching_pipeline()
 ```
 
-### Pattern 4: Sensors and External Dependencies
+### 模式 4：传感器和外部依赖
 
 ```python
 # dags/sensor_patterns.py
@@ -348,7 +348,7 @@ with DAG(
     [wait_for_file, wait_for_upstream, api_ready] >> process
 ```
 
-### Pattern 5: Error Handling and Alerts
+### 模式 5：错误处理和告警
 
 ```python
 # dags/error_handling.py
@@ -427,7 +427,7 @@ with DAG(
     risky_task >> [cleanup_task, success_notification]
 ```
 
-### Pattern 6: Testing DAGs
+### 模式 6：测试 DAG
 
 ```python
 # tests/test_dags.py
@@ -474,7 +474,7 @@ def test_extract_function():
     assert isinstance(result['records'], int)
 ```
 
-## Project Structure
+## 项目结构
 
 ```
 airflow/
@@ -500,20 +500,20 @@ airflow/
 └── requirements.txt
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该
 
-- **Use TaskFlow API** - Cleaner code, automatic XCom
-- **Set timeouts** - Prevent zombie tasks
-- **Use `mode='reschedule'`** - For sensors, free up workers
-- **Test DAGs** - Unit tests and integration tests
-- **Idempotent tasks** - Safe to retry
+- **使用 TaskFlow API** — 更清晰的代码，自动 XCom
+- **设置超时** — 防止僵尸任务
+- **使用 `mode='reschedule'`** — 对于传感器，释放 worker
+- **测试 DAG** — 单元测试和集成测试
+- **幂等任务** — 可安全重试
 
-### Don'ts
+### 不应该
 
-- **Don't use `depends_on_past=True`** - Creates bottlenecks
-- **Don't hardcode dates** - Use `{{ ds }}` macros
-- **Don't use global state** - Tasks should be stateless
-- **Don't skip catchup blindly** - Understand implications
-- **Don't put heavy logic in DAG file** - Import from modules
+- **不要使用 `depends_on_past=True`** — 创建瓶颈
+- **不要硬编码日期** — 使用 `{{ ds }}` 宏
+- **不要使用全局状态** — 任务应无状态
+- **不要盲目跳过 catchup** — 理解其影响
+- **不要在 DAG 文件中放重逻辑** — 从模块导入

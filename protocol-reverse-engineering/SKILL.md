@@ -1,15 +1,15 @@
 ---
 name: protocol-reverse-engineering
-description: Master network protocol reverse engineering including packet analysis, protocol dissection, and custom protocol documentation. Use when analyzing network traffic, understanding proprietary protocols, or debugging network communication.
+description: 掌握网络协议逆向工程，包括数据包分析、协议解析和自定义协议文档。在分析网络流量、理解专有协议或调试网络通信时使用。
 ---
 
-# Protocol Reverse Engineering
+# 协议逆向工程
 
-Comprehensive techniques for capturing, analyzing, and documenting network protocols for security research, interoperability, and debugging.
+用于捕获、分析和记录网络协议的综合技术，适用于安全研究、互操作性和调试。
 
-## Traffic Capture
+## 流量捕获
 
-### Wireshark Capture
+### Wireshark 捕获
 
 ```bash
 # Capture on specific interface
@@ -25,7 +25,7 @@ tshark -i eth0 -w capture.pcap
 tshark -i eth0 -b filesize:100000 -b files:10 -w capture.pcap
 ```
 
-### tcpdump Capture
+### tcpdump 捕获
 
 ```bash
 # Basic capture
@@ -41,7 +41,7 @@ tcpdump -i eth0 -s 0 -w capture.pcap  # Full packet
 tcpdump -i eth0 -X port 80
 ```
 
-### Man-in-the-Middle Capture
+### 中间人捕获
 
 ```bash
 # mitmproxy for HTTP/HTTPS
@@ -57,9 +57,9 @@ mitmdump -w traffic.mitm
 # Configure browser proxy to 127.0.0.1:8080
 ```
 
-## Protocol Analysis
+## 协议分析
 
-### Wireshark Analysis
+### Wireshark 分析
 
 ```
 # Display filters
@@ -82,7 +82,7 @@ Edit > Preferences > Protocols > TLS
   - RSA keys list
 ```
 
-### tshark Analysis
+### tshark 分析
 
 ```bash
 # Extract specific fields
@@ -99,7 +99,7 @@ tshark -r capture.pcap -Y "http" -T json > http_traffic.json
 tshark -r capture.pcap -q -z io,phs
 ```
 
-### Scapy for Custom Analysis
+### 使用 Scapy 进行自定义分析
 
 ```python
 from scapy.all import *
@@ -124,9 +124,9 @@ pkt = IP(dst="target")/TCP(dport=80)/Raw(load="GET / HTTP/1.1\r\n")
 send(pkt)
 ```
 
-## Protocol Identification
+## 协议识别
 
-### Common Protocol Signatures
+### 常见协议签名
 
 ```
 HTTP        - "HTTP/1." or "GET " or "POST " at start
@@ -142,7 +142,7 @@ Redis       - "*" RESP array prefix
 MongoDB     - BSON documents with specific header
 ```
 
-### Protocol Header Patterns
+### 协议头模式
 
 ```
 +--------+--------+--------+--------+
@@ -158,9 +158,9 @@ MongoDB     - BSON documents with specific header
 +--------+--------+--------+--------+
 ```
 
-## Binary Protocol Analysis
+## 二进制协议分析
 
-### Structure Identification
+### 结构识别
 
 ```python
 # Common patterns in binary protocols
@@ -191,7 +191,7 @@ struct Packet {
 };
 ```
 
-### Python Protocol Parser
+### Python 协议解析器
 
 ```python
 import struct
@@ -238,7 +238,7 @@ def parse_tlv(data: bytes):
     return fields
 ```
 
-### Hex Dump Analysis
+### 十六进制转储分析
 
 ```python
 def hexdump(data: bytes, width: int = 16):
@@ -259,9 +259,9 @@ def hexdump(data: bytes, width: int = 16):
 # 00000010  0a 43 6f 6e 74 65 6e 74  2d 54 79 70 65 3a 20 74  .Content-Type: t
 ```
 
-## Encryption Analysis
+## 加密分析
 
-### Identifying Encryption
+### 识别加密
 
 ```python
 # Entropy analysis - high entropy suggests encryption/compression
@@ -287,7 +287,7 @@ def entropy(data: bytes) -> float:
 # - Possible IV at start (16 bytes for AES-CBC)
 ```
 
-### TLS Analysis
+### TLS 分析
 
 ```bash
 # Extract TLS metadata
@@ -307,7 +307,7 @@ tshark -r capture.pcap -Y "ssl.handshake.certificate" \
     -T fields -e x509sat.printableString
 ```
 
-### Decryption Approaches
+### 解密方法
 
 ```bash
 # Pre-master secret log (browser)
@@ -322,9 +322,9 @@ export SSLKEYLOGFILE=/tmp/keys.log
 # Edit > Preferences > Protocols > TLS > RSA keys list
 ```
 
-## Custom Protocol Documentation
+## 自定义协议文档
 
-### Protocol Specification Template
+### 协议规范模板
 
 ```markdown
 # Protocol Name Specification
@@ -390,7 +390,7 @@ Client -> Server: DATA (payload)
 
 ```
 
-### Wireshark Dissector (Lua)
+### Wireshark 解析器 (Lua)
 
 ```lua
 -- custom_protocol.lua
@@ -440,9 +440,9 @@ local tcp_table = DissectorTable.get("tcp.port")
 tcp_table:add(8888, proto)
 ```
 
-## Active Testing
+## 主动测试
 
-### Fuzzing with Boofuzz
+### 使用 Boofuzz 进行模糊测试
 
 ```python
 from boofuzz import *
@@ -472,7 +472,7 @@ if __name__ == "__main__":
     main()
 ```
 
-### Replay and Modification
+### 重放和修改
 
 ```python
 from scapy.all import *
@@ -496,25 +496,25 @@ for pkt in packets:
         send(pkt)
 ```
 
-## Best Practices
+## 最佳实践
 
-### Analysis Workflow
+### 分析工作流
 
-1. **Capture traffic**: Multiple sessions, different scenarios
-2. **Identify boundaries**: Message start/end markers
-3. **Map structure**: Fixed header, variable payload
-4. **Identify fields**: Compare multiple samples
-5. **Document format**: Create specification
-6. **Validate understanding**: Implement parser/generator
-7. **Test edge cases**: Fuzzing, boundary conditions
+1. **捕获流量**：多个会话，不同场景
+2. **识别边界**：消息开始/结束标记
+3. **映射结构**：固定头，可变负载
+4. **识别字段**：比较多个样本
+5. **记录格式**：创建规范
+6. **验证理解**：实现解析器/生成器
+7. **测试边界情况**：模糊测试，边界条件
 
-### Common Patterns to Look For
+### 常见模式
 
-- Magic numbers/signatures at message start
-- Version fields for compatibility
-- Length fields (often before variable data)
-- Type/opcode fields for message identification
-- Sequence numbers for ordering
-- Checksums/CRCs for integrity
-- Timestamps for timing
-- Session/connection identifiers
+- 消息开头的魔术数字/签名
+- 版本字段用于兼容性
+- 长度字段（通常在可变数据之前）
+- 类型/操作码字段用于消息标识
+- 序列号用于排序
+- 校验和/CRC 用于完整性
+- 时间戳用于计时
+- 会话/连接标识符

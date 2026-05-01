@@ -1,31 +1,31 @@
 ---
 name: bazel-build-optimization
-description: Optimize Bazel builds for large-scale monorepos. Use when configuring Bazel, implementing remote execution, or optimizing build performance for enterprise codebases.
+description: 优化大规模单仓库的 Bazel 构建。用于配置 Bazel、实现远程执行或优化企业代码库的构建性能时使用。
 ---
 
-# Bazel Build Optimization
+# Bazel 构建优化
 
-Production patterns for Bazel in large-scale monorepos.
+大规模单仓库中 Bazel 的生产模式。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Setting up Bazel for monorepos
-- Configuring remote caching/execution
-- Optimizing build times
-- Writing custom Bazel rules
-- Debugging build issues
-- Migrating to Bazel
+- 为单仓库设置 Bazel
+- 配置远程缓存/执行
+- 优化构建时间
+- 编写自定义 Bazel 规则
+- 调试构建问题
+- 迁移到 Bazel
 
-## Core Concepts
+## 核心概念
 
-### 1. Bazel Architecture
+### 1. Bazel 架构
 
 ```
 workspace/
-├── WORKSPACE.bazel       # External dependencies
-├── .bazelrc              # Build configurations
-├── .bazelversion         # Bazel version
-├── BUILD.bazel           # Root build file
+├── WORKSPACE.bazel       # 外部依赖
+├── .bazelrc              # 构建配置
+├── .bazelversion         # Bazel 版本
+├── BUILD.bazel           # 根构建文件
 ├── apps/
 │   └── web/
 │       └── BUILD.bazel
@@ -37,19 +37,19 @@ workspace/
         └── rules/
 ```
 
-### 2. Key Concepts
+### 2. 关键概念
 
-| Concept     | Description                            |
+| 概念 | 描述 |
 | ----------- | -------------------------------------- |
-| **Target**  | Buildable unit (library, binary, test) |
-| **Package** | Directory with BUILD file              |
-| **Label**   | Target identifier `//path/to:target`   |
-| **Rule**    | Defines how to build a target          |
-| **Aspect**  | Cross-cutting build behavior           |
+| **Target** | 可构建单元（库、二进制文件、测试） |
+| **Package** | 包含 BUILD 文件的目录 |
+| **Label** | 目标标识符 `//path/to:target` |
+| **Rule** | 定义如何构建目标 |
+| **Aspect** | 横切构建行为 |
 
-## Templates
+## 模板
 
-### Template 1: WORKSPACE Configuration
+### 模板 1：WORKSPACE 配置
 
 ```python
 # WORKSPACE.bazel
@@ -57,7 +57,7 @@ workspace(name = "myproject")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-# Rules for JavaScript/TypeScript
+# JavaScript/TypeScript 规则
 http_archive(
     name = "aspect_rules_js",
     sha256 = "...",
@@ -84,7 +84,7 @@ npm_translate_lock(
 load("@npm//:repositories.bzl", "npm_repositories")
 npm_repositories()
 
-# Rules for Python
+# Python 规则
 http_archive(
     name = "rules_python",
     sha256 = "...",
@@ -96,62 +96,62 @@ load("@rules_python//python:repositories.bzl", "py_repositories")
 py_repositories()
 ```
 
-### Template 2: .bazelrc Configuration
+### 模板 2：.bazelrc 配置
 
 ```bash
 # .bazelrc
 
-# Build settings
+# 构建设置
 build --enable_platform_specific_config
 build --incompatible_enable_cc_toolchain_resolution
 build --experimental_strict_conflict_checks
 
-# Performance
+# 性能
 build --jobs=auto
 build --local_cpu_resources=HOST_CPUS*.75
 build --local_ram_resources=HOST_RAM*.75
 
-# Caching
+# 缓存
 build --disk_cache=~/.cache/bazel-disk
 build --repository_cache=~/.cache/bazel-repo
 
-# Remote caching (optional)
+# 远程缓存（可选）
 build:remote-cache --remote_cache=grpcs://cache.example.com
 build:remote-cache --remote_upload_local_results=true
 build:remote-cache --remote_timeout=3600
 
-# Remote execution (optional)
+# 远程执行（可选）
 build:remote-exec --remote_executor=grpcs://remote.example.com
 build:remote-exec --remote_instance_name=projects/myproject/instances/default
 build:remote-exec --jobs=500
 
-# Platform configurations
+# 平台配置
 build:linux --platforms=//platforms:linux_x86_64
 build:macos --platforms=//platforms:macos_arm64
 
-# CI configuration
+# CI 配置
 build:ci --config=remote-cache
 build:ci --build_metadata=ROLE=CI
 build:ci --bes_results_url=https://results.example.com/invocation/
 build:ci --bes_backend=grpcs://bes.example.com
 
-# Test settings
+# 测试设置
 test --test_output=errors
 test --test_summary=detailed
 
-# Coverage
+# 覆盖率
 coverage --combined_report=lcov
 coverage --instrumentation_filter="//..."
 
-# Convenience aliases
+# 便捷别名
 build:opt --compilation_mode=opt
 build:dbg --compilation_mode=dbg
 
-# Import user settings
+# 导入用户设置
 try-import %workspace%/user.bazelrc
 ```
 
-### Template 3: TypeScript Library BUILD
+### 模板 3：TypeScript 库 BUILD
 
 ```python
 # libs/utils/BUILD.bazel
@@ -178,7 +178,7 @@ js_library(
     visibility = ["//visibility:public"],
 )
 
-# Tests
+# 测试
 load("@aspect_rules_jest//jest:defs.bzl", "jest_test")
 
 jest_test(
@@ -192,7 +192,7 @@ jest_test(
 )
 ```
 
-### Template 4: Python Library BUILD
+### 模板 4：Python 库 BUILD
 
 ```python
 # libs/ml/BUILD.bazel
@@ -230,7 +230,7 @@ py_binary(
 )
 ```
 
-### Template 5: Custom Rule for Docker
+### 模板 5：Docker 自定义规则
 
 ```python
 # tools/bazel/rules/docker.bzl
@@ -239,7 +239,7 @@ def _docker_image_impl(ctx):
     base_image = ctx.attr.base_image
     layers = ctx.files.layers
 
-    # Build the image
+    # 构建镜像
     output = ctx.actions.declare_file(ctx.attr.name + ".tar")
 
     args = ctx.actions.args()
@@ -277,35 +277,35 @@ docker_image = rule(
 )
 ```
 
-### Template 6: Query and Dependency Analysis
+### 模板 6：查询和依赖分析
 
 ```bash
-# Find all dependencies of a target
+# 查找目标的所有依赖
 bazel query "deps(//apps/web:web)"
 
-# Find reverse dependencies (what depends on this)
+# 查找反向依赖（哪些目标依赖于此）
 bazel query "rdeps(//..., //libs/utils:utils)"
 
-# Find all targets in a package
+# 查找包中的所有目标
 bazel query "//libs/..."
 
-# Find changed targets since commit
+# 查找自上次提交以来更改的目标
 bazel query "rdeps(//..., set($(git diff --name-only HEAD~1 | sed 's/.*/"&"/' | tr '\n' ' ')))"
 
-# Generate dependency graph
+# 生成依赖图
 bazel query "deps(//apps/web:web)" --output=graph | dot -Tpng > deps.png
 
-# Find all test targets
+# 查找所有测试目标
 bazel query "kind('.*_test', //...)"
 
-# Find targets with specific tag
+# 查找带有特定标签的目标
 bazel query "attr(tags, 'integration', //...)"
 
-# Compute build graph size
+# 计算构建图大小
 bazel query "deps(//...)" --output=package | wc -l
 ```
 
-### Template 7: Remote Execution Setup
+### 模板 7：远程执行设置
 
 ```python
 # platforms/BUILD.bazel
@@ -346,36 +346,36 @@ toolchain(
 )
 ```
 
-## Performance Optimization
+## 性能优化
 
 ```bash
-# Profile build
+# 分析构建
 bazel build //... --profile=profile.json
 bazel analyze-profile profile.json
 
-# Identify slow actions
+# 识别慢操作
 bazel build //... --execution_log_json_file=exec_log.json
 
-# Memory profiling
+# 内存分析
 bazel build //... --memory_profile=memory.json
 
-# Skip analysis cache
+# 跳过分析缓存
 bazel build //... --notrack_incremental_state
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该做的
 
-- **Use fine-grained targets** - Better caching
-- **Pin dependencies** - Reproducible builds
-- **Enable remote caching** - Share build artifacts
-- **Use visibility wisely** - Enforce architecture
-- **Write BUILD files per directory** - Standard convention
+- **使用细粒度目标** - 更好的缓存
+- **固定依赖版本** - 可重现的构建
+- **启用远程缓存** - 共享构建产物
+- **明智地使用可见性** - 强制架构约束
+- **每个目录编写 BUILD 文件** - 标准约定
 
-### Don'ts
+### 不应该做的
 
-- **Don't use glob for deps** - Explicit is better
-- **Don't commit bazel-\* dirs** - Add to .gitignore
-- **Don't skip WORKSPACE setup** - Foundation of build
-- **Don't ignore build warnings** - Technical debt
+- **不要对 deps 使用 glob** - 显式声明更好
+- **不要提交 bazel-\* 目录** - 添加到 .gitignore
+- **不要跳过 WORKSPACE 设置** - 构建的基础
+- **不要忽略构建警告** - 技术债务

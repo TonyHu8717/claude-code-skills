@@ -1,40 +1,40 @@
 ---
 name: python-type-safety
-description: Python type safety with type hints, generics, protocols, and strict type checking. Use when adding type annotations, implementing generic classes, defining structural interfaces, or configuring mypy/pyright.
+description: 使用类型提示、泛型、协议和严格类型检查实现 Python 类型安全。在添加类型注解、实现泛型类、定义结构化接口或配置 mypy/pyright 时使用。
 ---
 
-# Python Type Safety
+# Python 类型安全
 
-Leverage Python's type system to catch errors at static analysis time. Type annotations serve as enforced documentation that tooling validates automatically.
+利用 Python 的类型系统在静态分析时捕获错误。类型注解作为工具自动验证的强制性文档。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Adding type hints to existing code
-- Creating generic, reusable classes
-- Defining structural interfaces with protocols
-- Configuring mypy or pyright for strict checking
-- Understanding type narrowing and guards
-- Building type-safe APIs and libraries
+- 为现有代码添加类型提示
+- 创建泛型、可复用的类
+- 使用协议定义结构化接口
+- 配置 mypy 或 pyright 进行严格检查
+- 理解类型缩窄和守卫
+- 构建类型安全的 API 和库
 
-## Core Concepts
+## 核心概念
 
-### 1. Type Annotations
+### 1. 类型注解
 
-Declare expected types for function parameters, return values, and variables.
+为函数参数、返回值和变量声明预期类型。
 
-### 2. Generics
+### 2. 泛型
 
-Write reusable code that preserves type information across different types.
+编写在不同类型之间保留类型信息的可复用代码。
 
-### 3. Protocols
+### 3. 协议
 
-Define structural interfaces without inheritance (duck typing with type safety).
+无需继承即可定义结构化接口（带类型安全的鸭子类型）。
 
-### 4. Type Narrowing
+### 4. 类型缩窄
 
-Use guards and conditionals to narrow types within code blocks.
+使用守卫和条件在代码块中缩窄类型。
 
-## Quick Start
+## 快速开始
 
 ```python
 def get_user(user_id: str) -> User | None:
@@ -48,11 +48,11 @@ if user is None:
 print(user.name)  # Type checker knows user is User here
 ```
 
-## Fundamental Patterns
+## 基础模式
 
-### Pattern 1: Annotate All Public Signatures
+### 模式 1：注解所有公共签名
 
-Every public function, method, and class should have type annotations.
+每个公共函数、方法和类都应该有类型注解。
 
 ```python
 def get_user(user_id: str) -> User:
@@ -82,11 +82,11 @@ class UserRepository:
         ...
 ```
 
-Use `mypy --strict` or `pyright` in CI to catch type errors early. For existing projects, enable strict mode incrementally using per-module overrides.
+在 CI 中使用 `mypy --strict` 或 `pyright` 尽早捕获类型错误。对于现有项目，使用每模块覆盖逐步启用严格模式。
 
-### Pattern 2: Use Modern Union Syntax
+### 模式 2：使用现代联合语法
 
-Python 3.10+ provides cleaner union syntax.
+Python 3.10+ 提供更清晰的联合语法。
 
 ```python
 # Preferred (3.10+)
@@ -103,9 +103,9 @@ def find_user(user_id: str) -> Optional[User]:
     ...
 ```
 
-### Pattern 3: Type Narrowing with Guards
+### 模式 3：使用守卫进行类型缩窄
 
-Use conditionals to narrow types for the type checker.
+使用条件为类型检查器缩窄类型。
 
 ```python
 def process_user(user_id: str) -> UserData:
@@ -127,9 +127,9 @@ def process_items(items: list[Item | None]) -> list[ProcessedItem]:
     return [process(item) for item in valid_items]
 ```
 
-### Pattern 4: Generic Classes
+### 模式 4：泛型类
 
-Create type-safe reusable containers.
+创建类型安全的可复用容器。
 
 ```python
 from typing import TypeVar, Generic
@@ -182,11 +182,11 @@ if result.is_success:
     config = result.unwrap()  # Type: Config
 ```
 
-## Advanced Patterns
+## 高级模式
 
-### Pattern 5: Generic Repository
+### 模式 5：泛型仓储
 
-Create type-safe data access patterns.
+创建类型安全的数据访问模式。
 
 ```python
 from typing import TypeVar, Generic
@@ -229,9 +229,9 @@ class UserRepository(Repository[User, str]):
         ...
 ```
 
-### Pattern 6: TypeVar with Bounds
+### 模式 6：带边界的 TypeVar
 
-Restrict generic parameters to specific types.
+将泛型参数限制为特定类型。
 
 ```python
 from typing import TypeVar
@@ -255,9 +255,9 @@ user = validate_and_create(User, {"name": "Alice", "email": "a@b.com"})
 result = validate_and_create(str, {"name": "Alice"})  # Error!
 ```
 
-### Pattern 7: Protocols for Structural Typing
+### 模式 7：用于结构化类型的协议
 
-Define interfaces without requiring inheritance.
+无需继承即可定义接口。
 
 ```python
 from typing import Protocol, runtime_checkable
@@ -297,9 +297,9 @@ serialize(User("1", "Alice"))
 isinstance(User("1", "Alice"), Serializable)  # True
 ```
 
-### Pattern 8: Common Protocol Patterns
+### 模式 8：常见协议模式
 
-Define reusable structural interfaces.
+定义可复用的结构化接口。
 
 ```python
 from typing import Protocol
@@ -327,11 +327,11 @@ class Comparable(Protocol):
     def __le__(self, other: "Comparable") -> bool: ...
 ```
 
-### Pattern 9: Type Aliases
+### 模式 9：类型别名
 
-Create meaningful type names.
+创建有意义的类型名称。
 
-**Note:** The `type Alias = ...` statement syntax (PEP 695) was introduced in **Python 3.12**, not 3.10. For projects targeting earlier versions (including 3.10/3.11), use the `TypeAlias` annotation (PEP 613, available since Python 3.10).
+**注意：** `type Alias = ...` 语句语法（PEP 695）是在 **Python 3.12** 中引入的，而不是 3.10。对于目标为早期版本（包括 3.10/3.11）的项目，请使用 `TypeAlias` 注解（PEP 613，自 Python 3.10 起可用）。
 
 ```python
 # Python 3.12+ type statement (PEP 695)
@@ -358,9 +358,9 @@ def register_handler(path: str, handler: Handler[Response]) -> None:
     ...
 ```
 
-### Pattern 10: Callable Types
+### 模式 10：Callable 类型
 
-Type function parameters and callbacks.
+为函数参数和回调添加类型。
 
 ```python
 from collections.abc import Callable, Awaitable
@@ -391,11 +391,11 @@ def process_items(
         ...
 ```
 
-## Configuration
+## 配置
 
-### Strict Mode Checklist
+### 严格模式检查清单
 
-For `mypy --strict` compliance:
+对于 `mypy --strict` 合规：
 
 ```toml
 # pyproject.toml
@@ -409,24 +409,24 @@ disallow_incomplete_defs = true
 no_implicit_optional = true
 ```
 
-Incremental adoption goals:
-- All function parameters annotated
-- All return types annotated
-- Class attributes annotated
-- Minimize `Any` usage (acceptable for truly dynamic data)
-- Generic collections use type parameters (`list[str]` not `list`)
+逐步采用目标：
+- 所有函数参数已注解
+- 所有返回类型已注解
+- 类属性已注解
+- 最小化 `Any` 使用（对于真正的动态数据可接受）
+- 泛型集合使用类型参数（`list[str]` 而不是 `list`）
 
-For existing codebases, enable strict mode per-module using `# mypy: strict` or configure per-module overrides in `pyproject.toml`.
+对于现有代码库，使用 `# mypy: strict` 按模块启用严格模式，或在 `pyproject.toml` 中配置每模块覆盖。
 
-## Best Practices Summary
+## 最佳实践总结
 
-1. **Annotate all public APIs** - Functions, methods, class attributes
-2. **Use `T | None`** - Modern union syntax over `Optional[T]`
-3. **Run strict type checking** - `mypy --strict` in CI
-4. **Use generics** - Preserve type info in reusable code
-5. **Define protocols** - Structural typing for interfaces
-6. **Narrow types** - Use guards to help the type checker
-7. **Bound type vars** - Restrict generics to meaningful types
-8. **Create type aliases** - Meaningful names for complex types
-9. **Minimize `Any`** - Use specific types or generics. `Any` is acceptable for truly dynamic data or when interfacing with untyped third-party code
-10. **Document with types** - Types are enforceable documentation
+1. **注解所有公共 API** - 函数、方法、类属性
+2. **使用 `T | None`** - 现代联合语法优于 `Optional[T]`
+3. **运行严格类型检查** - CI 中使用 `mypy --strict`
+4. **使用泛型** - 在可复用代码中保留类型信息
+5. **定义协议** - 接口的结构化类型
+6. **缩窄类型** - 使用守卫帮助类型检查器
+7. **限制类型变量** - 将泛型限制为有意义的类型
+8. **创建类型别名** - 为复杂类型使用有意义的名称
+9. **最小化 `Any`** - 使用特定类型或泛型。`Any` 对于真正的动态数据或与非类型化第三方代码交互时是可接受的
+10. **用类型记录** - 类型是可强制执行的文档

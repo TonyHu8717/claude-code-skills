@@ -2,12 +2,11 @@
 name: scrape
 version: 1.0.0
 description: |
-  Pull data from a web page. First call on a new intent prototypes the flow
-  via $B primitives and returns JSON. Subsequent calls on a matching intent
-  route to a codified browser-skill and return in ~200ms. Read-only — for
-  mutating flows (form fills, clicks, submissions), use /automate.
-  Use when asked to "scrape", "get data from", "pull", "extract from", or
-  "what's on" a page. (gstack)
+  从网页提取数据。首次调用新意图时通过 $B 基元原型化流程并返回 JSON。
+  后续匹配意图的调用会路由到已编码的 browser-skill，约 200ms 返回。
+  只读 — 对于变更性流程（表单填写、点击、提交），使用 /automate。
+  当被要求"抓取"、"获取数据"、"拉取"、"从...提取"或
+  "页面上有什么"时使用。(gstack)
 allowed-tools:
   - Bash
   - Read
@@ -679,154 +678,137 @@ In plan mode before ExitPlanMode: if the plan file lacks `## GSTACK REVIEW REPOR
 
 PLAN MODE EXCEPTION — always allowed (it's the plan file).
 
-# /scrape — pull data from a page
+# /scrape — 从页面提取数据
 
-One entry point for getting data off the web. Two paths under the hood:
+从网页获取数据的统一入口。底层有两条路径：
 
-1. **Match path** (~200ms) — if the user's intent matches an existing
-   browser-skill's triggers, run it via `$B skill run <name>` and emit
-   the JSON.
-2. **Prototype path** (~30s) — no matching skill yet, so drive the page
-   with `$B` primitives, return the JSON, and suggest `/skillify` so the
-   next call lands on the match path.
+1. **匹配路径**（约 200ms）— 如果用户意图匹配现有 browser-skill 的触发器，
+   通过 `$B skill run <name>` 运行并输出 JSON。
+2. **原型路径**（约 30s）— 尚无匹配技能，因此使用 `$B` 基元驱动页面，
+   返回 JSON，并建议 `/skillify` 以便下次调用走匹配路径。
 
-Read-only by contract. If the intent implies writing (submitting forms,
-clicking buttons that mutate state), refuse and route to `/automate`.
+按契约只读。如果意图涉及写入（提交表单、点击变更状态的按钮），拒绝并路由到 `/automate`。
 
-## Step 1 — Determine intent
+## 步骤 1 — 确定意图
 
-The user's request after `/scrape` is the intent. If they did not include
-one, ask once:
+`/scrape` 之后的用户请求即为意图。如果用户未包含意图，询问一次：
 
-> "What do you want to scrape? Describe it in one line, e.g. 'top stories
-> on Hacker News' or 'product names + prices on example.com/products'."
+> "您想抓取什么？用一行描述，例如'Hacker News 上的热门故事'
+> 或'example.com/products 上的产品名称和价格'。"
 
-Do not ask multiple clarifying questions up front. Any further questions
-go in the prototype path where they're cheaper.
+不要预先询问多个澄清问题。任何后续问题在原型路径中提出，成本更低。
 
-## Step 2 — Refuse mutating intents
+## 步骤 2 — 拒绝变更性意图
 
-If the intent implies writes — verbs like *submit*, *post*, *send*, *log
-in*, *click X*, *fill the form*, *delete*, *create*, *order*, *book* —
-respond:
+如果意图涉及写入 — 动词如*提交*、*发布*、*发送*、*登录*、
+*点击 X*、*填写表单*、*删除*、*创建*、*订购*、*预订* — 回复：
 
-> "/scrape is read-only. For mutating flows, use /automate (browser-skills
-> Phase 2 P0 in TODOS.md — not yet shipped). Until then, use $B click /
-> $B fill / $B type directly."
+> "/scrape 是只读的。对于变更性流程，使用 /automate（browser-skills
+> Phase 2 P0 在 TODOS.md 中 — 尚未发布）。在此之前，直接使用 $B click /
+> $B fill / $B type。"
 
-Stop. Do not enter the match or prototype path.
+停止。不要进入匹配或原型路径。
 
-## Step 3 — Match phase
+## 步骤 3 — 匹配阶段
 
-List existing browser-skills:
+列出现有 browser-skills：
 
 ```bash
 $B skill list
 ```
 
-For each skill, `$B skill show <name>` exposes the full SKILL.md including
-`triggers:`, `description:`, and `host:`. Read these and judge whether the
-user's intent semantically matches one of them.
+对于每个技能，`$B skill show <name>` 展示完整的 SKILL.md，包括
+`triggers:`、`description:` 和 `host:`。阅读这些内容，判断用户意图
+是否在语义上匹配其中一个。
 
-A confident match means **all three** are true:
+自信匹配意味着以下**三个条件**都为真：
 
-- The intent's domain matches the skill's `host` (or one of its hostnames)
-- A `triggers:` phrase or the `description:` covers the same data the
-  intent asks for
-- The intent does not require args the skill does not declare in `args:`
+- 意图的域匹配技能的 `host`（或其主机名之一）
+- `triggers:` 短语或 `description:` 涵盖意图请求的相同数据
+- 意图不需要技能在 `args:` 中未声明的参数
 
-If matched, parse any `--arg key=value` from the intent (or pass none for
-zero-arg skills) and run:
+如果匹配，从意图中解析任何 `--arg key=value`（或对零参数技能不传递）并运行：
 
 ```bash
 $B skill run <name> [--arg key=value ...]
 ```
 
-Emit the JSON the skill prints to stdout. Stop.
+输出技能打印到 stdout 的 JSON。停止。
 
-If matching is ambiguous (two skills could plausibly fit), pick the
-narrower-tier one (project > global > bundled — `$B skill list` shows the
-tier). If still ambiguous, fall through to the prototype path rather than
-guess wrong.
+如果匹配模糊（两个技能似乎都适用），选择更窄层级的那个
+（project > global > bundled — `$B skill list` 显示层级）。
+如果仍然模糊，回退到原型路径，而不是猜错。
 
-## Step 4 — Prototype phase
+## 步骤 4 — 原型阶段
 
-No match. Drive the page using `$B` primitives:
+无匹配。使用 `$B` 基元驱动页面：
 
-1. `$B goto <url>` — navigate to the target. The user's intent usually
-   names a host or a URL; use it directly.
-2. `$B snapshot --text` (or `$B text`) — get a clean text view of the
-   page to find selectors.
-3. `$B html` — pull the raw HTML when you need to parse structured data
-   (lists, tables, repeated rows).
-4. `$B links` — when the intent is to gather URLs.
-5. Iterate: try a selector, check the output, refine.
+1. `$B goto <url>` — 导航到目标。用户的意图通常会提及主机或 URL；直接使用。
+2. `$B snapshot --text`（或 `$B text`）— 获取页面的纯文本视图以查找选择器。
+3. `$B html` — 当需要解析结构化数据（列表、表格、重复行）时拉取原始 HTML。
+4. `$B links` — 当意图是收集 URL 时。
+5. 迭代：尝试选择器，检查输出，优化。
 
-Emit the result as JSON on stdout (one document, not pretty-printed).
-Use a stable shape — typically `{ "items": [...], "count": N }` or
-similar — so downstream consumers can treat it as data.
+将结果作为 JSON 输出到 stdout（单个文档，非美化打印）。
+使用稳定的结构 — 通常是 `{ "items": [...], "count": N }` 或类似 —
+以便下游消费者可以将其作为数据处理。
 
-## Step 5 — Skillify nudge
+## 步骤 5 — Skillify 提示
 
-After a successful prototype, append exactly one line:
+成功原型后，追加一行：
 
-> "Say /skillify to make this a permanent skill (200ms on next call)."
+> "输入 /skillify 将此变为永久技能（下次调用 200ms）。"
 
-That is the entire nudge. Do not nag, do not list pros, do not push.
-Proactive surfacing is a Phase 3 knob (`gstack-config browser_skillify_prompts`),
-not this skill's job.
+这就是全部提示。不要唠叨，不要列出优点，不要推送。
+主动展示是 Phase 3 的旋钮（`gstack-config browser_skillify_prompts`），
+不是此技能的工作。
 
-## When the prototype fails
+## 当原型失败时
 
-If the page loads but data extraction does not yield a sensible JSON shape
-after 3-4 selector attempts:
+如果页面加载但经过 3-4 次选择器尝试后数据提取仍未产生合理的 JSON 结构：
 
-- Report what you tried, what came back, and what's blocking (lazy-loaded,
-  JS-rendered, paywalled, etc.).
-- Do NOT write a partial result and call it done.
-- Do NOT suggest /skillify on a broken prototype.
-- Ask the user whether they want to (a) try a different selector, (b)
-  switch to a different page, or (c) stop.
+- 报告您尝试了什么、返回了什么、什么阻碍了（延迟加载、JS 渲染、付费墙等）。
+- 不要写入部分结果并声称完成。
+- 不要在损坏的原型上建议 /skillify。
+- 询问用户是否想 (a) 尝试不同的选择器，(b) 切换到不同的页面，或 (c) 停止。
 
-## What this skill does NOT do
+## 此技能不做的事情
 
-- Mutating actions (use /automate when shipped, or $B primitives directly)
-- Auth flows / cookie import (use /setup-browser-cookies first)
-- Multi-page crawls (this is one-shot per call)
-- Anything that requires the daemon to not be running
+- 变更性操作（发布后使用 /automate，或直接使用 $B 基元）
+- 认证流程 / cookie 导入（先使用 /setup-browser-cookies）
+- 多页爬取（每次调用是一次性的）
+- 任何需要守护进程不运行的操作
 
-## Output discipline
+## 输出纪律
 
-The match path returns whatever JSON the matched skill emits. The
-prototype path returns whatever JSON you construct. In both cases:
+匹配路径返回匹配技能输出的任何 JSON。原型路径返回您构造的任何 JSON。
+两种情况：
 
-- One JSON document, on stdout.
-- Stderr (or chat) is for logs and the skillify nudge.
-- Do not embed prose around the JSON in the chat reply unless the user
-  asked for an explanation — many `/scrape` callers pipe the output to
-  `jq`.
+- 一个 JSON 文档，在 stdout 上。
+- Stderr（或聊天）用于日志和 skillify 提示。
+- 不要在聊天回复中在 JSON 周围嵌入散文，除非用户要求解释 —
+  许多 `/scrape` 调用者将输出管道到 `jq`。
 
-## Capture Learnings
+## 捕获学习
 
-If you discovered a non-obvious pattern, pitfall, or architectural insight during
-this session, log it for future sessions:
+如果在此会话中发现了不明显的模式、陷阱或架构洞察，记录下来供未来会话使用：
 
 ```bash
 ~/.claude/skills/gstack/bin/gstack-learnings-log '{"skill":"scrape","type":"TYPE","key":"SHORT_KEY","insight":"DESCRIPTION","confidence":N,"source":"SOURCE","files":["path/to/relevant/file"]}'
 ```
 
-**Types:** `pattern` (reusable approach), `pitfall` (what NOT to do), `preference`
-(user stated), `architecture` (structural decision), `tool` (library/framework insight),
-`operational` (project environment/CLI/workflow knowledge).
+**类型：**`pattern`（可复用方法）、`pitfall`（不该做什么）、`preference`
+（用户陈述）、`architecture`（结构决策）、`tool`（库/框架洞察）、
+`operational`（项目环境/CLI/工作流知识）。
 
-**Sources:** `observed` (you found this in the code), `user-stated` (user told you),
-`inferred` (AI deduction), `cross-model` (both Claude and Codex agree).
+**来源：**`observed`（您在代码中发现的）、`user-stated`（用户告诉您的）、
+`inferred`（AI 推断）、`cross-model`（Claude 和 Codex 都同意）。
 
-**Confidence:** 1-10. Be honest. An observed pattern you verified in the code is 8-9.
-An inference you're not sure about is 4-5. A user preference they explicitly stated is 10.
+**置信度：**1-10。诚实。您在代码中验证的观察模式是 8-9。
+您不确定的推断是 4-5。用户明确陈述的偏好是 10。
 
-**files:** Include the specific file paths this learning references. This enables
-staleness detection: if those files are later deleted, the learning can be flagged.
+**files：** 包含此学习引用的具体文件路径。这启用了
+过时检测：如果这些文件后来被删除，学习可以被标记。
 
-**Only log genuine discoveries.** Don't log obvious things. Don't log things the user
-already knows. A good test: would this insight save time in a future session? If yes, log it.
+**只记录真正的发现。** 不要记录显而易见的事情。不要记录用户已经知道的事情。
+好的测试：这个洞察会在未来会话中节省时间吗？如果是，记录它。

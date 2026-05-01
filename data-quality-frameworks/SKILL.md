@@ -1,58 +1,58 @@
 ---
 name: data-quality-frameworks
-description: Implement data quality validation with Great Expectations, dbt tests, and data contracts. Use when building data quality pipelines, implementing validation rules, or establishing data contracts.
+description: 使用 Great Expectations、dbt 测试和数据合约实现数据质量验证。在构建数据质量管道、实施验证规则或建立数据合约时使用。
 ---
 
-# Data Quality Frameworks
+# 数据质量框架
 
-Production patterns for implementing data quality with Great Expectations, dbt tests, and data contracts to ensure reliable data pipelines.
+使用 Great Expectations、dbt 测试和数据合约实现数据质量的生产模式，确保可靠的数据管道。
 
-## When to Use This Skill
+## 使用场景
 
-- Implementing data quality checks in pipelines
-- Setting up Great Expectations validation
-- Building comprehensive dbt test suites
-- Establishing data contracts between teams
-- Monitoring data quality metrics
-- Automating data validation in CI/CD
+- 在管道中实施数据质量检查
+- 设置 Great Expectations 验证
+- 构建全面的 dbt 测试套件
+- 在团队之间建立数据合约
+- 监控数据质量指标
+- 在 CI/CD 中自动化数据验证
 
-## Core Concepts
+## 核心概念
 
-### 1. Data Quality Dimensions
+### 1. 数据质量维度
 
-| Dimension        | Description              | Example Check                                      |
+| 维度        | 描述              | 示例检查                                      |
 | ---------------- | ------------------------ | -------------------------------------------------- |
-| **Completeness** | No missing values        | `expect_column_values_to_not_be_null`              |
-| **Uniqueness**   | No duplicates            | `expect_column_values_to_be_unique`                |
-| **Validity**     | Values in expected range | `expect_column_values_to_be_in_set`                |
-| **Accuracy**     | Data matches reality     | Cross-reference validation                         |
-| **Consistency**  | No contradictions        | `expect_column_pair_values_A_to_be_greater_than_B` |
-| **Timeliness**   | Data is recent           | `expect_column_max_to_be_between`                  |
+| **完整性** | 无缺失值        | `expect_column_values_to_not_be_null`              |
+| **唯一性**   | 无重复            | `expect_column_values_to_be_unique`                |
+| **有效性**     | 值在预期范围内 | `expect_column_values_to_be_in_set`                |
+| **准确性**     | 数据与现实匹配     | 交叉引用验证                         |
+| **一致性**  | 无矛盾        | `expect_column_pair_values_A_to_be_greater_than_B` |
+| **时效性**   | 数据是最新的           | `expect_column_max_to_be_between`                  |
 
-### 2. Testing Pyramid for Data
+### 2. 数据测试金字塔
 
 ```
           /\
-         /  \     Integration Tests (cross-table)
+         /  \     集成测试（跨表）
         /────\
-       /      \   Unit Tests (single column)
+       /      \   单元测试（单列）
       /────────\
-     /          \ Schema Tests (structure)
+     /          \ Schema 测试（结构）
     /────────────\
 ```
 
-## Quick Start
+## 快速开始
 
-### Great Expectations Setup
+### Great Expectations 设置
 
 ```bash
-# Install
+# 安装
 pip install great_expectations
 
-# Initialize project
+# 初始化项目
 great_expectations init
 
-# Create datasource
+# 创建数据源
 great_expectations datasource new
 ```
 
@@ -60,13 +60,13 @@ great_expectations datasource new
 # great_expectations/checkpoints/daily_validation.yml
 import great_expectations as gx
 
-# Create context
+# 创建上下文
 context = gx.get_context()
 
-# Create expectation suite
+# 创建期望套件
 suite = context.add_expectation_suite("orders_suite")
 
-# Add expectations
+# 添加期望
 suite.add_expectation(
     gx.expectations.ExpectColumnValuesToNotBeNull(column="order_id")
 )
@@ -74,13 +74,13 @@ suite.add_expectation(
     gx.expectations.ExpectColumnValuesToBeUnique(column="order_id")
 )
 
-# Validate
+# 验证
 results = context.run_checkpoint(checkpoint_name="daily_orders")
 ```
 
-## Patterns
+## 模式
 
-### Pattern 1: Great Expectations Suite
+### 模式 1：Great Expectations 套件
 
 ```python
 # expectations/orders_suite.py
@@ -89,20 +89,20 @@ from great_expectations.core import ExpectationSuite
 from great_expectations.core.expectation_configuration import ExpectationConfiguration
 
 def build_orders_suite() -> ExpectationSuite:
-    """Build comprehensive orders expectation suite"""
+    """构建全面的订单期望套件"""
 
     suite = ExpectationSuite(expectation_suite_name="orders_suite")
 
-    # Schema expectations
+    # Schema 期望
     suite.add_expectation(ExpectationConfiguration(
         expectation_type="expect_table_columns_to_match_set",
         kwargs={
             "column_set": ["order_id", "customer_id", "amount", "status", "created_at"],
-            "exact_match": False  # Allow additional columns
+            "exact_match": False  # 允许额外列
         }
     ))
 
-    # Primary key
+    # 主键
     suite.add_expectation(ExpectationConfiguration(
         expectation_type="expect_column_values_to_not_be_null",
         kwargs={"column": "order_id"}
@@ -112,13 +112,13 @@ def build_orders_suite() -> ExpectationSuite:
         kwargs={"column": "order_id"}
     ))
 
-    # Foreign key
+    # 外键
     suite.add_expectation(ExpectationConfiguration(
         expectation_type="expect_column_values_to_not_be_null",
         kwargs={"column": "customer_id"}
     ))
 
-    # Categorical values
+    # 分类值
     suite.add_expectation(ExpectationConfiguration(
         expectation_type="expect_column_values_to_be_in_set",
         kwargs={
@@ -127,7 +127,7 @@ def build_orders_suite() -> ExpectationSuite:
         }
     ))
 
-    # Numeric ranges
+    # 数值范围
     suite.add_expectation(ExpectationConfiguration(
         expectation_type="expect_column_values_to_be_between",
         kwargs={
@@ -138,13 +138,13 @@ def build_orders_suite() -> ExpectationSuite:
         }
     ))
 
-    # Date validity
+    # 日期有效性
     suite.add_expectation(ExpectationConfiguration(
         expectation_type="expect_column_values_to_be_dateutil_parseable",
         kwargs={"column": "created_at"}
     ))
 
-    # Freshness - data should be recent
+    # 新鲜度 - 数据应该是最近的
     suite.add_expectation(ExpectationConfiguration(
         expectation_type="expect_column_max_to_be_between",
         kwargs={
@@ -154,16 +154,16 @@ def build_orders_suite() -> ExpectationSuite:
         }
     ))
 
-    # Row count sanity
+    # 行数合理性
     suite.add_expectation(ExpectationConfiguration(
         expectation_type="expect_table_row_count_to_be_between",
         kwargs={
-            "min_value": 1000,  # Expect at least 1000 rows
+            "min_value": 1000,  # 期望至少 1000 行
             "max_value": 10000000
         }
     ))
 
-    # Statistical expectations
+    # 统计期望
     suite.add_expectation(ExpectationConfiguration(
         expectation_type="expect_column_mean_to_be_between",
         kwargs={
@@ -176,7 +176,7 @@ def build_orders_suite() -> ExpectationSuite:
     return suite
 ```
 
-### Pattern 2: Great Expectations Checkpoint
+### 模式 2：Great Expectations 检查点
 
 ```yaml
 # great_expectations/checkpoints/orders_checkpoint.yml
@@ -191,7 +191,7 @@ validations:
       data_connector_name: default_inferred_data_connector_name
       data_asset_name: orders
       data_connector_query:
-        index: -1 # Latest batch
+        index: -1 # 最新批次
     expectation_suite_name: orders_suite
 
 action_list:
@@ -207,7 +207,7 @@ action_list:
     action:
       class_name: UpdateDataDocsAction
 
-  # Slack notification on failure
+  # 失败时 Slack 通知
   - name: send_slack_notification
     action:
       class_name: SlackNotificationAction
@@ -219,7 +219,7 @@ action_list:
 ```
 
 ```python
-# Run checkpoint
+# 运行检查点
 import great_expectations as gx
 
 context = gx.get_context()
@@ -230,10 +230,10 @@ if not result.success:
         r for r in result.run_results.values()
         if not r.success
     ]
-    raise ValueError(f"Data quality check failed: {failed_expectations}")
+    raise ValueError(f"数据质量检查失败: {failed_expectations}")
 ```
 
-### Pattern 3: dbt Data Tests
+### 模式 3：dbt 数据测试
 
 ```yaml
 # models/marts/core/_core__models.yml
@@ -241,9 +241,9 @@ version: 2
 
 models:
   - name: fct_orders
-    description: Order fact table
+    description: 订单事实表
     tests:
-      # Table-level tests
+      # 表级测试
       - dbt_utils.recency:
           datepart: day
           field: created_at
@@ -254,13 +254,13 @@ models:
 
     columns:
       - name: order_id
-        description: Primary key
+        description: 主键
         tests:
           - unique
           - not_null
 
       - name: customer_id
-        description: Foreign key to dim_customers
+        description: 外键，关联 dim_customers
         tests:
           - not_null
           - relationships:
@@ -296,12 +296,12 @@ models:
         tests:
           - unique
           - not_null
-          # Custom regex test
+          # 自定义正则测试
           - dbt_utils.expression_is_true:
               expression: "email ~ '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$'"
 ```
 
-### Pattern 4: Custom dbt Tests
+### 模式 4：自定义 dbt 测试
 
 ```sql
 -- tests/generic/test_row_count_in_range.sql
@@ -317,7 +317,7 @@ where cnt < {{ min_count }} or cnt > {{ max_count }}
 
 {% endtest %}
 
--- Usage in schema.yml:
+-- 在 schema.yml 中的用法：
 -- tests:
 --   - row_count_in_range:
 --       min_count: 1000
@@ -345,7 +345,7 @@ where {{ column_name }} - prev_value != {{ interval }}
 
 ```sql
 -- tests/singular/assert_orders_customers_match.sql
--- Singular test: specific business rule
+-- 单例测试：特定业务规则
 
 with orders_customers as (
     select distinct customer_id from {{ ref('fct_orders') }}
@@ -363,10 +363,10 @@ orphaned_orders as (
 )
 
 select * from orphaned_orders
--- Test passes if this returns 0 rows
+-- 如果返回 0 行则测试通过
 ```
 
-### Pattern 5: Data Contracts
+### 模式 5：数据合约
 
 ```yaml
 # contracts/orders_contract.yaml
@@ -379,9 +379,9 @@ metadata:
   contact: data-team@company.com
 
 info:
-  title: Orders Data Contract
-  description: Contract for order event data from the ecommerce platform
-  purpose: Analytics, reporting, and ML features
+  title: 订单数据合约
+  description: 来自电商平台的订单事件数据合约
+  purpose: 分析、报告和机器学习特征
 
 servers:
   production:
@@ -391,9 +391,9 @@ servers:
     schema: CORE
 
 terms:
-  usage: Internal analytics only
-  limitations: PII must not be exposed in downstream marts
-  billing: Charged per query TB scanned
+  usage: 仅限内部分析
+  limitations: PII 不得在下游 marts 中暴露
+  billing: 按查询扫描 TB 计费
 
 schema:
   type: object
@@ -401,7 +401,7 @@ schema:
     order_id:
       type: string
       format: uuid
-      description: Unique order identifier
+      description: 唯一订单标识符
       required: true
       unique: true
       pii: false
@@ -409,7 +409,7 @@ schema:
     customer_id:
       type: string
       format: uuid
-      description: Customer identifier
+      description: 客户标识符
       required: true
       pii: true
       piiClassification: indirect
@@ -418,18 +418,18 @@ schema:
       type: number
       minimum: 0
       maximum: 100000
-      description: Order total in USD
+      description: 订单总额（美元）
 
     created_at:
       type: string
       format: date-time
-      description: Order creation timestamp
+      description: 订单创建时间戳
       required: true
 
     status:
       type: string
       enum: [pending, processing, shipped, delivered, cancelled]
-      description: Current order status
+      description: 当前订单状态
 
 quality:
   type: SodaCL
@@ -444,11 +444,11 @@ quality:
 
 sla:
   availability: 99.9%
-  freshness: 1 hour
-  latency: 5 minutes
+  freshness: 1 小时
+  latency: 5 分钟
 ```
 
-### Pattern 6: Automated Quality Pipeline
+### 模式 6：自动化质量管道
 
 ```python
 # quality_pipeline.py
@@ -467,14 +467,14 @@ class QualityResult:
     timestamp: datetime
 
 class DataQualityPipeline:
-    """Orchestrate data quality checks across tables"""
+    """编排跨表的数据质量检查"""
 
     def __init__(self, context: gx.DataContext):
         self.context = context
         self.results: List[QualityResult] = []
 
     def validate_table(self, table: str, suite: str) -> QualityResult:
-        """Validate a single table against expectation suite"""
+        """根据期望套件验证单个表"""
 
         checkpoint_config = {
             "name": f"{table}_validation",
@@ -491,7 +491,7 @@ class DataQualityPipeline:
 
         result = self.context.run_checkpoint(**checkpoint_config)
 
-        # Parse results
+        # 解析结果
         validation_result = list(result.run_results.values())[0]
         results = validation_result.results
 
@@ -511,33 +511,33 @@ class DataQualityPipeline:
         )
 
     def run_all(self, tables: Dict[str, str]) -> Dict[str, QualityResult]:
-        """Run validation for all tables"""
+        """对所有表运行验证"""
         results = {}
 
         for table, suite in tables.items():
-            print(f"Validating {table}...")
+            print(f"验证 {table}...")
             results[table] = self.validate_table(table, suite)
 
         return results
 
     def generate_report(self, results: Dict[str, QualityResult]) -> str:
-        """Generate quality report"""
-        report = ["# Data Quality Report", f"Generated: {datetime.now()}", ""]
+        """生成质量报告"""
+        report = ["# 数据质量报告", f"生成时间: {datetime.now()}", ""]
 
         total_passed = sum(1 for r in results.values() if r.passed)
         total_tables = len(results)
 
-        report.append(f"## Summary: {total_passed}/{total_tables} tables passed")
+        report.append(f"## 摘要: {total_passed}/{total_tables} 个表通过")
         report.append("")
 
         for table, result in results.items():
             status = "✅" if result.passed else "❌"
             report.append(f"### {status} {table}")
-            report.append(f"- Expectations: {result.total_expectations}")
-            report.append(f"- Failed: {result.failed_expectations}")
+            report.append(f"- 期望数: {result.total_expectations}")
+            report.append(f"- 失败数: {result.failed_expectations}")
 
             if not result.passed:
-                report.append("- Failed checks:")
+                report.append("- 失败的检查:")
                 for detail in result.details:
                     if not detail["success"]:
                         report.append(f"  - {detail['expectation']}: {detail['observed_value']}")
@@ -545,7 +545,7 @@ class DataQualityPipeline:
 
         return "\n".join(report)
 
-# Usage
+# 用法
 context = gx.get_context()
 pipeline = DataQualityPipeline(context)
 
@@ -558,26 +558,26 @@ tables_to_validate = {
 results = pipeline.run_all(tables_to_validate)
 report = pipeline.generate_report(results)
 
-# Fail pipeline if any table failed
+# 如果任何表失败则管道失败
 if not all(r.passed for r in results.values()):
     print(report)
-    raise ValueError("Data quality checks failed!")
+    raise ValueError("数据质量检查失败！")
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该做
 
-- **Test early** - Validate source data before transformations
-- **Test incrementally** - Add tests as you find issues
-- **Document expectations** - Clear descriptions for each test
-- **Alert on failures** - Integrate with monitoring
-- **Version contracts** - Track schema changes
+- **尽早测试** - 在转换之前验证源数据
+- **增量测试** - 发现问题时添加测试
+- **记录期望** - 每个测试都有清晰的描述
+- **失败时告警** - 与监控集成
+- **版本化合约** - 跟踪 schema 变更
 
-### Don'ts
+### 不应该做
 
-- **Don't test everything** - Focus on critical columns
-- **Don't ignore warnings** - They often precede failures
-- **Don't skip freshness** - Stale data is bad data
-- **Don't hardcode thresholds** - Use dynamic baselines
-- **Don't test in isolation** - Test relationships too
+- **不要测试所有东西** - 专注于关键列
+- **不要忽略警告** - 它们通常是失败的前兆
+- **不要跳过新鲜度** - 过期数据就是坏数据
+- **不要硬编码阈值** - 使用动态基线
+- **不要孤立测试** - 也要测试关系

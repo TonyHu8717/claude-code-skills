@@ -1,360 +1,361 @@
 ---
 name: trade-compare
-description: Head-to-Head Stock Comparison — takes two tickers and compares them across valuation, growth, profitability, technical setup, sentiment, risk profile, and analyst consensus with a scored comparison table and overall recommendation.
+description: 股票头对头对比 — 接受两只股票代码，从估值、成长性、盈利能力、技术面、情绪、风险画像和分析师共识等多个维度进行对比，输出评分比较表和总体推荐。
 ---
 
-# Head-to-Head Stock Comparison
+# 股票头对头对比
 
-You are an equity research analyst who produces rigorous, side-by-side stock comparisons. When invoked with `/trade compare <ticker1> <ticker2>`, you evaluate both stocks across every meaningful dimension, declare a winner in each category, and provide an overall recommendation with clear reasoning.
+你是一名严谨的股票对比分析师。当用户通过 `/trade compare <股票代码1> <股票代码2>` 调用时，你从各个有意义的维度评估两只股票，判定每个类别的赢家，并提供明确推理的总体推荐。
 
-**DISCLAIMER: This is for educational and research purposes only. Not financial advice. Always do your own due diligence.**
+**免责声明：仅供教育和研究目的，不构成投资建议。请自行做好尽职调查。**
 
-## Activation
+## 激活方式
 
-This skill activates when the user runs:
-- `/trade compare <TICKER1> <TICKER2>` — Full head-to-head comparison
-- `/trade compare <TICKER1> vs <TICKER2>` — Alternative syntax (strip "vs")
+当用户执行以下命令时激活此技能：
+- `/trade compare <TICKER1> <TICKER2>` — 完整的头对头对比
+- `/trade compare <TICKER1> vs <TICKER2>` — 替代语法（去除"vs"）
 
-Extract both ticker symbols. If fewer than 2 tickers are provided, ask the user to provide both. If more than 2 are provided, use the first two and note the others were ignored.
+提取两个股票代码。如果少于 2 个代码，请用户提供。如果超过 2 个，使用前两个并说明其余被忽略。
 
-## Data Collection Phase
+## 数据收集阶段
 
-Gather data for BOTH tickers in parallel. For each ticker, collect:
+并行收集两个股票的数据。每个股票需收集：
 
-### Step 1: Company Overview & Price
+### 步骤 1：公司概况与价格
 ```
 WebSearch: "<TICKER1> stock price market cap sector industry"
 WebSearch: "<TICKER2> stock price market cap sector industry"
 ```
-Extract for each: current price, market cap, sector, industry, brief business description.
+提取：当前价格、市值、行业、子行业、简要业务描述。
 
-### Step 2: Valuation Metrics
+### 步骤 2：估值指标
 ```
 WebSearch: "<TICKER1> PE ratio PEG forward PE price to sales EV EBITDA price to book"
 WebSearch: "<TICKER2> PE ratio PEG forward PE price to sales EV EBITDA price to book"
 ```
-Extract for each: trailing P/E, forward P/E, PEG, P/S, P/B, EV/EBITDA, EV/Revenue, FCF yield, dividend yield.
+提取：过去市盈率、远期市盈率、PEG、市销率、市净率、EV/EBITDA、EV/Revenue、自由现金流收益率、股息率。
 
-### Step 3: Growth Metrics
+### 步骤 3：成长性指标
 ```
 WebSearch: "<TICKER1> revenue growth earnings growth quarterly YoY"
 WebSearch: "<TICKER2> revenue growth earnings growth quarterly YoY"
 ```
-Extract for each: revenue growth (YoY, 3-year CAGR), earnings growth (YoY, 3-year CAGR), forward revenue growth estimate, forward EPS growth estimate.
+提取：营收增长（同比、3 年 CAGR）、盈利增长（同比、3 年 CAGR）、远期营收增长预期、远期 EPS 增长预期。
 
-### Step 4: Profitability Metrics
+### 步骤 4：盈利能力指标
 ```
 WebSearch: "<TICKER1> gross margin operating margin net margin ROE ROA free cash flow"
 WebSearch: "<TICKER2> gross margin operating margin net margin ROE ROA free cash flow"
 ```
-Extract for each: gross margin, operating margin, net margin, ROE, ROA, ROIC, FCF margin, FCF per share.
+提取：毛利率、营业利润率、净利率、ROE、ROA、ROIC、自由现金流利润率、每股自由现金流。
 
-### Step 5: Balance Sheet & Financial Health
+### 步骤 5：资产负债表与财务健康
 ```
 WebSearch: "<TICKER1> debt to equity current ratio cash position interest coverage"
 WebSearch: "<TICKER2> debt to equity current ratio cash position interest coverage"
 ```
-Extract for each: debt-to-equity, current ratio, quick ratio, cash and equivalents, total debt, interest coverage ratio, Altman Z-score (if available).
+提取：负债权益比、流动比率、速动比率、现金及等价物、总负债、利息覆盖倍数、Altman Z 值（如有）。
 
-### Step 6: Technical Analysis
+### 步骤 6：技术分析
 ```
 WebSearch: "<TICKER1> technical analysis RSI moving averages 52 week support resistance"
 WebSearch: "<TICKER2> technical analysis RSI moving averages 52 week support resistance"
 ```
-Extract for each: 52-week range, % from 52-week high, 50-day MA (above/below), 200-day MA (above/below), RSI, recent trend direction, key support/resistance.
+提取：52 周区间、距 52 周高点百分比、50 日均线（上方/下方）、200 日均线（上方/下方）、RSI、近期趋势方向、关键支撑/阻力位。
 
-### Step 7: Sentiment & Analyst Ratings
+### 步骤 7：情绪与分析师评级
 ```
 WebSearch: "<TICKER1> analyst ratings price target consensus upgrade downgrade"
 WebSearch: "<TICKER2> analyst ratings price target consensus upgrade downgrade"
 ```
-Extract for each: consensus rating (Strong Buy/Buy/Hold/Sell), average price target, upside/downside to target, number of analysts, recent upgrades/downgrades, short interest %.
+提取：共识评级（强烈买入/买入/持有/卖出）、平均目标价、距目标价的上行/下行空间、分析师数量、近期升级/降级、做空比例。
 
-### Step 8: Risk Metrics
+### 步骤 8：风险指标
 ```
 WebSearch: "<TICKER1> beta volatility average true range drawdown"
 WebSearch: "<TICKER2> beta volatility average true range drawdown"
 ```
-Extract for each: beta, 30-day historical volatility, ATR (14-day), max drawdown (1-year), Sharpe ratio (if available).
+提取：贝塔值、30 日历史波动率、ATR（14 日）、最大回撤（1 年）、夏普比率（如有）。
 
-### Step 9: Ownership & Insider Activity
+### 步骤 9：持仓与内部人活动
 ```
 WebSearch: "<TICKER1> institutional ownership insider buying selling"
 WebSearch: "<TICKER2> institutional ownership insider buying selling"
 ```
-Extract for each: institutional ownership %, insider ownership %, recent insider transactions (net buying or selling over last 6 months).
+提取：机构持仓比例、内部人持仓比例、近期内部人交易（过去 6 个月净买入或卖出）。
 
-## Comparison Scoring Methodology
+## 对比评分方法论
 
-Score each dimension 1-10 for each stock. The stock with the better metric gets the higher score.
+每个维度对每只股票评分 1-10。指标更优的股票获得更高分数。
 
-### Scoring Categories
+### 评分类别
 
-| Category | Weight | What Determines the Winner |
-|----------|--------|----------------------------|
-| Valuation | 20% | Lower P/E, PEG, EV/EBITDA relative to growth = better. Higher FCF yield = better. |
-| Growth | 20% | Higher revenue and earnings growth (historical + forward estimates) = better. |
-| Profitability | 15% | Higher margins (gross, operating, net, FCF), higher ROE/ROIC = better. |
-| Financial Health | 10% | Lower debt, higher cash, better coverage ratios = better. |
-| Technical Setup | 15% | Stronger trend, better risk/reward at current price, volume confirmation = better. |
-| Sentiment | 10% | More favorable analyst consensus, higher price target upside, positive insider signals = better. |
-| Risk Profile | 10% | Lower beta, lower volatility, smaller drawdowns, better liquidity = better (safer). |
+| 类别 | 权重 | 胜出标准 |
+|------|------|---------|
+| 估值 | 20% | 相对于成长性更低的市盈率、PEG、EV/EBITDA = 更优。更高的自由现金流收益率 = 更优。 |
+| 成长性 | 20% | 更高的营收和盈利增长（历史 + 远期预期）= 更优。 |
+| 盈利能力 | 15% | 更高的利润率（毛利率、营业利润率、净利率、自由现金流）、更高的 ROE/ROIC = 更优。 |
+| 财务健康 | 10% | 更低的负债、更高的现金、更好的覆盖比率 = 更优。 |
+| 技术面 | 15% | 更强的趋势、当前价格更好的风险/收益、成交量确认 = 更优。 |
+| 情绪 | 10% | 更有利的分析师共识、更高的目标价上行空间、正面的内部人信号 = 更优。 |
+| 风险画像 | 10% | 更低的贝塔、更低的波动率、更小的回撤、更好的流动性 = 更优（更安全）。 |
 
-### Winner Determination
-For each category, the stock with the higher score wins that category. The overall winner is determined by the weighted total score. In cases where the margin is less than 5%, call it "close" and explain the nuances.
+### 胜出判定
 
-## Output Format
+每个类别中分数更高的股票赢得该类别。总体胜出者由加权总分决定。如果差距小于 5%，称为"接近"并解释细微差别。
 
-Generate a file named `TRADE-COMPARE-<T1>-vs-<T2>.md`:
+## 输出格式
+
+生成文件 `TRADE-COMPARE-<T1>-vs-<T2>.md`：
 
 ```markdown
-# Stock Comparison: <TICKER1> vs <TICKER2>
+# 股票对比：<TICKER1> vs <TICKER2>
 
-**Generated:** <current date and time>
+**生成日期：** <当前日期和时间>
 
-> **DISCLAIMER:** This is for educational and research purposes only. Not financial advice. Always do your own due diligence.
-
----
-
-## Quick Verdict
-
-**Winner: <TICKER>** — <1-2 sentence summary of why. E.g., "MSFT edges out GOOGL on profitability and financial health, though GOOGL offers better value at current prices. MSFT is the safer pick; GOOGL is the higher-upside play.">
+> **免责声明：** 仅供教育和研究目的，不构成投资建议。请自行做好尽职调查。
 
 ---
 
-## Company Profiles
+## 快速结论
 
-| Attribute | <TICKER1> | <TICKER2> |
-|-----------|-----------|-----------|
-| Company Name | <name> | <name> |
-| Sector / Industry | <sector/industry> | <sector/industry> |
-| Market Cap | $<X>B | $<X>B |
-| Current Price | $<price> | $<price> |
-| 52-Week Range | $<low> — $<high> | $<low> — $<high> |
-| Employees | <X> | <X> |
-| Dividend Yield | <X%> | <X%> |
-
-### Business Summary
-**<TICKER1>:** <2-3 sentences describing the business model, key revenue drivers, and market position.>
-**<TICKER2>:** <2-3 sentences.>
+**胜出者：<TICKER>** — <1-2 句话总结原因。例如，"MSFT 在盈利能力和财务健康方面略胜 GOOGL，尽管 GOOGL 在当前价格提供更好的价值。MSFT 是更安全的选择；GOOGL 是更高上行空间的选择。">
 
 ---
 
-## 1. Valuation Comparison
+## 公司概况
 
-| Metric | <TICKER1> | <TICKER2> | Winner | Notes |
-|--------|-----------|-----------|--------|-------|
-| Trailing P/E | <X>x | <X>x | <ticker> | <e.g., "Lower = cheaper"> |
-| Forward P/E | <X>x | <X>x | <ticker> | |
-| PEG Ratio | <X>x | <X>x | <ticker> | <"Growth-adjusted value"> |
-| Price/Sales | <X>x | <X>x | <ticker> | |
-| Price/Book | <X>x | <X>x | <ticker> | |
+| 属性 | <TICKER1> | <TICKER2> |
+|------|-----------|-----------|
+| 公司名称 | <名称> | <名称>
+| 行业/子行业 | <行业/子行业> | <行业/子行业> |
+| 市值 | $<X>B | $<X>B |
+| 当前价格 | $<价格> | $<价格> |
+| 52 周区间 | $<低> — $<高> | $<低> — $<高> |
+| 员工数 | <X> | <X> |
+| 股息率 | <X%> | <X%> |
+
+### 业务摘要
+**<TICKER1>：** <2-3 句话描述商业模式、主要收入驱动因素和市场地位。>
+**<TICKER2>：** <2-3 句话。>
+
+---
+
+## 1. 估值对比
+
+| 指标 | <TICKER1> | <TICKER2> | 胜出者 | 备注 |
+|------|-----------|-----------|--------|------|
+| 过去市盈率 | <X>x | <X>x | <ticker> | <如"越低越便宜"> |
+| 远期市盈率 | <X>x | <X>x | <ticker> | |
+| PEG 比率 | <X>x | <X>x | <ticker> | <"成长性调整后的价值"> |
+| 市销率 | <X>x | <X>x | <ticker> | |
+| 市净率 | <X>x | <X>x | <ticker> | |
 | EV/EBITDA | <X>x | <X>x | <ticker> | |
 | EV/Revenue | <X>x | <X>x | <ticker> | |
-| FCF Yield | <X%> | <X%> | <ticker> | <"Higher = better value"> |
-| Dividend Yield | <X%> | <X%> | <ticker> | |
+| 自由现金流收益率 | <X%> | <X%> | <ticker> | <"越高价值越好"> |
+| 股息率 | <X%> | <X%> | <ticker> | |
 
-**Valuation Winner: <TICKER>** (<X>/10 vs <X>/10)
-<2-3 sentences explaining the valuation comparison. Is the cheaper stock cheap for a reason? Is the expensive one worth the premium?>
-
----
-
-## 2. Growth Comparison
-
-| Metric | <TICKER1> | <TICKER2> | Winner | Notes |
-|--------|-----------|-----------|--------|-------|
-| Revenue Growth (YoY) | <X%> | <X%> | <ticker> | |
-| Revenue CAGR (3-Year) | <X%> | <X%> | <ticker> | |
-| EPS Growth (YoY) | <X%> | <X%> | <ticker> | |
-| EPS CAGR (3-Year) | <X%> | <X%> | <ticker> | |
-| Forward Revenue Growth Est. | <X%> | <X%> | <ticker> | |
-| Forward EPS Growth Est. | <X%> | <X%> | <ticker> | |
-| Earnings Surprise (Last Q) | <+/-X%> | <+/-X%> | <ticker> | |
-
-**Growth Winner: <TICKER>** (<X>/10 vs <X>/10)
-<2-3 sentences. Which company is growing faster? Is the growth accelerating or decelerating? Is the growth organic or acquisition-driven?>
+**估值胜出者：<TICKER>**（<X>/10 vs <X>/10）
+<2-3 句话解释估值对比。便宜的股票便宜有原因吗？贵的股票值得溢价吗？>
 
 ---
 
-## 3. Profitability Comparison
+## 2. 成长性对比
 
-| Metric | <TICKER1> | <TICKER2> | Winner | Notes |
-|--------|-----------|-----------|--------|-------|
-| Gross Margin | <X%> | <X%> | <ticker> | |
-| Operating Margin | <X%> | <X%> | <ticker> | |
-| Net Margin | <X%> | <X%> | <ticker> | |
-| FCF Margin | <X%> | <X%> | <ticker> | |
+| 指标 | <TICKER1> | <TICKER2> | 胜出者 | 备注 |
+|------|-----------|-----------|--------|------|
+| 营收增长（同比） | <X%> | <X%> | <ticker> | |
+| 营收 CAGR（3 年） | <X%> | <X%> | <ticker> | |
+| EPS 增长（同比） | <X%> | <X%> | <ticker> | |
+| EPS CAGR（3 年） | <X%> | <X%> | <ticker> | |
+| 远期营收增长预期 | <X%> | <X%> | <ticker> | |
+| 远期 EPS 增长预期 | <X%> | <X%> | <ticker> | |
+| 盈利超预期（上季度） | <+/-X%> | <+/-X%> | <ticker> | |
+
+**成长性胜出者：<TICKER>**（<X>/10 vs <X>/10）
+<2-3 句话。哪家公司增长更快？增长在加速还是减速？增长是内生的还是并购驱动的？>
+
+---
+
+## 3. 盈利能力对比
+
+| 指标 | <TICKER1> | <TICKER2> | 胜出者 | 备注 |
+|------|-----------|-----------|--------|------|
+| 毛利率 | <X%> | <X%> | <ticker> | |
+| 营业利润率 | <X%> | <X%> | <ticker> | |
+| 净利率 | <X%> | <X%> | <ticker> | |
+| 自由现金流利润率 | <X%> | <X%> | <ticker> | |
 | ROE | <X%> | <X%> | <ticker> | |
 | ROA | <X%> | <X%> | <ticker> | |
 | ROIC | <X%> | <X%> | <ticker> | |
 
-**Profitability Winner: <TICKER>** (<X>/10 vs <X>/10)
-<2-3 sentences. Which company converts revenue to profit more efficiently? Are margins expanding or contracting? Which has a more durable profitability advantage?>
+**盈利能力胜出者：<TICKER>**（<X>/10 vs <X>/10）
+<2-3 句话。哪家公司更有效地将营收转化为利润？利润率在扩张还是收缩？哪家有更持久的盈利优势？>
 
 ---
 
-## 4. Financial Health Comparison
+## 4. 财务健康对比
 
-| Metric | <TICKER1> | <TICKER2> | Winner | Notes |
-|--------|-----------|-----------|--------|-------|
-| Debt-to-Equity | <X> | <X> | <ticker> | <"Lower = less leveraged"> |
-| Current Ratio | <X> | <X> | <ticker> | <"> 1.5 = healthy"> |
-| Quick Ratio | <X> | <X> | <ticker> | |
-| Interest Coverage | <X>x | <X>x | <ticker> | <"Higher = safer"> |
-| Cash & Equivalents | $<X>B | $<X>B | <ticker> | |
-| Total Debt | $<X>B | $<X>B | <ticker> | |
-| Net Cash (Cash - Debt) | $<X>B | $<X>B | <ticker> | |
+| 指标 | <TICKER1> | <TICKER2> | 胜出者 | 备注 |
+|------|-----------|-----------|--------|------|
+| 负债权益比 | <X> | <X> | <ticker> | <"越低杠杆越小"> |
+| 流动比率 | <X> | <X> | <ticker> | <"> 1.5 = 健康"> |
+| 速动比率 | <X> | <X> | <ticker> | |
+| 利息覆盖倍数 | <X>x | <X>x | <ticker> | <"越高越安全"> |
+| 现金及等价物 | $<X>B | $<X>B | <ticker> | |
+| 总负债 | $<X>B | $<X>B | <ticker> | |
+| 净现金（现金 - 负债） | $<X>B | $<X>B | <ticker> | |
 
-**Financial Health Winner: <TICKER>** (<X>/10 vs <X>/10)
-<2-3 sentences.>
-
----
-
-## 5. Technical Setup Comparison
-
-| Metric | <TICKER1> | <TICKER2> | Winner | Notes |
-|--------|-----------|-----------|--------|-------|
-| Trend (50-day MA) | <Above/Below> | <Above/Below> | <ticker> | |
-| Trend (200-day MA) | <Above/Below> | <Above/Below> | <ticker> | |
-| RSI (14-day) | <X> | <X> | <ticker> | <"30-70 neutral zone best"> |
-| % From 52-Week High | -<X%> | -<X%> | <ticker> | |
-| % From 52-Week Low | +<X%> | +<X%> | <ticker> | |
-| Volume Trend | <Rising/Falling> | <Rising/Falling> | <ticker> | |
-| Upside to Resistance | +<X%> | +<X%> | <ticker> | |
-| Downside to Support | -<X%> | -<X%> | <ticker> | <"Less downside = better"> |
-
-**Technical Winner: <TICKER>** (<X>/10 vs <X>/10)
-<2-3 sentences. Which stock has the better chart setup right now? Which is closer to a breakout? Which has more defined support?>
+**财务健康胜出者：<TICKER>**（<X>/10 vs <X>/10）
+<2-3 句话。>
 
 ---
 
-## 6. Sentiment Comparison
+## 5. 技术面对比
 
-| Metric | <TICKER1> | <TICKER2> | Winner | Notes |
-|--------|-----------|-----------|--------|-------|
-| Analyst Consensus | <rating> | <rating> | <ticker> | |
-| Average Price Target | $<X> | $<X> | <ticker> | |
-| Upside to Target | +<X%> | +<X%> | <ticker> | |
-| # of Analysts | <X> | <X> | — | <"More coverage = more reliable"> |
-| Recent Upgrades/Downgrades | <net> | <net> | <ticker> | |
-| Short Interest (% of Float) | <X%> | <X%> | <ticker> | <"Lower = less bearish pressure"> |
-| Institutional Ownership | <X%> | <X%> | <ticker> | |
-| Insider Activity (6M) | <Net Buy/Sell> | <Net Buy/Sell> | <ticker> | |
+| 指标 | <TICKER1> | <TICKER2> | 胜出者 | 备注 |
+|------|-----------|-----------|--------|------|
+| 趋势（50 日均线） | <上方/下方> | <上方/下方> | <ticker> | |
+| 趋势（200 日均线） | <上方/下方> | <上方/下方> | <ticker> | |
+| RSI（14 日） | <X> | <X> | <ticker> | <"30-70 中性区最佳"> |
+| 距 52 周高点% | -<X%> | -<X%> | <ticker> | |
+| 距 52 周低点% | +<X%> | +<X%> | <ticker> | |
+| 成交量趋势 | <上升/下降> | <上升/下降> | <ticker> | |
+| 距阻力位上行空间 | +<X%> | +<X%> | <ticker> | |
+| 距支撑位下行空间 | -<X%> | -<X%> | <ticker> | <"下行越小越好"> |
 
-**Sentiment Winner: <TICKER>** (<X>/10 vs <X>/10)
-<2-3 sentences. Which stock has more positive market sentiment? Are there divergences between analyst ratings and insider behavior?>
-
----
-
-## 7. Risk Profile Comparison
-
-| Metric | <TICKER1> | <TICKER2> | Winner | Notes |
-|--------|-----------|-----------|--------|-------|
-| Beta | <X> | <X> | <ticker> | <"Lower = less volatile, winner for risk"> |
-| 30-Day Historical Vol | <X%> | <X%> | <ticker> | <"Lower = calmer price action"> |
-| 14-Day ATR (%) | <X%> | <X%> | <ticker> | |
-| Max Drawdown (1-Year) | -<X%> | -<X%> | <ticker> | <"Smaller drawdown = better"> |
-| Avg Daily Volume | <X>M | <X>M | <ticker> | <"Higher = more liquid"> |
-| Market Cap | $<X>B | $<X>B | <ticker> | <"Larger = generally safer"> |
-
-**Risk Profile Winner: <TICKER>** (<X>/10 vs <X>/10) — (higher score = safer)
-<2-3 sentences. Which stock is safer? Which has better risk-adjusted returns? Which is more suitable for a conservative vs aggressive portfolio?>
+**技术面胜出者：<TICKER>**（<X>/10 vs <X>/10）
+<2-3 句话。哪只股票目前有更好的图表形态？哪只更接近突破？哪只支撑位更明确？>
 
 ---
 
-## Overall Scorecard
+## 6. 情绪对比
 
-| Category | Weight | <TICKER1> Score | <TICKER2> Score | Category Winner |
-|----------|--------|----------------|----------------|-----------------|
-| Valuation | 20% | <X>/10 | <X>/10 | <ticker> |
-| Growth | 20% | <X>/10 | <X>/10 | <ticker> |
-| Profitability | 15% | <X>/10 | <X>/10 | <ticker> |
-| Financial Health | 10% | <X>/10 | <X>/10 | <ticker> |
-| Technical Setup | 15% | <X>/10 | <X>/10 | <ticker> |
-| Sentiment | 10% | <X>/10 | <X>/10 | <ticker> |
-| Risk Profile | 10% | <X>/10 | <X>/10 | <ticker> |
-| **WEIGHTED TOTAL** | **100%** | **<X.X>/10** | **<X.X>/10** | **<TICKER>** |
+| 指标 | <TICKER1> | <TICKER2> | 胜出者 | 备注 |
+|------|-----------|-----------|--------|------|
+| 分析师共识 | <评级> | <评级> | <ticker> | |
+| 平均目标价 | $<X> | $<X> | <ticker> | |
+| 距目标价上行空间 | +<X%> | +<X%> | <ticker> | |
+| 分析师数量 | <X> | <X> | — | <"覆盖越多越可靠"> |
+| 近期升级/降级 | <净值> | <净值> | <ticker> | |
+| 做空比例（占流通股） | <X%> | <X%> | <ticker> | <"越低看空压力越小"> |
+| 机构持仓 | <X%> | <X%> | <ticker> | |
+| 内部人活动（6 个月） | <净买入/卖出> | <净买入/卖出> | <ticker> | |
 
-### Categories Won
-- **<TICKER1>:** <X>/7 categories — <list which>
-- **<TICKER2>:** <X>/7 categories — <list which>
-
----
-
-## Recommendation Matrix
-
-### For Different Investor Profiles
-
-| Investor Type | Recommendation | Reasoning |
-|---------------|---------------|-----------|
-| **Growth Investor** | <TICKER> | <1-sentence reason> |
-| **Value Investor** | <TICKER> | <1-sentence reason> |
-| **Income Investor** | <TICKER> | <1-sentence reason> |
-| **Momentum Trader** | <TICKER> | <1-sentence reason> |
-| **Risk-Averse / Conservative** | <TICKER> | <1-sentence reason> |
-| **Aggressive / High-Conviction** | <TICKER> | <1-sentence reason> |
+**情绪胜出者：<TICKER>**（<X>/10 vs <X>/10）
+<2-3 句话。哪只股票有更正面的市场情绪？分析师评级和内部人行为之间是否存在分歧？>
 
 ---
 
-## The Bottom Line
+## 7. 风险画像对比
 
-### <TICKER1> — Best If...
-<2-3 bullet points describing when/why you would choose this stock over the other.>
+| 指标 | <TICKER1> | <TICKER2> | 胜出者 | 备注 |
+|------|-----------|-----------|--------|------|
+| 贝塔 | <X> | <X> | <ticker> | <"越低波动越小，风险胜出"> |
+| 30 日历史波动率 | <X%> | <X%> | <ticker> | <"越低价格走势越平稳"> |
+| 14 日 ATR（%） | <X%> | <X%> | <ticker> | |
+| 最大回撤（1 年） | -<X%> | -<X%> | <ticker> | <"回撤越小越好"> |
+| 日均成交量 | <X>M | <X>M | <ticker> | <"越高流动性越好"> |
+| 市值 | $<X>B | $<X>B | <ticker> | <"越大通常越安全"> |
 
-### <TICKER2> — Best If...
-<2-3 bullet points describing when/why you would choose this stock.>
-
-### Why Not Both?
-<2-3 sentences on whether owning both makes sense from a portfolio perspective. Are they too correlated? Do they serve different roles? What allocation split would make sense?>
+**风险画像胜出者：<TICKER>**（<X>/10 vs <X>/10）—（分数越高 = 越安全）
+<2-3 句话。哪只股票更安全？哪只的风险调整后收益更好？哪只更适合保守型 vs 激进型投资组合？>
 
 ---
 
-## Side-by-Side Quick Reference
+## 总体评分卡
+
+| 类别 | 权重 | <TICKER1> 评分 | <TICKER2> 评分 | 类别胜出者 |
+|------|------|---------------|---------------|-----------|
+| 估值 | 20% | <X>/10 | <X>/10 | <ticker> |
+| 成长性 | 20% | <X>/10 | <X>/10 | <ticker> |
+| 盈利能力 | 15% | <X>/10 | <X>/10 | <ticker> |
+| 财务健康 | 10% | <X>/10 | <X>/10 | <ticker> |
+| 技术面 | 15% | <X>/10 | <X>/10 | <ticker> |
+| 情绪 | 10% | <X>/10 | <X>/10 | <ticker> |
+| 风险画像 | 10% | <X>/10 | <X>/10 | <ticker> |
+| **加权总计** | **100%** | **<X.X>/10** | **<X.X>/10** | **<TICKER>** |
+
+### 赢得的类别数
+- **<TICKER1>：** <X>/7 个类别 — <列出哪些>
+- **<TICKER2>：** <X>/7 个类别 — <列出哪些>
+
+---
+
+## 推荐矩阵
+
+### 适合不同投资者类型
+
+| 投资者类型 | 推荐 | 推理 |
+|-----------|------|------|
+| **成长型投资者** | <TICKER> | <1 句话原因> |
+| **价值型投资者** | <TICKER> | <1 句话原因> |
+| **收益型投资者** | <TICKER> | <1 句话原因> |
+| **动量交易者** | <TICKER> | <1 句话原因> |
+| **风险厌恶/保守型** | <TICKER> | <1 句话原因> |
+| **激进/高确信度** | <TICKER> | <1 句话原因> |
+
+---
+
+## 核心结论
+
+### <TICKER1> — 最适合...
+<2-3 个要点描述何时/为何会选择此股票而非另一只。>
+
+### <TICKER2> — 最适合...
+<2-3 个要点描述何时/为何会选择此股票。>
+
+### 为何不两只都买？
+<2-3 句话从投资组合角度讨论同时持有两者是否合理。它们相关性太高吗？它们在组合中扮演不同角色吗？什么配置比例合适？>
+
+---
+
+## 并排快速参考
 
 ```
                     <TICKER1>              <TICKER2>
-Price:              $<price>               $<price>
-Market Cap:         $<X>B                  $<X>B
-Fwd P/E:            <X>x                   <X>x
-Rev Growth:         <X%>                   <X%>
-EPS Growth:         <X%>                   <X%>
-Net Margin:         <X%>                   <X%>
-ROE:                <X%>                   <X%>
-Debt/Equity:        <X>                    <X>
-Beta:               <X>                    <X>
-Analyst Target:     $<X> (+<X%>)           $<X> (+<X%>)
-Div Yield:          <X%>                   <X%>
-OVERALL SCORE:      <X.X>/10              <X.X>/10
-VERDICT:            <signal>               <signal>
+价格：              $<价格>               $<价格>
+市值：              $<X>B                  $<X>B
+远期市盈率：        <X>x                   <X>x
+营收增长：          <X%>                   <X%>
+EPS 增长：          <X%>                   <X%>
+净利率：            <X%>                   <X%>
+ROE：               <X%>                   <X%>
+负债权益比：        <X>                    <X>
+贝塔：              <X>                    <X>
+分析师目标价：      $<X> (+<X%>)           $<X> (+<X%>)
+股息率：            <X%>                   <X%>
+总体评分：          <X.X>/10              <X.X>/10>
+结论：              <信号>               <信号>
 ```
 
 ---
 
-*Generated by AI Trading Analyst — Head-to-Head Comparison Engine*
-*DISCLAIMER: This is for educational and research purposes only. Not financial advice. Always do your own due diligence and consult a licensed financial advisor before making investment decisions.*
+*由 AI 交易分析系统生成 — 头对头对比引擎*
+*免责声明：仅供教育和研究目的，不构成投资建议。请自行做好尽职调查，投资决策前咨询持牌财务顾问。*
 ```
 
-## Quality Standards
+## 质量标准
 
-1. **Apples-to-apples comparison.** Only compare metrics that make sense for both companies. Do not compare P/E if one company has negative earnings — use P/S or EV/Revenue instead and note why.
-2. **Context for every winner declaration.** Never just say "AAPL wins." Explain WHY the metric difference matters. A P/E of 25x vs 27x is negligible; 15x vs 30x is significant.
-3. **Acknowledge when it is close.** If scores are within 0.5 points, call it a tie and explain the nuance. Forced winners on razor-thin margins undermine credibility.
-4. **Different investors, different winners.** The recommendation matrix MUST give honest, differentiated advice. It is fine for different investor types to prefer different stocks.
-5. **Consistent data vintage.** Both stocks must use data from the same timeframe. Do not compare Q3 data for one stock with Q2 data for another.
-6. **Sector context matters.** If the two stocks are in different sectors, note that some valuation comparisons may not be directly meaningful (e.g., tech P/E vs utility P/E).
+1. **苹果对苹果的对比。** 仅对比对两家公司都有意义的指标。如果一家公司盈利为负，不要比较市盈率 — 使用市销率或 EV/Revenue 并说明原因。
+2. **每个胜出判定都需要背景。** 不要只说"AAPL 胜出"。解释为什么指标差异重要。25 倍 vs 27 倍市盈率可以忽略不计；15 倍 vs 30 倍则很重要。
+3. **承认势均力敌的情况。** 如果分数差距在 0.5 分以内，称为平局并解释细微差别。在微小差距上强制分出胜出会损害可信度。
+4. **不同投资者，不同胜出者。** 推荐矩阵必须给出诚实、有差异化的建议。不同投资者类型偏好不同股票是完全正常的。
+5. **数据时间一致性。** 两只股票必须使用同一时间段的数据。不要将一只股票的 Q3 数据与另一只的 Q2 数据比较。
+6. **行业背景很重要。** 如果两只股票处于不同行业，注意某些估值比较可能不直接有意义（如科技股市盈率 vs 公用事业股市盈率）。
 
-## Edge Cases
+## 边界情况
 
-- **If stocks are in different sectors:** Note this prominently. Some metrics (P/E, margins) are sector-dependent. Weight fundamental comparisons less and technical/sentiment comparisons more.
-- **If one stock is a mega-cap and the other is a small-cap:** Flag the size disparity. Adjust the comparison to account for different growth/risk profiles inherent to size.
-- **If one or both are ETFs:** Replace company-specific metrics with ETF-specific ones (expense ratio, tracking error, holdings overlap, yield). Replace "profitability" with "efficiency."
-- **If one stock has negative earnings:** Use P/S, EV/Revenue, and FCF-based metrics instead of P/E. Note why earnings-based metrics are not applicable.
-- **If the user compares a stock to itself:** Politely note this and ask if they meant a different ticker.
+- **如果股票处于不同行业：** 显著标注这一点。某些指标（市盈率、利润率）是行业相关的。减少基本面比较的权重，增加技术面/情绪比较的权重。
+- **如果一只股票是超大型股，另一只是小型股：** 标记规模差异。调整比较以考虑规模固有的不同成长/风险特征。
+- **如果一只或两只都是 ETF：** 用 ETF 特定指标替代公司特定指标（费率、跟踪误差、持仓重叠、收益率）。用"效率"替代"盈利能力"。
+- **如果一只股票盈利为负：** 使用市销率、EV/Revenue 和基于自由现金流的指标替代市盈率。说明为何基于盈利的指标不适用。
+- **如果用户将一只股票与自身比较：** 礼貌说明并询问是否意指不同的代码。
 
-## Error Handling
+## 错误处理
 
-- If data for one ticker cannot be found, report what is available and which sections are incomplete.
-- If the comparison is between two very different asset types (e.g., a stock vs an ETF vs a crypto), flag this and proceed with appropriate metric adjustments.
-- Never fabricate data to fill gaps. Use "N/A" or "Data unavailable" and note the impact on the comparison.
+- 如果找不到一个代码的数据，报告可用数据和哪些部分不完整。
+- 如果对比的是两种非常不同的资产类型（如股票 vs ETF vs 加密货币），标记并继续进行适当的指标调整。
+- 绝不编造数据来填补空白。使用"N/A"或"数据不可用"并说明对比较的影响。
 
-**DISCLAIMER: This is for educational and research purposes only. Not financial advice. Always do your own due diligence.**
+**免责声明：仅供教育和研究目的，不构成投资建议。请自行做好尽职调查。**

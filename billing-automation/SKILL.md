@@ -1,67 +1,67 @@
 ---
 name: billing-automation
-description: Build automated billing systems for recurring payments, invoicing, subscription lifecycle, and dunning management. Use when implementing subscription billing, automating invoicing, or managing recurring payment systems.
+description: 构建自动化计费系统，用于循环支付、发票生成、订阅生命周期和催收管理。用于实现订阅计费、自动化发票生成或管理循环支付系统时使用。
 ---
 
-# Billing Automation
+# 计费自动化
 
-Master automated billing systems including recurring billing, invoice generation, dunning management, proration, and tax calculation.
+掌握自动化计费系统，包括循环计费、发票生成、催收管理、按比例计费和税款计算。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Implementing SaaS subscription billing
-- Automating invoice generation and delivery
-- Managing failed payment recovery (dunning)
-- Calculating prorated charges for plan changes
-- Handling sales tax, VAT, and GST
-- Processing usage-based billing
-- Managing billing cycles and renewals
+- 实现 SaaS 订阅计费
+- 自动化发票生成和交付
+- 管理失败支付恢复（催收）
+- 计划变更时的按比例计费
+- 处理销售税、增值税和 GST
+- 处理基于使用量的计费
+- 管理计费周期和续订
 
-## Core Concepts
+## 核心概念
 
-### 1. Billing Cycles
+### 1. 计费周期
 
-**Common Intervals:**
+**常见间隔：**
 
-- Monthly (most common for SaaS)
-- Annual (discounted long-term)
-- Quarterly
-- Weekly
-- Custom (usage-based, per-seat)
+- 月度（SaaS 最常见）
+- 年度（长期折扣）
+- 季度
+- 每周
+- 自定义（基于使用量、按席位）
 
-### 2. Subscription States
+### 2. 订阅状态
 
 ```
-trial → active → past_due → canceled
-              → paused → resumed
+试用 → 活跃 → 逾期 → 已取消
+              → 已暂停 → 已恢复
 ```
 
-### 3. Dunning Management
+### 3. 催收管理
 
-Automated process to recover failed payments through:
+通过以下方式自动恢复失败支付的流程：
 
-- Retry schedules
-- Customer notifications
-- Grace periods
-- Account restrictions
+- 重试计划
+- 客户通知
+- 宽限期
+- 账户限制
 
-### 4. Proration
+### 4. 按比例计费
 
-Adjusting charges when:
+在以下情况下调整费用：
 
-- Upgrading/downgrading mid-cycle
-- Adding/removing seats
-- Changing billing frequency
+- 周期中升级/降级
+- 添加/移除席位
+- 更改计费频率
 
-## Quick Start
+## 快速开始
 
 ```python
 from billing import BillingEngine, Subscription
 
-# Initialize billing engine
+# 初始化计费引擎
 billing = BillingEngine()
 
-# Create subscription
+# 创建订阅
 subscription = billing.create_subscription(
     customer_id="cus_123",
     plan_id="plan_pro_monthly",
@@ -69,11 +69,11 @@ subscription = billing.create_subscription(
     trial_days=14
 )
 
-# Process billing cycle
+# 处理计费周期
 billing.process_billing_cycle(subscription.id)
 ```
 
-## Subscription Lifecycle Management
+## 订阅生命周期管理
 
 ```python
 from datetime import datetime, timedelta
@@ -98,33 +98,33 @@ class Subscription:
         self.trial_end = datetime.now() + timedelta(days=plan.trial_days) if plan.trial_days else None
 
     def start_trial(self, trial_days):
-        """Start trial period."""
+        """开始试用期。"""
         self.status = SubscriptionStatus.TRIAL
         self.trial_end = datetime.now() + timedelta(days=trial_days)
         self.current_period_end = self.trial_end
 
     def activate(self):
-        """Activate subscription after trial or immediately."""
+        """试用后或立即激活订阅。"""
         self.status = SubscriptionStatus.ACTIVE
         self.current_period_start = datetime.now()
         self.current_period_end = self.calculate_next_billing_date()
 
     def mark_past_due(self):
-        """Mark subscription as past due after failed payment."""
+        """支付失败后将订阅标记为逾期。"""
         self.status = SubscriptionStatus.PAST_DUE
-        # Trigger dunning workflow
+        # 触发催收工作流
 
     def cancel(self, at_period_end=True):
-        """Cancel subscription."""
+        """取消订阅。"""
         if at_period_end:
             self.cancel_at_period_end = True
-            # Will cancel when current period ends
+            # 当前周期结束时取消
         else:
             self.status = SubscriptionStatus.CANCELED
             self.canceled_at = datetime.now()
 
     def calculate_next_billing_date(self):
-        """Calculate next billing date based on interval."""
+        """根据间隔计算下一个计费日期。"""
         if self.plan.interval == 'month':
             return self.current_period_start + timedelta(days=30)
         elif self.plan.interval == 'year':
@@ -133,39 +133,39 @@ class Subscription:
             return self.current_period_start + timedelta(days=7)
 ```
 
-## Billing Cycle Processing
+## 计费周期处理
 
 ```python
 class BillingEngine:
     def process_billing_cycle(self, subscription_id):
-        """Process billing for a subscription."""
+        """处理订阅的计费。"""
         subscription = self.get_subscription(subscription_id)
 
-        # Check if billing is due
+        # 检查是否到期
         if datetime.now() < subscription.current_period_end:
             return
 
-        # Generate invoice
+        # 生成发票
         invoice = self.generate_invoice(subscription)
 
-        # Attempt payment
+        # 尝试支付
         payment_result = self.charge_customer(
             subscription.customer_id,
             invoice.total
         )
 
         if payment_result.success:
-            # Payment successful
+            # 支付成功
             invoice.mark_paid()
             subscription.advance_billing_period()
             self.send_invoice(invoice)
         else:
-            # Payment failed
+            # 支付失败
             subscription.mark_past_due()
             self.start_dunning_process(subscription, invoice)
 
     def generate_invoice(self, subscription):
-        """Generate invoice for billing period."""
+        """为计费周期生成发票。"""
         invoice = Invoice(
             customer_id=subscription.customer_id,
             subscription_id=subscription.id,
@@ -173,14 +173,14 @@ class BillingEngine:
             period_end=subscription.current_period_end
         )
 
-        # Add subscription line item
+        # 添加订阅行项目
         invoice.add_line_item(
             description=subscription.plan.name,
             amount=subscription.plan.amount,
             quantity=subscription.quantity or 1
         )
 
-        # Add usage-based charges if applicable
+        # 如果适用，添加基于使用量的费用
         if subscription.has_usage_billing:
             usage_charges = self.calculate_usage_charges(subscription)
             invoice.add_line_item(
@@ -188,7 +188,7 @@ class BillingEngine:
                 amount=usage_charges
             )
 
-        # Calculate tax
+        # 计算税款
         tax = self.calculate_tax(invoice.subtotal, subscription.customer)
         invoice.tax = tax
 
@@ -196,14 +196,14 @@ class BillingEngine:
         return invoice
 
     def charge_customer(self, customer_id, amount):
-        """Charge customer using saved payment method."""
+        """使用保存的支付方式向客户收费。"""
         customer = self.get_customer(customer_id)
 
         try:
-            # Charge using payment processor
+            # 使用支付处理商收费
             charge = stripe.Charge.create(
                 customer=customer.stripe_id,
-                amount=int(amount * 100),  # Convert to cents
+                amount=int(amount * 100),  # 转换为分
                 currency='usd'
             )
 
@@ -212,11 +212,11 @@ class BillingEngine:
             return PaymentResult(success=False, error=str(e))
 ```
 
-## Dunning Management
+## 催收管理
 
 ```python
 class DunningManager:
-    """Manage failed payment recovery."""
+    """管理失败支付恢复。"""
 
     def __init__(self):
         self.retry_schedule = [
@@ -226,7 +226,7 @@ class DunningManager:
         ]
 
     def start_dunning_process(self, subscription, invoice):
-        """Start dunning process for failed payment."""
+        """为失败支付启动催收流程。"""
         dunning_attempt = DunningAttempt(
             subscription_id=subscription.id,
             invoice_id=invoice.id,
@@ -234,42 +234,42 @@ class DunningManager:
             next_retry=datetime.now() + timedelta(days=3)
         )
 
-        # Send initial failure notification
+        # 发送初始失败通知
         self.send_dunning_email(subscription, 'payment_failed_first')
 
-        # Schedule retries
+        # 安排重试
         self.schedule_retries(dunning_attempt)
 
     def retry_payment(self, dunning_attempt):
-        """Retry failed payment."""
+        """重试失败的支付。"""
         subscription = self.get_subscription(dunning_attempt.subscription_id)
         invoice = self.get_invoice(dunning_attempt.invoice_id)
 
-        # Attempt payment again
+        # 再次尝试支付
         result = self.charge_customer(subscription.customer_id, invoice.total)
 
         if result.success:
-            # Payment succeeded
+            # 支付成功
             invoice.mark_paid()
             subscription.status = SubscriptionStatus.ACTIVE
             self.send_dunning_email(subscription, 'payment_recovered')
             dunning_attempt.mark_resolved()
         else:
-            # Still failing
+            # 仍然失败
             dunning_attempt.attempt_number += 1
 
             if dunning_attempt.attempt_number < len(self.retry_schedule):
-                # Schedule next retry
+                # 安排下次重试
                 next_retry_config = self.retry_schedule[dunning_attempt.attempt_number]
                 dunning_attempt.next_retry = datetime.now() + timedelta(days=next_retry_config['days'])
                 self.send_dunning_email(subscription, next_retry_config['email_template'])
             else:
-                # Exhausted retries, cancel subscription
+                # 重试次数用尽，取消订阅
                 subscription.cancel(at_period_end=False)
                 self.send_dunning_email(subscription, 'subscription_canceled')
 
     def send_dunning_email(self, subscription, template):
-        """Send dunning notification to customer."""
+        """向客户发送催收通知。"""
         customer = self.get_customer(subscription.customer_id)
 
         email_content = self.render_template(template, {
@@ -285,29 +285,29 @@ class DunningManager:
         )
 ```
 
-## Proration
+## 按比例计费
 
 ```python
 class ProrationCalculator:
-    """Calculate prorated charges for plan changes."""
+    """计算计划变更的按比例费用。"""
 
     @staticmethod
     def calculate_proration(old_plan, new_plan, period_start, period_end, change_date):
-        """Calculate proration for plan change."""
-        # Days in current period
+        """计算计划变更的按比例费用。"""
+        # 当前周期的天数
         total_days = (period_end - period_start).days
 
-        # Days used on old plan
+        # 在旧计划上使用的天数
         days_used = (change_date - period_start).days
 
-        # Days remaining on new plan
+        # 新计划剩余的天数
         days_remaining = (period_end - change_date).days
 
-        # Calculate prorated amounts
+        # 计算按比例金额
         unused_amount = (old_plan.amount / total_days) * days_remaining
         new_plan_amount = (new_plan.amount / total_days) * days_remaining
 
-        # Net charge/credit
+        # 净费用/信用
         proration = new_plan_amount - unused_amount
 
         return {
@@ -320,50 +320,50 @@ class ProrationCalculator:
 
     @staticmethod
     def calculate_seat_proration(current_seats, new_seats, price_per_seat, period_start, period_end, change_date):
-        """Calculate proration for seat changes."""
+        """计算席位变更的按比例费用。"""
         total_days = (period_end - period_start).days
         days_remaining = (period_end - change_date).days
 
-        # Additional seats charge
+        # 额外席位费用
         additional_seats = new_seats - current_seats
         prorated_amount = (additional_seats * price_per_seat / total_days) * days_remaining
 
         return {
             'additional_seats': additional_seats,
-            'prorated_charge': max(0, prorated_amount),  # No refund for removing seats mid-cycle
+            'prorated_charge': max(0, prorated_amount),  # 周期中移除席位不退款
             'effective_date': change_date
         }
 ```
 
-## Tax Calculation
+## 税款计算
 
 ```python
 class TaxCalculator:
-    """Calculate sales tax, VAT, GST."""
+    """计算销售税、增值税、GST。"""
 
     def __init__(self):
-        # Tax rates by region
+        # 按地区划分的税率
         self.tax_rates = {
-            'US_CA': 0.0725,  # California sales tax
-            'US_NY': 0.04,    # New York sales tax
-            'GB': 0.20,       # UK VAT
-            'DE': 0.19,       # Germany VAT
-            'FR': 0.20,       # France VAT
-            'AU': 0.10,       # Australia GST
+            'US_CA': 0.0725,  # 加州销售税
+            'US_NY': 0.04,    # 纽约销售税
+            'GB': 0.20,       # 英国增值税
+            'DE': 0.19,       # 德国增值税
+            'FR': 0.20,       # 法国增值税
+            'AU': 0.10,       # 澳大利亚 GST
         }
 
     def calculate_tax(self, amount, customer):
-        """Calculate applicable tax."""
-        # Determine tax jurisdiction
+        """计算适用税款。"""
+        # 确定税务管辖区
         jurisdiction = self.get_tax_jurisdiction(customer)
 
         if not jurisdiction:
             return 0
 
-        # Get tax rate
+        # 获取税率
         tax_rate = self.tax_rates.get(jurisdiction, 0)
 
-        # Calculate tax
+        # 计算税款
         tax = amount * tax_rate
 
         return {
@@ -374,21 +374,21 @@ class TaxCalculator:
         }
 
     def get_tax_jurisdiction(self, customer):
-        """Determine tax jurisdiction based on customer location."""
+        """根据客户位置确定税务管辖区。"""
         if customer.country == 'US':
-            # US: Tax based on customer state
+            # 美国：根据客户所在州征税
             return f"US_{customer.state}"
         elif customer.country in ['GB', 'DE', 'FR']:
-            # EU: VAT
+            # 欧盟：增值税
             return customer.country
         elif customer.country == 'AU':
-            # Australia: GST
+            # 澳大利亚：GST
             return 'AU'
         else:
             return None
 
     def get_tax_type(self, jurisdiction):
-        """Get type of tax for jurisdiction."""
+        """获取管辖区的税种。"""
         if jurisdiction.startswith('US_'):
             return 'Sales Tax'
         elif jurisdiction in ['GB', 'DE', 'FR']:
@@ -398,13 +398,13 @@ class TaxCalculator:
         return 'Tax'
 
     def validate_vat_number(self, vat_number, country):
-        """Validate EU VAT number."""
-        # Use VIES API for validation
-        # Returns True if valid, False otherwise
+        """验证欧盟增值税号。"""
+        # 使用 VIES API 进行验证
+        # 有效返回 True，否则返回 False
         pass
 ```
 
-## Invoice Generation
+## 发票生成
 
 ```python
 class Invoice:
@@ -420,7 +420,7 @@ class Invoice:
         self.created_at = datetime.now()
 
     def add_line_item(self, description, amount, quantity=1):
-        """Add line item to invoice."""
+        """向发票添加行项目。"""
         line_item = {
             'description': description,
             'unit_amount': amount,
@@ -431,26 +431,26 @@ class Invoice:
         self.subtotal += line_item['total']
 
     def finalize(self):
-        """Finalize invoice and calculate total."""
+        """完成发票并计算总额。"""
         self.total = self.subtotal + self.tax
         self.status = 'open'
         self.finalized_at = datetime.now()
 
     def mark_paid(self):
-        """Mark invoice as paid."""
+        """将发票标记为已支付。"""
         self.status = 'paid'
         self.paid_at = datetime.now()
 
     def to_pdf(self):
-        """Generate PDF invoice."""
+        """生成 PDF 发票。"""
         from reportlab.pdfgen import canvas
 
-        # Generate PDF
-        # Include: company info, customer info, line items, tax, total
+        # 生成 PDF
+        # 包含：公司信息、客户信息、行项目、税款、总额
         pass
 
     def to_html(self):
-        """Generate HTML invoice."""
+        """生成 HTML 发票。"""
         template = """
         <!DOCTYPE html>
         <html>
@@ -483,14 +483,14 @@ class Invoice:
         )
 ```
 
-## Usage-Based Billing
+## 基于使用量的计费
 
 ```python
 class UsageBillingEngine:
-    """Track and bill for usage."""
+    """跟踪和计费使用量。"""
 
     def track_usage(self, customer_id, metric, quantity):
-        """Track usage event."""
+        """跟踪使用事件。"""
         UsageRecord.create(
             customer_id=customer_id,
             metric=metric,
@@ -499,7 +499,7 @@ class UsageBillingEngine:
         )
 
     def calculate_usage_charges(self, subscription, period_start, period_end):
-        """Calculate charges for usage in billing period."""
+        """计算计费周期内的使用费用。"""
         usage_records = UsageRecord.get_for_period(
             subscription.customer_id,
             period_start,
@@ -508,20 +508,20 @@ class UsageBillingEngine:
 
         total_usage = sum(record.quantity for record in usage_records)
 
-        # Tiered pricing
+        # 阶梯定价
         if subscription.plan.pricing_model == 'tiered':
             charge = self.calculate_tiered_pricing(total_usage, subscription.plan.tiers)
-        # Per-unit pricing
+        # 按单位定价
         elif subscription.plan.pricing_model == 'per_unit':
             charge = total_usage * subscription.plan.unit_price
-        # Volume pricing
+        # 数量定价
         elif subscription.plan.pricing_model == 'volume':
             charge = self.calculate_volume_pricing(total_usage, subscription.plan.tiers)
 
         return charge
 
     def calculate_tiered_pricing(self, total_usage, tiers):
-        """Calculate cost using tiered pricing."""
+        """使用阶梯定价计算成本。"""
         charge = 0
         remaining = total_usage
 

@@ -1,65 +1,65 @@
 ---
 name: mobile-ios-design
-description: Master iOS Human Interface Guidelines and SwiftUI patterns for building native iOS apps. Use when designing iOS interfaces, implementing SwiftUI views, or ensuring apps follow Apple's design principles.
+description: 掌握 iOS 人机界面指南和 SwiftUI 模式，用于构建原生 iOS 应用。当设计 iOS 界面、实现 SwiftUI 视图或确保应用遵循 Apple 设计原则时使用。
 ---
 
-# iOS Mobile Design
+# iOS 移动设计
 
-Master iOS Human Interface Guidelines (HIG) and SwiftUI patterns to build polished, native iOS applications that feel at home on Apple platforms.
+掌握 iOS 人机界面指南（HIG）和 SwiftUI 模式，构建在 Apple 平台上感觉自然的精美原生 iOS 应用。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Designing iOS app interfaces following Apple HIG
-- Building SwiftUI views and layouts
-- Implementing iOS navigation patterns (NavigationStack, TabView, sheets)
-- Creating adaptive layouts for iPhone and iPad
-- Using SF Symbols and system typography
-- Building accessible iOS interfaces
-- Implementing iOS-specific gestures and interactions
-- Designing for Dynamic Type and Dark Mode
+- 遵循 Apple HIG 设计 iOS 应用界面
+- 构建 SwiftUI 视图和布局
+- 实现 iOS 导航模式（NavigationStack、TabView、sheets）
+- 为 iPhone 和 iPad 创建自适应布局
+- 使用 SF Symbols 和系统排版
+- 构建无障碍 iOS 界面
+- 实现 iOS 特定的手势和交互
+- 为动态类型和深色模式进行设计
 
-## Core Concepts
+## 核心概念
 
-### 1. Human Interface Guidelines Principles
+### 1. 人机界面指南原则
 
-**Clarity**: Content is legible, icons are precise, adornments are subtle
-**Deference**: UI helps users understand content without competing with it
-**Depth**: Visual layers and motion convey hierarchy and enable navigation
+**清晰**：内容清晰易读，图标精确，装饰微妙
+**谦逊**：UI 帮助用户理解内容而不与之竞争
+**深度**：视觉层次和动效传达层级并支持导航
 
-**Platform Considerations:**
+**平台考量：**
 
-- **iOS**: Touch-first, compact displays, portrait orientation
-- **iPadOS**: Larger canvas, multitasking, pointer support
-- **visionOS**: Spatial computing, eye/hand input
+- **iOS**：触控优先，紧凑显示，竖屏方向
+- **iPadOS**：更大画布，多任务，指针支持
+- **visionOS**：空间计算，眼/手输入
 
-### 2. SwiftUI Layout System
+### 2. SwiftUI 布局系统
 
-**Stack-Based Layouts:**
+**基于堆栈的布局：**
 
 ```swift
-// Vertical stack with alignment
+// 带对齐的垂直堆栈
 VStack(alignment: .leading, spacing: 12) {
-    Text("Title")
+    Text("标题")
         .font(.headline)
-    Text("Subtitle")
+    Text("副标题")
         .font(.subheadline)
         .foregroundStyle(.secondary)
 }
 
-// Horizontal stack with flexible spacing
+// 带弹性间距的水平堆栈
 HStack {
     Image(systemName: "star.fill")
-    Text("Featured")
+    Text("精选")
     Spacer()
-    Text("View All")
+    Text("查看全部")
         .foregroundStyle(.blue)
 }
 ```
 
-**Grid Layouts:**
+**网格布局：**
 
 ```swift
-// Adaptive grid that fills available width
+// 填充可用宽度的自适应网格
 LazyVGrid(columns: [
     GridItem(.adaptive(minimum: 150, maximum: 200))
 ], spacing: 16) {
@@ -68,7 +68,7 @@ LazyVGrid(columns: [
     }
 }
 
-// Fixed column grid
+// 固定列网格
 LazyVGrid(columns: [
     GridItem(.flexible()),
     GridItem(.flexible()),
@@ -80,9 +80,9 @@ LazyVGrid(columns: [
 }
 ```
 
-### 3. Navigation Patterns
+### 3. 导航模式
 
-**NavigationStack (iOS 16+):**
+**NavigationStack（iOS 16+）：**
 
 ```swift
 struct ContentView: View {
@@ -95,7 +95,7 @@ struct ContentView: View {
                     ItemRow(item: item)
                 }
             }
-            .navigationTitle("Items")
+            .navigationTitle("项目")
             .navigationDestination(for: Item.self) { item in
                 ItemDetailView(item: item)
             }
@@ -104,7 +104,7 @@ struct ContentView: View {
 }
 ```
 
-**TabView (iOS 18+):**
+**TabView（iOS 18+）：**
 
 ```swift
 struct MainTabView: View {
@@ -112,15 +112,15 @@ struct MainTabView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            Tab("Home", systemImage: "house", value: 0) {
+            Tab("首页", systemImage: "house", value: 0) {
                 HomeView()
             }
 
-            Tab("Search", systemImage: "magnifyingglass", value: 1) {
+            Tab("搜索", systemImage: "magnifyingglass", value: 1) {
                 SearchView()
             }
 
-            Tab("Profile", systemImage: "person", value: 2) {
+            Tab("个人", systemImage: "person", value: 2) {
                 ProfileView()
             }
         }
@@ -128,78 +128,79 @@ struct MainTabView: View {
 }
 ```
 
-### 4. System Integration
+### 4. 系统集成
 
-**SF Symbols:**
+**SF Symbols：**
 
 ```swift
-// Basic symbol
+// 基本符号
 Image(systemName: "heart.fill")
     .foregroundStyle(.red)
 
-// Symbol with rendering mode
+// 带渲染模式的符号
 Image(systemName: "cloud.sun.fill")
     .symbolRenderingMode(.multicolor)
 
-// Variable symbol (iOS 16+)
+// 可变符号（iOS 16+）
 Image(systemName: "speaker.wave.3.fill", variableValue: volume)
 
-// Symbol effect (iOS 17+)
+// 符号动效（iOS 17+）
 Image(systemName: "bell.fill")
     .symbolEffect(.bounce, value: notificationCount)
 ```
 
-**Dynamic Type:**
+**动态类型：**
 
 ```swift
-// Use semantic fonts
-Text("Headline")
+// 使用语义字体
+Text("标题")
     .font(.headline)
 
-Text("Body text that scales with user preferences")
+// 随用户偏好缩放的正文文本
+Text("随用户偏好缩放的正文文本")
     .font(.body)
 
-// Custom font that respects Dynamic Type
-Text("Custom")
+// 尊重动态类型的自定义字体
+Text("自定义")
     .font(.custom("Avenir", size: 17, relativeTo: .body))
 ```
 
-### 5. Visual Design
+### 5. 视觉设计
 
-**Colors and Materials:**
+**颜色和材质：**
 
 ```swift
-// Semantic colors that adapt to light/dark mode
-Text("Primary")
+// 适配深色/浅色模式的语义颜色
+Text("主要")
     .foregroundStyle(.primary)
-Text("Secondary")
+Text("次要")
     .foregroundStyle(.secondary)
 
-// System materials for blur effects
+// 模糊效果的系统材质
 Rectangle()
     .fill(.ultraThinMaterial)
     .frame(height: 100)
 
-// Vibrant materials for overlays
-Text("Overlay")
+// 叠加层的鲜艳材质
+Text("叠加层")
     .padding()
     .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
 ```
 
-**Shadows and Depth:**
+**阴影和深度：**
 
 ```swift
-// Standard card shadow
+// 标准卡片阴影
 RoundedRectangle(cornerRadius: 16)
     .fill(.background)
     .shadow(color: .black.opacity(0.1), radius: 8, y: 4)
 
-// Elevated appearance
+// 浮起效果
 .shadow(radius: 2, y: 1)
 .shadow(radius: 8, y: 4)
 ```
 
-## Quick Start Component
+## 快速开始组件
 
 ```swift
 import SwiftUI
@@ -238,22 +239,22 @@ struct FeatureCard: View {
 }
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Use Semantic Colors**: Always use `.primary`, `.secondary`, `.background` for automatic light/dark mode support
-2. **Embrace SF Symbols**: Use system symbols for consistency and automatic accessibility
-3. **Support Dynamic Type**: Use semantic fonts (`.body`, `.headline`) instead of fixed sizes
-4. **Add Accessibility**: Include `.accessibilityLabel()` and `.accessibilityHint()` modifiers
-5. **Use Safe Areas**: Respect `safeAreaInset` and avoid hardcoded padding at screen edges
-6. **Implement State Restoration**: Use `@SceneStorage` for preserving user state
-7. **Support iPad Multitasking**: Design for split view and slide over
-8. **Test on Device**: Simulator doesn't capture full haptic and performance experience
+1. **使用语义颜色**：始终使用 `.primary`、`.secondary`、`.background` 以自动支持深色/浅色模式
+2. **拥抱 SF Symbols**：使用系统符号以保持一致性和自动无障碍支持
+3. **支持动态类型**：使用语义字体（`.body`、`.headline`）而非固定大小
+4. **添加无障碍支持**：包含 `.accessibilityLabel()` 和 `.accessibilityHint()` 修饰符
+5. **使用安全区域**：尊重 `safeAreaInset`，避免在屏幕边缘硬编码边距
+6. **实现状态恢复**：使用 `@SceneStorage` 保留用户状态
+7. **支持 iPad 多任务**：为分屏视图和侧拉进行设计
+8. **在真机上测试**：模拟器无法完全捕捉触觉和性能体验
 
-## Common Issues
+## 常见问题
 
-- **Layout Breaking**: Use `.fixedSize()` sparingly; prefer flexible layouts
-- **Performance Issues**: Use `LazyVStack`/`LazyHStack` for long scrolling lists
-- **Navigation Bugs**: Ensure `NavigationLink` values are `Hashable`
-- **Dark Mode Problems**: Avoid hardcoded colors; use semantic or asset catalog colors
-- **Accessibility Failures**: Test with VoiceOver enabled
-- **Memory Leaks**: Watch for strong reference cycles in closures
+- **布局破坏**：谨慎使用 `.fixedSize()`；优先使用弹性布局
+- **性能问题**：长滚动列表使用 `LazyVStack`/`LazyHStack`
+- **导航 Bug**：确保 `NavigationLink` 值是 `Hashable` 的
+- **深色模式问题**：避免硬编码颜色；使用语义或资源目录颜色
+- **无障碍失败**：启用 VoiceOver 进行测试
+- **内存泄漏**：注意闭包中的强引用循环

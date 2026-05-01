@@ -1,30 +1,30 @@
 ---
 name: typescript-advanced-types
-description: Master TypeScript's advanced type system including generics, conditional types, mapped types, template literals, and utility types for building type-safe applications. Use when implementing complex type logic, creating reusable type utilities, or ensuring compile-time type safety in TypeScript projects.
+description: 掌握 TypeScript 的高级类型系统，包括泛型、条件类型、映射类型、模板字面量和工具类型，用于构建类型安全的应用程序。适用于实现复杂类型逻辑、创建可复用的类型工具，或在 TypeScript 项目中确保编译时类型安全。
 ---
 
-# TypeScript Advanced Types
+# TypeScript 高级类型
 
-Comprehensive guidance for mastering TypeScript's advanced type system including generics, conditional types, mapped types, template literal types, and utility types for building robust, type-safe applications.
+全面指导如何掌握 TypeScript 的高级类型系统，包括泛型、条件类型、映射类型、模板字面量类型和工具类型，用于构建健壮的、类型安全的应用程序。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Building type-safe libraries or frameworks
-- Creating reusable generic components
-- Implementing complex type inference logic
-- Designing type-safe API clients
-- Building form validation systems
-- Creating strongly-typed configuration objects
-- Implementing type-safe state management
-- Migrating JavaScript codebases to TypeScript
+- 构建类型安全的库或框架
+- 创建可复用的泛型组件
+- 实现复杂的类型推断逻辑
+- 设计类型安全的 API 客户端
+- 构建表单验证系统
+- 创建强类型的配置对象
+- 实现类型安全的状态管理
+- 将 JavaScript 代码库迁移到 TypeScript
 
-## Core Concepts
+## 核心概念
 
-### 1. Generics
+### 1. 泛型
 
-**Purpose:** Create reusable, type-flexible components while maintaining type safety.
+**目的：** 创建可复用的、类型灵活的组件，同时保持类型安全。
 
-**Basic Generic Function:**
+**基本泛型函数：**
 
 ```typescript
 function identity<T>(value: T): T {
@@ -36,7 +36,7 @@ const str = identity<string>("hello"); // Type: string
 const auto = identity(true); // Type inferred: boolean
 ```
 
-**Generic Constraints:**
+**泛型约束：**
 
 ```typescript
 interface HasLength {
@@ -54,7 +54,7 @@ logLength({ length: 10 }); // OK: object has length
 // logLength(42);             // Error: number has no length
 ```
 
-**Multiple Type Parameters:**
+**多类型参数：**
 
 ```typescript
 function merge<T, U>(obj1: T, obj2: U): T & U {
@@ -65,11 +65,11 @@ const merged = merge({ name: "John" }, { age: 30 });
 // Type: { name: string } & { age: number }
 ```
 
-### 2. Conditional Types
+### 2. 条件类型
 
-**Purpose:** Create types that depend on conditions, enabling sophisticated type logic.
+**目的：** 创建依赖于条件的类型，实现复杂的类型逻辑。
 
-**Basic Conditional Type:**
+**基本条件类型：**
 
 ```typescript
 type IsString<T> = T extends string ? true : false;
@@ -78,7 +78,7 @@ type A = IsString<string>; // true
 type B = IsString<number>; // false
 ```
 
-**Extracting Return Types:**
+**提取返回类型：**
 
 ```typescript
 type ReturnType<T> = T extends (...args: any[]) => infer R ? R : never;
@@ -91,7 +91,7 @@ type User = ReturnType<typeof getUser>;
 // Type: { id: number; name: string; }
 ```
 
-**Distributive Conditional Types:**
+**分布式条件类型：**
 
 ```typescript
 type ToArray<T> = T extends any ? T[] : never;
@@ -100,7 +100,7 @@ type StrOrNumArray = ToArray<string | number>;
 // Type: string[] | number[]
 ```
 
-**Nested Conditions:**
+**嵌套条件：**
 
 ```typescript
 type TypeName<T> = T extends string
@@ -119,11 +119,11 @@ type T1 = TypeName<string>; // "string"
 type T2 = TypeName<() => void>; // "function"
 ```
 
-### 3. Mapped Types
+### 3. 映射类型
 
-**Purpose:** Transform existing types by iterating over their properties.
+**目的：** 通过遍历属性来转换现有类型。
 
-**Basic Mapped Type:**
+**基本映射类型：**
 
 ```typescript
 type Readonly<T> = {
@@ -139,7 +139,7 @@ type ReadonlyUser = Readonly<User>;
 // Type: { readonly id: number; readonly name: string; }
 ```
 
-**Optional Properties:**
+**可选属性：**
 
 ```typescript
 type Partial<T> = {
@@ -150,7 +150,7 @@ type PartialUser = Partial<User>;
 // Type: { id?: number; name?: string; }
 ```
 
-**Key Remapping:**
+**键重映射：**
 
 ```typescript
 type Getters<T> = {
@@ -166,7 +166,7 @@ type PersonGetters = Getters<Person>;
 // Type: { getName: () => string; getAge: () => number; }
 ```
 
-**Filtering Properties:**
+**属性过滤：**
 
 ```typescript
 type PickByType<T, U> = {
@@ -184,11 +184,11 @@ type OnlyNumbers = PickByType<Mixed, number>;
 // Type: { id: number; age: number; }
 ```
 
-### 4. Template Literal Types
+### 4. 模板字面量类型
 
-**Purpose:** Create string-based types with pattern matching and transformation.
+**目的：** 创建带有模式匹配和转换的基于字符串的类型。
 
-**Basic Template Literal:**
+**基本模板字面量：**
 
 ```typescript
 type EventName = "click" | "focus" | "blur";
@@ -196,7 +196,7 @@ type EventHandler = `on${Capitalize<EventName>}`;
 // Type: "onClick" | "onFocus" | "onBlur"
 ```
 
-**String Manipulation:**
+**字符串操作：**
 
 ```typescript
 type UppercaseGreeting = Uppercase<"hello">; // "HELLO"
@@ -205,7 +205,7 @@ type CapitalizedName = Capitalize<"john">; // "John"
 type UncapitalizedName = Uncapitalize<"John">; // "john"
 ```
 
-**Path Building:**
+**路径构建：**
 
 ```typescript
 type Path<T> = T extends object
@@ -228,42 +228,42 @@ type ConfigPath = Path<Config>;
 // Type: "server" | "database" | "server.host" | "server.port" | "database.url"
 ```
 
-### 5. Utility Types
+### 5. 工具类型
 
-**Built-in Utility Types:**
+**内置工具类型：**
 
 ```typescript
-// Partial<T> - Make all properties optional
+// Partial<T> - 使所有属性变为可选
 type PartialUser = Partial<User>;
 
-// Required<T> - Make all properties required
+// Required<T> - 使所有属性变为必需
 type RequiredUser = Required<PartialUser>;
 
-// Readonly<T> - Make all properties readonly
+// Readonly<T> - 使所有属性变为只读
 type ReadonlyUser = Readonly<User>;
 
-// Pick<T, K> - Select specific properties
+// Pick<T, K> - 选择特定属性
 type UserName = Pick<User, "name" | "email">;
 
-// Omit<T, K> - Remove specific properties
+// Omit<T, K> - 移除特定属性
 type UserWithoutPassword = Omit<User, "password">;
 
-// Exclude<T, U> - Exclude types from union
+// Exclude<T, U> - 从联合类型中排除类型
 type T1 = Exclude<"a" | "b" | "c", "a">; // "b" | "c"
 
-// Extract<T, U> - Extract types from union
+// Extract<T, U> - 从联合类型中提取类型
 type T2 = Extract<"a" | "b" | "c", "a" | "b">; // "a" | "b"
 
-// NonNullable<T> - Exclude null and undefined
+// NonNullable<T> - 排除 null 和 undefined
 type T3 = NonNullable<string | null | undefined>; // string
 
-// Record<K, T> - Create object type with keys K and values T
+// Record<K, T> - 创建键为 K、值为 T 的对象类型
 type PageInfo = Record<"home" | "about", { title: string }>;
 ```
 
-## Advanced Patterns
+## 高级模式
 
-### Pattern 1: Type-Safe Event Emitter
+### 模式 1：类型安全的事件发射器
 
 ```typescript
 type EventMap = {
@@ -295,14 +295,14 @@ class TypedEventEmitter<T extends Record<string, any>> {
 const emitter = new TypedEventEmitter<EventMap>();
 
 emitter.on("user:created", (data) => {
-  console.log(data.id, data.name); // Type-safe!
+  console.log(data.id, data.name); // 类型安全！
 });
 
 emitter.emit("user:created", { id: "1", name: "John" });
-// emitter.emit("user:created", { id: "1" });  // Error: missing 'name'
+// emitter.emit("user:created", { id: "1" });  // 错误：缺少 'name'
 ```
 
-### Pattern 2: Type-Safe API Client
+### 模式 2：类型安全的 API 客户端
 
 ```typescript
 type HTTPMethod = "GET" | "POST" | "PUT" | "DELETE";
@@ -338,14 +338,14 @@ class APIClient<Config extends Record<string, Record<HTTPMethod, any>>> {
           },
         ]
   ): Promise<ExtractResponse<Config[Path][Method]>> {
-    // Implementation here
+    // 此处为实现
     return {} as any;
   }
 }
 
 const api = new APIClient<EndpointConfig>();
 
-// Type-safe API calls
+// 类型安全的 API 调用
 const users = await api.request("/users", "GET");
 // Type: User[]
 
@@ -360,7 +360,7 @@ const user = await api.request("/users/:id", "GET", {
 // Type: User
 ```
 
-### Pattern 3: Builder Pattern with Type Safety
+### 模式 3：带类型安全的构建器模式
 
 ```typescript
 type BuilderState<T> = {
@@ -408,14 +408,14 @@ const user = builder
   .set("id", "1")
   .set("name", "John")
   .set("email", "john@example.com")
-  .build(); // OK: all required fields set
+  .build(); // OK：所有必需字段已设置
 
 // const incomplete = builder
 //   .set("id", "1")
-//   .build();  // Error: missing required fields
+//   .build();  // 错误：缺少必需字段
 ```
 
-### Pattern 4: Deep Readonly/Partial
+### 模式 4：深度只读/部分
 
 ```typescript
 type DeepReadonly<T> = {
@@ -453,13 +453,13 @@ interface Config {
 }
 
 type ReadonlyConfig = DeepReadonly<Config>;
-// All nested properties are readonly
+// 所有嵌套属性都是只读的
 
 type PartialConfig = DeepPartial<Config>;
-// All nested properties are optional
+// 所有嵌套属性都是可选的
 ```
 
-### Pattern 5: Type-Safe Form Validation
+### 模式 5：类型安全的表单验证
 
 ```typescript
 type ValidationRule<T> = {
@@ -515,17 +515,17 @@ const validator = new FormValidator<LoginForm>({
   email: [
     {
       validate: (v) => v.includes("@"),
-      message: "Email must contain @",
+      message: "邮箱必须包含 @",
     },
     {
       validate: (v) => v.length > 0,
-      message: "Email is required",
+      message: "邮箱为必填项",
     },
   ],
   password: [
     {
       validate: (v) => v.length >= 8,
-      message: "Password must be at least 8 characters",
+      message: "密码至少需要 8 个字符",
     },
   ],
 });
@@ -537,7 +537,7 @@ const errors = validator.validate({
 // Type: { email?: string[]; password?: string[]; } | null
 ```
 
-### Pattern 6: Discriminated Unions
+### 模式 6：可辨识联合类型
 
 ```typescript
 type Success<T> = {
@@ -565,12 +565,12 @@ function handleState<T>(state: AsyncState<T>): void {
       console.log(state.error); // Type: string
       break;
     case "loading":
-      console.log("Loading...");
+      console.log("加载中...");
       break;
   }
 }
 
-// Type-safe state machine
+// 类型安全的状态机
 type State =
   | { type: "idle" }
   | { type: "fetching"; requestId: string }
@@ -604,30 +604,30 @@ function reducer(state: State, event: Event): State {
 }
 ```
 
-## Type Inference Techniques
+## 类型推断技术
 
-### 1. Infer Keyword
+### 1. infer 关键字
 
 ```typescript
-// Extract array element type
+// 提取数组元素类型
 type ElementType<T> = T extends (infer U)[] ? U : never;
 
 type NumArray = number[];
 type Num = ElementType<NumArray>; // number
 
-// Extract promise type
+// 提取 Promise 类型
 type PromiseType<T> = T extends Promise<infer U> ? U : never;
 
 type AsyncNum = PromiseType<Promise<number>>; // number
 
-// Extract function parameters
+// 提取函数参数
 type Parameters<T> = T extends (...args: infer P) => any ? P : never;
 
 function foo(a: string, b: number) {}
 type FooParams = Parameters<typeof foo>; // [string, number]
 ```
 
-### 2. Type Guards
+### 2. 类型守卫
 
 ```typescript
 function isString(value: unknown): value is string {
@@ -648,39 +648,39 @@ if (isArrayOf(data, isString)) {
 }
 ```
 
-### 3. Assertion Functions
+### 3. 断言函数
 
 ```typescript
 function assertIsString(value: unknown): asserts value is string {
   if (typeof value !== "string") {
-    throw new Error("Not a string");
+    throw new Error("不是字符串");
   }
 }
 
 function processValue(value: unknown) {
   assertIsString(value);
-  // value is now typed as string
+  // value 现在被推断为 string 类型
   console.log(value.toUpperCase());
 }
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Use `unknown` over `any`**: Enforce type checking
-2. **Prefer `interface` for object shapes**: Better error messages
-3. **Use `type` for unions and complex types**: More flexible
-4. **Leverage type inference**: Let TypeScript infer when possible
-5. **Create helper types**: Build reusable type utilities
-6. **Use const assertions**: Preserve literal types
-7. **Avoid type assertions**: Use type guards instead
-8. **Document complex types**: Add JSDoc comments
-9. **Use strict mode**: Enable all strict compiler options
-10. **Test your types**: Use type tests to verify type behavior
+1. **使用 `unknown` 而非 `any`**：强制进行类型检查
+2. **对象形状优先使用 `interface`**：更好的错误信息
+3. **联合类型和复杂类型使用 `type`**：更灵活
+4. **利用类型推断**：尽可能让 TypeScript 自动推断
+5. **创建辅助类型**：构建可复用的类型工具
+6. **使用 const 断言**：保留字面量类型
+7. **避免类型断言**：使用类型守卫代替
+8. **为复杂类型添加文档**：添加 JSDoc 注释
+9. **使用严格模式**：启用所有严格编译器选项
+10. **测试你的类型**：使用类型测试验证类型行为
 
-## Type Testing
+## 类型测试
 
 ```typescript
-// Type assertion tests
+// 类型断言测试
 type AssertEqual<T, U> = [T] extends [U]
   ? [U] extends [T]
     ? true
@@ -691,27 +691,27 @@ type Test1 = AssertEqual<string, string>; // true
 type Test2 = AssertEqual<string, number>; // false
 type Test3 = AssertEqual<string | number, string>; // false
 
-// Expect error helper
+// 期望错误辅助类型
 type ExpectError<T extends never> = T;
 
-// Example usage
+// 使用示例
 type ShouldError = ExpectError<AssertEqual<string, number>>;
 ```
 
-## Common Pitfalls
+## 常见陷阱
 
-1. **Over-using `any`**: Defeats the purpose of TypeScript
-2. **Ignoring strict null checks**: Can lead to runtime errors
-3. **Too complex types**: Can slow down compilation
-4. **Not using discriminated unions**: Misses type narrowing opportunities
-5. **Forgetting readonly modifiers**: Allows unintended mutations
-6. **Circular type references**: Can cause compiler errors
-7. **Not handling edge cases**: Like empty arrays or null values
+1. **过度使用 `any`**：违背了 TypeScript 的目的
+2. **忽略严格空值检查**：可能导致运行时错误
+3. **类型过于复杂**：可能拖慢编译速度
+4. **不使用可辨识联合类型**：错失类型缩窄的机会
+5. **忘记 readonly 修饰符**：允许意外的修改
+6. **循环类型引用**：可能导致编译错误
+7. **不处理边界情况**：如空数组或 null 值
 
-## Performance Considerations
+## 性能考虑
 
-- Avoid deeply nested conditional types
-- Use simple types when possible
-- Cache complex type computations
-- Limit recursion depth in recursive types
-- Use build tools to skip type checking in production
+- 避免深度嵌套的条件类型
+- 尽可能使用简单类型
+- 缓存复杂的类型计算
+- 限制递归类型的递归深度
+- 使用构建工具在生产环境中跳过类型检查

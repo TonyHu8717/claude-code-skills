@@ -1,30 +1,30 @@
 ---
 name: web-component-design
-description: Master React, Vue, and Svelte component patterns including CSS-in-JS, composition strategies, and reusable component architecture. Use when building UI component libraries, designing component APIs, or implementing frontend design systems.
+description: 掌握 React、Vue 和 Svelte 组件模式，包括 CSS-in-JS、组合策略和可复用组件架构。适用于构建 UI 组件库、设计组件 API 或实现前端设计系统。
 ---
 
-# Web Component Design
+# Web 组件设计
 
-Build reusable, maintainable UI components using modern frameworks with clean composition patterns and styling approaches.
+使用现代框架和清晰的组合模式及样式方法构建可复用、可维护的 UI 组件。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Designing reusable component libraries or design systems
-- Implementing complex component composition patterns
-- Choosing and applying CSS-in-JS solutions
-- Building accessible, responsive UI components
-- Creating consistent component APIs across a codebase
-- Refactoring legacy components into modern patterns
-- Implementing compound components or render props
+- 设计可复用的组件库或设计系统
+- 实现复杂的组件组合模式
+- 选择和应用 CSS-in-JS 解决方案
+- 构建无障碍、响应式的 UI 组件
+- 在代码库中创建一致的组件 API
+- 将遗留组件重构为现代模式
+- 实现复合组件或渲染属性
 
-## Core Concepts
+## 核心概念
 
-### 1. Component Composition Patterns
+### 1. 组件组合模式
 
-**Compound Components**: Related components that work together
+**复合组件**：协同工作的相关组件
 
 ```tsx
-// Usage
+// 使用方式
 <Select value={value} onChange={setValue}>
   <Select.Trigger>Choose option</Select.Trigger>
   <Select.Options>
@@ -34,7 +34,7 @@ Build reusable, maintainable UI components using modern frameworks with clean co
 </Select>
 ```
 
-**Render Props**: Delegate rendering to parent
+**渲染属性**：将渲染委托给父组件
 
 ```tsx
 <DataFetcher url="/api/users">
@@ -44,7 +44,7 @@ Build reusable, maintainable UI components using modern frameworks with clean co
 </DataFetcher>
 ```
 
-**Slots (Vue/Svelte)**: Named content injection points
+**插槽（Vue/Svelte）**：命名的内容注入点
 
 ```vue
 <template>
@@ -56,17 +56,17 @@ Build reusable, maintainable UI components using modern frameworks with clean co
 </template>
 ```
 
-### 2. CSS-in-JS Approaches
+### 2. CSS-in-JS 方法
 
-| Solution              | Approach               | Best For                          |
+| 方案              | 方法               | 最适合                          |
 | --------------------- | ---------------------- | --------------------------------- |
-| **Tailwind CSS**      | Utility classes        | Rapid prototyping, design systems |
-| **CSS Modules**       | Scoped CSS files       | Existing CSS, gradual adoption    |
-| **styled-components** | Template literals      | React, dynamic styling            |
-| **Emotion**           | Object/template styles | Flexible, SSR-friendly            |
-| **Vanilla Extract**   | Zero-runtime           | Performance-critical apps         |
+| **Tailwind CSS**      | 实用类        | 快速原型、设计系统 |
+| **CSS Modules**       | 作用域 CSS 文件       | 现有 CSS、渐进采用    |
+| **styled-components** | 模板字面量      | React、动态样式            |
+| **Emotion**           | 对象/模板样式 | 灵活、SSR 友好            |
+| **Vanilla Extract**   | 零运行时           | 性能关键应用         |
 
-### 3. Component API Design
+### 3. 组件 API 设计
 
 ```tsx
 interface ButtonProps {
@@ -81,14 +81,14 @@ interface ButtonProps {
 }
 ```
 
-**Principles**:
+**原则**：
 
-- Use semantic prop names (`isLoading` vs `loading`)
-- Provide sensible defaults
-- Support composition via `children`
-- Allow style overrides via `className` or `style`
+- 使用语义化的属性名（`isLoading` vs `loading`）
+- 提供合理的默认值
+- 通过 `children` 支持组合
+- 通过 `className` 或 `style` 允许样式覆盖
 
-## Quick Start: React Component with Tailwind
+## 快速开始：使用 Tailwind 的 React 组件
 
 ```tsx
 import { forwardRef, type ComponentPropsWithoutRef } from "react";
@@ -140,9 +140,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button";
 ```
 
-## Framework Patterns
+## 框架模式
 
-### React: Compound Components
+### React：复合组件
 
 ```tsx
 import { createContext, useContext, useState, type ReactNode } from "react";
@@ -201,7 +201,7 @@ Accordion.Item = function AccordionItem({
 };
 ```
 
-### Vue 3: Composables
+### Vue 3：组合式函数
 
 ```vue
 <script setup lang="ts">
@@ -214,7 +214,7 @@ interface TabsContext {
 
 const TabsKey: InjectionKey<TabsContext> = Symbol("tabs");
 
-// Parent component
+// 父组件
 const activeTab = ref("tab-1");
 provide(TabsKey, {
   activeTab,
@@ -223,13 +223,13 @@ provide(TabsKey, {
   },
 });
 
-// Child component usage
+// 子组件使用
 const tabs = inject(TabsKey);
 const isActive = computed(() => tabs?.activeTab.value === props.id);
 </script>
 ```
 
-### Svelte 5: Runes
+### Svelte 5：Runes
 
 ```svelte
 <script lang="ts">
@@ -252,20 +252,20 @@ const isActive = computed(() => tabs?.activeTab.value === props.id);
 </button>
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Single Responsibility**: Each component does one thing well
-2. **Prop Drilling Prevention**: Use context for deeply nested data
-3. **Accessible by Default**: Include ARIA attributes, keyboard support
-4. **Controlled vs Uncontrolled**: Support both patterns when appropriate
-5. **Forward Refs**: Allow parent access to DOM nodes
-6. **Memoization**: Use `React.memo`, `useMemo` for expensive renders
-7. **Error Boundaries**: Wrap components that may fail
+1. **单一职责**：每个组件做好一件事
+2. **防止属性钻取**：对深层嵌套数据使用上下文
+3. **默认无障碍**：包含 ARIA 属性、键盘支持
+4. **受控 vs 非受控**：适当时支持两种模式
+5. **转发 Ref**：允许父组件访问 DOM 节点
+6. **记忆化**：对昂贵的渲染使用 `React.memo`、`useMemo`
+7. **错误边界**：包裹可能失败的组件
 
-## Common Issues
+## 常见问题
 
-- **Prop Explosion**: Too many props - consider composition instead
-- **Style Conflicts**: Use scoped styles or CSS Modules
-- **Re-render Cascades**: Profile with React DevTools, memo appropriately
-- **Accessibility Gaps**: Test with screen readers and keyboard navigation
-- **Bundle Size**: Tree-shake unused component variants
+- **属性爆炸**：属性太多——考虑使用组合代替
+- **样式冲突**：使用作用域样式或 CSS Modules
+- **重渲染级联**：使用 React DevTools 分析，适当记忆化
+- **无障碍差距**：使用屏幕阅读器和键盘导航测试
+- **包大小**：树摇未使用的组件变体

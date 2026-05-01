@@ -1,42 +1,42 @@
 ---
 name: go-concurrency-patterns
-description: Master Go concurrency with goroutines, channels, sync primitives, and context. Use when building concurrent Go applications, implementing worker pools, or debugging race conditions.
+description: 掌握 Go 并发编程，包括 goroutine、channel、同步原语和 context。在构建并发 Go 应用、实现工作池或调试竞态条件时使用。
 ---
 
-# Go Concurrency Patterns
+# Go 并发模式
 
-Production patterns for Go concurrency including goroutines, channels, synchronization primitives, and context management.
+Go 并发的生产级模式，包括 goroutine、channel、同步原语和上下文管理。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Building concurrent Go applications
-- Implementing worker pools and pipelines
-- Managing goroutine lifecycles
-- Using channels for communication
-- Debugging race conditions
-- Implementing graceful shutdown
+- 构建并发 Go 应用
+- 实现工作池和管道
+- 管理 goroutine 生命周期
+- 使用 channel 进行通信
+- 调试竞态条件
+- 实现优雅关闭
 
-## Core Concepts
+## 核心概念
 
-### 1. Go Concurrency Primitives
+### 1. Go 并发原语
 
-| Primitive         | Purpose                          |
-| ----------------- | -------------------------------- |
-| `goroutine`       | Lightweight concurrent execution |
-| `channel`         | Communication between goroutines |
-| `select`          | Multiplex channel operations     |
-| `sync.Mutex`      | Mutual exclusion                 |
-| `sync.WaitGroup`  | Wait for goroutines to complete  |
-| `context.Context` | Cancellation and deadlines       |
+| 原语              | 用途                           |
+| ----------------- | ------------------------------ |
+| `goroutine`       | 轻量级并发执行                 |
+| `channel`         | goroutine 间通信               |
+| `select`          | 多路复用 channel 操作          |
+| `sync.Mutex`      | 互斥锁                         |
+| `sync.WaitGroup`  | 等待 goroutine 完成            |
+| `context.Context` | 取消和截止时间                 |
 
-### 2. Go Concurrency Mantra
+### 2. Go 并发格言
 
 ```
-Don't communicate by sharing memory;
-share memory by communicating.
+不要通过共享内存来通信；
+通过通信来共享内存。
 ```
 
-## Quick Start
+## 快速开始
 
 ```go
 package main
@@ -55,19 +55,19 @@ func main() {
     results := make(chan string, 10)
     var wg sync.WaitGroup
 
-    // Spawn workers
+    // 启动工作者
     for i := 0; i < 3; i++ {
         wg.Add(1)
         go worker(ctx, i, results, &wg)
     }
 
-    // Close results when done
+    // 完成后关闭 results
     go func() {
         wg.Wait()
         close(results)
     }()
 
-    // Collect results
+    // 收集结果
     for result := range results {
         fmt.Println(result)
     }
@@ -84,9 +84,9 @@ func worker(ctx context.Context, id int, results chan<- string, wg *sync.WaitGro
 }
 ```
 
-## Patterns
+## 模式
 
-### Pattern 1: Worker Pool
+### 模式 1：工作池
 
 ```go
 package main
@@ -137,21 +137,21 @@ func WorkerPool(ctx context.Context, numWorkers int, jobs <-chan Job) <-chan Res
 }
 
 func processJob(job Job) Result {
-    // Simulate work
+    // 模拟工作
     return Result{
         JobID:  job.ID,
         Output: fmt.Sprintf("Processed: %s", job.Data),
     }
 }
 
-// Usage
+// 使用
 func main() {
     ctx, cancel := context.WithCancel(context.Background())
     defer cancel()
 
     jobs := make(chan Job, 100)
 
-    // Send jobs
+    // 发送任务
     go func() {
         for i := 0; i < 50; i++ {
             jobs <- Job{ID: i, Data: fmt.Sprintf("job-%d", i)}
@@ -159,7 +159,7 @@ func main() {
         close(jobs)
     }()
 
-    // Process with 5 workers
+    // 使用 5 个工作者处理
     results := WorkerPool(ctx, 5, jobs)
 
     for result := range results {
@@ -168,7 +168,7 @@ func main() {
 }
 ```
 
-### Pattern 2: Fan-Out/Fan-In Pipeline
+### 模式 2：扇出/扇入管道
 
 ```go
 package main
@@ -178,7 +178,7 @@ import (
     "sync"
 )
 
-// Stage 1: Generate numbers
+// 阶段 1：生成数字
 func generate(ctx context.Context, nums ...int) <-chan int {
     out := make(chan int)
     go func() {
@@ -194,7 +194,7 @@ func generate(ctx context.Context, nums ...int) <-chan int {
     return out
 }
 
-// Stage 2: Square numbers (can run multiple instances)
+// 阶段 2：平方数字（可以运行多个实例）
 func square(ctx context.Context, in <-chan int) <-chan int {
     out := make(chan int)
     go func() {
@@ -210,12 +210,12 @@ func square(ctx context.Context, in <-chan int) <-chan int {
     return out
 }
 
-// Fan-in: Merge multiple channels into one
+// 扇入：将多个 channel 合并为一个
 func merge(ctx context.Context, cs ...<-chan int) <-chan int {
     var wg sync.WaitGroup
     out := make(chan int)
 
-    // Start output goroutine for each input channel
+    // 为每个输入 channel 启动输出 goroutine
     output := func(c <-chan int) {
         defer wg.Done()
         for n := range c {
@@ -232,7 +232,7 @@ func merge(ctx context.Context, cs ...<-chan int) <-chan int {
         go output(c)
     }
 
-    // Close out after all inputs are done
+    // 所有输入完成后关闭 out
     go func() {
         wg.Wait()
         close(out)
@@ -245,22 +245,22 @@ func main() {
     ctx, cancel := context.WithCancel(context.Background())
     defer cancel()
 
-    // Generate input
+    // 生成输入
     in := generate(ctx, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 
-    // Fan out to multiple squarers
+    // 扇出到多个平方器
     c1 := square(ctx, in)
     c2 := square(ctx, in)
     c3 := square(ctx, in)
 
-    // Fan in results
+    // 扇入结果
     for result := range merge(ctx, c1, c2, c3) {
         fmt.Println(result)
     }
 }
 ```
 
-### Pattern 3: Bounded Concurrency with Semaphore
+### 模式 3：使用信号量限制并发
 
 ```go
 package main
@@ -290,7 +290,7 @@ func (w *RateLimitedWorker) Do(ctx context.Context, tasks []func() error) []erro
     )
 
     for _, task := range tasks {
-        // Acquire semaphore (blocks if at limit)
+        // 获取信号量（达到限制时阻塞）
         if err := w.sem.Acquire(ctx, 1); err != nil {
             return []error{err}
         }
@@ -312,7 +312,7 @@ func (w *RateLimitedWorker) Do(ctx context.Context, tasks []func() error) []erro
     return errors
 }
 
-// Alternative: Channel-based semaphore
+// 替代方案：基于 channel 的信号量
 type Semaphore chan struct{}
 
 func NewSemaphore(n int) Semaphore {
@@ -328,7 +328,7 @@ func (s Semaphore) Release() {
 }
 ```
 
-### Pattern 4: Graceful Shutdown
+### 模式 4：优雅关闭
 
 ```go
 package main
@@ -355,7 +355,7 @@ func NewServer() *Server {
 }
 
 func (s *Server) Start(ctx context.Context) {
-    // Start workers
+    // 启动工作者
     for i := 0; i < 5; i++ {
         s.wg.Add(1)
         go s.worker(ctx, i)
@@ -372,9 +372,9 @@ func (s *Server) worker(ctx context.Context, id int) {
     for {
         select {
         case <-ctx.Done():
-            // Cleanup
+            // 清理
             fmt.Printf("Worker %d cleaning up...\n", id)
-            time.Sleep(500 * time.Millisecond) // Simulated cleanup
+            time.Sleep(500 * time.Millisecond) // 模拟清理
             return
         case <-ticker.C:
             fmt.Printf("Worker %d working...\n", id)
@@ -383,10 +383,10 @@ func (s *Server) worker(ctx context.Context, id int) {
 }
 
 func (s *Server) Shutdown(timeout time.Duration) {
-    // Signal shutdown
+    // 发送关闭信号
     close(s.shutdown)
 
-    // Wait with timeout
+    // 带超时等待
     done := make(chan struct{})
     go func() {
         s.wg.Wait()
@@ -402,7 +402,7 @@ func (s *Server) Shutdown(timeout time.Duration) {
 }
 
 func main() {
-    // Setup signal handling
+    // 设置信号处理
     ctx, cancel := context.WithCancel(context.Background())
 
     sigCh := make(chan os.Signal, 1)
@@ -411,19 +411,19 @@ func main() {
     server := NewServer()
     server.Start(ctx)
 
-    // Wait for signal
+    // 等待信号
     sig := <-sigCh
     fmt.Printf("\nReceived signal: %v\n", sig)
 
-    // Cancel context to stop workers
+    // 取消 context 以停止工作者
     cancel()
 
-    // Wait for graceful shutdown
+    // 等待优雅关闭
     server.Shutdown(5 * time.Second)
 }
 ```
 
-### Pattern 5: Error Group with Cancellation
+### 模式 5：带取消的错误组
 
 ```go
 package main
@@ -441,7 +441,7 @@ func fetchAllURLs(ctx context.Context, urls []string) ([]string, error) {
     results := make([]string, len(urls))
 
     for i, url := range urls {
-        i, url := i, url // Capture loop variables
+        i, url := i, url // 捕获循环变量
 
         g.Go(func() error {
             req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
@@ -460,18 +460,18 @@ func fetchAllURLs(ctx context.Context, urls []string) ([]string, error) {
         })
     }
 
-    // Wait for all goroutines to complete or one to fail
+    // 等待所有 goroutine 完成或其中一个失败
     if err := g.Wait(); err != nil {
-        return nil, err // First error cancels all others
+        return nil, err // 第一个错误取消所有其他
     }
 
     return results, nil
 }
 
-// With concurrency limit
+// 带并发限制
 func fetchWithLimit(ctx context.Context, urls []string, limit int) ([]string, error) {
     g, ctx := errgroup.WithContext(ctx)
-    g.SetLimit(limit) // Max concurrent goroutines
+    g.SetLimit(limit) // 最大并发 goroutine 数
 
     results := make([]string, len(urls))
     var mu sync.Mutex
@@ -500,7 +500,7 @@ func fetchWithLimit(ctx context.Context, urls []string, limit int) ([]string, er
 }
 ```
 
-### Pattern 6: Concurrent Map with sync.Map
+### 模式 6：使用 sync.Map 的并发 Map
 
 ```go
 package main
@@ -509,7 +509,7 @@ import (
     "sync"
 )
 
-// For frequent reads, infrequent writes
+// 适用于频繁读取、不频繁写入
 type Cache struct {
     m sync.Map
 }
@@ -530,7 +530,7 @@ func (c *Cache) Delete(key string) {
     c.m.Delete(key)
 }
 
-// For write-heavy workloads, use sharded map
+// 对于写密集型工作负载，使用分片 map
 type ShardedMap struct {
     shards    []*shard
     numShards int
@@ -553,7 +553,7 @@ func NewShardedMap(numShards int) *ShardedMap {
 }
 
 func (m *ShardedMap) getShard(key string) *shard {
-    // Simple hash
+    // 简单哈希
     h := 0
     for _, c := range key {
         h = 31*h + int(c)
@@ -577,13 +577,13 @@ func (m *ShardedMap) Set(key string, value interface{}) {
 }
 ```
 
-### Pattern 7: Select with Timeout and Default
+### 模式 7：带超时和默认的 Select
 
 ```go
 func selectPatterns() {
     ch := make(chan int)
 
-    // Timeout pattern
+    // 超时模式
     select {
     case v := <-ch:
         fmt.Println("Received:", v)
@@ -591,7 +591,7 @@ func selectPatterns() {
         fmt.Println("Timeout!")
     }
 
-    // Non-blocking send/receive
+    // 非阻塞发送/接收
     select {
     case ch <- 42:
         fmt.Println("Sent")
@@ -599,7 +599,7 @@ func selectPatterns() {
         fmt.Println("Channel full, skipping")
     }
 
-    // Priority select (check high priority first)
+    // 优先级 select（先检查高优先级）
     highPriority := make(chan int)
     lowPriority := make(chan int)
 
@@ -619,33 +619,33 @@ func selectPatterns() {
 }
 ```
 
-## Race Detection
+## 竞态检测
 
 ```bash
-# Run tests with race detector
+# 使用竞态检测器运行测试
 go test -race ./...
 
-# Build with race detector
+# 使用竞态检测器构建
 go build -race .
 
-# Run with race detector
+# 使用竞态检测器运行
 go run -race main.go
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该做的
 
-- **Use context** - For cancellation and deadlines
-- **Close channels** - From sender side only
-- **Use errgroup** - For concurrent operations with errors
-- **Buffer channels** - When you know the count
-- **Prefer channels** - Over mutexes when possible
+- **使用 context** - 用于取消和截止时间
+- **关闭 channel** - 仅从发送方关闭
+- **使用 errgroup** - 用于带错误的并发操作
+- **缓冲 channel** - 当你知道数量时
+- **优先使用 channel** - 尽可能代替互斥锁
 
-### Don'ts
+### 不应该做的
 
-- **Don't leak goroutines** - Always have exit path
-- **Don't close from receiver** - Causes panic
-- **Don't use shared memory** - Unless necessary
-- **Don't ignore context cancellation** - Check ctx.Done()
-- **Don't use time.Sleep for sync** - Use proper primitives
+- **不要泄漏 goroutine** - 始终有退出路径
+- **不要从接收方关闭** - 会导致 panic
+- **不要使用共享内存** - 除非必要
+- **不要忽略 context 取消** - 检查 ctx.Done()
+- **不要使用 time.Sleep 同步** - 使用正确的原语

@@ -1,475 +1,475 @@
 ---
 name: startup-financial-modeling
-description: Build comprehensive 3-5 year financial models with revenue projections, cost structures, cash flow analysis, and scenario planning for early-stage startups. Use this skill when creating financial projections, calculating burn rate or runway, modeling fundraising scenarios, or preparing investor-ready financials for a seed or Series A raise.
+description: 为早期创业公司构建包含收入预测、成本结构、现金流分析和情景规划的综合 3-5 年财务模型。在创建财务预测、计算烧钱率或融资跑道、模拟融资场景或为种子轮/A 轮融资准备投资者级财务数据时使用此技能。
 version: 1.0.0
 ---
 
-# Startup Financial Modeling
+# 创业公司财务建模
 
-Build comprehensive 3-5 year financial models with revenue projections, cost structures, cash flow analysis, and scenario planning for early-stage startups.
+为早期创业公司构建包含收入预测、成本结构、现金流分析和情景规划的综合 3-5 年财务模型。
 
-## Overview
+## 概述
 
-Financial modeling provides the quantitative foundation for startup strategy, fundraising, and operational planning. Create realistic projections using cohort-based revenue modeling, detailed cost structures, and scenario analysis to support decision-making and investor presentations.
+财务建模为创业公司战略、融资和运营规划提供定量基础。使用基于队列的收入建模、详细成本结构和情景分析创建现实的预测，以支持决策和投资者演示。
 
-## Core Components
+## 核心组件
 
-### Revenue Model
+### 收入模型
 
-**Cohort-Based Projections:**
-Build revenue from customer acquisition and retention by cohort.
+**基于队列的预测：**
+通过客户获取和留存按队列构建收入。
 
-**Formula:**
+**公式：**
 
 ```
-MRR = Σ (Cohort Size × Retention Rate × ARPU)
+MRR = Σ（队列规模 × 留存率 × ARPU）
 ARR = MRR × 12
 ```
 
-**Key Inputs:**
+**关键输入：**
 
-- Monthly new customer acquisitions
-- Customer retention rates by month
-- Average revenue per user (ARPU)
-- Pricing and packaging assumptions
-- Expansion revenue (upsells, cross-sells)
+- 每月新客户获取量
+- 按月客户留存率
+- 每用户平均收入（ARPU）
+- 定价和套餐假设
+- 扩展收入（追加销售、交叉销售）
 
-### Cost Structure
+### 成本结构
 
-**Operating Expenses Categories:**
+**运营费用类别：**
 
-1. **Cost of Goods Sold (COGS)**
-   - Hosting and infrastructure
-   - Payment processing fees
-   - Customer support (variable portion)
-   - Third-party services per customer
+1. **销售成本（COGS）**
+   - 托管和基础设施
+   - 支付处理费
+   - 客户支持（可变部分）
+   - 每客户的第三方服务
 
-2. **Sales & Marketing (S&M)**
-   - Customer acquisition cost (CAC)
-   - Marketing programs and advertising
-   - Sales team compensation
-   - Marketing tools and software
+2. **销售与营销（S&M）**
+   - 客户获取成本（CAC）
+   - 营销计划和广告
+   - 销售团队薪酬
+   - 营销工具和软件
 
-3. **Research & Development (R&D)**
-   - Engineering team compensation
-   - Product management
-   - Design and UX
-   - Development tools and infrastructure
+3. **研发（R&D）**
+   - 工程团队薪酬
+   - 产品管理
+   - 设计和用户体验
+   - 开发工具和基础设施
 
-4. **General & Administrative (G&A)**
-   - Executive team
-   - Finance, legal, HR
-   - Office and facilities
-   - Insurance and compliance
+4. **一般及行政（G&A）**
+   - 高管团队
+   - 财务、法务、人力资源
+   - 办公和设施
+   - 保险和合规
 
-### Cash Flow Analysis
+### 现金流分析
 
-**Components:**
+**组件：**
 
-- Beginning cash balance
-- Cash inflows (revenue, fundraising)
-- Cash outflows (operating expenses, CapEx)
-- Ending cash balance
-- Monthly burn rate
-- Runway (months of cash remaining)
+- 期初现金余额
+- 现金流入（收入、融资）
+- 现金流出（运营费用、资本支出）
+- 期末现金余额
+- 月烧钱率
+- 跑道（剩余现金月数）
 
-**Formula:**
-
-```
-Runway = Current Cash Balance / Monthly Burn Rate
-Monthly Burn = Monthly Revenue - Monthly Expenses
-```
-
-### Headcount Planning
-
-**Role-Based Hiring Plan:**
-Track headcount by department and role.
-
-**Key Metrics:**
-
-- Fully-loaded cost per employee
-- Revenue per employee
-- Headcount by department (% of total)
-
-**Typical Ratios (Early-Stage SaaS):**
-
-- Engineering: 40-50%
-- Sales & Marketing: 25-35%
-- G&A: 10-15%
-- Customer Success: 5-10%
-
-## Financial Model Structure
-
-### Three-Scenario Framework
-
-**Conservative Scenario (P10):**
-
-- Slower customer acquisition
-- Lower pricing or conversion
-- Higher churn rates
-- Extended sales cycles
-- Used for cash management
-
-**Base Scenario (P50):**
-
-- Most likely outcomes
-- Realistic assumptions
-- Primary planning scenario
-- Used for board reporting
-
-**Optimistic Scenario (P90):**
-
-- Faster growth
-- Better unit economics
-- Lower churn
-- Used for upside planning
-
-### Time Horizon
-
-**Detailed Projections: 3 Years**
-
-- Monthly detail for Year 1
-- Monthly detail for Year 2
-- Quarterly detail for Year 3
-
-**High-Level Projections: Years 4-5**
-
-- Annual projections
-- Key metrics only
-- Support long-term planning
-
-## Step-by-Step Process
-
-### Step 1: Define Business Model
-
-Clarify revenue model and pricing.
-
-**SaaS Model:**
-
-- Subscription pricing tiers
-- Annual vs. monthly contracts
-- Free trial or freemium approach
-- Expansion revenue strategy
-
-**Marketplace Model:**
-
-- GMV projections
-- Take rate (% of transactions)
-- Buyer and seller economics
-- Transaction frequency
-
-**Transactional Model:**
-
-- Transaction volume
-- Revenue per transaction
-- Frequency and seasonality
-
-### Step 2: Build Revenue Projections
-
-Use cohort-based methodology for accuracy.
-
-**Monthly Customer Acquisition:**
-Define new customers acquired each month.
-
-**Retention Curve:**
-Model customer retention over time.
-
-**Typical SaaS Retention:**
-
-- Month 1: 100%
-- Month 3: 90%
-- Month 6: 85%
-- Month 12: 75%
-- Month 24: 70%
-
-**Revenue Calculation:**
-For each cohort, calculate retained customers × ARPU for each month.
-
-### Step 3: Model Cost Structure
-
-Break down costs by category and behavior.
-
-**Fixed vs. Variable:**
-
-- Fixed: Salaries, software, rent
-- Variable: Hosting, payment processing, support
-
-**Scaling Assumptions:**
-
-- COGS as % of revenue
-- S&M as % of revenue (CAC payback)
-- R&D growth rate
-- G&A as % of total expenses
-
-### Step 4: Create Hiring Plan
-
-Model headcount growth by role and department.
-
-**Inputs:**
-
-- Starting headcount
-- Hiring velocity by role
-- Fully-loaded compensation by role
-- Benefits and taxes (typically 1.3-1.4x salary)
-
-**Example:**
+**公式：**
 
 ```
-Engineer: $150K salary × 1.35 = $202K fully-loaded
-Sales Rep: $100K OTE × 1.30 = $130K fully-loaded
+跑道 = 当前现金余额 / 月烧钱率
+月烧钱 = 月收入 - 月支出
 ```
 
-### Step 5: Project Cash Flow
+### 人员编制规划
 
-Calculate monthly cash position and runway.
+**基于角色的招聘计划：**
+按部门和角色跟踪人员编制。
 
-**Monthly Cash Flow:**
+**关键指标：**
+
+- 每位员工的全包成本
+- 每位员工的收入
+- 按部门的人员编制（占总数的百分比）
+
+**典型比例（早期 SaaS）：**
+
+- 工程：40-50%
+- 销售与营销：25-35%
+- 一般及行政：10-15%
+- 客户成功：5-10%
+
+## 财务模型结构
+
+### 三情景框架
+
+**保守情景（P10）：**
+
+- 客户获取较慢
+- 定价或转化率较低
+- 较高流失率
+- 销售周期延长
+- 用于现金管理
+
+**基准情景（P50）：**
+
+- 最可能的结果
+- 现实的假设
+- 主要规划情景
+- 用于董事会报告
+
+**乐观情景（P90）：**
+
+- 更快增长
+- 更好的单位经济性
+- 较低流失率
+- 用于上行规划
+
+### 时间范围
+
+**详细预测：3 年**
+
+- 第 1 年按月详细
+- 第 2 年按月详细
+- 第 3 年按季度详细
+
+**高层预测：第 4-5 年**
+
+- 年度预测
+- 仅关键指标
+- 支持长期规划
+
+## 分步流程
+
+### 第 1 步：定义商业模式
+
+明确收入模型和定价。
+
+**SaaS 模式：**
+
+- 订阅定价层级
+- 年度 vs 月度合同
+- 免费试用或免费增值方式
+- 扩展收入策略
+
+**市场模式：**
+
+- GMV 预测
+- 提成率（交易百分比）
+- 买卖双方经济性
+- 交易频率
+
+**交易模式：**
+
+- 交易量
+- 每笔交易收入
+- 频率和季节性
+
+### 第 2 步：构建收入预测
+
+使用基于队列的方法以获得准确性。
+
+**月度客户获取：**
+定义每月获取的新客户。
+
+**留存曲线：**
+模拟客户随时间的留存。
+
+**典型 SaaS 留存：**
+
+- 第 1 个月：100%
+- 第 3 个月：90%
+- 第 6 个月：85%
+- 第 12 个月：75%
+- 第 24 个月：70%
+
+**收入计算：**
+对每个队列，计算每月留存客户 × ARPU。
+
+### 第 3 步：建模成本结构
+
+按类别和行为分解成本。
+
+**固定 vs 可变：**
+
+- 固定：工资、软件、租金
+- 可变：托管、支付处理、支持
+
+**扩展假设：**
+
+- COGS 占收入百分比
+- S&M 占收入百分比（CAC 回收期）
+- R&D 增长率
+- G&A 占总支出百分比
+
+### 第 4 步：创建招聘计划
+
+按角色和部门建模人员增长。
+
+**输入：**
+
+- 初始人员编制
+- 各角色的招聘速度
+- 各角色的全包薪酬
+- 福利和税费（通常为工资的 1.3-1.4 倍）
+
+**示例：**
 
 ```
-Beginning Cash
-+ Revenue Collected (consider payment terms)
-- Operating Expenses Paid
-- CapEx
-= Ending Cash
+工程师：$150K 工资 × 1.35 = $202K 全包成本
+销售代表：$100K OTE × 1.30 = $130K 全包成本
 ```
 
-**Runway Calculation:**
+### 第 5 步：预测现金流
+
+计算月度现金状况和跑道。
+
+**月度现金流：**
 
 ```
-If Ending Cash < 0:
-  Funding Need = Negative Cash Balance
-  Runway = 0
-Else:
-  Runway = Ending Cash / Average Monthly Burn
+期初现金
++ 收取的收入（考虑付款条件）
+- 支付的运营费用
+- 资本支出
+= 期末现金
 ```
 
-### Step 6: Calculate Key Metrics
+**跑道计算：**
 
-Track metrics that matter for stage.
+```
+如果期末现金 < 0：
+  融资需求 = 负现金余额
+  跑道 = 0
+否则：
+  跑道 = 期末现金 / 平均月烧钱率
+```
 
-**Revenue Metrics:**
+### 第 6 步：计算关键指标
+
+跟踪与阶段相关的指标。
+
+**收入指标：**
 
 - MRR / ARR
-- Growth rate (MoM, YoY)
-- Revenue by segment or cohort
+- 增长率（环比、同比）
+- 按细分或队列的收入
 
-**Unit Economics:**
+**单位经济性：**
 
-- CAC (Customer Acquisition Cost)
-- LTV (Lifetime Value)
-- CAC Payback Period
-- LTV / CAC Ratio
+- CAC（客户获取成本）
+- LTV（生命周期价值）
+- CAC 回收期
+- LTV / CAC 比率
 
-**Efficiency Metrics:**
+**效率指标：**
 
-- Burn multiple (Net Burn / Net New ARR)
-- Magic number (Net New ARR / S&M Spend)
-- Rule of 40 (Growth % + Profit Margin %)
+- 烧钱倍数（净烧钱 / 净新增 ARR）
+- 魔法数字（净新增 ARR / S&M 支出）
+- 40 法则（增长率% + 利润率%）
 
-**Cash Metrics:**
+**现金指标：**
 
-- Monthly burn rate
-- Runway (months)
-- Cash efficiency
+- 月烧钱率
+- 跑道（月数）
+- 现金效率
 
-### Step 7: Scenario Analysis
+### 第 7 步：情景分析
 
-Create three scenarios with different assumptions.
+使用不同假设创建三种情景。
 
-**Variable Assumptions:**
+**可变假设：**
 
-- Customer acquisition rate (±30%)
-- Churn rate (±20%)
-- Average contract value (±15%)
-- CAC (±25%)
+- 客户获取率（±30%）
+- 流失率（±20%）
+- 平均合同价值（±15%）
+- CAC（±25%）
 
-**Fixed Assumptions:**
+**固定假设：**
 
-- Pricing structure
-- Core operating expenses
-- Hiring plan (adjust timing, not roles)
+- 定价结构
+- 核心运营费用
+- 招聘计划（调整时间，不调整角色）
 
-## Business Model Templates
+## 商业模式模板
 
-### SaaS Financial Model
+### SaaS 财务模型
 
-**Revenue Drivers:**
+**收入驱动因素：**
 
-- New MRR (customers × ARPU)
-- Expansion MRR (upsells)
-- Contraction MRR (downgrades)
-- Churned MRR (lost customers)
+- 新增 MRR（客户 × ARPU）
+- 扩展 MRR（追加销售）
+- 收缩 MRR（降级）
+- 流失 MRR（丢失客户）
 
-**Key Ratios:**
+**关键比率：**
 
-- Gross margin: 75-85%
-- S&M as % revenue: 40-60% (early stage)
-- CAC payback: < 12 months
-- Net retention: 100-120%
+- 毛利率：75-85%
+- S&M 占收入百分比：40-60%（早期）
+- CAC 回收期：< 12 个月
+- 净留存：100-120%
 
-**Example Projection:**
-
-```
-Year 1: $500K ARR, 50 customers, $100K MRR by Dec
-Year 2: $2.5M ARR, 200 customers, $208K MRR by Dec
-Year 3: $8M ARR, 600 customers, $667K MRR by Dec
-```
-
-### Marketplace Financial Model
-
-**Revenue Drivers:**
-
-- GMV (Gross Merchandise Value)
-- Take rate (% of GMV)
-- Net revenue = GMV × Take rate
-
-**Key Ratios:**
-
-- Take rate: 10-30% depending on category
-- CAC for buyers vs. sellers
-- Contribution margin: 60-70%
-
-**Example Projection:**
+**示例预测：**
 
 ```
-Year 1: $5M GMV, 15% take rate = $750K revenue
-Year 2: $20M GMV, 15% take rate = $3M revenue
-Year 3: $60M GMV, 15% take rate = $9M revenue
+第 1 年：$500K ARR，50 位客户，12 月时 $100K MRR
+第 2 年：$2.5M ARR，200 位客户，12 月时 $208K MRR
+第 3 年：$8M ARR，600 位客户，12 月时 $667K MRR
 ```
 
-### E-Commerce Financial Model
+### 市场财务模型
 
-**Revenue Drivers:**
+**收入驱动因素：**
 
-- Traffic (visitors)
-- Conversion rate
-- Average order value (AOV)
-- Purchase frequency
+- GMV（商品交易总额）
+- 提成率（GMV 的百分比）
+- 净收入 = GMV × 提成率
 
-**Key Ratios:**
+**关键比率：**
 
-- Gross margin: 40-60%
-- Contribution margin: 20-35%
-- CAC payback: 3-6 months
+- 提成率：根据类别 10-30%
+- 买方 vs 卖方的 CAC
+- 贡献利润率：60-70%
 
-### Services / Agency Financial Model
-
-**Revenue Drivers:**
-
-- Billable hours or projects
-- Hourly rate or project fee
-- Utilization rate
-- Team capacity
-
-**Key Ratios:**
-
-- Gross margin: 50-70%
-- Utilization: 70-85%
-- Revenue per employee
-
-## Fundraising Integration
-
-### Funding Scenario Modeling
-
-**Pre-Money Valuation:**
-Based on metrics and comparables.
-
-**Dilution:**
+**示例预测：**
 
 ```
-Post-Money = Pre-Money + Investment
-Dilution % = Investment / Post-Money
+第 1 年：$5M GMV，15% 提成率 = $750K 收入
+第 2 年：$20M GMV，15% 提成率 = $3M 收入
+第 3 年：$60M GMV，15% 提成率 = $9M 收入
 ```
 
-**Use of Funds:**
-Allocate funding to extend runway and achieve milestones.
+### 电商财务模型
 
-**Example:**
+**收入驱动因素：**
+
+- 流量（访客）
+- 转化率
+- 平均订单价值（AOV）
+- 购买频率
+
+**关键比率：**
+
+- 毛利率：40-60%
+- 贡献利润率：20-35%
+- CAC 回收期：3-6 个月
+
+### 服务/代理财务模型
+
+**收入驱动因素：**
+
+- 计费小时或项目
+- 小时费率或项目费用
+- 利用率
+- 团队产能
+
+**关键比率：**
+
+- 毛利率：50-70%
+- 利用率：70-85%
+- 每位员工收入
+
+## 融资整合
+
+### 融资情景建模
+
+**投前估值：**
+基于指标和可比公司。
+
+**稀释：**
 
 ```
-Raise: $5M at $20M pre-money
-Post-Money: $25M
-Dilution: 20%
-
-Use of Funds:
-- Product Development: $2M (40%)
-- Sales & Marketing: $2M (40%)
-- G&A and Operations: $0.5M (10%)
-- Working Capital: $0.5M (10%)
+投后 = 投前 + 投资额
+稀释% = 投资额 / 投后
 ```
 
-### Milestone-Based Planning
+**资金用途：**
+分配融资以延长跑道并实现里程碑。
 
-**Identify Key Milestones:**
+**示例：**
 
-- Product launch
-- First $1M ARR
-- Break-even on CAC
-- Series A fundraise
+```
+融资：$5M，投前 $20M
+投后：$25M
+稀释：20%
 
-**Funding Amount:**
-Ensure runway to achieve next milestone + 6 months buffer.
+资金用途：
+- 产品开发：$2M（40%）
+- 销售与营销：$2M（40%）
+- 一般及行政和运营：$0.5M（10%）
+- 运营资金：$0.5M（10%）
+```
 
-## Common Pitfalls
+### 基于里程碑的规划
 
-**Pitfall 1: Overly Optimistic Revenue**
+**确定关键里程碑：**
 
-- New startups rarely hit aggressive projections
-- Use conservative customer acquisition assumptions
-- Model realistic churn rates
+- 产品发布
+- 首次 $1M ARR
+- CAC 收支平衡
+- A 轮融资
 
-**Pitfall 2: Underestimating Costs**
+**融资金额：**
+确保跑道达到下一个里程碑 + 6 个月缓冲。
 
-- Add 20% buffer to expense estimates
-- Include fully-loaded compensation
-- Account for software and tools
+## 常见陷阱
 
-**Pitfall 3: Ignoring Cash Flow Timing**
+**陷阱 1：过于乐观的收入**
 
-- Revenue ≠ cash (payment terms)
-- Expenses paid before revenue collected
-- Model cash conversion carefully
+- 新创业公司很少达到激进的预测
+- 使用保守的客户获取假设
+- 建模现实的流失率
 
-**Pitfall 4: Static Headcount**
+**陷阱 2：低估成本**
 
-- Hiring takes time (3-6 months to fill roles)
-- Ramp time for productivity (3-6 months)
-- Account for attrition (10-15% annually)
+- 在支出估计上增加 20% 缓冲
+- 包含全包薪酬
+- 考虑软件和工具
 
-**Pitfall 5: Not Scenario Planning**
+**陷阱 3：忽视现金流时间**
 
-- Single scenario is never accurate
-- Always model conservative case
-- Plan for what you'll do if base case fails
+- 收入 ≠ 现金（付款条件）
+- 支出在收入收取之前支付
+- 仔细建模现金转换
 
-## Model Validation
+**陷阱 4：静态人员编制**
 
-**Sanity Checks:**
+- 招聘需要时间（3-6 个月填补职位）
+- 生产力提升时间（3-6 个月）
+- 考虑自然流失（每年 10-15%）
 
-- [ ] Revenue growth rate is achievable (3x in Year 2, 2x in Year 3)
-- [ ] Unit economics are realistic (LTV/CAC > 3, payback < 18 months)
-- [ ] Burn multiple is reasonable (< 2.0 in Year 2-3)
-- [ ] Headcount scales with revenue (revenue per employee growing)
-- [ ] Gross margin is appropriate for business model
-- [ ] S&M spending aligns with CAC and growth targets
+**陷阱 5：不做情景规划**
 
-**Benchmark Against Peers:**
-Compare key metrics to similar companies at similar stage.
+- 单一情景从来都不准确
+- 始终建模保守情景
+- 为基准情景失败的情况做计划
 
-**Investor Feedback:**
-Share model with advisors or investors for feedback on assumptions.
+## 模型验证
+
+**合理性检查：**
+
+- [ ] 收入增长率可实现（第 2 年 3 倍，第 3 年 2 倍）
+- [ ] 单位经济性现实（LTV/CAC > 3，回收期 < 18 个月）
+- [ ] 烧钱倍数合理（第 2-3 年 < 2.0）
+- [ ] 人员编制随收入增长（每位员工收入增长）
+- [ ] 毛利率适合商业模式
+- [ ] S&M 支出与 CAC 和增长目标一致
+
+**与同行对标：**
+将关键指标与类似阶段的类似公司比较。
+
+**投资者反馈：**
+与顾问或投资者分享模型以获得假设反馈。
 
 
-## Quick Start
+## 快速开始
 
-To create a startup financial model:
+创建创业公司财务模型：
 
-1. **Define business model** - Revenue drivers and pricing
-2. **Project revenue** - Cohort-based with retention
-3. **Model costs** - COGS, S&M, R&D, G&A by month
-4. **Plan headcount** - Hiring by role and department
-5. **Calculate cash flow** - Revenue - expenses = burn/runway
-6. **Compute metrics** - CAC, LTV, burn multiple, runway
-7. **Create scenarios** - Conservative, base, optimistic
-8. **Validate assumptions** - Sanity check and benchmark
-9. **Integrate fundraising** - Model funding rounds and milestones
+1. **定义商业模式** - 收入驱动因素和定价
+2. **预测收入** - 基于队列，包含留存
+3. **建模成本** - COGS、S&M、R&D、G&A 按月
+4. **规划人员编制** - 按角色和部门招聘
+5. **计算现金流** - 收入 - 支出 = 烧钱/跑道
+6. **计算指标** - CAC、LTV、烧钱倍数、跑道
+7. **创建情景** - 保守、基准、乐观
+8. **验证假设** - 合理性检查和对标
+9. **整合融资** - 建模融资轮次和里程碑

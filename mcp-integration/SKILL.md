@@ -1,28 +1,28 @@
 ---
 name: mcp-integration
-description: This skill should be used when the user asks to "add MCP server", "integrate MCP", "configure MCP in plugin", "use .mcp.json", "set up Model Context Protocol", "connect external service", mentions "${CLAUDE_PLUGIN_ROOT} with MCP", or discusses MCP server types (SSE, stdio, HTTP, WebSocket). Provides comprehensive guidance for integrating Model Context Protocol servers into Claude Code plugins for external tool and service integration.
+description: 当用户要求"添加 MCP 服务器"、"集成 MCP"、"在插件中配置 MCP"、"使用 .mcp.json"、"设置模型上下文协议"、"连接外部服务"、提到 "${CLAUDE_PLUGIN_ROOT} 与 MCP"，或讨论 MCP 服务器类型（SSE、stdio、HTTP、WebSocket）时使用此技能。提供将模型上下文协议服务器集成到 Claude Code 插件中以连接外部工具和服务的全面指导。
 version: 0.1.0
 ---
 
-# MCP Integration for Claude Code Plugins
+# Claude Code 插件的 MCP 集成
 
-## Overview
+## 概述
 
-Model Context Protocol (MCP) enables Claude Code plugins to integrate with external services and APIs by providing structured tool access. Use MCP integration to expose external service capabilities as tools within Claude Code.
+模型上下文协议（MCP）使 Claude Code 插件能够通过提供结构化的工具访问来与外部服务和 API 集成。使用 MCP 集成将外部服务功能暴露为 Claude Code 中的工具。
 
-**Key capabilities:**
-- Connect to external services (databases, APIs, file systems)
-- Provide 10+ related tools from a single service
-- Handle OAuth and complex authentication flows
-- Bundle MCP servers with plugins for automatic setup
+**核心能力：**
+- 连接外部服务（数据库、API、文件系统）
+- 从单个服务提供 10+ 个相关工具
+- 处理 OAuth 和复杂的身份验证流程
+- 将 MCP 服务器与插件捆绑，实现自动设置
 
-## MCP Server Configuration Methods
+## MCP 服务器配置方法
 
-Plugins can bundle MCP servers in two ways:
+插件可以通过两种方式捆绑 MCP 服务器：
 
-### Method 1: Dedicated .mcp.json (Recommended)
+### 方法 1：专用 .mcp.json（推荐）
 
-Create `.mcp.json` at plugin root:
+在插件根目录创建 `.mcp.json`：
 
 ```json
 {
@@ -36,14 +36,14 @@ Create `.mcp.json` at plugin root:
 }
 ```
 
-**Benefits:**
-- Clear separation of concerns
-- Easier to maintain
-- Better for multiple servers
+**优势：**
+- 关注点清晰分离
+- 更易维护
+- 适合多服务器场景
 
-### Method 2: Inline in plugin.json
+### 方法 2：内联在 plugin.json 中
 
-Add `mcpServers` field to plugin.json:
+在 plugin.json 中添加 `mcpServers` 字段：
 
 ```json
 {
@@ -58,17 +58,17 @@ Add `mcpServers` field to plugin.json:
 }
 ```
 
-**Benefits:**
-- Single configuration file
-- Good for simple single-server plugins
+**优势：**
+- 单一配置文件
+- 适合简单的单服务器插件
 
-## MCP Server Types
+## MCP 服务器类型
 
-### stdio (Local Process)
+### stdio（本地进程）
 
-Execute local MCP servers as child processes. Best for local tools and custom servers.
+将本地 MCP 服务器作为子进程执行。最适合本地工具和自定义服务器。
 
-**Configuration:**
+**配置：**
 ```json
 {
   "filesystem": {
@@ -81,22 +81,22 @@ Execute local MCP servers as child processes. Best for local tools and custom se
 }
 ```
 
-**Use cases:**
-- File system access
-- Local database connections
-- Custom MCP servers
-- NPM-packaged MCP servers
+**使用场景：**
+- 文件系统访问
+- 本地数据库连接
+- 自定义 MCP 服务器
+- NPM 打包的 MCP 服务器
 
-**Process management:**
-- Claude Code spawns and manages the process
-- Communicates via stdin/stdout
-- Terminates when Claude Code exits
+**进程管理：**
+- Claude Code 生成并管理进程
+- 通过 stdin/stdout 通信
+- Claude Code 退出时终止
 
-### SSE (Server-Sent Events)
+### SSE（服务器发送事件）
 
-Connect to hosted MCP servers with OAuth support. Best for cloud services.
+连接到支持 OAuth 的托管 MCP 服务器。最适合云服务。
 
-**Configuration:**
+**配置：**
 ```json
 {
   "asana": {
@@ -106,22 +106,22 @@ Connect to hosted MCP servers with OAuth support. Best for cloud services.
 }
 ```
 
-**Use cases:**
-- Official hosted MCP servers (Asana, GitHub, etc.)
-- Cloud services with MCP endpoints
-- OAuth-based authentication
-- No local installation needed
+**使用场景：**
+- 官方托管的 MCP 服务器（Asana、GitHub 等）
+- 具有 MCP 端点的云服务
+- 基于 OAuth 的身份验证
+- 无需本地安装
 
-**Authentication:**
-- OAuth flows handled automatically
-- User prompted on first use
-- Tokens managed by Claude Code
+**身份验证：**
+- OAuth 流程自动处理
+- 首次使用时提示用户
+- Token 由 Claude Code 管理
 
-### HTTP (REST API)
+### HTTP（REST API）
 
-Connect to RESTful MCP servers with token authentication.
+连接到使用 Token 身份验证的 RESTful MCP 服务器。
 
-**Configuration:**
+**配置：**
 ```json
 {
   "api-service": {
@@ -135,17 +135,17 @@ Connect to RESTful MCP servers with token authentication.
 }
 ```
 
-**Use cases:**
-- REST API-based MCP servers
-- Token-based authentication
-- Custom API backends
-- Stateless interactions
+**使用场景：**
+- 基于 REST API 的 MCP 服务器
+- 基于 Token 的身份验证
+- 自定义 API 后端
+- 无状态交互
 
-### WebSocket (Real-time)
+### WebSocket（实时）
 
-Connect to WebSocket MCP servers for real-time bidirectional communication.
+连接到 WebSocket MCP 服务器，实现实时双向通信。
 
-**Configuration:**
+**配置：**
 ```json
 {
   "realtime-service": {
@@ -158,24 +158,24 @@ Connect to WebSocket MCP servers for real-time bidirectional communication.
 }
 ```
 
-**Use cases:**
-- Real-time data streaming
-- Persistent connections
-- Push notifications from server
-- Low-latency requirements
+**使用场景：**
+- 实时数据流
+- 持久连接
+- 服务器推送通知
+- 低延迟需求
 
-## Environment Variable Expansion
+## 环境变量展开
 
-All MCP configurations support environment variable substitution:
+所有 MCP 配置支持环境变量替换：
 
-**${CLAUDE_PLUGIN_ROOT}** - Plugin directory (always use for portability):
+**${CLAUDE_PLUGIN_ROOT}** — 插件目录（始终使用以保证可移植性）：
 ```json
 {
   "command": "${CLAUDE_PLUGIN_ROOT}/servers/my-server"
 }
 ```
 
-**User environment variables** - From user's shell:
+**用户环境变量** — 来自用户的 shell：
 ```json
 {
   "env": {
@@ -185,23 +185,23 @@ All MCP configurations support environment variable substitution:
 }
 ```
 
-**Best practice:** Document all required environment variables in plugin README.
+**最佳实践：**在插件 README 中记录所有必需的环境变量。
 
-## MCP Tool Naming
+## MCP 工具命名
 
-When MCP servers provide tools, they're automatically prefixed:
+当 MCP 服务器提供工具时，它们会自动添加前缀：
 
-**Format:** `mcp__plugin_<plugin-name>_<server-name>__<tool-name>`
+**格式：**`mcp__plugin_<plugin-name>_<server-name>__<tool-name>`
 
-**Example:**
-- Plugin: `asana`
-- Server: `asana`
-- Tool: `create_task`
-- **Full name:** `mcp__plugin_asana_asana__asana_create_task`
+**示例：**
+- 插件：`asana`
+- 服务器：`asana`
+- 工具：`create_task`
+- **全名：**`mcp__plugin_asana_asana__asana_create_task`
 
-### Using MCP Tools in Commands
+### 在命令中使用 MCP 工具
 
-Pre-allow specific MCP tools in command frontmatter:
+在命令 frontmatter 中预先允许特定的 MCP 工具：
 
 ```markdown
 ---
@@ -212,37 +212,37 @@ allowed-tools: [
 ---
 ```
 
-**Wildcard (use sparingly):**
+**通配符（谨慎使用）：**
 ```markdown
 ---
 allowed-tools: ["mcp__plugin_asana_asana__*"]
 ---
 ```
 
-**Best practice:** Pre-allow specific tools, not wildcards, for security.
+**最佳实践：**为安全起见，预先允许特定工具，而非通配符。
 
-## Lifecycle Management
+## 生命周期管理
 
-**Automatic startup:**
-- MCP servers start when plugin enables
-- Connection established before first tool use
-- Restart required for configuration changes
+**自动启动：**
+- 插件启用时 MCP 服务器启动
+- 首次使用工具前建立连接
+- 配置更改后需要重启
 
-**Lifecycle:**
-1. Plugin loads
-2. MCP configuration parsed
-3. Server process started (stdio) or connection established (SSE/HTTP/WS)
-4. Tools discovered and registered
-5. Tools available as `mcp__plugin_...__...`
+**生命周期：**
+1. 插件加载
+2. MCP 配置解析
+3. 服务器进程启动（stdio）或连接建立（SSE/HTTP/WS）
+4. 工具发现并注册
+5. 工具以 `mcp__plugin_...__...` 形式可用
 
-**Viewing servers:**
-Use `/mcp` command to see all servers including plugin-provided ones.
+**查看服务器：**
+使用 `/mcp` 命令查看所有服务器，包括插件提供的服务器。
 
-## Authentication Patterns
+## 身份验证模式
 
-### OAuth (SSE/HTTP)
+### OAuth（SSE/HTTP）
 
-OAuth handled automatically by Claude Code:
+OAuth 由 Claude Code 自动处理：
 
 ```json
 {
@@ -251,11 +251,11 @@ OAuth handled automatically by Claude Code:
 }
 ```
 
-User authenticates in browser on first use. No additional configuration needed.
+首次使用时用户在浏览器中进行身份验证。无需额外配置。
 
-### Token-Based (Headers)
+### 基于 Token（Headers）
 
-Static or environment variable tokens:
+静态或环境变量 Token：
 
 ```json
 {
@@ -267,11 +267,11 @@ Static or environment variable tokens:
 }
 ```
 
-Document required environment variables in README.
+在 README 中记录所需的环境变量。
 
-### Environment Variables (stdio)
+### 环境变量（stdio）
 
-Pass configuration to MCP server:
+将配置传递给 MCP 服务器：
 
 ```json
 {
@@ -285,44 +285,44 @@ Pass configuration to MCP server:
 }
 ```
 
-## Integration Patterns
+## 集成模式
 
-### Pattern 1: Simple Tool Wrapper
+### 模式 1：简单工具包装
 
-Commands use MCP tools with user interaction:
+命令使用 MCP 工具并配合用户交互：
 
 ```markdown
-# Command: create-item.md
+# 命令：create-item.md
 ---
 allowed-tools: ["mcp__plugin_name_server__create_item"]
 ---
 
-Steps:
-1. Gather item details from user
-2. Use mcp__plugin_name_server__create_item
-3. Confirm creation
+步骤：
+1. 从用户收集项目详情
+2. 使用 mcp__plugin_name_server__create_item
+3. 确认创建
 ```
 
-**Use for:** Adding validation or preprocessing before MCP calls.
+**适用于：**在 MCP 调用前添加验证或预处理。
 
-### Pattern 2: Autonomous Agent
+### 模式 2：自主 Agent
 
-Agents use MCP tools autonomously:
+Agent 自主使用 MCP 工具：
 
 ```markdown
-# Agent: data-analyzer.md
+# Agent：data-analyzer.md
 
-Analysis Process:
-1. Query data via mcp__plugin_db_server__query
-2. Process and analyze results
-3. Generate insights report
+分析流程：
+1. 通过 mcp__plugin_db_server__query 查询数据
+2. 处理和分析结果
+3. 生成洞察报告
 ```
 
-**Use for:** Multi-step MCP workflows without user interaction.
+**适用于：**无需用户交互的多步骤 MCP 工作流。
 
-### Pattern 3: Multi-Server Plugin
+### 模式 3：多服务器插件
 
-Integrate multiple MCP servers:
+集成多个 MCP 服务器：
 
 ```json
 {
@@ -337,34 +337,34 @@ Integrate multiple MCP servers:
 }
 ```
 
-**Use for:** Workflows spanning multiple services.
+**适用于：**跨多个服务的工作流。
 
-## Security Best Practices
+## 安全最佳实践
 
-### Use HTTPS/WSS
+### 使用 HTTPS/WSS
 
-Always use secure connections:
+始终使用安全连接：
 
 ```json
 ✅ "url": "https://mcp.example.com/sse"
 ❌ "url": "http://mcp.example.com/sse"
 ```
 
-### Token Management
+### Token 管理
 
-**DO:**
-- ✅ Use environment variables for tokens
-- ✅ Document required env vars in README
-- ✅ Let OAuth flow handle authentication
+**应该做：**
+- ✅ 使用环境变量存储 Token
+- ✅ 在 README 中记录所需的环境变量
+- ✅ 让 OAuth 流程处理身份验证
 
-**DON'T:**
-- ❌ Hardcode tokens in configuration
-- ❌ Commit tokens to git
-- ❌ Share tokens in documentation
+**不应该做：**
+- ❌ 在配置中硬编码 Token
+- ❌ 将 Token 提交到 git
+- ❌ 在文档中分享 Token
 
-### Permission Scoping
+### 权限范围
 
-Pre-allow only necessary MCP tools:
+预先仅允许必要的 MCP 工具：
 
 ```markdown
 ✅ allowed-tools: [
@@ -375,180 +375,180 @@ Pre-allow only necessary MCP tools:
 ❌ allowed-tools: ["mcp__plugin_api_server__*"]
 ```
 
-## Error Handling
+## 错误处理
 
-### Connection Failures
+### 连接失败
 
-Handle MCP server unavailability:
-- Provide fallback behavior in commands
-- Inform user of connection issues
-- Check server URL and configuration
+处理 MCP 服务器不可用：
+- 在命令中提供回退行为
+- 告知用户连接问题
+- 检查服务器 URL 和配置
 
-### Tool Call Errors
+### 工具调用错误
 
-Handle failed MCP operations:
-- Validate inputs before calling MCP tools
-- Provide clear error messages
-- Check rate limiting and quotas
+处理失败的 MCP 操作：
+- 调用 MCP 工具前验证输入
+- 提供清晰的错误消息
+- 检查速率限制和配额
 
-### Configuration Errors
+### 配置错误
 
-Validate MCP configuration:
-- Test server connectivity during development
-- Validate JSON syntax
-- Check required environment variables
+验证 MCP 配置：
+- 开发期间测试服务器连接性
+- 验证 JSON 语法
+- 检查必需的环境变量
 
-## Performance Considerations
+## 性能考量
 
-### Lazy Loading
+### 延迟加载
 
-MCP servers connect on-demand:
-- Not all servers connect at startup
-- First tool use triggers connection
-- Connection pooling managed automatically
+MCP 服务器按需连接：
+- 并非所有服务器在启动时连接
+- 首次使用工具时触发连接
+- 连接池自动管理
 
-### Batching
+### 批量处理
 
-Batch similar requests when possible:
+尽可能批量处理类似请求：
 
 ```
-# Good: Single query with filters
+# 好：带过滤器的单次查询
 tasks = search_tasks(project="X", assignee="me", limit=50)
 
-# Avoid: Many individual queries
+# 避免：多次单独查询
 for id in task_ids:
     task = get_task(id)
 ```
 
-## Testing MCP Integration
+## 测试 MCP 集成
 
-### Local Testing
+### 本地测试
 
-1. Configure MCP server in `.mcp.json`
-2. Install plugin locally (`.claude-plugin/`)
-3. Run `/mcp` to verify server appears
-4. Test tool calls in commands
-5. Check `claude --debug` logs for connection issues
+1. 在 `.mcp.json` 中配置 MCP 服务器
+2. 在本地安装插件（`.claude-plugin/`）
+3. 运行 `/mcp` 验证服务器出现
+4. 在命令中测试工具调用
+5. 检查 `claude --debug` 日志中的连接问题
 
-### Validation Checklist
+### 验证清单
 
-- [ ] MCP configuration is valid JSON
-- [ ] Server URL is correct and accessible
-- [ ] Required environment variables documented
-- [ ] Tools appear in `/mcp` output
-- [ ] Authentication works (OAuth or tokens)
-- [ ] Tool calls succeed from commands
-- [ ] Error cases handled gracefully
+- [ ] MCP 配置是有效的 JSON
+- [ ] 服务器 URL 正确且可访问
+- [ ] 已记录所需的环境变量
+- [ ] 工具出现在 `/mcp` 输出中
+- [ ] 身份验证工作正常（OAuth 或 Token）
+- [ ] 命令中的工具调用成功
+- [ ] 错误情况处理得当
 
-## Debugging
+## 调试
 
-### Enable Debug Logging
+### 启用调试日志
 
 ```bash
 claude --debug
 ```
 
-Look for:
-- MCP server connection attempts
-- Tool discovery logs
-- Authentication flows
-- Tool call errors
+关注：
+- MCP 服务器连接尝试
+- 工具发现日志
+- 身份验证流程
+- 工具调用错误
 
-### Common Issues
+### 常见问题
 
-**Server not connecting:**
-- Check URL is correct
-- Verify server is running (stdio)
-- Check network connectivity
-- Review authentication configuration
+**服务器无法连接：**
+- 检查 URL 是否正确
+- 验证服务器正在运行（stdio）
+- 检查网络连接
+- 审查身份验证配置
 
-**Tools not available:**
-- Verify server connected successfully
-- Check tool names match exactly
-- Run `/mcp` to see available tools
-- Restart Claude Code after config changes
+**工具不可用：**
+- 验证服务器连接成功
+- 检查工具名称是否完全匹配
+- 运行 `/mcp` 查看可用工具
+- 配置更改后重启 Claude Code
 
-**Authentication failing:**
-- Clear cached auth tokens
-- Re-authenticate
-- Check token scopes and permissions
-- Verify environment variables set
+**身份验证失败：**
+- 清除缓存的认证 Token
+- 重新进行身份验证
+- 检查 Token 范围和权限
+- 验证环境变量已设置
 
-## Quick Reference
+## 快速参考
 
-### MCP Server Types
+### MCP 服务器类型
 
-| Type | Transport | Best For | Auth |
-|------|-----------|----------|------|
-| stdio | Process | Local tools, custom servers | Env vars |
-| SSE | HTTP | Hosted services, cloud APIs | OAuth |
-| HTTP | REST | API backends, token auth | Tokens |
-| ws | WebSocket | Real-time, streaming | Tokens |
+| 类型   | 传输方式 | 最适合                 | 身份验证   |
+| ------ | -------- | ---------------------- | ---------- |
+| stdio  | 进程     | 本地工具、自定义服务器 | 环境变量   |
+| SSE    | HTTP     | 托管服务、云 API       | OAuth      |
+| HTTP   | REST     | API 后端、Token 认证   | Token      |
+| ws     | WebSocket| 实时、流式传输         | Token      |
 
-### Configuration Checklist
+### 配置清单
 
-- [ ] Server type specified (stdio/SSE/HTTP/ws)
-- [ ] Type-specific fields complete (command or url)
-- [ ] Authentication configured
-- [ ] Environment variables documented
-- [ ] HTTPS/WSS used (not HTTP/WS)
-- [ ] ${CLAUDE_PLUGIN_ROOT} used for paths
+- [ ] 指定服务器类型（stdio/SSE/HTTP/ws）
+- [ ] 类型特定字段完整（command 或 url）
+- [ ] 已配置身份验证
+- [ ] 已记录环境变量
+- [ ] 使用 HTTPS/WSS（而非 HTTP/WS）
+- [ ] 路径使用 ${CLAUDE_PLUGIN_ROOT}
 
-### Best Practices
+### 最佳实践
 
-**DO:**
-- ✅ Use ${CLAUDE_PLUGIN_ROOT} for portable paths
-- ✅ Document required environment variables
-- ✅ Use secure connections (HTTPS/WSS)
-- ✅ Pre-allow specific MCP tools in commands
-- ✅ Test MCP integration before publishing
-- ✅ Handle connection and tool errors gracefully
+**应该做：**
+- ✅ 使用 ${CLAUDE_PLUGIN_ROOT} 实现可移植路径
+- ✅ 记录所需的环境变量
+- ✅ 使用安全连接（HTTPS/WSS）
+- ✅ 在命令中预先允许特定的 MCP 工具
+- ✅ 发布前测试 MCP 集成
+- ✅ 优雅地处理连接和工具错误
 
-**DON'T:**
-- ❌ Hardcode absolute paths
-- ❌ Commit credentials to git
-- ❌ Use HTTP instead of HTTPS
-- ❌ Pre-allow all tools with wildcards
-- ❌ Skip error handling
-- ❌ Forget to document setup
+**不应该做：**
+- ❌ 硬编码绝对路径
+- ❌ 将凭据提交到 git
+- ❌ 使用 HTTP 代替 HTTPS
+- ❌ 用通配符预先允许所有工具
+- ❌ 跳过错误处理
+- ❌ 忘记记录设置
 
-## Additional Resources
+## 附加资源
 
-### Reference Files
+### 参考文件
 
-For detailed information, consult:
+详细信息请查阅：
 
-- **`references/server-types.md`** - Deep dive on each server type
-- **`references/authentication.md`** - Authentication patterns and OAuth
-- **`references/tool-usage.md`** - Using MCP tools in commands and agents
+- **`references/server-types.md`** — 每种服务器类型的深入说明
+- **`references/authentication.md`** — 身份验证模式和 OAuth
+- **`references/tool-usage.md`** — 在命令和 Agent 中使用 MCP 工具
 
-### Example Configurations
+### 示例配置
 
-Working examples in `examples/`:
+`examples/` 中的工作示例：
 
-- **`stdio-server.json`** - Local stdio MCP server
-- **`sse-server.json`** - Hosted SSE server with OAuth
-- **`http-server.json`** - REST API with token auth
+- **`stdio-server.json`** — 本地 stdio MCP 服务器
+- **`sse-server.json`** — 带 OAuth 的托管 SSE 服务器
+- **`http-server.json`** — 带 Token 认证的 REST API
 
-### External Resources
+### 外部资源
 
-- **Official MCP Docs**: https://modelcontextprotocol.io/
-- **Claude Code MCP Docs**: https://docs.claude.com/en/docs/claude-code/mcp
-- **MCP SDK**: @modelcontextprotocol/sdk
-- **Testing**: Use `claude --debug` and `/mcp` command
+- **官方 MCP 文档**：https://modelcontextprotocol.io/
+- **Claude Code MCP 文档**：https://docs.claude.com/en/docs/claude-code/mcp
+- **MCP SDK**：@modelcontextprotocol/sdk
+- **测试**：使用 `claude --debug` 和 `/mcp` 命令
 
-## Implementation Workflow
+## 实现工作流
 
-To add MCP integration to a plugin:
+要为插件添加 MCP 集成：
 
-1. Choose MCP server type (stdio, SSE, HTTP, ws)
-2. Create `.mcp.json` at plugin root with configuration
-3. Use ${CLAUDE_PLUGIN_ROOT} for all file references
-4. Document required environment variables in README
-5. Test locally with `/mcp` command
-6. Pre-allow MCP tools in relevant commands
-7. Handle authentication (OAuth or tokens)
-8. Test error cases (connection failures, auth errors)
-9. Document MCP integration in plugin README
+1. 选择 MCP 服务器类型（stdio、SSE、HTTP、ws）
+2. 在插件根目录创建 `.mcp.json` 配置
+3. 所有文件引用使用 ${CLAUDE_PLUGIN_ROOT}
+4. 在 README 中记录所需的环境变量
+5. 使用 `/mcp` 命令进行本地测试
+6. 在相关命令中预先允许 MCP 工具
+7. 处理身份验证（OAuth 或 Token）
+8. 测试错误情况（连接失败、认证错误）
+9. 在插件 README 中记录 MCP 集成
 
-Focus on stdio for custom/local servers, SSE for hosted services with OAuth.
+对于自定义/本地服务器优先使用 stdio，对于带 OAuth 的托管服务优先使用 SSE。

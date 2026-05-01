@@ -1,24 +1,24 @@
 ---
 name: openapi-spec-generation
-description: Generate and maintain OpenAPI 3.1 specifications from code, design-first specs, and validation patterns. Use when creating API documentation, generating SDKs, or ensuring API contract compliance.
+description: 从代码生成和维护 OpenAPI 3.1 规范，支持设计优先规范和验证模式。在创建 API 文档、生成 SDK 或确保 API 合约合规时使用。
 ---
 
-# OpenAPI Spec Generation
+# OpenAPI 规范生成
 
-Comprehensive patterns for creating, maintaining, and validating OpenAPI 3.1 specifications for RESTful APIs.
+创建、维护和验证 RESTful API 的 OpenAPI 3.1 规范的综合模式。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Creating API documentation from scratch
-- Generating OpenAPI specs from existing code
-- Designing API contracts (design-first approach)
-- Validating API implementations against specs
-- Generating client SDKs from specs
-- Setting up API documentation portals
+- 从头创建 API 文档
+- 从现有代码生成 OpenAPI 规范
+- 设计 API 合约（设计优先方法）
+- 根据规范验证 API 实现
+- 从规范生成客户端 SDK
+- 设置 API 文档门户
 
-## Core Concepts
+## 核心概念
 
-### 1. OpenAPI 3.1 Structure
+### 1. OpenAPI 3.1 结构
 
 ```yaml
 openapi: 3.1.0
@@ -35,17 +35,17 @@ components:
   securitySchemes: ...
 ```
 
-### 2. Design Approaches
+### 2. 设计方法
 
-| Approach         | Description                  | Best For            |
-| ---------------- | ---------------------------- | ------------------- |
-| **Design-First** | Write spec before code       | New APIs, contracts |
-| **Code-First**   | Generate spec from code      | Existing APIs       |
-| **Hybrid**       | Annotate code, generate spec | Evolving APIs       |
+| 方法           | 描述                       | 最适合              |
+| -------------- | -------------------------- | ------------------- |
+| **设计优先**   | 在编写代码前编写规范       | 新 API、合约        |
+| **代码优先**   | 从代码生成规范             | 现有 API            |
+| **混合**       | 注释代码，生成规范         | 演进中的 API        |
 
-## Templates
+## 模板
 
-### Template 1: Complete API Specification
+### 模板 1：完整 API 规范
 
 ```yaml
 openapi: 3.1.0
@@ -510,27 +510,27 @@ security:
   - bearerAuth: []
 ```
 
-For advanced code-first generation patterns and tooling, see [references/code-first-and-tooling.md](references/code-first-and-tooling.md):
+高级代码优先生成模式和工具请参见 [references/code-first-and-tooling.md](references/code-first-and-tooling.md)：
 
-- **Template 2: Python/FastAPI** — Pydantic models with `Field` validation, enum types, full CRUD endpoints with `response_model` and `status_code`, exporting the spec as JSON
-- **Template 3: TypeScript/tsoa** — Decorator-based controllers (`@Route`, `@Get`, `@Security`, `@Example`, `@Response`) that generate OpenAPI from TypeScript types
-- **Template 4: Validation & Linting** — Spectral ruleset (`.spectral.yaml`) with custom rules for operationId, security, naming conventions; Redocly config with MIME type enforcement and code sample generation
-- **SDK Generation** — `openapi-generator-cli` for TypeScript (fetch), Python, and Go clients
+- **模板 2：Python/FastAPI** — 带 `Field` 验证的 Pydantic 模型、枚举类型、带 `response_model` 和 `status_code` 的完整 CRUD 端点、导出规范为 JSON
+- **模板 3：TypeScript/tsoa** — 基于装饰器的控制器（`@Route`、`@Get`、`@Security`、`@Example`、`@Response`），从 TypeScript 类型生成 OpenAPI
+- **模板 4：验证和 Lint** — Spectral 规则集（`.spectral.yaml`），包含 operationId、安全、命名约定的自定义规则；Redocly 配置，包含 MIME 类型强制和代码示例生成
+- **SDK 生成** — `openapi-generator-cli` 用于 TypeScript（fetch）、Python 和 Go 客户端
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 推荐做法
 
-- **Use $ref** - Reuse schemas, parameters, responses
-- **Add examples** - Real-world values help consumers
-- **Document errors** - All possible error codes
-- **Version your API** - In URL or header
-- **Use semantic versioning** - For spec changes
+- **使用 $ref** - 重用模式、参数、响应
+- **添加示例** - 真实世界的值帮助消费者
+- **记录错误** - 所有可能的错误代码
+- **为 API 版本化** - 在 URL 或头部中
+- **使用语义化版本控制** - 用于规范更改
 
-### Don'ts
+### 避免做法
 
-- **Don't use generic descriptions** - Be specific
-- **Don't skip security** - Define all schemes
-- **Don't forget nullable** - Be explicit about null
-- **Don't mix styles** - Consistent naming throughout
-- **Don't hardcode URLs** - Use server variables
+- **不要使用通用描述** - 要具体
+- **不要跳过安全** - 定义所有方案
+- **不要忘记 nullable** - 显式关于 null
+- **不要混合风格** - 全程一致的命名
+- **不要硬编码 URL** - 使用服务器变量

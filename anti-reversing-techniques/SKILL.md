@@ -1,46 +1,46 @@
 ---
 name: anti-reversing-techniques
-description: Understand anti-reversing, obfuscation, and protection techniques encountered during software analysis. Use this skill when analyzing malware evasion techniques, when implementing anti-debugging protections for CTF challenges, when reverse engineering packed binaries, or when building security research tools that need to detect virtualized environments.
+description: 理解软件分析中遇到的反逆向、混淆和保护技术。在分析恶意软件规避技术、为 CTF 挑战实现反调试保护、逆向工程加壳二进制文件或构建需要检测虚拟化环境的安全研究工具时使用此技能。
 ---
 
-> **AUTHORIZED USE ONLY**: This skill contains dual-use security techniques. Before proceeding with any bypass or analysis:
+> **仅限授权使用**：此技能包含双重用途安全技术。在进行任何绕过或分析之前：
 >
-> 1. **Verify authorization**: Confirm you have explicit written permission from the software owner, or are operating within a legitimate security context (CTF, authorized pentest, malware analysis, security research)
-> 2. **Document scope**: Ensure your activities fall within the defined scope of your authorization
-> 3. **Legal compliance**: Understand that unauthorized bypassing of software protection may violate laws (CFAA, DMCA anti-circumvention, etc.)
+> 1. **验证授权**：确认你拥有软件所有者的明确书面许可，或在合法安全上下文中操作（CTF、授权渗透测试、恶意软件分析、安全研究）
+> 2. **记录范围**：确保你的活动在授权定义的范围内
+> 3. **法律合规**：理解未经授权绕过软件保护可能违反法律（CFAA、DMCA 反规避等）
 >
-> **Legitimate use cases**: Malware analysis, authorized penetration testing, CTF competitions, academic security research, analyzing software you own/have rights to
+> **合法用例**：恶意软件分析、授权渗透测试、CTF 竞赛、学术安全研究、分析你拥有/有权使用的软件
 
-# Anti-Reversing Techniques
+# 反逆向技术
 
-Understanding protection mechanisms encountered during authorized software analysis, security research, and malware analysis. This knowledge helps analysts bypass protections to complete legitimate analysis tasks.
+理解在授权软件分析、安全研究和恶意软件分析中遇到的保护机制。此知识帮助分析师绕过保护以完成合法分析任务。
 
-For advanced techniques, see [references/advanced-techniques.md](references/advanced-techniques.md)
-
----
-
-## Input / Output
-
-**What you provide:**
-
-- **Binary path or sample**: the executable, DLL, or firmware image under analysis
-- **Platform**: Windows x86/x64, Linux, macOS, ARM — affects which checks apply
-- **Goal**: bypass for dynamic analysis, identify protection type, build detection code, implement for CTF
-
-**What this skill produces:**
-
-- **Protection identification**: named technique (e.g., RDTSC timing check, PEB BeingDebugged) with location in binary
-- **Bypass strategy**: specific patch addresses, hook points, or tool commands to neutralize each check
-- **Analysis report**: structured findings listing each protection layer, severity, and recommended bypass
-- **Code artifacts**: Python/IDAPython scripts, GDB command sequences, or C stubs for bypassing or implementing checks
+高级技术参见 [references/advanced-techniques.md](references/advanced-techniques.md)
 
 ---
 
-## Anti-Debugging Techniques
+## 输入 / 输出
 
-### Windows Anti-Debugging
+**你提供：**
 
-#### API-Based Detection
+- **二进制路径或样本**：正在分析的可执行文件、DLL 或固件镜像
+- **平台**：Windows x86/x64、Linux、macOS、ARM — 影响哪些检查适用
+- **目标**：绕过动态分析、识别保护类型、构建检测代码、为 CTF 实现
+
+**此技能产出：**
+
+- **保护识别**：命名技术（如 RDTSC 时序检查、PEB BeingDebugged）及在二进制中的位置
+- **绕过策略**：特定的补丁地址、钩子点或工具命令以中和每项检查
+- **分析报告**：结构化发现，列出每层保护、严重性和推荐绕过方法
+- **代码产物**：Python/IDAPython 脚本、GDB 命令序列或用于绕过或实现检查的 C 桩代码
+
+---
+
+## 反调试技术
+
+### Windows 反调试
+
+#### 基于 API 的检测
 
 ```c
 // IsDebuggerPresent
@@ -79,9 +79,9 @@ NtQueryInformationProcess(
 if (debugFlags == 0) exit(1);  // 0 means being debugged
 ```
 
-**Bypass:** Use ScyllaHide plugin in x64dbg (patches all common checks automatically). Manually: force `IsDebuggerPresent` return to 0, patch `PEB.BeingDebugged` to 0, hook `NtQueryInformationProcess`. In IDA: `ida_bytes.patch_byte(check_addr, 0x90)`.
+**绕过：** 在 x64dbg 中使用 ScyllaHide 插件（自动修补所有常见检查）。手动：强制 `IsDebuggerPresent` 返回 0，将 `PEB.BeingDebugged` 修补为 0，钩取 `NtQueryInformationProcess`。在 IDA 中：`ida_bytes.patch_byte(check_addr, 0x90)`。
 
-#### PEB-Based Detection
+#### 基于 PEB 的检测
 
 ```c
 // Direct PEB access
@@ -105,9 +105,9 @@ PDWORD heapFlags = (PDWORD)((PBYTE)peb->ProcessHeap + 0x70);
 if (*heapFlags & 0x50000062) exit(1);
 ```
 
-**Bypass:** In x64dbg, follow `gs:[60]` (x64) or `fs:[30]` (x86) in dump. Set `BeingDebugged` (offset +2) to 0; clear `NtGlobalFlag` (offset +0xBC on x64).
+**绕过：** 在 x64dbg 中，在 dump 中跟踪 `gs:[60]`（x64）或 `fs:[30]`（x86）。将 `BeingDebugged`（偏移 +2）设为 0；清除 `NtGlobalFlag`（x64 上偏移 +0xBC）。
 
-#### Timing-Based Detection
+#### 基于时序的检测
 
 ```c
 // RDTSC timing
@@ -131,7 +131,7 @@ DWORD start = GetTickCount();
 if (GetTickCount() - start > 1000) exit(1);
 ```
 
-**Python script — timing-based anti-debug detection scanner:**
+**Python 脚本 — 基于时序的反调试检测扫描器：**
 
 ```python
 #!/usr/bin/env python3
@@ -161,9 +161,9 @@ if __name__ == "__main__":
     scan(sys.argv[1])
 ```
 
-**Bypass:** Use hardware breakpoints (no INT3 overhead), NOP the comparison + conditional jump, freeze RDTSC via hypervisor, or hook timing APIs to return consistent values.
+**绕过：** 使用硬件断点（无 INT3 开销），NOP 化比较+条件跳转，通过虚拟机管理程序冻结 RDTSC，或钩取时序 API 返回一致值。
 
-#### Exception-Based Detection
+#### 基于异常的检测
 
 ```c
 // SEH: if debugger is attached it consumes the INT3 exception
@@ -183,9 +183,9 @@ LONG CALLBACK VectoredHandler(PEXCEPTION_POINTERS ep) {
 }
 ```
 
-**Bypass**: In x64dbg, set "Pass exception to program" for EXCEPTION_BREAKPOINT (Options → Exceptions → add 0x80000003).
+**绕过**：在 x64dbg 中，为 EXCEPTION_BREAKPOINT 设置"将异常传递给程序"（选项 → 异常 → 添加 0x80000003）。
 
-### Linux Anti-Debugging
+### Linux 反调试
 
 ```c
 // ptrace self-trace
@@ -210,7 +210,7 @@ if (getppid() != 1 && strcmp(get_process_name(getppid()), "bash") != 0) {
 }
 ```
 
-**Bypass (LD_PRELOAD hook):**
+**绕过（LD_PRELOAD 钩子）：**
 
 ```bash
 # hook.c: long ptrace(int request, ...) { return 0; }
@@ -218,7 +218,7 @@ if (getppid() != 1 && strcmp(get_process_name(getppid()), "bash") != 0) {
 LD_PRELOAD=./hook.so ./target
 ```
 
-**GDB bypass command sequence:**
+**GDB 绕过命令序列：**
 
 ```gdb
 # 1. Make ptrace(PTRACE_TRACEME) always return 0 (success)
@@ -248,9 +248,9 @@ set detach-on-fork off
 
 ---
 
-## Anti-VM Detection
+## 反虚拟机检测
 
-### Hardware Fingerprinting
+### 硬件指纹
 
 ```c
 // CPUID-based detection
@@ -273,7 +273,7 @@ memcpy(vendor, &cpuid_info[1], 12);
 // Hyper-V: 00:15:5D
 ```
 
-### Registry/File Detection
+### 注册表/文件检测
 
 ```c
 // Windows registry keys
@@ -291,7 +291,7 @@ memcpy(vendor, &cpuid_info[1], 12);
 // VBoxService.exe, VBoxTray.exe
 ```
 
-### Timing-Based VM Detection
+### 基于时序的虚拟机检测
 
 ```c
 // VM exits cause timing anomalies
@@ -303,17 +303,17 @@ if ((end - start) > 500) {
 }
 ```
 
-**Bypass:** Use bare-metal environment, harden VM (remove guest tools, randomize MAC, delete artifact files), patch detection branches in the binary, or use FLARE-VM/REMnux with hardened settings.
+**绕过：** 使用裸机环境，加固虚拟机（移除客户工具、随机化 MAC、删除产物文件），在二进制中修补检测分支，或使用带加固设置的 FLARE-VM/REMnux。
 
-For advanced VM detection (RDTSC delta calibration, VMware backdoor port, hypervisor leaf enumeration, guest driver artifact checks), see [references/advanced-techniques.md](references/advanced-techniques.md).
+高级虚拟机检测（RDTSC 增量校准、VMware 后门端口、虚拟机管理程序叶枚举、客户驱动产物检查）参见 [references/advanced-techniques.md](references/advanced-techniques.md)。
 
 ---
 
-## Code Obfuscation
+## 代码混淆
 
-### Control Flow Obfuscation
+### 控制流混淆
 
-#### Control Flow Flattening
+#### 控制流平坦化
 
 ```c
 // Original
@@ -346,14 +346,14 @@ while (1) {
 }
 ```
 
-**Analysis Approach:**
+**分析方法：**
 
-- Identify state variable
-- Map state transitions
-- Reconstruct original flow
-- Tools: D-810 (IDA), SATURN
+- 识别状态变量
+- 映射状态转换
+- 重建原始流程
+- 工具：D-810（IDA）、SATURN
 
-#### Opaque Predicates
+#### 不透明谓词
 
 ```c
 int x = rand();
@@ -361,11 +361,11 @@ if ((x * x) >= 0) { real_code(); }   // Always true  → junk_code() is dead
 if ((x*(x+1)) % 2 == 1) { junk(); }  // Always false → consecutive product is even
 ```
 
-**Analysis Approach:** Identify invariant expressions via symbolic execution (angr, Triton), or pattern-match known opaque forms and prune them.
+**分析方法：** 通过符号执行（angr、Triton）识别不变表达式，或模式匹配已知不透明形式并修剪它们。
 
-### Data Obfuscation
+### 数据混淆
 
-#### String Encryption
+#### 字符串加密
 
 ```c
 // XOR encryption
@@ -385,7 +385,7 @@ url[4] = ':'; url[5] = '/'; url[6] = '/';
 // ...
 ```
 
-**Analysis Approach:**
+**分析方法：**
 
 ```python
 # FLOSS for automatic string deobfuscation
@@ -400,7 +400,7 @@ def decrypt_xor(ea, length, key):
     return result
 ```
 
-#### API Obfuscation
+#### API 混淆
 
 ```c
 // Dynamic API resolution
@@ -422,9 +422,9 @@ DWORD hash_api(char *name) {
 // Resolve by hash comparison instead of string
 ```
 
-**Analysis Approach:** Identify the hash algorithm, build a database of known API name hashes, use HashDB plugin for IDA, or run under a debugger to let the binary resolve calls at runtime.
+**分析方法：** 识别哈希算法，构建已知 API 名称哈希数据库，使用 IDA 的 HashDB 插件，或在调试器下运行让二进制在运行时解析调用。
 
-### Instruction-Level Obfuscation
+### 指令级混淆
 
 ```asm
 ; Dead code insertion — semantically inert but pollutes disassembly
@@ -435,21 +435,21 @@ xor eax, eax  →  sub eax, eax  |  mov eax, 0  |  and eax, 0
 mov eax, 1    →  xor eax, eax; inc eax  |  push 1; pop eax
 ```
 
-For advanced anti-disassembly tricks (overlapping instructions, junk byte insertion, self-modifying code, ROP as obfuscation), see [references/advanced-techniques.md](references/advanced-techniques.md).
+高级反汇编技巧（重叠指令、垃圾字节插入、自修改代码、ROP 作为混淆）参见 [references/advanced-techniques.md](references/advanced-techniques.md)。
 
 ---
 
-## Bypass Strategies Summary
+## 绕过策略总结
 
-### General Principles
+### 通用原则
 
-1. **Understand the protection**: Identify what technique is used
-2. **Find the check**: Locate protection code in binary
-3. **Patch or hook**: Modify check to always pass
-4. **Use appropriate tools**: ScyllaHide, x64dbg plugins
-5. **Document findings**: Keep notes on bypassed protections
+1. **理解保护**：识别使用了什么技术
+2. **找到检查**：在二进制中定位保护代码
+3. **修补或钩取**：修改检查使其始终通过
+4. **使用适当工具**：ScyllaHide、x64dbg 插件
+5. **记录发现**：保留绕过保护的笔记
 
-### Tool Recommendations
+### 工具推荐
 
 ```
 Anti-debug bypass:    ScyllaHide, TitanHide
@@ -460,38 +460,38 @@ String decryption:   FLOSS, custom scripts
 Symbolic execution:  angr, Triton
 ```
 
-### Ethical Considerations
+### 伦理考量
 
-This knowledge should only be used for:
+此知识应仅用于：
 
-- Authorized security research
-- Malware analysis (defensive)
-- CTF competitions
-- Understanding protections for legitimate purposes
-- Educational purposes
+- 授权安全研究
+- 恶意软件分析（防御性）
+- CTF 竞赛
+- 为合法目的理解保护
+- 教育目的
 
-Never use to bypass protections for: software piracy, unauthorized access, or malicious purposes.
-
----
-
-## Troubleshooting
-
-**Detection technique works on x86 but not ARM**
-
-RDTSC and CPUID are x86-only. On ARM, use `MRS x0, PMCCNTR_EL0` (requires kernel PMU access) or `clock_gettime(CLOCK_MONOTONIC)`. PEB/TEB do not exist on ARM — replace with `/proc/self/status` (Linux) or `task_info` (macOS). Rebuild detection logic with platform-specific APIs.
-
-**False positive on legitimate debugger or analysis tool**
-
-Timing checks fire when Process Monitor or AV hooks inflate syscall latency. Calibrate the threshold at startup: measure the guarded path 3 times and use `mean + 3*stddev`. For ptrace checks, verify the TracerPid comm name via `/proc/<pid>/comm` before exiting — it may be an unrelated monitoring tool, not a debugger.
-
-**Bypass patch causes crash instead of continuing execution**
-
-Before NOPing a conditional jump, trace the "detected" branch fully. If it initializes or frees heap state needed later, patching the jump skips that setup and corrupts state. Instead, patch the comparison operand to the expected "clean" value, or use x64dbg's "Set condition to always false" on the breakpoint rather than modifying bytes.
+切勿用于绕过保护以进行：软件盗版、未经授权访问或恶意目的。
 
 ---
 
-## Related Skills
+## 故障排除
 
-- `binary-analysis-patterns` — static and dynamic analysis workflows for ELF/PE/Mach-O
-- `memory-forensics` — process memory acquisition, artifact extraction, and live analysis
-- `protocol-reverse-engineering` — decoding custom binary protocols and encrypted network traffic
+**检测技术在 x86 上有效但在 ARM 上无效**
+
+RDTSC 和 CPUID 仅限 x86。在 ARM 上，使用 `MRS x0, PMCCNTR_EL0`（需要内核 PMU 访问）或 `clock_gettime(CLOCK_MONOTONIC)`。PEB/TEB 在 ARM 上不存在 — 替换为 `/proc/self/status`（Linux）或 `task_info`（macOS）。使用平台特定 API 重建检测逻辑。
+
+**对合法调试器或分析工具的误报**
+
+当 Process Monitor 或 AV 钩子增加系统调用延迟时，时序检查会触发。在启动时校准阈值：测量受保护路径 3 次并使用 `mean + 3*stddev`。对于 ptrace 检查，在退出前通过 `/proc/<pid>/comm` 验证 TracerPid comm 名称 — 它可能是不相关的监控工具，而非调试器。
+
+**绕过补丁导致崩溃而非继续执行**
+
+在 NOP 化条件跳转之前，完整跟踪"检测到"的分支。如果它初始化或释放了后续需要的堆状态，修补跳转会跳过该设置并损坏状态。改为将比较操作数修补为预期的"干净"值，或在断点上使用 x64dbg 的"将条件设为始终为假"而非修改字节。
+
+---
+
+## 相关技能
+
+- `binary-analysis-patterns` — ELF/PE/Mach-O 的静态和动态分析工作流
+- `memory-forensics` — 进程内存获取、产物提取和实时分析
+- `protocol-reverse-engineering` — 解码自定义二进制协议和加密网络流量

@@ -1,42 +1,42 @@
 ---
 name: tailwind-design-system
-description: Build scalable design systems with Tailwind CSS v4, design tokens, component libraries, and responsive patterns. Use when creating component libraries, implementing design systems, or standardizing UI patterns.
+description: 使用 Tailwind CSS v4 构建可扩展的设计系统，包括设计令牌、组件库和响应式模式。适用于创建组件库、实现设计系统或标准化 UI 模式。
 ---
 
-# Tailwind Design System (v4)
+# Tailwind 设计系统（v4）
 
-Build production-ready design systems with Tailwind CSS v4, including CSS-first configuration, design tokens, component variants, responsive patterns, and accessibility.
+使用 Tailwind CSS v4 构建生产级设计系统，包括 CSS 优先配置、设计令牌、组件变体、响应式模式和无障碍性。
 
-> **Note**: This skill targets Tailwind CSS v4 (2024+). For v3 projects, refer to the [upgrade guide](https://tailwindcss.com/docs/upgrade-guide).
+> **注意**：此技能针对 Tailwind CSS v4（2024+）。对于 v3 项目，请参考[升级指南](https://tailwindcss.com/docs/upgrade-guide)。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Creating a component library with Tailwind v4
-- Implementing design tokens and theming with CSS-first configuration
-- Building responsive and accessible components
-- Standardizing UI patterns across a codebase
-- Migrating from Tailwind v3 to v4
-- Setting up dark mode with native CSS features
+- 使用 Tailwind v4 创建组件库
+- 使用 CSS 优先配置实现设计令牌和主题
+- 构建响应式和无障碍组件
+- 跨代码库标准化 UI 模式
+- 从 Tailwind v3 迁移到 v4
+- 使用原生 CSS 功能设置暗色模式
 
-## Key v4 Changes
+## v4 主要变更
 
-| v3 Pattern                            | v4 Pattern                                                            |
-| ------------------------------------- | --------------------------------------------------------------------- |
-| `tailwind.config.ts`                  | `@theme` in CSS                                                       |
-| `@tailwind base/components/utilities` | `@import "tailwindcss"`                                               |
-| `darkMode: "class"`                   | `@custom-variant dark (&:where(.dark, .dark *))`                      |
-| `theme.extend.colors`                 | `@theme { --color-*: value }`                                         |
-| `require("tailwindcss-animate")`      | CSS `@keyframes` in `@theme` + `@starting-style` for entry animations |
+| v3 模式                              | v4 模式                                                              |
+| ------------------------------------ | -------------------------------------------------------------------- |
+| `tailwind.config.ts`                 | CSS 中的 `@theme`                                                    |
+| `@tailwind base/components/utilities`| `@import "tailwindcss"`                                              |
+| `darkMode: "class"`                  | `@custom-variant dark (&:where(.dark, .dark *))`                     |
+| `theme.extend.colors`                | `@theme { --color-*: value }`                                        |
+| `require("tailwindcss-animate")`     | CSS `@keyframes` 在 `@theme` 中 + `@starting-style` 用于入场动画     |
 
-## Quick Start
+## 快速开始
 
 ```css
-/* app.css - Tailwind v4 CSS-first configuration */
+/* app.css - Tailwind v4 CSS 优先配置 */
 @import "tailwindcss";
 
-/* Define your theme with @theme */
+/* 使用 @theme 定义主题 */
 @theme {
-  /* Semantic color tokens using OKLCH for better color perception */
+  /* 使用 OKLCH 的语义颜色令牌，获得更好的色彩感知 */
   --color-background: oklch(100% 0 0);
   --color-foreground: oklch(14.5% 0.025 264);
 
@@ -61,16 +61,16 @@ Build production-ready design systems with Tailwind CSS v4, including CSS-first 
   --color-card: oklch(100% 0 0);
   --color-card-foreground: oklch(14.5% 0.025 264);
 
-  /* Ring offset for focus states */
+  /* 焦点状态的环偏移 */
   --color-ring-offset: oklch(100% 0 0);
 
-  /* Radius tokens */
+  /* 圆角令牌 */
   --radius-sm: 0.25rem;
   --radius-md: 0.375rem;
   --radius-lg: 0.5rem;
   --radius-xl: 0.75rem;
 
-  /* Animation tokens - keyframes inside @theme are output when referenced by --animate-* variables */
+  /* 动画令牌 - @theme 中的 keyframes 在被 --animate-* 变量引用时输出 */
   --animate-fade-in: fade-in 0.2s ease-out;
   --animate-fade-out: fade-out 0.2s ease-in;
   --animate-slide-in: slide-in 0.3s ease-out;
@@ -117,10 +117,10 @@ Build production-ready design systems with Tailwind CSS v4, including CSS-first 
   }
 }
 
-/* Dark mode variant - use @custom-variant for class-based dark mode */
+/* 暗色模式变体 - 使用 @custom-variant 实现基于 class 的暗色模式 */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Dark mode theme overrides */
+/* 暗色模式主题覆盖 */
 .dark {
   --color-background: oklch(14.5% 0.025 264);
   --color-foreground: oklch(98% 0.01 264);
@@ -149,7 +149,7 @@ Build production-ready design systems with Tailwind CSS v4, including CSS-first 
   --color-ring-offset: oklch(14.5% 0.025 264);
 }
 
-/* Base styles */
+/* 基础样式 */
 @layer base {
   * {
     @apply border-border;
@@ -161,28 +161,28 @@ Build production-ready design systems with Tailwind CSS v4, including CSS-first 
 }
 ```
 
-## Core Concepts
+## 核心概念
 
-### 1. Design Token Hierarchy
+### 1. 设计令牌层级
 
 ```
-Brand Tokens (abstract)
-    └── Semantic Tokens (purpose)
-        └── Component Tokens (specific)
+品牌令牌（抽象）
+    └── 语义令牌（用途）
+        └── 组件令牌（具体）
 
-Example:
+示例：
     oklch(45% 0.2 260) → --color-primary → bg-primary
 ```
 
-### 2. Component Architecture
+### 2. 组件架构
 
 ```
-Base styles → Variants → Sizes → States → Overrides
+基础样式 → 变体 → 尺寸 → 状态 → 覆盖
 ```
 
-## Patterns
+## 模式
 
-### Pattern 1: CVA (Class Variance Authority) Components
+### 模式 1：CVA（Class Variance Authority）组件
 
 ```typescript
 // components/ui/button.tsx
@@ -191,7 +191,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  // Base styles - v4 uses native CSS variables
+  // 基础样式 - v4 使用原生 CSS 变量
   'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
@@ -223,7 +223,7 @@ export interface ButtonProps
   asChild?: boolean
 }
 
-// React 19: No forwardRef needed
+// React 19：不需要 forwardRef
 export function Button({
   className,
   variant,
@@ -242,19 +242,19 @@ export function Button({
   )
 }
 
-// Usage
+// 用法
 <Button variant="destructive" size="lg">Delete</Button>
 <Button variant="outline">Cancel</Button>
 <Button asChild><Link href="/home">Home</Link></Button>
 ```
 
-### Pattern 2: Compound Components (React 19)
+### 模式 2：复合组件（React 19）
 
 ```typescript
 // components/ui/card.tsx
 import { cn } from '@/lib/utils'
 
-// React 19: ref is a regular prop, no forwardRef
+// React 19：ref 是普通 prop，不需要 forwardRef
 export function Card({
   className,
   ref,
@@ -338,7 +338,7 @@ export function CardFooter({
   )
 }
 
-// Usage
+// 用法
 <Card>
   <CardHeader>
     <CardTitle>Account</CardTitle>
@@ -353,7 +353,7 @@ export function CardFooter({
 </Card>
 ```
 
-### Pattern 3: Form Components
+### 模式 3：表单组件
 
 ```typescript
 // components/ui/input.tsx
@@ -409,7 +409,7 @@ export function Label({
   )
 }
 
-// Usage with React Hook Form + Zod
+// 配合 React Hook Form + Zod 使用
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -450,7 +450,7 @@ function LoginForm() {
 }
 ```
 
-### Pattern 4: Responsive Grid System
+### 模式 4：响应式网格系统
 
 ```typescript
 // components/ui/grid.tsx
@@ -491,7 +491,7 @@ export function Grid({ className, cols, gap, ...props }: GridProps) {
   )
 }
 
-// Container component
+// 容器组件
 const containerVariants = cva('mx-auto w-full px-4 sm:px-6 lg:px-8', {
   variants: {
     size: {
@@ -518,7 +518,7 @@ export function Container({ className, size, ...props }: ContainerProps) {
   )
 }
 
-// Usage
+// 用法
 <Container>
   <Grid cols={4} gap="lg">
     {products.map((product) => (
@@ -528,12 +528,12 @@ export function Container({ className, size, ...props }: ContainerProps) {
 </Container>
 ```
 
-For advanced animation and dark mode patterns, see [references/advanced-patterns.md](references/advanced-patterns.md):
+有关高级动画和暗色模式模式，请参阅 [references/advanced-patterns.md](references/advanced-patterns.md)：
 
-- **Pattern 5: Native CSS Animations** — dialog `@keyframes`, native popover API with `@starting-style`, `allow-discrete` transitions, and a full `DialogContent`/`DialogOverlay` implementation using Radix UI
-- **Pattern 6: Dark Mode** — `ThemeProvider` context with `localStorage` persistence, `prefers-color-scheme` detection, meta `theme-color` update, and a `ThemeToggle` button component
+- **模式 5：原生 CSS 动画** — 对话框 `@keyframes`、原生 popover API 配合 `@starting-style`、`allow-discrete` 过渡，以及使用 Radix UI 的完整 `DialogContent`/`DialogOverlay` 实现
+- **模式 6：暗色模式** — `ThemeProvider` 上下文，带 `localStorage` 持久化、`prefers-color-scheme` 检测、meta `theme-color` 更新和 `ThemeToggle` 按钮组件
 
-## Utility Functions
+## 工具函数
 
 ```typescript
 // lib/utils.ts
@@ -544,22 +544,22 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// Focus ring utility
+// 焦点环工具
 export const focusRing = cn(
   "focus-visible:outline-none focus-visible:ring-2",
   "focus-visible:ring-ring focus-visible:ring-offset-2",
 );
 
-// Disabled utility
+// 禁用工具
 export const disabled = "disabled:pointer-events-none disabled:opacity-50";
 ```
 
-For advanced v4 CSS patterns, the full v3-to-v4 migration checklist, and complete best practices, see [references/advanced-patterns.md](references/advanced-patterns.md):
+有关高级 v4 CSS 模式、完整的 v3 到 v4 迁移清单和完整最佳实践，请参阅 [references/advanced-patterns.md](references/advanced-patterns.md)：
 
-- **Custom `@utility`** — reusable CSS utilities for decorative lines and text gradients
-- **Theme modifiers** — `@theme inline` (reference other CSS vars), `@theme static` (always output), `@import "tailwindcss" theme(static)`
-- **Namespace overrides** — clearing default Tailwind color scales with `--color-*: initial`
-- **Semi-transparent variants** — `color-mix()` for alpha scale generation
-- **Container queries** — `--container-*` token definitions
-- **v3→v4 migration checklist** — 10-item checklist covering config, directives, colors, dark mode, animations, React 19 ref changes
-- **Best practices** — full Do's and Don'ts list
+- **自定义 `@utility`** — 用于装饰线条和文本渐变的可复用 CSS 工具
+- **主题修饰符** — `@theme inline`（引用其他 CSS 变量）、`@theme static`（始终输出）、`@import "tailwindcss" theme(static)`
+- **命名空间覆盖** — 使用 `--color-*: initial` 清除默认 Tailwind 颜色比例
+- **半透明变体** — 使用 `color-mix()` 生成 alpha 比例
+- **容器查询** — `--container-*` 令牌定义
+- **v3→v4 迁移清单** — 10 项清单，涵盖配置、指令、颜色、暗色模式、动画、React 19 ref 变更
+- **最佳实践** — 完整的应该做和不应该做列表

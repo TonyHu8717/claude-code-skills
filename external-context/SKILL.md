@@ -1,21 +1,21 @@
 ---
 name: external-context
-description: Invoke parallel document-specialist agents for external web searches and documentation lookup
+description: 调用并行文档专家代理进行外部网络搜索和文档查找
 argument-hint: <search query or topic>
 level: 4
 ---
 
-# External Context Skill
+# 外部上下文技能
 
-Fetch external documentation, references, and context for a query. Decomposes into 2-5 facets and spawns parallel document-specialist Claude agents.
+获取查询的外部文档、参考资料和上下文。将其分解为 2-5 个方面，并生成并行的文档专家 Claude 代理。
 
-## Usage
+## 用法
 
 ```
 /oh-my-claudecode:external-context <topic or question>
 ```
 
-### Examples
+### 示例
 
 ```
 /oh-my-claudecode:external-context What are the best practices for JWT token rotation in Node.js?
@@ -23,28 +23,28 @@ Fetch external documentation, references, and context for a query. Decomposes in
 /oh-my-claudecode:external-context Latest React Server Components patterns and conventions
 ```
 
-## Protocol
+## 协议
 
-### Step 1: Facet Decomposition
+### 步骤 1：方面分解
 
-Given a query, decompose into 2-5 independent search facets:
+给定一个查询，将其分解为 2-5 个独立的搜索方面：
 
 ```markdown
-## Search Decomposition
+## 搜索分解
 
-**Query:** <original query>
+**查询：** <original query>
 
-### Facet 1: <facet-name>
-- **Search focus:** What to search for
-- **Sources:** Official docs, GitHub, blogs, etc.
+### 方面 1：<facet-name>
+- **搜索重点：** 要搜索的内容
+- **来源：** 官方文档、GitHub、博客等
 
-### Facet 2: <facet-name>
+### 方面 2：<facet-name>
 ...
 ```
 
-### Step 2: Parallel Agent Invocation
+### 步骤 2：并行代理调用
 
-Fire independent facets in parallel via Task tool:
+通过 Task 工具并行启动独立方面：
 
 ```
 Task(subagent_type="oh-my-claudecode:document-specialist", model="sonnet", prompt="Search for: <facet 1 description>. Use WebSearch and WebFetch to find official documentation and examples. Cite all sources with URLs.")
@@ -52,33 +52,33 @@ Task(subagent_type="oh-my-claudecode:document-specialist", model="sonnet", promp
 Task(subagent_type="oh-my-claudecode:document-specialist", model="sonnet", prompt="Search for: <facet 2 description>. Use WebSearch and WebFetch to find official documentation and examples. Cite all sources with URLs.")
 ```
 
-Maximum 5 parallel document-specialist agents.
+最多 5 个并行文档专家代理。
 
-### Step 3: Synthesis Output Format
+### 步骤 3：综合输出格式
 
-Present synthesized results in this format:
+以以下格式呈现综合结果：
 
 ```markdown
-## External Context: <query>
+## 外部上下文：<query>
 
-### Key Findings
-1. **<finding>** - Source: [title](url)
-2. **<finding>** - Source: [title](url)
+### 关键发现
+1. **<finding>** - 来源：[title](url)
+2. **<finding>** - 来源：[title](url)
 
-### Detailed Results
+### 详细结果
 
-#### Facet 1: <name>
+#### 方面 1：<name>
 <aggregated findings with citations>
 
-#### Facet 2: <name>
+#### 方面 2：<name>
 <aggregated findings with citations>
 
-### Sources
+### 来源
 - [Source 1](url)
 - [Source 2](url)
 ```
 
-## Configuration
+## 配置
 
-- Maximum 5 parallel document-specialist agents
-- No magic keyword trigger - explicit invocation only
+- 最多 5 个并行文档专家代理
+- 无魔法关键词触发 - 仅显式调用

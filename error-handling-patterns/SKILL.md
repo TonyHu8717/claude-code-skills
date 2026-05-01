@@ -1,64 +1,64 @@
 ---
 name: error-handling-patterns
-description: Master error handling patterns across languages including exceptions, Result types, error propagation, and graceful degradation to build resilient applications. Use when implementing error handling, designing APIs, or improving application reliability.
+description: 掌握跨语言的错误处理模式，包括异常、Result 类型、错误传播和优雅降级，以构建弹性应用。在实现错误处理、设计 API 或提高应用可靠性时使用。
 ---
 
-# Error Handling Patterns
+# 错误处理模式
 
-Build resilient applications with robust error handling strategies that gracefully handle failures and provide excellent debugging experiences.
+通过强大的错误处理策略构建弹性应用，优雅地处理故障并提供出色的调试体验。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Implementing error handling in new features
-- Designing error-resilient APIs
-- Debugging production issues
-- Improving application reliability
-- Creating better error messages for users and developers
-- Implementing retry and circuit breaker patterns
-- Handling async/concurrent errors
-- Building fault-tolerant distributed systems
+- 在新功能中实现错误处理
+- 设计容错 API
+- 调试生产问题
+- 提高应用可靠性
+- 为用户和开发者创建更好的错误消息
+- 实现重试和熔断器模式
+- 处理异步/并发错误
+- 构建容错分布式系统
 
-## Core Concepts
+## 核心概念
 
-### 1. Error Handling Philosophies
+### 1. 错误处理理念
 
-**Exceptions vs Result Types:**
+**异常 vs Result 类型：**
 
-- **Exceptions**: Traditional try-catch, disrupts control flow
-- **Result Types**: Explicit success/failure, functional approach
-- **Error Codes**: C-style, requires discipline
-- **Option/Maybe Types**: For nullable values
+- **异常**：传统的 try-catch，中断控制流
+- **Result 类型**：显式成功/失败，函数式方法
+- **错误码**：C 风格，需要纪律
+- **Option/Maybe 类型**：用于可空值
 
-**When to Use Each:**
+**何时使用哪种：**
 
-- Exceptions: Unexpected errors, exceptional conditions
-- Result Types: Expected errors, validation failures
-- Panics/Crashes: Unrecoverable errors, programming bugs
+- 异常：意外错误、异常条件
+- Result 类型：预期错误、验证失败
+- Panic/崩溃：不可恢复错误、编程错误
 
-### 2. Error Categories
+### 2. 错误类别
 
-**Recoverable Errors:**
+**可恢复错误：**
 
-- Network timeouts
-- Missing files
-- Invalid user input
-- API rate limits
+- 网络超时
+- 文件缺失
+- 无效用户输入
+- API 速率限制
 
-**Unrecoverable Errors:**
+**不可恢复错误：**
 
-- Out of memory
-- Stack overflow
-- Programming bugs (null pointer, etc.)
+- 内存溢出
+- 栈溢出
+- 编程错误（空指针等）
 
-## Language-Specific Patterns
+## 特定语言模式
 
-### Python Error Handling
+### Python 错误处理
 
-**Custom Exception Hierarchy:**
+**自定义异常层次结构：**
 
 ```python
 class ApplicationError(Exception):
-    """Base exception for all application errors."""
+    """所有应用程序错误的基类。"""
     def __init__(self, message: str, code: str = None, details: dict = None):
         super().__init__(message)
         self.code = code
@@ -66,20 +66,20 @@ class ApplicationError(Exception):
         self.timestamp = datetime.utcnow()
 
 class ValidationError(ApplicationError):
-    """Raised when validation fails."""
+    """验证失败时引发。"""
     pass
 
 class NotFoundError(ApplicationError):
-    """Raised when resource not found."""
+    """资源未找到时引发。"""
     pass
 
 class ExternalServiceError(ApplicationError):
-    """Raised when external service fails."""
+    """外部服务失败时引发。"""
     def __init__(self, message: str, service: str, **kwargs):
         super().__init__(message, **kwargs)
         self.service = service
 
-# Usage
+# 用法
 def get_user(user_id: str) -> User:
     user = db.query(User).filter_by(id=user_id).first()
     if not user:
@@ -91,14 +91,14 @@ def get_user(user_id: str) -> User:
     return user
 ```
 
-**Context Managers for Cleanup:**
+**上下文管理器用于清理：**
 
 ```python
 from contextlib import contextmanager
 
 @contextmanager
 def database_transaction(session):
-    """Ensure transaction is committed or rolled back."""
+    """确保事务被提交或回滚。"""
     try:
         yield session
         session.commit()
@@ -108,14 +108,14 @@ def database_transaction(session):
     finally:
         session.close()
 
-# Usage
+# 用法
 with database_transaction(db.session) as session:
     user = User(name="Alice")
     session.add(user)
-    # Automatic commit or rollback
+    # 自动提交或回滚
 ```
 
-**Retry with Exponential Backoff:**
+**指数退避重试：**
 
 ```python
 import time
@@ -129,7 +129,7 @@ def retry(
     backoff_factor: float = 2.0,
     exceptions: tuple = (Exception,)
 ):
-    """Retry decorator with exponential backoff."""
+    """带指数退避的重试装饰器。"""
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         @wraps(func)
         def wrapper(*args, **kwargs) -> T:
@@ -148,7 +148,7 @@ def retry(
         return wrapper
     return decorator
 
-# Usage
+# 用法
 @retry(max_attempts=3, exceptions=(NetworkError,))
 def fetch_data(url: str) -> dict:
     response = requests.get(url, timeout=5)
@@ -156,12 +156,12 @@ def fetch_data(url: str) -> dict:
     return response.json()
 ```
 
-### TypeScript/JavaScript Error Handling
+### TypeScript/JavaScript 错误处理
 
-**Custom Error Classes:**
+**自定义错误类：**
 
 ```typescript
-// Custom error classes
+// 自定义错误类
 class ApplicationError extends Error {
   constructor(
     message: string,
@@ -187,7 +187,7 @@ class NotFoundError extends ApplicationError {
   }
 }
 
-// Usage
+// 用法
 function getUser(id: string): User {
   const user = users.find((u) => u.id === id);
   if (!user) {
@@ -197,13 +197,13 @@ function getUser(id: string): User {
 }
 ```
 
-**Result Type Pattern:**
+**Result 类型模式：**
 
 ```typescript
-// Result type for explicit error handling
+// 用于显式错误处理的 Result 类型
 type Result<T, E = Error> = { ok: true; value: T } | { ok: false; error: E };
 
-// Helper functions
+// 辅助函数
 function Ok<T>(value: T): Result<T, never> {
   return { ok: true, value };
 }
@@ -212,7 +212,7 @@ function Err<E>(error: E): Result<never, E> {
   return { ok: false, error };
 }
 
-// Usage
+// 用法
 function parseJSON<T>(json: string): Result<T, SyntaxError> {
   try {
     const value = JSON.parse(json) as T;
@@ -222,7 +222,7 @@ function parseJSON<T>(json: string): Result<T, SyntaxError> {
   }
 }
 
-// Consuming Result
+// 使用 Result
 const result = parseJSON<User>(userJson);
 if (result.ok) {
   console.log(result.value.name);
@@ -230,7 +230,7 @@ if (result.ok) {
   console.error("Parse failed:", result.error.message);
 }
 
-// Chaining Results
+// 链式 Result
 function chain<T, U, E>(
   result: Result<T, E>,
   fn: (value: T) => Result<U, E>,
@@ -239,10 +239,10 @@ function chain<T, U, E>(
 }
 ```
 
-**Async Error Handling:**
+**异步错误处理：**
 
 ```typescript
-// Async/await with proper error handling
+// 带正确错误处理的 async/await
 async function fetchUserOrders(userId: string): Promise<Order[]> {
   try {
     const user = await getUser(userId);
@@ -250,18 +250,18 @@ async function fetchUserOrders(userId: string): Promise<Order[]> {
     return orders;
   } catch (error) {
     if (error instanceof NotFoundError) {
-      return []; // Return empty array for not found
+      return []; // 未找到时返回空数组
     }
     if (error instanceof NetworkError) {
-      // Retry logic
+      // 重试逻辑
       return retryFetchOrders(userId);
     }
-    // Re-throw unexpected errors
+    // 重新抛出意外错误
     throw error;
   }
 }
 
-// Promise error handling
+// Promise 错误处理
 function fetchData(url: string): Promise<Data> {
   return fetch(url)
     .then((response) => {
@@ -277,23 +277,23 @@ function fetchData(url: string): Promise<Data> {
 }
 ```
 
-### Rust Error Handling
+### Rust 错误处理
 
-**Result and Option Types:**
+**Result 和 Option 类型：**
 
 ```rust
 use std::fs::File;
 use std::io::{self, Read};
 
-// Result type for operations that can fail
+// 用于可能失败操作的 Result 类型
 fn read_file(path: &str) -> Result<String, io::Error> {
-    let mut file = File::open(path)?;  // ? operator propagates errors
+    let mut file = File::open(path)?;  // ? 运算符传播错误
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
     Ok(contents)
 }
 
-// Custom error types
+// 自定义错误类型
 #[derive(Debug)]
 enum AppError {
     Io(io::Error),
@@ -308,20 +308,20 @@ impl From<io::Error> for AppError {
     }
 }
 
-// Using custom error type
+// 使用自定义错误类型
 fn read_number_from_file(path: &str) -> Result<i32, AppError> {
-    let contents = read_file(path)?;  // Auto-converts io::Error
+    let contents = read_file(path)?;  // 自动转换 io::Error
     let number = contents.trim().parse()
-        .map_err(AppError::Parse)?;   // Explicitly convert ParseIntError
+        .map_err(AppError::Parse)?;   // 显式转换 ParseIntError
     Ok(number)
 }
 
-// Option for nullable values
+// 用于可空值的 Option
 fn find_user(id: &str) -> Option<User> {
     users.iter().find(|u| u.id == id).cloned()
 }
 
-// Combining Option and Result
+// 组合 Option 和 Result
 fn get_user_age(id: &str) -> Result<u32, AppError> {
     find_user(id)
         .ok_or_else(|| AppError::NotFound(id.to_string()))
@@ -329,12 +329,12 @@ fn get_user_age(id: &str) -> Result<u32, AppError> {
 }
 ```
 
-### Go Error Handling
+### Go 错误处理
 
-**Explicit Error Returns:**
+**显式错误返回：**
 
 ```go
-// Basic error handling
+// 基本错误处理
 func getUser(id string) (*User, error) {
     user, err := db.QueryUser(id)
     if err != nil {
@@ -346,7 +346,7 @@ func getUser(id string) (*User, error) {
     return user, nil
 }
 
-// Custom error types
+// 自定义错误类型
 type ValidationError struct {
     Field   string
     Message string
@@ -356,34 +356,34 @@ func (e *ValidationError) Error() string {
     return fmt.Sprintf("validation failed for %s: %s", e.Field, e.Message)
 }
 
-// Sentinel errors for comparison
+// 用于比较的哨兵错误
 var (
     ErrNotFound     = errors.New("not found")
     ErrUnauthorized = errors.New("unauthorized")
     ErrInvalidInput = errors.New("invalid input")
 )
 
-// Error checking
+// 错误检查
 user, err := getUser("123")
 if err != nil {
     if errors.Is(err, ErrNotFound) {
-        // Handle not found
+        // 处理未找到
     } else {
-        // Handle other errors
+        // 处理其他错误
     }
 }
 
-// Error wrapping and unwrapping
+// 错误包装和解包
 func processUser(id string) error {
     user, err := getUser(id)
     if err != nil {
         return fmt.Errorf("process user failed: %w", err)
     }
-    // Process user
+    // 处理用户
     return nil
 }
 
-// Unwrap errors
+// 解包错误
 err := processUser("123")
 if err != nil {
     var valErr *ValidationError
@@ -393,11 +393,11 @@ if err != nil {
 }
 ```
 
-## Universal Patterns
+## 通用模式
 
-### Pattern 1: Circuit Breaker
+### 模式 1：熔断器
 
-Prevent cascading failures in distributed systems.
+防止分布式系统中的级联故障。
 
 ```python
 from enum import Enum
@@ -407,9 +407,9 @@ from typing import Callable, TypeVar
 T = TypeVar('T')
 
 class CircuitState(Enum):
-    CLOSED = "closed"       # Normal operation
-    OPEN = "open"          # Failing, reject requests
-    HALF_OPEN = "half_open"  # Testing if recovered
+    CLOSED = "closed"       # 正常运行
+    OPEN = "open"          # 正在失败，拒绝请求
+    HALF_OPEN = "half_open"  # 测试是否恢复
 
 class CircuitBreaker:
     def __init__(
@@ -456,16 +456,16 @@ class CircuitBreaker:
         if self.failure_count >= self.failure_threshold:
             self.state = CircuitState.OPEN
 
-# Usage
+# 用法
 circuit_breaker = CircuitBreaker()
 
 def fetch_data():
     return circuit_breaker.call(lambda: external_api.get_data())
 ```
 
-### Pattern 2: Error Aggregation
+### 模式 2：错误聚合
 
-Collect multiple errors instead of failing on first error.
+收集多个错误而不是在第一个错误时失败。
 
 ```typescript
 class ErrorCollector {
@@ -494,7 +494,7 @@ class ErrorCollector {
   }
 }
 
-// Usage: Validate multiple fields
+// 用法：验证多个字段
 function validateUser(data: any): User {
   const errors = new ErrorCollector();
 
@@ -520,9 +520,9 @@ function validateUser(data: any): User {
 }
 ```
 
-### Pattern 3: Graceful Degradation
+### 模式 3：优雅降级
 
-Provide fallback functionality when errors occur.
+在发生错误时提供回退功能。
 
 ```python
 from typing import Optional, Callable, TypeVar
@@ -534,7 +534,7 @@ def with_fallback(
     fallback: Callable[[], T],
     log_error: bool = True
 ) -> T:
-    """Try primary function, fall back to fallback on error."""
+    """尝试主函数，失败时回退到备选函数。"""
     try:
         return primary()
     except Exception as e:
@@ -542,14 +542,14 @@ def with_fallback(
             logger.error(f"Primary function failed: {e}")
         return fallback()
 
-# Usage
+# 用法
 def get_user_profile(user_id: str) -> UserProfile:
     return with_fallback(
         primary=lambda: fetch_from_cache(user_id),
         fallback=lambda: fetch_from_database(user_id)
     )
 
-# Multiple fallbacks
+# 多重回退
 def get_exchange_rate(currency: str) -> float:
     return (
         try_function(lambda: api_provider_1.get_rate(currency))
@@ -565,36 +565,36 @@ def try_function(func: Callable[[], Optional[T]]) -> Optional[T]:
         return None
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Fail Fast**: Validate input early, fail quickly
-2. **Preserve Context**: Include stack traces, metadata, timestamps
-3. **Meaningful Messages**: Explain what happened and how to fix it
-4. **Log Appropriately**: Error = log, expected failure = don't spam logs
-5. **Handle at Right Level**: Catch where you can meaningfully handle
-6. **Clean Up Resources**: Use try-finally, context managers, defer
-7. **Don't Swallow Errors**: Log or re-throw, don't silently ignore
-8. **Type-Safe Errors**: Use typed errors when possible
+1. **快速失败**：尽早验证输入，快速失败
+2. **保留上下文**：包含堆栈跟踪、元数据、时间戳
+3. **有意义的消息**：解释发生了什么以及如何修复
+4. **适当日志记录**：错误 = 记录，预期失败 = 不要刷屏日志
+5. **在正确层级处理**：在能有意义地处理的地方捕获
+6. **清理资源**：使用 try-finally、上下文管理器、defer
+7. **不要吞没错误**：记录或重新抛出，不要静默忽略
+8. **类型安全错误**：尽可能使用类型化错误
 
 ```python
-# Good error handling example
+# 良好的错误处理示例
 def process_order(order_id: str) -> Order:
-    """Process order with comprehensive error handling."""
+    """带全面错误处理的订单处理。"""
     try:
-        # Validate input
+        # 验证输入
         if not order_id:
             raise ValidationError("Order ID is required")
 
-        # Fetch order
+        # 获取订单
         order = db.get_order(order_id)
         if not order:
             raise NotFoundError("Order", order_id)
 
-        # Process payment
+        # 处理支付
         try:
             payment_result = payment_service.charge(order.total)
         except PaymentServiceError as e:
-            # Log and wrap external service error
+            # 记录并包装外部服务错误
             logger.error(f"Payment failed for order {order_id}: {e}")
             raise ExternalServiceError(
                 f"Payment processing failed",
@@ -602,7 +602,7 @@ def process_order(order_id: str) -> Order:
                 details={"order_id": order_id, "amount": order.total}
             ) from e
 
-        # Update order
+        # 更新订单
         order.status = "completed"
         order.payment_id = payment_result.id
         db.save(order)
@@ -610,10 +610,10 @@ def process_order(order_id: str) -> Order:
         return order
 
     except ApplicationError:
-        # Re-raise known application errors
+        # 重新抛出已知应用错误
         raise
     except Exception as e:
-        # Log unexpected errors
+        # 记录意外错误
         logger.exception(f"Unexpected error processing order {order_id}")
         raise ApplicationError(
             "Order processing failed",
@@ -621,12 +621,12 @@ def process_order(order_id: str) -> Order:
         ) from e
 ```
 
-## Common Pitfalls
+## 常见陷阱
 
-- **Catching Too Broadly**: `except Exception` hides bugs
-- **Empty Catch Blocks**: Silently swallowing errors
-- **Logging and Re-throwing**: Creates duplicate log entries
-- **Not Cleaning Up**: Forgetting to close files, connections
-- **Poor Error Messages**: "Error occurred" is not helpful
-- **Returning Error Codes**: Use exceptions or Result types
-- **Ignoring Async Errors**: Unhandled promise rejections
+- **捕获范围过广**：`except Exception` 会隐藏错误
+- **空捕获块**：静默吞没错误
+- **记录并重新抛出**：创建重复日志条目
+- **未清理资源**：忘记关闭文件、连接
+- **糟糕的错误消息**："发生错误"没有帮助
+- **返回错误码**：使用异常或 Result 类型
+- **忽略异步错误**：未处理的 Promise 拒绝

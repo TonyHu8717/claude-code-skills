@@ -1,22 +1,22 @@
 ---
 name: defi-protocol-templates
-description: Implement DeFi protocols with production-ready templates for staking, AMMs, governance, and lending systems. Use when building decentralized finance applications or smart contract protocols.
+description: 使用生产就绪模板实施 DeFi 协议，包括质押、AMM、治理和借贷系统。在构建去中心化金融应用或智能合约协议时使用。
 ---
 
-# DeFi Protocol Templates
+# DeFi 协议模板
 
-Production-ready templates for common DeFi protocols including staking, AMMs, governance, lending, and flash loans.
+常见 DeFi 协议的生产就绪模板，包括质押、AMM、治理、借贷和闪电贷。
 
-## When to Use This Skill
+## 使用场景
 
-- Building staking platforms with reward distribution
-- Implementing AMM (Automated Market Maker) protocols
-- Creating governance token systems
-- Developing lending/borrowing protocols
-- Integrating flash loan functionality
-- Launching yield farming platforms
+- 构建带奖励分配的质押平台
+- 实施 AMM（自动做市商）协议
+- 创建治理代币系统
+- 开发借贷协议
+- 集成闪电贷功能
+- 启动收益耕作平台
 
-## Staking Contract
+## 质押合约
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -106,7 +106,7 @@ contract StakingRewards is ReentrancyGuard, Ownable {
 }
 ```
 
-## AMM (Automated Market Maker)
+## AMM（自动做市商）
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -232,7 +232,7 @@ contract SimpleAMM {
 }
 ```
 
-## Governance Token
+## 治理代币
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -345,7 +345,7 @@ contract Governor is Ownable {
 }
 ```
 
-## Flash Loan
+## 闪电贷
 
 ```solidity
 // SPDX-License-Identifier: MIT

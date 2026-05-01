@@ -1,163 +1,163 @@
 ---
 name: task-coordination-strategies
-description: Decompose complex tasks, design dependency graphs, and coordinate multi-agent work with proper task descriptions and workload balancing. Use this skill when breaking down work for agent teams, managing task dependencies, or monitoring team progress.
+description: 分解复杂任务、设计依赖图、协调多智能体工作，包括任务描述编写和工作负载平衡。适用于为智能体团队拆分任务、管理任务依赖或监控团队进度时使用。
 version: 1.0.2
 ---
 
-# Task Coordination Strategies
+# 任务协调策略
 
-Strategies for decomposing complex tasks into parallelizable units, designing dependency graphs, writing effective task descriptions, and monitoring workload across agent teams.
+将复杂任务分解为可并行执行的单元、设计依赖图、编写有效的任务描述以及监控智能体团队工作负载的策略。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Breaking down a complex task for parallel execution
-- Designing task dependency relationships (blockedBy/blocks)
-- Writing task descriptions with clear acceptance criteria
-- Monitoring and rebalancing workload across teammates
-- Identifying the critical path in a multi-task workflow
+- 为并行执行拆分复杂任务
+- 设计任务依赖关系（blockedBy/blocks）
+- 编写带有明确验收标准的任务描述
+- 监控和重新平衡团队成员间的工作负载
+- 识别多任务工作流中的关键路径
 
-## Task Decomposition Strategies
+## 任务分解策略
 
-### By Layer
+### 按层级拆分
 
-Split work by architectural layer:
+按架构层级拆分工作：
 
-- Frontend components
-- Backend API endpoints
-- Database migrations/models
-- Test suites
+- 前端组件
+- 后端 API 端点
+- 数据库迁移/模型
+- 测试套件
 
-**Best for**: Full-stack features, vertical slices
+**最适用于**：全栈功能、垂直切片
 
-### By Component
+### 按组件拆分
 
-Split work by functional component:
+按功能组件拆分工作：
 
-- Authentication module
-- User profile module
-- Notification module
+- 认证模块
+- 用户资料模块
+- 通知模块
 
-**Best for**: Microservices, modular architectures
+**最适用于**：微服务、模块化架构
 
-### By Concern
+### 按关注点拆分
 
-Split work by cross-cutting concern:
+按跨领域关注点拆分工作：
 
-- Security review
-- Performance review
-- Architecture review
+- 安全审查
+- 性能审查
+- 架构审查
 
-**Best for**: Code reviews, audits
+**最适用于**：代码审查、审计
 
-### By File Ownership
+### 按文件所有权拆分
 
-Split work by file/directory boundaries:
+按文件/目录边界拆分工作：
 
-- `src/components/` — Implementer 1
-- `src/api/` — Implementer 2
-- `src/utils/` — Implementer 3
+- `src/components/` — 实现者 1
+- `src/api/` — 实现者 2
+- `src/utils/` — 实现者 3
 
-**Best for**: Parallel implementation, conflict avoidance
+**最适用于**：并行实现、避免冲突
 
-## Dependency Graph Design
+## 依赖图设计
 
-### Principles
+### 原则
 
-1. **Minimize chain depth** — Prefer wide, shallow graphs over deep chains
-2. **Identify the critical path** — The longest chain determines minimum completion time
-3. **Use blockedBy sparingly** — Only add dependencies that are truly required
-4. **Avoid circular dependencies** — Task A blocks B blocks A is a deadlock
+1. **最小化链深度** — 优先使用宽而浅的图，而非深链
+2. **识别关键路径** — 最长链决定最短完成时间
+3. **谨慎使用 blockedBy** — 仅添加真正需要的依赖
+4. **避免循环依赖** — 任务 A 阻塞 B、B 阻塞 A 会导致死锁
 
-### Patterns
+### 模式
 
-**Independent (Best parallelism)**:
-
-```
-Task A ─┐
-Task B ─┼─→ Integration
-Task C ─┘
-```
-
-**Sequential (Necessary dependencies)**:
+**独立型（最佳并行性）**：
 
 ```
-Task A → Task B → Task C
+任务 A ─┐
+任务 B ─┼─→ 集成
+任务 C ─┘
 ```
 
-**Diamond (Mixed)**:
+**顺序型（必要依赖）**：
 
 ```
-        ┌→ Task B ─┐
-Task A ─┤          ├→ Task D
-        └→ Task C ─┘
+任务 A → 任务 B → 任务 C
 ```
 
-### Using blockedBy/blocks
+**菱形型（混合型）**：
 
 ```
-TaskCreate: { subject: "Build API endpoints" }         → Task #1
-TaskCreate: { subject: "Build frontend components" }    → Task #2
-TaskCreate: { subject: "Integration testing" }          → Task #3
-TaskUpdate: { taskId: "3", addBlockedBy: ["1", "2"] }  → #3 waits for #1 and #2
+        ┌→ 任务 B ─┐
+任务 A ─┤          ├→ 任务 D
+        └→ 任务 C ─┘
 ```
 
-## Task Description Best Practices
-
-Every task should include:
-
-1. **Objective** — What needs to be accomplished (1-2 sentences)
-2. **Owned Files** — Explicit list of files/directories this teammate may modify
-3. **Requirements** — Specific deliverables or behaviors expected
-4. **Interface Contracts** — How this work connects to other teammates' work
-5. **Acceptance Criteria** — How to verify the task is done correctly
-6. **Scope Boundaries** — What is explicitly out of scope
-
-### Template
+### 使用 blockedBy/blocks
 
 ```
-## Objective
-Build the user authentication API endpoints.
+TaskCreate: { subject: "构建 API 端点" }         → 任务 #1
+TaskCreate: { subject: "构建前端组件" }           → 任务 #2
+TaskCreate: { subject: "集成测试" }               → 任务 #3
+TaskUpdate: { taskId: "3", addBlockedBy: ["1", "2"] }  → #3 等待 #1 和 #2
+```
 
-## Owned Files
+## 任务描述最佳实践
+
+每个任务应包含：
+
+1. **目标** — 需要完成什么（1-2 句话）
+2. **拥有的文件** — 此队友可修改的文件/目录的明确列表
+3. **需求** — 预期的具体交付物或行为
+4. **接口契约** — 此工作如何与其他队友的工作对接
+5. **验收标准** — 如何验证任务正确完成
+6. **范围边界** — 明确不包含的内容
+
+### 模板
+
+```
+## 目标
+构建用户认证 API 端点。
+
+## 拥有的文件
 - src/api/auth.ts
 - src/api/middleware/auth-middleware.ts
-- src/types/auth.ts (shared — read only, do not modify)
+- src/types/auth.ts（共享 — 只读，不可修改）
 
-## Requirements
-- POST /api/login — accepts email/password, returns JWT
-- POST /api/register — creates new user, returns JWT
-- GET /api/me — returns current user profile (requires auth)
+## 需求
+- POST /api/login — 接受邮箱/密码，返回 JWT
+- POST /api/register — 创建新用户，返回 JWT
+- GET /api/me — 返回当前用户资料（需要认证）
 
-## Interface Contract
-- Import User type from src/types/auth.ts (owned by implementer-1)
-- Export AuthResponse type for frontend consumption
+## 接口契约
+- 从 src/types/auth.ts 导入 User 类型（由实现者 1 拥有）
+- 导出 AuthResponse 类型供前端使用
 
-## Acceptance Criteria
-- All endpoints return proper HTTP status codes
-- JWT tokens expire after 24 hours
-- Passwords are hashed with bcrypt
+## 验收标准
+- 所有端点返回正确的 HTTP 状态码
+- JWT 令牌在 24 小时后过期
+- 密码使用 bcrypt 加密
 
-## Out of Scope
-- OAuth/social login
-- Password reset flow
-- Rate limiting
+## 不在范围内
+- OAuth/社交登录
+- 密码重置流程
+- 速率限制
 ```
 
-## Workload Monitoring
+## 工作负载监控
 
-### Indicators of Imbalance
+### 不平衡指标
 
-| Signal                     | Meaning             | Action                      |
-| -------------------------- | ------------------- | --------------------------- |
-| Teammate idle, others busy | Uneven distribution | Reassign pending tasks      |
-| Teammate stuck on one task | Possible blocker    | Check in, offer help        |
-| All tasks blocked          | Dependency issue    | Resolve critical path first |
-| One teammate has 3x others | Overloaded          | Split tasks or reassign     |
+| 信号                       | 含义           | 操作                    |
+| -------------------------- | -------------- | ----------------------- |
+| 某队友空闲，其他人忙碌     | 分配不均       | 重新分配待处理任务      |
+| 某队友卡在一个任务上       | 可能有阻碍     | 检查情况，提供帮助      |
+| 所有任务被阻塞             | 依赖问题       | 优先解决关键路径        |
+| 某队友任务量是其他人的 3 倍 | 过载           | 拆分任务或重新分配      |
 
-### Rebalancing Steps
+### 重新平衡步骤
 
-1. Call `TaskList` to assess current state
-2. Identify idle or overloaded teammates
-3. Use `TaskUpdate` to reassign tasks
-4. Use `SendMessage` to notify affected teammates
-5. Monitor for improved throughput
+1. 调用 `TaskList` 评估当前状态
+2. 识别空闲或过载的队友
+3. 使用 `TaskUpdate` 重新分配任务
+4. 使用 `SendMessage` 通知受影响的队友
+5. 监控吞吐量是否改善

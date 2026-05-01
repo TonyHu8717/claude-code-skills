@@ -1,14 +1,11 @@
 ---
 name: excel-lbo-modeler
 description: |
-  Creates leveraged buyout (LBO) models in Excel with sources & uses, debt schedules,
-  cash flow waterfalls, and IRR calculations. Targets private equity and investment
-  banking workflows.
-  Use when asked to create an LBO model, build a buyout model, calculate PE returns,
-  or analyze a leveraged acquisition.
-  Trigger with "create an LBO model", "build a buyout model", "PE returns analysis",
-  or "leveraged acquisition model".
-  Make sure to use whenever the user needs private equity deal modeling in Excel.
+  在 Excel 中创建杠杆收购 (LBO) 模型，包含资金来源与用途、债务计划、
+  现金流瀑布和 IRR 计算。面向私募股权和投资银行工作流。
+  当要求创建 LBO 模型、构建收购模型、计算 PE 回报或分析杠杆收购时使用。
+  使用"创建 LBO 模型"、"构建收购模型"、"PE 回报分析"或"杠杆收购模型"触发。
+  确保在用户需要 Excel 中的私募股权交易建模时使用。
 allowed-tools: "Read,Write,Edit,Glob,Grep,Bash(npx:*),AskUserQuestion"
 model: inherit
 version: "2.0.0"
@@ -18,144 +15,142 @@ compatible-with: claude-code
 tags: [lbo, private-equity, financial-modeling, excel, investment-banking]
 ---
 
-# Excel LBO Modeler
+# Excel LBO 建模器
 
-## Table of Contents
-- [Overview](#overview) — [Prerequisites](#prerequisites) — [Instructions](#instructions) — [Output](#output) — [Examples](#examples) — [Error Handling](#error-handling) — [Resources](#resources)
+## 目录
+- [概述](#概述) — [先决条件](#先决条件) — [指令](#指令) — [输出](#输出) — [示例](#示例) — [错误处理](#错误处理) — [资源](#资源)
 
-## Overview
+## 概述
 
-Generates comprehensive 6-sheet LBO models for private equity transactions following
-industry-standard practices. Automates sources & uses, debt schedules, operating
-projections, returns analysis, and covenant tracking so PE associates can produce
-deal models from natural language inputs instead of building from scratch.
+为私募股权交易生成全面的 6 工作表 LBO 模型，遵循行业标准实践。自动执行资金来源与用途、
+债务计划、运营预测、回报分析和契约跟踪，使 PE 助理能够从自然语言输入生成交易模型，而无需从头构建。
 
-## Prerequisites
+## 先决条件
 
 - Node.js 18+
-- `@negokaz/excel-mcp-server` MCP server configured
+- 已配置 `@negokaz/excel-mcp-server` MCP 服务器
 - Claude Code 1.0+
 
-## Instructions
+## 指令
 
-### Step 1: Gather Transaction Inputs
+### 步骤 1：收集交易输入
 
-Use AskUserQuestion to collect:
+使用 AskUserQuestion 收集：
 
-**Required:**
-- Target company name
-- Current year EBITDA (or TTM)
-- Entry valuation multiple (EV/EBITDA, typically 8-12x)
-- Revenue growth rates for Years 1-5
-- EBITDA margin (and any expected expansion)
-- Exit multiple assumption
-- Hold period (typically 5 years)
+**必需：**
+- 目标公司名称
+- 当年 EBITDA（或 TTM）
+- 入场估值倍数（EV/EBITDA，通常 8-12x）
+- 第 1-5 年的收入增长率
+- EBITDA 利润率（及任何预期扩张）
+- 退出倍数假设
+- 持有期（通常 5 年）
 
-**Optional (use defaults if not provided):**
-- CapEx as % of revenue (default: 3%)
-- NWC as % of revenue (default: 10%)
-- Tax rate (default: 25%)
-- Transaction fees (default: 2.5%)
-- Financing fees (default: 2.5%)
+**可选（未提供时使用默认值）：**
+- 资本支出占收入百分比（默认：3%）
+- 净营运资本占收入百分比（默认：10%）
+- 税率（默认：25%）
+- 交易费用（默认：2.5%）
+- 融资费用（默认：2.5%）
 
-### Step 2: Validate Inputs
+### 步骤 2：验证输入
 
-Before building, verify:
-- Entry multiple is 6-15x EBITDA
-- Total leverage does not exceed 7x EBITDA
-- Exit multiple is reasonable (typically <= entry multiple)
-- Revenue growth rates are 0-30%
-- EBITDA margin is positive and realistic for the sector
+构建前验证：
+- 入场倍数为 6-15x EBITDA
+- 总杠杆不超过 7x EBITDA
+- 退出倍数合理（通常 <= 入场倍数）
+- 收入增长率为 0-30%
+- EBITDA 利润率为正且对该行业现实
 
-If validation fails, explain the issue and ask for corrected inputs.
+如果验证失败，解释问题并请求修正输入。
 
-### Step 3: Structure Financing
+### 步骤 3：构建融资结构
 
-Apply typical LBO debt structure:
-- **Revolver**: 1-2x EBITDA, undrawn at close
-- **Term Loan A**: 2-2.5x EBITDA, 5-7 year amortization, SOFR + 3.50% (default: 8.5%)
-- **Term Loan B**: 2-3x EBITDA, minimal amortization, SOFR + 4.50% (default: 9.5%)
-- **Subordinated/Mezzanine**: 1-2x EBITDA if needed (default: 13.0%)
-- **Sponsor Equity**: Remainder (typically 30-40% of purchase price)
+应用典型的 LBO 债务结构：
+- **循环信贷**：1-2x EBITDA，交割时未提取
+- **定期贷款 A**：2-2.5x EBITDA，5-7 年摊销，SOFR + 3.50%（默认：8.5%）
+- **定期贷款 B**：2-3x EBITDA，最小摊销，SOFR + 4.50%（默认：9.5%）
+- **次级/夹层**：如需要 1-2x EBITDA（默认：13.0%）
+- **发起人股权**：剩余部分（通常为购买价格的 30-40%）
 
-### Step 4: Build 6-Sheet Model
+### 步骤 4：构建 6 工作表模型
 
-Use the Excel MCP server to create:
+使用 Excel MCP 服务器创建：
 
-**Sheet 1 - Transaction Summary:** Deal terms, sources & uses overview, returns summary (IRR, MoM, hold period).
+**工作表 1 - 交易摘要：** 交易条款、资金来源与用途概述、回报摘要（IRR、MoM、持有期）。
 
-**Sheet 2 - Sources & Uses:** Purchase equity value, net debt, enterprise value, transaction fees, financing fees. Sources: debt tranches + sponsor equity.
+**工作表 2 - 资金来源与用途：** 购买股权价值、净债务、企业价值、交易费用、融资费用。来源：债务层级 + 发起人股权。
 
-**Sheet 3 - Operating Model (5 Years):** Revenue projections, EBITDA, cash flow available for debt service.
+**工作表 3 - 运营模型（5 年）：** 收入预测、EBITDA、可用于偿债的现金流。
 
-**Sheet 4 - Debt Schedule:** For each tranche: beginning balance, mandatory amortization, excess cash flow sweep, interest expense, ending balance. Waterfall: Revolver first, then TLA, then TLB.
+**工作表 4 - 债务计划：** 每个层级：期初余额、强制摊销、超额现金流扫荡、利息费用、期末余额。瀑布：循环信贷优先，然后 TLA，然后 TLB。
 
-**Sheet 5 - Returns Analysis:** Exit EV, exit equity value, MoM, IRR. Sensitivity tables: Exit Multiple vs Hold Period, Exit vs Entry Multiple.
+**工作表 5 - 回报分析：** 退出 EV、退出股权价值、MoM、IRR。敏感性表：退出倍数 vs 持有期、退出 vs 入场倍数。
 
-**Sheet 6 - Debt Covenants:** Total Debt/EBITDA (<=6.0x), Senior Debt/EBITDA (<=4.0x), EBITDA/Interest (>=2.0x), (EBITDA-CapEx)/Debt Service (>=1.2x).
+**工作表 6 - 债务契约：** 总债务/EBITDA（<=6.0x）、优先债务/EBITDA（<=4.0x）、EBITDA/利息（>=2.0x）、(EBITDA-资本支出)/偿债（>=1.2x）。
 
-All formulas link to Assumptions. No hard-coded values.
+所有公式链接到假设。无硬编码值。
 
-### Step 5: Format Professionally
+### 步骤 5：专业格式化
 
-- Currency format for monetary values
-- Percentage format for rates (1 decimal)
-- Freeze top row and left column
-- Bold headers, cell borders
-- Color-code: blue for inputs, black for formulas
-- Conditional formatting on sensitivity tables
+- 货币格式用于金额值
+- 百分比格式用于比率（1 位小数）
+- 冻结首行和首列
+- 粗体标题，单元格边框
+- 颜色编码：蓝色表示输入，黑色表示公式
+- 敏感性表的条件格式
 
-### Step 6: Return Results
+### 步骤 6：返回结果
 
-Report exit equity value, MoM, IRR (base case), leverage at entry and exit, key sensitivity scenarios, covenant compliance summary. Flag if leverage >7x or negative cash flow in any year.
+报告退出股权价值、MoM、IRR（基准情况）、入场和退出时的杠杆、关键敏感性场景、契约合规摘要。如果杠杆 >7x 或任何年份出现负现金流则标记。
 
-## Output
+## 输出
 
-- `.xlsx` file with 6 sheets: Transaction Summary, Sources & Uses, Operating Model, Debt Schedule, Returns Analysis, Debt Covenants
-- Summary text with IRR, MoM, leverage metrics, and covenant status
-- Warnings for aggressive assumptions (e.g., leverage >7x, exit > entry multiple)
+- `.xlsx` 文件，包含 6 个工作表：交易摘要、资金来源与用途、运营模型、债务计划、回报分析、债务契约
+- 包含 IRR、MoM、杠杆指标和契约状态的摘要文本
+- 对激进假设的警告（例如杠杆 >7x、退出 > 入场倍数）
 
-## Examples
+## 示例
 
-### Standard LBO Request
-
-```
-User: "Build an LBO model for a $50M EBITDA software company at 12x"
-
-Results:
-- Entry EV: $600M, Equity Check: ~$265M
-- Exit Equity: $1,124M (5yr hold, 12x exit)
-- MoM: 4.2x, IRR: 34.2%
-- Deleveraging: 7.0x -> 0.9x
-
-Saved to: Software_LBO_Model.xlsx
-```
-
-### Minimal Inputs
+### 标准 LBO 请求
 
 ```
-User: "LBO model but I only know EBITDA is $30M"
+用户："为 $50M EBITDA 的软件公司以 12x 构建 LBO 模型"
 
-Response: Uses PE industry defaults for sector.
-All assumptions documented in Transaction Summary for easy adjustment.
+结果：
+- 入场 EV：$600M，股权投入：~$265M
+- 退出股权：$1,124M（5 年持有，12x 退出）
+- MoM：4.2x，IRR：34.2%
+- 去杠杆：7.0x -> 0.9x
+
+保存到：Software_LBO_Model.xlsx
 ```
 
-## Error Handling
+### 最小输入
 
-| Scenario | Response |
+```
+用户："LBO 模型但我只知道 EBITDA 是 $30M"
+
+响应：使用该行业的 PE 行业默认值。
+所有假设记录在交易摘要中，便于调整。
+```
+
+## 错误处理
+
+| 场景 | 响应 |
 |----------|----------|
-| Leverage >7x EBITDA | Warn structure may not be achievable, recommend reduction |
-| Negative cash flow in any year | Flag concern, suggest reducing leverage or extending amortization |
-| Exit multiple > entry multiple | Note assumption, flag as aggressive |
-| IRR < 20% | Flag as below typical PE hurdle rate |
-| Covenant breach in projections | Alert and suggest restructuring debt |
+| 杠杆 >7x EBITDA | 警告结构可能无法实现，建议减少 |
+| 任何年份出现负现金流 | 标记关注，建议减少杠杆或延长摊销 |
+| 退出倍数 > 入场倍数 | 注意假设，标记为激进 |
+| IRR < 20% | 标记为低于典型 PE 门槛率 |
+| 预测中出现契约违约 | 警告并建议重组债务 |
 
-## Edge Cases
+## 边缘情况
 
-- If user provides no company name, use "Target Co" as placeholder
-- If user wants dividend recap, add Year 3 refinancing scenario
-- If user wants multiple scenarios, create Base/Bull/Bear columns
+- 如果用户未提供公司名称，使用"Target Co"作为占位符
+- 如果用户需要股息再融资，在第 3 年添加再融资场景
+- 如果用户需要多个场景，创建基准/牛市/熊市列
 
-## Resources
+## 资源
 
-- ${CLAUDE_SKILL_DIR}/references/REFERENCE.md - LBO best practices, debt structures by industry
+- ${CLAUDE_SKILL_DIR}/references/REFERENCE.md - LBO 最佳实践、按行业分类的债务结构

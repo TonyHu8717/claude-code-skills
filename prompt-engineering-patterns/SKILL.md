@@ -1,73 +1,73 @@
 ---
 name: prompt-engineering-patterns
-description: Master advanced prompt engineering techniques to maximize LLM performance, reliability, and controllability in production. Use when optimizing prompts, improving LLM outputs, or designing production prompt templates.
+description: 掌握高级提示工程技术，以最大化 LLM 在生产环境中的性能、可靠性和可控性。在优化提示、改进 LLM 输出或设计生产提示模板时使用。
 ---
 
-# Prompt Engineering Patterns
+# 提示工程模式
 
-Master advanced prompt engineering techniques to maximize LLM performance, reliability, and controllability.
+掌握高级提示工程技术，以最大化 LLM 的性能、可靠性和可控性。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Designing complex prompts for production LLM applications
-- Optimizing prompt performance and consistency
-- Implementing structured reasoning patterns (chain-of-thought, tree-of-thought)
-- Building few-shot learning systems with dynamic example selection
-- Creating reusable prompt templates with variable interpolation
-- Debugging and refining prompts that produce inconsistent outputs
-- Implementing system prompts for specialized AI assistants
-- Using structured outputs (JSON mode) for reliable parsing
+- 为生产 LLM 应用设计复杂提示
+- 优化提示性能和一致性
+- 实现结构化推理模式（思维链、思维树）
+- 构建带动态示例选择的少样本学习系统
+- 创建带变量插值的可复用提示模板
+- 调试和改进产生不一致输出的提示
+- 为专业 AI 助手实现系统提示
+- 使用结构化输出（JSON 模式）进行可靠解析
 
-## Core Capabilities
+## 核心能力
 
-### 1. Few-Shot Learning
+### 1. 少样本学习
 
-- Example selection strategies (semantic similarity, diversity sampling)
-- Balancing example count with context window constraints
-- Constructing effective demonstrations with input-output pairs
-- Dynamic example retrieval from knowledge bases
-- Handling edge cases through strategic example selection
+- 示例选择策略（语义相似性、多样性采样）
+- 平衡示例数量与上下文窗口约束
+- 用输入-输出对构建有效的演示
+- 从知识库动态检索示例
+- 通过策略性示例选择处理边界情况
 
-### 2. Chain-of-Thought Prompting
+### 2. 思维链提示
 
-- Step-by-step reasoning elicitation
-- Zero-shot CoT with "Let's think step by step"
-- Few-shot CoT with reasoning traces
-- Self-consistency techniques (sampling multiple reasoning paths)
-- Verification and validation steps
+- 逐步推理引导
+- 使用「让我们逐步思考」的零样本 CoT
+- 带推理轨迹的少样本 CoT
+- 自一致性技术（采样多条推理路径）
+- 验证和确认步骤
 
-### 3. Structured Outputs
+### 3. 结构化输出
 
-- JSON mode for reliable parsing
-- Pydantic schema enforcement
-- Type-safe response handling
-- Error handling for malformed outputs
+- 用于可靠解析的 JSON 模式
+- Pydantic 模式强制
+- 类型安全的响应处理
+- 格式错误输出的错误处理
 
-### 4. Prompt Optimization
+### 4. 提示优化
 
-- Iterative refinement workflows
-- A/B testing prompt variations
-- Measuring prompt performance metrics (accuracy, consistency, latency)
-- Reducing token usage while maintaining quality
-- Handling edge cases and failure modes
+- 迭代改进工作流
+- A/B 测试提示变体
+- 测量提示性能指标（准确性、一致性、延迟）
+- 在保持质量的同时减少 token 使用
+- 处理边界情况和失败模式
 
-### 5. Template Systems
+### 5. 模板系统
 
-- Variable interpolation and formatting
-- Conditional prompt sections
-- Multi-turn conversation templates
-- Role-based prompt composition
-- Modular prompt components
+- 变量插值和格式化
+- 条件提示部分
+- 多轮对话模板
+- 基于角色的提示组合
+- 模块化提示组件
 
-### 6. System Prompt Design
+### 6. 系统提示设计
 
-- Setting model behavior and constraints
-- Defining output formats and structure
-- Establishing role and expertise
-- Safety guidelines and content policies
-- Context setting and background information
+- 设置模型行为和约束
+- 定义输出格式和结构
+- 建立角色和专业领域
+- 安全指南和内容策略
+- 上下文设置和背景信息
 
-## Quick Start
+## 快速开始
 
 ```python
 from langchain_anthropic import ChatAnthropic
@@ -103,9 +103,9 @@ print(result.query)
 print(result.explanation)
 ```
 
-## Key Patterns
+## 关键模式
 
-### Pattern 1: Structured Output with Pydantic
+### 模式 1：使用 Pydantic 的结构化输出
 
 ```python
 from anthropic import Anthropic
@@ -145,7 +145,7 @@ Respond with JSON matching this schema:
     return SentimentAnalysis(**json.loads(message.content[0].text))
 ```
 
-### Pattern 2: Chain-of-Thought with Self-Verification
+### 模式 2：带自验证的思维链
 
 ```python
 from langchain_core.prompts import ChatPromptTemplate
@@ -173,7 +173,7 @@ Format your response as:
 """)
 ```
 
-### Pattern 3: Few-Shot with Dynamic Example Selection
+### 模式 3：带动态示例选择的少样本
 
 ```python
 from langchain_voyageai import VoyageAIEmbeddings
@@ -211,9 +211,9 @@ User: {query}
 Assistant:"""
 ```
 
-### Pattern 4: Progressive Disclosure
+### 模式 4：渐进式披露
 
-Start with simple prompts, add complexity only when needed:
+从简单提示开始，仅在需要时添加复杂性：
 
 ```python
 PROMPT_LEVELS = {
@@ -255,7 +255,7 @@ Summary:"""
 }
 ```
 
-### Pattern 5: Error Recovery and Fallback
+### 模式 5：错误恢复和回退
 
 ```python
 from pydantic import BaseModel, ValidationError
@@ -311,7 +311,7 @@ async def answer_with_fallback(
         )
 ```
 
-### Pattern 6: Role-Based System Prompts
+### 模式 6：基于角色的系统提示
 
 ```python
 SYSTEM_PROMPTS = {
@@ -358,9 +358,9 @@ Output format:
 }
 ```
 
-## Integration Patterns
+## 集成模式
 
-### With RAG Systems
+### 与 RAG 系统集成
 
 ```python
 RAG_PROMPT = """You are a knowledgeable assistant that answers questions based on provided context.
@@ -379,7 +379,7 @@ Question: {question}
 Answer:"""
 ```
 
-### With Validation and Verification
+### 与验证和确认集成
 
 ```python
 VALIDATED_PROMPT = """Complete the following task:
@@ -398,9 +398,9 @@ If verification fails on any criterion, revise before responding.
 Response:"""
 ```
 
-## Performance Optimization
+## 性能优化
 
-### Token Efficiency
+### Token 效率
 
 ```python
 # Before: Verbose prompt (150+ tokens)
@@ -418,7 +418,7 @@ concise_prompt = """Summarize the key points concisely:
 Summary:"""
 ```
 
-### Caching Common Prefixes
+### 缓存常见前缀
 
 ```python
 from anthropic import Anthropic
@@ -440,34 +440,34 @@ response = client.messages.create(
 )
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Be Specific**: Vague prompts produce inconsistent results
-2. **Show, Don't Tell**: Examples are more effective than descriptions
-3. **Use Structured Outputs**: Enforce schemas with Pydantic for reliability
-4. **Test Extensively**: Evaluate on diverse, representative inputs
-5. **Iterate Rapidly**: Small changes can have large impacts
-6. **Monitor Performance**: Track metrics in production
-7. **Version Control**: Treat prompts as code with proper versioning
-8. **Document Intent**: Explain why prompts are structured as they are
+1. **具体明确**：模糊的提示产生不一致的结果
+2. **展示而非讲述**：示例比描述更有效
+3. **使用结构化输出**：用 Pydantic 强制模式以提高可靠性
+4. **广泛测试**：在多样化的代表性输入上评估
+5. **快速迭代**：小改动可能产生大影响
+6. **监控性能**：在生产中跟踪指标
+7. **版本控制**：将提示视为代码进行适当版本管理
+8. **记录意图**：解释提示为何如此结构化
 
-## Common Pitfalls
+## 常见陷阱
 
-- **Over-engineering**: Starting with complex prompts before trying simple ones
-- **Example pollution**: Using examples that don't match the target task
-- **Context overflow**: Exceeding token limits with excessive examples
-- **Ambiguous instructions**: Leaving room for multiple interpretations
-- **Ignoring edge cases**: Not testing on unusual or boundary inputs
-- **No error handling**: Assuming outputs will always be well-formed
-- **Hardcoded values**: Not parameterizing prompts for reuse
+- **过度工程化**：在尝试简单提示之前就使用复杂提示
+- **示例污染**：使用与目标任务不匹配的示例
+- **上下文溢出**：过多示例超过 token 限制
+- **模糊指令**：为多种解释留下空间
+- **忽略边界情况**：未在不寻常或边界输入上测试
+- **无错误处理**：假设输出总是格式良好的
+- **硬编码值**：未参数化提示以供复用
 
-## Success Metrics
+## 成功指标
 
-Track these KPIs for your prompts:
+跟踪这些提示的 KPI：
 
-- **Accuracy**: Correctness of outputs
-- **Consistency**: Reproducibility across similar inputs
-- **Latency**: Response time (P50, P95, P99)
-- **Token Usage**: Average tokens per request
-- **Success Rate**: Percentage of valid, parseable outputs
-- **User Satisfaction**: Ratings and feedback
+- **准确性**：输出的正确性
+- **一致性**：类似输入间的可重现性
+- **延迟**：响应时间（P50、P95、P99）
+- **Token 使用**：每请求平均 token 数
+- **成功率**：有效、可解析输出的百分比
+- **用户满意度**：评分和反馈

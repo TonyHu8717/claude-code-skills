@@ -1,34 +1,34 @@
 ---
 name: hybrid-cloud-networking
-description: Configure secure, high-performance connectivity between on-premises infrastructure and cloud platforms using VPN and dedicated connections. Use when building hybrid cloud architectures, connecting data centers to cloud, or implementing secure cross-premises networking.
+description: 使用 VPN 和专用连接配置本地基础设施与云平台之间安全、高性能的连接。在构建混合云架构、将数据中心连接到云或实现安全的跨本地网络时使用。
 ---
 
-# Hybrid Cloud Networking
+# 混合云网络
 
-Configure secure, high-performance connectivity between on-premises and cloud environments using VPN, Direct Connect, ExpressRoute, Interconnect, and FastConnect.
+使用 VPN、Direct Connect、ExpressRoute、Interconnect 和 FastConnect 配置本地与云环境之间安全、高性能的连接。
 
-## Purpose
+## 目的
 
-Establish secure, reliable network connectivity between on-premises data centers and cloud providers (AWS, Azure, GCP, OCI).
+在本地数据中心与云提供商（AWS、Azure、GCP、OCI）之间建立安全、可靠的网络连接。
 
-## When to Use
+## 何时使用
 
-- Connect on-premises to cloud
-- Extend datacenter to cloud
-- Implement hybrid active-active setups
-- Meet compliance requirements
-- Migrate to cloud gradually
+- 将本地连接到云
+- 将数据中心扩展到云
+- 实现混合双活设置
+- 满足合规要求
+- 逐步迁移到云
 
-## Connection Options
+## 连接选项
 
-### AWS Connectivity
+### AWS 连接
 
-#### 1. Site-to-Site VPN
+#### 1. 站点到站点 VPN
 
-- IPSec VPN over internet
-- Up to 1.25 Gbps per tunnel
-- Cost-effective for moderate bandwidth
-- Higher latency, internet-dependent
+- 基于互联网的 IPSec VPN
+- 每隧道最高 1.25 Gbps
+- 对中等带宽具有成本效益
+- 延迟较高，依赖互联网
 
 ```hcl
 resource "aws_vpn_gateway" "main" {
@@ -54,16 +54,16 @@ resource "aws_vpn_connection" "main" {
 
 #### 2. AWS Direct Connect
 
-- Dedicated network connection
-- 1 Gbps to 100 Gbps
-- Lower latency, consistent bandwidth
-- More expensive, setup time required
+- 专用网络连接
+- 1 Gbps 到 100 Gbps
+- 延迟更低，带宽稳定
+- 成本更高，需要设置时间
 
-**Reference:** See `references/direct-connect.md`
+**参考：** 见 `references/direct-connect.md`
 
-### Azure Connectivity
+### Azure 连接
 
-#### 1. Site-to-Site VPN
+#### 1. 站点到站点 VPN
 
 ```hcl
 resource "azurerm_virtual_network_gateway" "vpn" {
@@ -86,112 +86,112 @@ resource "azurerm_virtual_network_gateway" "vpn" {
 
 #### 2. Azure ExpressRoute
 
-- Private connection via connectivity provider
-- Up to 100 Gbps
-- Low latency, high reliability
-- Premium for global connectivity
+- 通过连接提供商的私有连接
+- 最高 100 Gbps
+- 低延迟，高可靠性
+- 全球连接需高级版
 
-### GCP Connectivity
+### GCP 连接
 
 #### 1. Cloud VPN
 
-- IPSec VPN (Classic or HA VPN)
-- HA VPN: 99.99% SLA
-- Up to 3 Gbps per tunnel
+- IPSec VPN（经典版或高可用 VPN）
+- 高可用 VPN：99.99% SLA
+- 每隧道最高 3 Gbps
 
 #### 2. Cloud Interconnect
 
-- Dedicated (10 Gbps, 100 Gbps)
-- Partner (50 Mbps to 50 Gbps)
-- Lower latency than VPN
+- 专用（10 Gbps、100 Gbps）
+- 合作伙伴（50 Mbps 到 50 Gbps）
+- 比 VPN 延迟更低
 
-### OCI Connectivity
+### OCI 连接
 
 #### 1. IPSec VPN Connect
 
-- IPSec VPN with redundant tunnels
-- Dynamic routing through DRG
-- Good fit for branch offices and migration phases
+- 带冗余隧道的 IPSec VPN
+- 通过 DRG 的动态路由
+- 适合分支机构和迁移阶段
 
 #### 2. OCI FastConnect
 
-- Private dedicated connectivity through Oracle or partner edge
-- Suitable for predictable throughput and lower-latency hybrid traffic
-- Commonly paired with DRG for hub-and-spoke designs
+- 通过 Oracle 或合作伙伴边缘的私有专用连接
+- 适合可预测吞吐量和低延迟混合流量
+- 通常与 DRG 配合用于中心辐射设计
 
-## Hybrid Network Patterns
+## 混合网络模式
 
-### Pattern 1: Hub-and-Spoke
+### 模式 1：中心辐射
 
 ```
-On-Premises Datacenter
+本地数据中心
          ↓
     VPN/Direct Connect
          ↓
     Transit Gateway (AWS) / vWAN (Azure)
          ↓
-    ├─ Production VPC/VNet
-    ├─ Staging VPC/VNet
-    └─ Development VPC/VNet
+    ├─ 生产 VPC/VNet
+    ├─ 预发布 VPC/VNet
+    └─ 开发 VPC/VNet
 ```
 
-### Pattern 2: Multi-Region Hybrid
+### 模式 2：多区域混合
 
 ```
-On-Premises
+本地
     ├─ Direct Connect → us-east-1
     └─ Direct Connect → us-west-2
             ↓
-        Cross-Region Peering
+        跨区域对等连接
 ```
 
-### Pattern 3: Multi-Cloud Hybrid
+### 模式 3：多云混合
 
 ```
-On-Premises Datacenter
+本地数据中心
     ├─ Direct Connect → AWS
     ├─ ExpressRoute → Azure
     ├─ Interconnect → GCP
     └─ FastConnect → OCI
 ```
 
-## Routing Configuration
+## 路由配置
 
-### BGP Configuration
+### BGP 配置
 
 ```
-On-Premises Router:
-- AS Number: 65000
-- Advertise: 10.0.0.0/8
+本地路由器：
+- AS 编号：65000
+- 通告：10.0.0.0/8
 
-Cloud Router:
-- AS Number: 64512 (AWS), 65515 (Azure), provider-assigned for GCP/OCI
-- Advertise: Cloud VPC/VNet CIDRs
+云路由器：
+- AS 编号：64512 (AWS)、65515 (Azure)、GCP/OCI 由提供商分配
+- 通告：云 VPC/VNet CIDR
 ```
 
-### Route Propagation
+### 路由传播
 
-- Enable route propagation on route tables
-- Use BGP for dynamic routing
-- Implement route filtering
-- Monitor route advertisements
+- 在路由表上启用路由传播
+- 使用 BGP 实现动态路由
+- 实现路由过滤
+- 监控路由通告
 
-## Security Best Practices
+## 安全最佳实践
 
-1. **Use private connectivity** (Direct Connect/ExpressRoute/Interconnect/FastConnect)
-2. **Implement encryption** for VPN tunnels
-3. **Use VPC endpoints** to avoid internet routing
-4. **Configure network ACLs** and security groups
-5. **Enable VPC Flow Logs** for monitoring
-6. **Implement DDoS protection**
-7. **Use PrivateLink/Private Endpoints**
-8. **Monitor connections** with CloudWatch/Azure Monitor/Cloud Monitoring/OCI Monitoring
-9. **Implement redundancy** (dual tunnels)
-10. **Regular security audits**
+1. **使用私有连接**（Direct Connect/ExpressRoute/Interconnect/FastConnect）
+2. **为 VPN 隧道实现加密**
+3. **使用 VPC 端点** 避免互联网路由
+4. **配置网络 ACL** 和安全组
+5. **启用 VPC 流日志** 进行监控
+6. **实现 DDoS 防护**
+7. **使用 PrivateLink/私有端点**
+8. **使用 CloudWatch/Azure Monitor/Cloud Monitoring/OCI Monitoring 监控连接**
+9. **实现冗余**（双隧道）
+10. **定期安全审计**
 
-## High Availability
+## 高可用性
 
-### Dual VPN Tunnels
+### 双 VPN 隧道
 
 ```hcl
 resource "aws_vpn_connection" "primary" {
@@ -207,24 +207,24 @@ resource "aws_vpn_connection" "secondary" {
 }
 ```
 
-### Active-Active Configuration
+### 双活配置
 
-- Multiple connections from different locations
-- BGP for automatic failover
-- Equal-cost multi-path (ECMP) routing
-- Monitor health of all connections
+- 来自不同位置的多个连接
+- BGP 实现自动故障转移
+- 等价多路径（ECMP）路由
+- 监控所有连接的健康状态
 
-## Monitoring and Troubleshooting
+## 监控和故障排除
 
-### Key Metrics
+### 关键指标
 
-- Tunnel status (up/down)
-- Bytes in/out
-- Packet loss
-- Latency
-- BGP session status
+- 隧道状态（up/down）
+- 字节入/出
+- 丢包率
+- 延迟
+- BGP 会话状态
 
-### Troubleshooting
+### 故障排除
 
 ```bash
 # AWS VPN
@@ -240,17 +240,17 @@ oci network ip-sec-connection list
 oci network cpe list
 ```
 
-## Cost Optimization
+## 成本优化
 
-1. **Right-size connections** based on traffic
-2. **Use VPN for low-bandwidth** workloads
-3. **Consolidate traffic** through fewer connections
-4. **Minimize data transfer** costs
-5. **Use dedicated private links** for high bandwidth
-6. **Implement caching** to reduce traffic
+1. **根据流量合理选择连接**
+2. **对低带宽工作负载使用 VPN**
+3. **通过更少的连接整合流量**
+4. **最小化数据传输成本**
+5. **对高带宽使用专用私有链路**
+6. **实现缓存以减少流量**
 
 
-## Related Skills
+## 相关技能
 
-- `multi-cloud-architecture` - For architecture decisions
-- `terraform-module-library` - For IaC implementation
+- `multi-cloud-architecture` - 用于架构决策
+- `terraform-module-library` - 用于 IaC 实现

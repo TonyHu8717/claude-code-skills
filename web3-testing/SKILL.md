@@ -1,23 +1,23 @@
 ---
 name: web3-testing
-description: Test smart contracts comprehensively using Hardhat and Foundry with unit tests, integration tests, and mainnet forking. Use when testing Solidity contracts, setting up blockchain test suites, or validating DeFi protocols.
+description: 使用 Hardhat 和 Foundry 全面测试智能合约，包括单元测试、集成测试和主网分叉。适用于测试 Solidity 合约、设置区块链测试套件或验证 DeFi 协议。
 ---
 
-# Web3 Smart Contract Testing
+# Web3 智能合约测试
 
-Master comprehensive testing strategies for smart contracts using Hardhat, Foundry, and advanced testing patterns.
+掌握使用 Hardhat、Foundry 和高级测试模式的智能合约全面测试策略。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Writing unit tests for smart contracts
-- Setting up integration test suites
-- Performing gas optimization testing
-- Fuzzing for edge cases
-- Forking mainnet for realistic testing
-- Automating test coverage reporting
-- Verifying contracts on Etherscan
+- 编写智能合约的单元测试
+- 设置集成测试套件
+- 进行 gas 优化测试
+- 模糊测试边界情况
+- 分叉主网进行真实测试
+- 自动化测试覆盖率报告
+- 在 Etherscan 上验证合约
 
-## Hardhat Testing Setup
+## Hardhat 测试设置
 
 ```javascript
 // hardhat.config.js
@@ -59,7 +59,7 @@ module.exports = {
 };
 ```
 
-## Unit Testing Patterns
+## 单元测试模式
 
 ```javascript
 const { expect } = require("chai");
@@ -70,7 +70,7 @@ const {
 } = require("@nomicfoundation/hardhat-network-helpers");
 
 describe("Token Contract", function () {
-  // Fixture for test setup
+  // 测试设置的 Fixture
   async function deployTokenFixture() {
     const [owner, addr1, addr2] = await ethers.getSigners();
 
@@ -126,10 +126,10 @@ describe("Token Contract", function () {
     it("Should handle time-locked operations", async function () {
       const { token } = await loadFixture(deployTokenFixture);
 
-      // Increase time by 1 day
+      // 时间增加 1 天
       await time.increase(86400);
 
-      // Test time-dependent functionality
+      // 测试时间相关的功能
     });
   });
 
@@ -146,7 +146,7 @@ describe("Token Contract", function () {
 });
 ```
 
-## Foundry Testing (Forge)
+## Foundry 测试（Forge）
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -180,7 +180,7 @@ contract TokenTest is Test {
 
     function testFailTransferInsufficientBalance() public {
         vm.prank(user1);
-        token.transfer(user2, 100); // Should fail
+        token.transfer(user2, 100); // 应该失败
     }
 
     function testCannotTransferToZeroAddress() public {
@@ -189,7 +189,7 @@ contract TokenTest is Test {
         token.transfer(address(0), 100);
     }
 
-    // Fuzzing test
+    // 模糊测试
     function testFuzzTransfer(uint256 amount) public {
         vm.assume(amount > 0 && amount <= token.totalSupply());
 
@@ -199,32 +199,32 @@ contract TokenTest is Test {
         assertEq(token.balanceOf(user1), amount);
     }
 
-    // Test with cheatcodes
+    // 使用 cheatcodes 测试
     function testDealAndPrank() public {
-        // Give ETH to address
+        // 给地址 ETH
         vm.deal(user1, 10 ether);
 
-        // Impersonate address
+        // 模拟地址
         vm.prank(user1);
 
-        // Test functionality
+        // 测试功能
         assertEq(user1.balance, 10 ether);
     }
 
-    // Mainnet fork test
+    // 主网分叉测试
     function testForkMainnet() public {
         vm.createSelectFork("https://eth-mainnet.alchemyapi.io/v2/...");
 
-        // Interact with mainnet contracts
+        // 与主网合约交互
         address dai = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
         assertEq(IERC20(dai).symbol(), "DAI");
     }
 }
 ```
 
-## Advanced Testing Patterns
+## 高级测试模式
 
-### Snapshot and Revert
+### 快照和回滚
 
 ```javascript
 describe("Complex State Changes", function () {
@@ -239,16 +239,16 @@ describe("Complex State Changes", function () {
   });
 
   it("Test 1", async function () {
-    // Make state changes
+    // 进行状态变更
   });
 
   it("Test 2", async function () {
-    // State reverted, clean slate
+    // 状态已回滚，干净的状态
   });
 });
 ```
 
-### Mainnet Forking
+### 主网分叉
 
 ```javascript
 describe("Mainnet Fork Tests", function () {
@@ -267,7 +267,7 @@ describe("Mainnet Fork Tests", function () {
       ],
     });
 
-    // Connect to existing mainnet contracts
+    // 连接到现有的主网合约
     uniswapRouter = await ethers.getContractAt(
       "IUniswapV2Router",
       "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
@@ -280,12 +280,12 @@ describe("Mainnet Fork Tests", function () {
   });
 
   it("Should swap on Uniswap", async function () {
-    // Test with real Uniswap contracts
+    // 使用真实的 Uniswap 合约测试
   });
 });
 ```
 
-### Impersonating Accounts
+### 模拟账户
 
 ```javascript
 it("Should impersonate whale account", async function () {
@@ -298,14 +298,14 @@ it("Should impersonate whale account", async function () {
 
   const whale = await ethers.getSigner(whaleAddress);
 
-  // Use whale's tokens
+  // 使用大户的代币
   await dai
     .connect(whale)
     .transfer(addr1.address, ethers.utils.parseEther("1000"));
 });
 ```
 
-## Gas Optimization Testing
+## Gas 优化测试
 
 ```javascript
 const { expect } = require("chai");
@@ -335,22 +335,22 @@ describe("Gas Optimization", function () {
 });
 ```
 
-## Coverage Reporting
+## 覆盖率报告
 
 ```bash
-# Generate coverage report
+# 生成覆盖率报告
 npx hardhat coverage
 
-# Output shows:
+# 输出显示：
 # File                | % Stmts | % Branch | % Funcs | % Lines |
 # -------------------|---------|----------|---------|---------|
 # contracts/Token.sol |   100   |   90     |   100   |   95    |
 ```
 
-## Contract Verification
+## 合约验证
 
 ```javascript
-// Verify on Etherscan
+// 在 Etherscan 上验证
 await hre.run("verify:verify", {
   address: contractAddress,
   constructorArguments: [arg1, arg2],
@@ -358,11 +358,11 @@ await hre.run("verify:verify", {
 ```
 
 ```bash
-# Or via CLI
+# 或通过 CLI
 npx hardhat verify --network mainnet CONTRACT_ADDRESS "Constructor arg1" "arg2"
 ```
 
-## CI/CD Integration
+## CI/CD 集成
 
 ```yaml
 # .github/workflows/test.yml

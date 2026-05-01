@@ -1,73 +1,73 @@
 ---
 name: architecture-patterns
-description: Implement proven backend architecture patterns including Clean Architecture, Hexagonal Architecture, and Domain-Driven Design. Use this skill when designing clean architecture for a new microservice, when refactoring a monolith to use bounded contexts, when implementing hexagonal or onion architecture patterns, or when debugging dependency cycles between application layers.
+description: 实现经过验证的后端架构模式，包括清洁架构、六边形架构和领域驱动设计。在为新微服务设计清洁架构、在重构单体应用使用限界上下文、在实现六边形或洋葱架构模式或在调试应用层之间的依赖循环时使用此技能。
 ---
 
-# Architecture Patterns
+# 架构模式
 
-Master proven backend architecture patterns including Clean Architecture, Hexagonal Architecture, and Domain-Driven Design to build maintainable, testable, and scalable systems.
+掌握经过验证的后端架构模式，包括清洁架构、六边形架构和领域驱动设计，构建可维护、可测试和可扩展的系统。
 
-**Given:** a service boundary or module to architect.
-**Produces:** layered structure with clear dependency rules, interface definitions, and test boundaries.
+**给定：** 一个服务边界或模块需要架构设计。
+**产出：** 具有清晰依赖规则、接口定义和测试边界的分层结构。
 
-## When to Use This Skill
+## 使用场景
 
-- Designing new backend services or microservices from scratch
-- Refactoring monolithic applications where business logic is entangled with ORM models or HTTP concerns
-- Establishing bounded contexts before splitting a system into services
-- Debugging dependency cycles where infrastructure code bleeds into the domain layer
-- Creating testable codebases where use-case tests do not require a running database
-- Implementing domain-driven design tactical patterns (aggregates, value objects, domain events)
+- 从头设计新的后端服务或微服务
+- 重构业务逻辑与 ORM 模型或 HTTP 关注点纠缠的单体应用
+- 在将系统拆分为服务之前建立限界上下文
+- 调试基础设施代码渗入领域层的依赖循环
+- 创建可测试的代码库，用例测试不需要运行中的数据库
+- 实现领域驱动设计战术模式（聚合、值对象、领域事件）
 
-## Core Concepts
+## 核心概念
 
-### 1. Clean Architecture (Uncle Bob)
+### 1. 清洁架构（Uncle Bob）
 
-**Layers (dependency flows inward):**
+**层（依赖向内流动）：**
 
-- **Entities**: Core business models, no framework imports
-- **Use Cases**: Application business rules, orchestrate entities
-- **Interface Adapters**: Controllers, presenters, gateways — translate between use cases and external formats
-- **Frameworks & Drivers**: UI, database, external services — all at the outermost ring
+- **实体**：核心业务模型，无框架导入
+- **用例**：应用业务规则，编排实体
+- **接口适配器**：控制器、展示器、网关 — 在用例和外部格式之间转换
+- **框架和驱动**：UI、数据库、外部服务 — 全部在最外层
 
-**Key Principles:**
+**关键原则：**
 
-- Dependencies point inward only; inner layers know nothing about outer layers
-- Business logic is independent of frameworks, databases, and delivery mechanisms
-- Every layer boundary is crossed via an abstract interface
-- Testable without UI, database, or external services
+- 依赖仅指向内部；内层对外层一无所知
+- 业务逻辑独立于框架、数据库和交付机制
+- 每个层边界通过抽象接口跨越
+- 无需 UI、数据库或外部服务即可测试
 
-### 2. Hexagonal Architecture (Ports and Adapters)
+### 2. 六边形架构（端口和适配器）
 
-**Components:**
+**组件：**
 
-- **Domain Core**: Business logic lives here, framework-free
-- **Ports**: Abstract interfaces that define how the core interacts with the outside world (driving and driven)
-- **Adapters**: Concrete implementations of ports (PostgreSQL adapter, Stripe adapter, REST adapter)
+- **领域核心**：业务逻辑在此，无框架
+- **端口**：定义核心如何与外部世界交互的抽象接口（驱动和被驱动）
+- **适配器**：端口的具体实现（PostgreSQL 适配器、Stripe 适配器、REST 适配器）
 
-**Benefits:**
+**好处：**
 
-- Swap implementations without touching the core (e.g., replace PostgreSQL with DynamoDB)
-- Use in-memory adapters in tests — no Docker required
-- Technology decisions deferred to the edges
+- 无需触碰核心即可替换实现（例如用 DynamoDB 替换 PostgreSQL）
+- 在测试中使用内存适配器 — 无需 Docker
+- 技术决策推迟到边缘
 
-### 3. Domain-Driven Design (DDD)
+### 3. 领域驱动设计（DDD）
 
-**Strategic Patterns:**
+**战略模式：**
 
-- **Bounded Contexts**: Isolate a coherent model for one subdomain; avoid sharing a single model across the whole system
-- **Context Mapping**: Define how contexts relate (Anti-Corruption Layer, Shared Kernel, Open Host Service)
-- **Ubiquitous Language**: Every term in code matches the term used by domain experts
+- **限界上下文**：为一个子领域隔离连贯模型；避免在整个系统中共享单一模型
+- **上下文映射**：定义上下文如何关联（反腐层、共享内核、开放主机服务）
+- **统一语言**：代码中的每个术语都与领域专家使用的术语匹配
 
-**Tactical Patterns:**
+**战术模式：**
 
-- **Entities**: Objects with stable identity that change over time
-- **Value Objects**: Immutable objects identified by their attributes (Email, Money, Address)
-- **Aggregates**: Consistency boundaries; only the root is accessible from outside
-- **Repositories**: Persist and reconstitute aggregates; abstract over the storage mechanism
-- **Domain Events**: Capture things that happened inside the domain; used for cross-aggregate coordination
+- **实体**：具有稳定标识符的对象，随时间变化
+- **值对象**：由其属性标识的不可变对象（Email、Money、Address）
+- **聚合**：一致性边界；只有根可从外部访问
+- **仓储**：持久化和重建聚合；抽象存储机制
+- **领域事件**：捕获领域内发生的事情；用于跨聚合协调
 
-## Clean Architecture — Directory Structure
+## 清洁架构 — 目录结构
 
 ```
 app/
@@ -100,9 +100,9 @@ app/
     └── logging.py
 ```
 
-**Dependency rule in one sentence:** every `import` statement in `domain/` and `use_cases/` must point only toward `domain/`; nothing in those layers may import from `adapters/` or `infrastructure/`.
+**依赖规则一句话：** `domain/` 和 `use_cases/` 中的每个 `import` 语句必须仅指向 `domain/`；这些层中的任何内容都不得从 `adapters/` 或 `infrastructure/` 导入。
 
-## Clean Architecture — Core Implementation
+## 清洁架构 — 核心实现
 
 ```python
 # domain/entities/user.py
@@ -256,7 +256,7 @@ async def create_user(
     return {"user": response.user}
 ```
 
-## Hexagonal Architecture — Ports and Adapters
+## 六边形架构 — 端口和适配器
 
 ```python
 # Core domain service — no infrastructure dependencies
@@ -326,7 +326,7 @@ class MockPaymentAdapter(PaymentGatewayPort):
         return PaymentResult(success=True, transaction_id="mock-txn-123")
 ```
 
-## DDD — Value Objects and Aggregates
+## DDD — 值对象和聚合
 
 ```python
 # Value Objects: immutable, validated at construction
@@ -401,9 +401,9 @@ class OrderRepository(ABC):
     # Implementations persist events via pop_events() after writing state
 ```
 
-## Testing — In-Memory Adapters
+## 测试 — 内存适配器
 
-The hallmark of correctly applied Clean Architecture is that every use case can be exercised in a plain unit test with no real database, no Docker, and no network:
+正确应用清洁架构的标志是每个用例都可以在普通单元测试中执行，无需真实数据库、Docker 或网络：
 
 ```python
 # tests/unit/test_create_user.py
@@ -454,41 +454,41 @@ async def test_duplicate_email_rejected():
     assert "already exists" in response.error
 ```
 
-## Troubleshooting
+## 故障排除
 
-### Use case tests require a running database
+### 用例测试需要运行中的数据库
 
-Business logic has leaked into the infrastructure layer. Move all database calls behind an `IRepository` interface and inject an in-memory implementation in tests (see Testing section above). The use case constructor must accept the abstract port, not the concrete class.
+业务逻辑已泄漏到基础设施层。将所有数据库调用移到 `IRepository` 接口后面，并在测试中注入内存实现（参见上面的测试部分）。用例构造函数必须接受抽象端口，而非具体类。
 
-### Circular imports between layers
+### 层之间的循环导入
 
-A common symptom is `ImportError: cannot import name X` between `use_cases` and `adapters`. This happens when a use case imports a concrete adapter class instead of the abstract port. Enforce the rule: `use_cases/` imports only from `domain/` (entities and interfaces). It must never import from `adapters/` or `infrastructure/`.
+常见症状是 `use_cases` 和 `adapters` 之间出现 `ImportError: cannot import name X`。当用例导入具体适配器类而非抽象端口时会发生这种情况。强制执行规则：`use_cases/` 仅从 `domain/`（实体和接口）导入。它永远不得从 `adapters/` 或 `infrastructure/` 导入。
 
-### Framework decorators appearing in domain entities
+### 框架装饰器出现在领域实体中
 
-If SQLAlchemy `Column()` or Pydantic `Field()` annotations appear on domain entities, the entity is no longer pure. Create a separate ORM model in `adapters/repositories/` and map to/from the domain entity in the repository's `_to_entity()` method.
+如果 SQLAlchemy `Column()` 或 Pydantic `Field()` 注解出现在领域实体上，则该实体不再纯净。在 `adapters/repositories/` 中创建单独的 ORM 模型，并在仓储的 `_to_entity()` 方法中映射到/从领域实体。
 
-### All logic ending up in controllers
+### 所有逻辑都在控制器中
 
-When the controller grows beyond HTTP parsing and response formatting, extract the logic into a use case class. A controller method should do three things only: parse the request, call a use case, map the response.
+当控制器增长超出 HTTP 解析和响应格式化时，将逻辑提取到用例类中。控制器方法应只做三件事：解析请求、调用用例、映射响应。
 
-### Value objects raising errors too late
+### 值对象报错太晚
 
-Validate invariants in `__post_init__` (Python) or the constructor so an invalid `Email` or `Money` cannot be constructed at all. This surfaces bad data at the boundary, not deep inside business logic.
+在 `__post_init__`（Python）或构造函数中验证不变量，使无效的 `Email` 或 `Money` 根本无法构造。这在边界处暴露坏数据，而不是在业务逻辑深处。
 
-### Context bleed across bounded contexts
+### 跨限界上下文的上下文泄漏
 
-If the `Order` context is importing `User` entities from the `Identity` context, introduce an Anti-Corruption Layer. The `Order` context should hold its own lightweight `CustomerId` value object and only call the `Identity` context through an explicit interface.
+如果 `Order` 上下文从 `Identity` 上下文导入 `User` 实体，引入反腐层。`Order` 上下文应持有自己的轻量级 `CustomerId` 值对象，并仅通过显式接口调用 `Identity` 上下文。
 
-## Advanced Patterns
+## 高级模式
 
-For detailed DDD bounded context mapping, full multi-service project trees, Anti-Corruption Layer implementations, and Onion Architecture comparisons, see:
+详细的 DDD 限界上下文映射、完整多服务项目树、反腐层实现和洋葱架构比较参见：
 
 - [`references/advanced-patterns.md`](references/advanced-patterns.md)
 
-## Related Skills
+## 相关技能
 
-- `microservices-patterns` — Apply these architecture patterns when decomposing a monolith into services
-- `cqrs-implementation` — Use Clean Architecture as the structural foundation for CQRS command/query separation
-- `saga-orchestration` — Sagas require well-defined aggregate boundaries, which DDD tactical patterns provide
-- `event-store-design` — Domain events produced by aggregates feed directly into an event store
+- `microservices-patterns` — 在将单体分解为服务时应用这些架构模式
+- `cqrs-implementation` — 使用清洁架构作为 CQRS 命令/查询分离的结构基础
+- `saga-orchestration` — Saga 需要明确定义的聚合边界，DDD 战术模式提供
+- `event-store-design` — 聚合产生的领域事件直接馈入事件存储

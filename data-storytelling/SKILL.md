@@ -1,232 +1,232 @@
 ---
 name: data-storytelling
-description: Transform data into compelling narratives using visualization, context, and persuasive structure. Use when presenting analytics to stakeholders, creating data reports, or building executive presentations.
+description: 使用可视化、上下文和说服性结构将数据转化为引人入胜的叙述。在向利益相关者展示分析、创建数据报告或制作高管演示文稿时使用。
 ---
 
-# Data Storytelling
+# 数据讲故事
 
-Transform raw data into compelling narratives that drive decisions and inspire action.
+将原始数据转化为驱动决策和激发行动的引人入胜的叙述。
 
-## When to Use This Skill
+## 使用场景
 
-- Presenting analytics to executives
-- Creating quarterly business reviews
-- Building investor presentations
-- Writing data-driven reports
-- Communicating insights to non-technical audiences
-- Making recommendations based on data
+- 向高管展示分析
+- 创建季度业务回顾
+- 制作投资者演示文稿
+- 编写数据驱动的报告
+- 向非技术受众传达洞察
+- 基于数据提出建议
 
-## Core Concepts
+## 核心概念
 
-### 1. Story Structure
-
-```
-Setup → Conflict → Resolution
-
-Setup: Context and baseline
-Conflict: The problem or opportunity
-Resolution: Insights and recommendations
-```
-
-### 2. Narrative Arc
+### 1. 故事结构
 
 ```
-1. Hook: Grab attention with surprising insight
-2. Context: Establish the baseline
-3. Rising Action: Build through data points
-4. Climax: The key insight
-5. Resolution: Recommendations
-6. Call to Action: Next steps
+设定 → 冲突 → 解决
+
+设定：背景和基线
+冲突：问题或机会
+解决：洞察和建议
 ```
 
-### 3. Three Pillars
+### 2. 叙事弧线
 
-| Pillar        | Purpose  | Components                       |
+```
+1. 吸引：用令人惊讶的洞察抓住注意力
+2. 背景：建立基线
+3. 上升：通过数据点逐步推进
+4. 高潮：关键洞察
+5. 解决：建议
+6. 行动号召：下一步
+```
+
+### 3. 三大支柱
+
+| 支柱        | 用途  | 组件                       |
 | ------------- | -------- | -------------------------------- |
-| **Data**      | Evidence | Numbers, trends, comparisons     |
-| **Narrative** | Meaning  | Context, causation, implications |
-| **Visuals**   | Clarity  | Charts, diagrams, highlights     |
+| **数据**      | 证据 | 数字、趋势、比较     |
+| **叙述** | 意义  | 背景、因果关系、影响 |
+| **可视化**   | 清晰  | 图表、图表、重点     |
 
-## Story Frameworks
+## 故事框架
 
-### Framework 1: The Problem-Solution Story
+### 框架 1：问题-解决方案故事
 
 ```markdown
-# Customer Churn Analysis
+# 客户流失分析
 
-## The Hook
+## 吸引点
 
-"We're losing $2.4M annually to preventable churn."
+"我们每年因可预防的流失损失 240 万美元。"
 
-## The Context
+## 背景
 
-- Current churn rate: 8.5% (industry average: 5%)
-- Average customer lifetime value: $4,800
-- 500 customers churned last quarter
+- 当前流失率：8.5%（行业平均：5%）
+- 平均客户生命周期价值：4,800 美元
+- 上季度流失 500 个客户
 
-## The Problem
+## 问题
 
-Analysis of churned customers reveals a pattern:
+对流失客户的分析揭示了一个模式：
 
-- 73% churned within first 90 days
-- Common factor: < 3 support interactions
-- Low feature adoption in first month
+- 73% 在前 90 天内流失
+- 共同因素：< 3 次支持互动
+- 第一个月功能采用率低
 
-## The Insight
+## 洞察
 
-[Show engagement curve visualization]
-Customers who don't engage in the first 14 days
-are 4x more likely to churn.
+[展示参与度曲线可视化]
+在前 14 天未参与的客户
+流失可能性高 4 倍。
 
-## The Solution
+## 解决方案
 
-1. Implement 14-day onboarding sequence
-2. Proactive outreach at day 7
-3. Feature adoption tracking
+1. 实施 14 天入职序列
+2. 第 7 天主动联系
+3. 功能采用跟踪
 
-## Expected Impact
+## 预期影响
 
-- Reduce early churn by 40%
-- Save $960K annually
-- Payback period: 3 months
+- 减少早期流失 40%
+- 每年节省 96 万美元
+- 回本期：3 个月
 
-## Call to Action
+## 行动号召
 
-Approve $50K budget for onboarding automation.
+批准 5 万美元的入职自动化预算。
 ```
 
-### Framework 2: The Trend Story
+### 框架 2：趋势故事
 
 ```markdown
-# Q4 Performance Analysis
+# Q4 绩效分析
 
-## Where We Started
+## 起点
 
-Q3 ended with $1.2M MRR, 15% below target.
-Team morale was low after missed goals.
+Q3 结束时 MRR 为 120 万美元，低于目标 15%。
+目标未达成后团队士气低落。
 
-## What Changed
+## 变化
 
-[Timeline visualization]
+[时间线可视化]
 
-- Oct: Launched self-serve pricing
-- Nov: Reduced friction in signup
-- Dec: Added customer success calls
+- 10 月：推出自助定价
+- 11 月：减少注册摩擦
+- 12 月：增加客户成功电话
 
-## The Transformation
+## 转变
 
-[Before/after comparison chart]
-| Metric | Q3 | Q4 | Change |
+[前后对比图]
+| 指标 | Q3 | Q4 | 变化 |
 |----------------|--------|--------|--------|
-| Trial → Paid | 8% | 15% | +87% |
-| Time to Value | 14 days| 5 days | -64% |
-| Expansion Rate | 2% | 8% | +300% |
+| 试用→付费 | 8% | 15% | +87% |
+| 价值实现时间 | 14 天| 5 天 | -64% |
+| 扩展率 | 2% | 8% | +300% |
 
-## Key Insight
+## 关键洞察
 
-Self-serve + high-touch creates compound growth.
-Customers who self-serve AND get a success call
-have 3x higher expansion rate.
+自助 + 高接触创造复合增长。
+既自助又获得成功电话的客户
+扩展率高 3 倍。
 
-## Going Forward
+## 前进方向
 
-Double down on hybrid model.
-Target: $1.8M MRR by Q2.
+加倍投入混合模式。
+目标：Q2 达到 180 万美元 MRR。
 ```
 
-### Framework 3: The Comparison Story
+### 框架 3：比较故事
 
 ```markdown
-# Market Opportunity Analysis
+# 市场机会分析
 
-## The Question
+## 问题
 
-Should we expand into EMEA or APAC first?
+我们应该先进入 EMEA 还是 APAC？
 
-## The Comparison
+## 比较
 
-[Side-by-side market analysis]
+[并排市场分析]
 
 ### EMEA
 
-- Market size: $4.2B
-- Growth rate: 8%
-- Competition: High
-- Regulatory: Complex (GDPR)
-- Language: Multiple
+- 市场规模：42 亿美元
+- 增长率：8%
+- 竞争：激烈
+- 监管：复杂（GDPR）
+- 语言：多种
 
 ### APAC
 
-- Market size: $3.8B
-- Growth rate: 15%
-- Competition: Moderate
-- Regulatory: Varied
-- Language: Multiple
+- 市场规模：38 亿美元
+- 增长率：15%
+- 竞争：中等
+- 监管：多样化
+- 语言：多种
 
-## The Analysis
+## 分析
 
-[Weighted scoring matrix visualization]
+[加权评分矩阵可视化]
 
-| Factor      | Weight | EMEA Score | APAC Score |
+| 因素      | 权重 | EMEA 分数 | APAC 分数 |
 | ----------- | ------ | ---------- | ---------- |
-| Market Size | 25%    | 5          | 4          |
-| Growth      | 30%    | 3          | 5          |
-| Competition | 20%    | 2          | 4          |
-| Ease        | 25%    | 2          | 3          |
-| **Total**   |        | **2.9**    | **4.1**    |
+| 市场规模 | 25%    | 5          | 4          |
+| 增长      | 30%    | 3          | 5          |
+| 竞争 | 20%    | 2          | 4          |
+| 便利性        | 25%    | 2          | 3          |
+| **总计**   |        | **2.9**    | **4.1**    |
 
-## The Recommendation
+## 建议
 
-APAC first. Higher growth, less competition.
-Start with Singapore hub (English, business-friendly).
-Enter EMEA in Year 2 with localization ready.
+先进入 APAC。增长更快，竞争更少。
+从新加坡枢纽开始（英语、商业友好）。
+第二年进入 EMEA，做好本地化准备。
 
-## Risk Mitigation
+## 风险缓解
 
-- Timezone coverage: Hire 24/7 support
-- Cultural fit: Local partnerships
-- Payment: Multi-currency from day 1
+- 时区覆盖：招聘 24/7 支持
+- 文化适配：本地合作
+- 支付：从第一天起支持多币种
 ```
 
-## Visualization Techniques
+## 可视化技术
 
-### Technique 1: Progressive Reveal
+### 技术 1：渐进展示
 
 ```markdown
-Start simple, add layers:
+从简单开始，逐步添加层次：
 
-Slide 1: "Revenue is growing" [single line chart]
-Slide 2: "But growth is slowing" [add growth rate overlay]
-Slide 3: "Driven by one segment" [add segment breakdown]
-Slide 4: "Which is saturating" [add market share]
-Slide 5: "We need new segments" [add opportunity zones]
+幻灯片 1："收入在增长" [单线图]
+幻灯片 2："但增长在放缓" [添加增长率叠加]
+幻灯片 3："由一个细分驱动" [添加细分分解]
+幻灯片 4："该细分正在饱和" [添加市场份额]
+幻灯片 5："我们需要新细分" [添加机会区域]
 ```
 
-### Technique 2: Contrast and Compare
+### 技术 2：对比
 
 ```markdown
-Before/After:
+前后对比：
 ┌─────────────────┬─────────────────┐
-│ BEFORE │ AFTER │
-│ │ │
-│ Process: 5 days│ Process: 1 day │
-│ Errors: 15% │ Errors: 2% │
-│ Cost: $50/unit │ Cost: $20/unit │
+│ 之前            │ 之后            │
+│                 │                 │
+│ 流程：5 天      │ 流程：1 天      │
+│ 错误率：15%     │ 错误率：2%      │
+│ 成本：50 美元/单位 │ 成本：20 美元/单位 │
 └─────────────────┴─────────────────┘
 
-This/That (emphasize difference):
+此 vs 彼（强调差异）：
 ┌─────────────────────────────────────┐
-│ CUSTOMER A vs B │
-│ ┌──────────┐ ┌──────────┐ │
-│ │ ████████ │ │ ██ │ │
-│ │ $45,000 │ │ $8,000 │ │
-│ │ LTV │ │ LTV │ │
-│ └──────────┘ └──────────┘ │
-│ Onboarded No onboarding │
+│ 客户 A vs B                         │
+│ ┌──────────┐ ┌──────────┐          │
+│ │ ████████ │ │ ██       │          │
+│ │ $45,000  │ │ $8,000   │          │
+│ │ LTV      │ │ LTV      │          │
+│ └──────────┘ └──────────┘          │
+│ 已入职      未入职                   │
 └─────────────────────────────────────┘
 ```
 
-### Technique 3: Annotation and Highlight
+### 技术 3：标注和高亮
 
 ```python
 import matplotlib.pyplot as plt
@@ -234,12 +234,12 @@ import pandas as pd
 
 fig, ax = plt.subplots(figsize=(12, 6))
 
-# Plot the main data
+# 绘制主数据
 ax.plot(dates, revenue, linewidth=2, color='#2E86AB')
 
-# Add annotation for key events
+# 为关键事件添加标注
 ax.annotate(
-    'Product Launch\n+32% spike',
+    '产品发布\n+32% 峰值',
     xy=(launch_date, launch_revenue),
     xytext=(launch_date, launch_revenue * 1.2),
     fontsize=10,
@@ -247,201 +247,201 @@ ax.annotate(
     color='#E63946'
 )
 
-# Highlight a region
+# 高亮区域
 ax.axvspan(growth_start, growth_end, alpha=0.2, color='green',
-           label='Growth Period')
+           label='增长期')
 
-# Add threshold line
+# 添加阈值线
 ax.axhline(y=target, color='gray', linestyle='--',
-           label=f'Target: ${target:,.0f}')
+           label=f'目标: ${target:,.0f}')
 
-ax.set_title('Revenue Growth Story', fontsize=14, fontweight='bold')
+ax.set_title('收入增长故事', fontsize=14, fontweight='bold')
 ax.legend()
 ```
 
-## Presentation Templates
+## 演示模板
 
-### Template 1: Executive Summary Slide
+### 模板 1：高管摘要幻灯片
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  KEY INSIGHT                                                │
+│  关键洞察                                                    │
 │  ══════════════════════════════════════════════════════════│
 │                                                             │
-│  "Customers who complete onboarding in week 1              │
-│   have 3x higher lifetime value"                           │
+│  "在第一周完成入职的客户                                      │
+│   生命周期价值高 3 倍"                                       │
 │                                                             │
 ├──────────────────────┬──────────────────────────────────────┤
 │                      │                                      │
-│  THE DATA            │  THE IMPLICATION                     │
+│  数据                │  影响                                 │
 │                      │                                      │
-│  Week 1 completers:  │  ✓ Prioritize onboarding UX         │
-│  • LTV: $4,500       │  ✓ Add day-1 success milestones     │
-│  • Retention: 85%    │  ✓ Proactive week-1 outreach        │
+│  第一周完成者：       │  ✓ 优先优化入职体验                   │
+│  • LTV: $4,500       │  ✓ 添加第 1 天成功里程碑              │
+│  • 留存率: 85%       │  ✓ 主动第一周联系                     │
 │  • NPS: 72           │                                      │
-│                      │  Investment: $75K                    │
-│  Others:             │  Expected ROI: 8x                    │
+│                      │  投资: $75K                          │
+│  其他：              │  预期 ROI: 8x                        │
 │  • LTV: $1,500       │                                      │
-│  • Retention: 45%    │                                      │
+│  • 留存率: 45%       │                                      │
 │  • NPS: 34           │                                      │
 │                      │                                      │
 └──────────────────────┴──────────────────────────────────────┘
 ```
 
-### Template 2: Data Story Flow
+### 模板 2：数据故事流程
 
 ```
-Slide 1: THE HEADLINE
-"We can grow 40% faster by fixing onboarding"
+幻灯片 1：标题
+"通过修复入职流程，我们可以增长 40%"
 
-Slide 2: THE CONTEXT
-Current state metrics
-Industry benchmarks
-Gap analysis
+幻灯片 2：背景
+当前状态指标
+行业基准
+差距分析
 
-Slide 3: THE DISCOVERY
-What the data revealed
-Surprising finding
-Pattern identification
+幻灯片 3：发现
+数据揭示了什么
+令人惊讶的发现
+模式识别
 
-Slide 4: THE DEEP DIVE
-Root cause analysis
-Segment breakdowns
-Statistical significance
+幻灯片 4：深入分析
+根因分析
+细分分解
+统计显著性
 
-Slide 5: THE RECOMMENDATION
-Proposed actions
-Resource requirements
-Timeline
+幻灯片 5：建议
+拟议行动
+资源需求
+时间线
 
-Slide 6: THE IMPACT
-Expected outcomes
-ROI calculation
-Risk assessment
+幻灯片 6：影响
+预期结果
+ROI 计算
+风险评估
 
-Slide 7: THE ASK
-Specific request
-Decision needed
-Next steps
+幻灯片 7：请求
+具体请求
+需要决策
+下一步
 ```
 
-### Template 3: One-Page Dashboard Story
+### 模板 3：一页仪表板故事
 
 ```markdown
-# Monthly Business Review: January 2024
+# 月度业务回顾：2024 年 1 月
 
-## THE HEADLINE
+## 标题
 
-Revenue up 15% but CAC increasing faster than LTV
+收入增长 15%，但 CAC 增长快于 LTV
 
-## KEY METRICS AT A GLANCE
+## 关键指标一览
 
 ┌────────┬────────┬────────┬────────┐
-│ MRR │ NRR │ CAC │ LTV │
-│ $125K │ 108% │ $450 │ $2,200 │
-│ ▲15% │ ▲3% │ ▲22% │ ▲8% │
+│ MRR    │ NRR    │ CAC    │ LTV    │
+│ $125K  │ 108%   │ $450   │ $2,200 │
+│ ▲15%   │ ▲3%    │ ▲22%   │ ▲8%    │
 └────────┴────────┴────────┴────────┘
 
-## WHAT'S WORKING
+## 有效的方面
 
-✓ Enterprise segment growing 25% MoM
-✓ Referral program driving 30% of new logos
-✓ Support satisfaction at all-time high (94%)
+✓ 企业细分月增长 25%
+✓ 推荐计划带来 30% 新客户
+✓ 支持满意度创新高（94%）
 
-## WHAT NEEDS ATTENTION
+## 需要关注的方面
 
-✗ SMB acquisition cost up 40%
-✗ Trial conversion down 5 points
-✗ Time-to-value increased by 3 days
+✗ SMB 获客成本上升 40%
+✗ 试用转化率下降 5 个百分点
+✗ 价值实现时间增加 3 天
 
-## ROOT CAUSE
+## 根因
 
-[Mini chart showing SMB vs Enterprise CAC trend]
-SMB paid ads becoming less efficient.
-CPC up 35% while conversion flat.
+[展示 SMB vs 企业 CAC 趋势的迷你图]
+SMB 付费广告效率下降。
+CPC 上升 35%，而转化率持平。
 
-## RECOMMENDATION
+## 建议
 
-1. Shift $20K/mo from paid to content
-2. Launch SMB self-serve trial
-3. A/B test shorter onboarding
+1. 每月从付费转向内容 2 万美元
+2. 推出 SMB 自助试用
+3. A/B 测试更短的入职流程
 
-## NEXT MONTH'S FOCUS
+## 下月重点
 
-- Launch content marketing pilot
-- Complete self-serve MVP
-- Reduce time-to-value to < 7 days
+- 启动内容营销试点
+- 完成自助 MVP
+- 将价值实现时间缩短至 < 7 天
 ```
 
-## Writing Techniques
+## 写作技巧
 
-### Headlines That Work
+### 有效的标题
 
 ```markdown
-BAD: "Q4 Sales Analysis"
-GOOD: "Q4 Sales Beat Target by 23% - Here's Why"
+差："Q4 销售分析"
+好："Q4 销售超目标 23% - 原因如下"
 
-BAD: "Customer Churn Report"
-GOOD: "We're Losing $2.4M to Preventable Churn"
+差："客户流失报告"
+好："我们每年因可预防的流失损失 240 万美元"
 
-BAD: "Marketing Performance"
-GOOD: "Content Marketing Delivers 4x ROI vs. Paid"
+差："营销绩效"
+好："内容营销 ROI 是付费的 4 倍"
 
-Formula:
-[Specific Number] + [Business Impact] + [Actionable Context]
+公式：
+[具体数字] + [业务影响] + [可操作的背景]
 ```
 
-### Transition Phrases
+### 过渡短语
 
 ```markdown
-Building the narrative:
-• "This leads us to ask..."
-• "When we dig deeper..."
-• "The pattern becomes clear when..."
-• "Contrast this with..."
+构建叙事：
+• "这让我们思考..."
+• "当我们深入挖掘..."
+• "当...时模式变得清晰"
+• "与此对比..."
 
-Introducing insights:
-• "The data reveals..."
-• "What surprised us was..."
-• "The inflection point came when..."
-• "The key finding is..."
+引入洞察：
+• "数据揭示了..."
+• "令我们惊讶的是..."
+• "转折点出现在..."
+• "关键发现是..."
 
-Moving to action:
-• "This insight suggests..."
-• "Based on this analysis..."
-• "The implication is clear..."
-• "Our recommendation is..."
+转向行动：
+• "这个洞察表明..."
+• "基于此分析..."
+• "影响很明确..."
+• "我们的建议是..."
 ```
 
-### Handling Uncertainty
+### 处理不确定性
 
 ```markdown
-Acknowledge limitations:
-• "With 95% confidence, we can say..."
-• "The sample size of 500 shows..."
-• "While correlation is strong, causation requires..."
-• "This trend holds for [segment], though [caveat]..."
+承认局限性：
+• "以 95% 的置信度，我们可以说..."
+• "500 的样本量显示..."
+• "虽然相关性很强，但因果关系需要..."
+• "该趋势适用于 [细分]，尽管 [限制]..."
 
-Present ranges:
-• "Impact estimate: $400K-$600K"
-• "Confidence interval: 15-20% improvement"
-• "Best case: X, Conservative: Y"
+展示范围：
+• "影响估计：$400K-$600K"
+• "置信区间：15-20% 改善"
+• "最佳情况：X，保守：Y"
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该做
 
-- **Start with the "so what"** - Lead with insight
-- **Use the rule of three** - Three points, three comparisons
-- **Show, don't tell** - Let data speak
-- **Make it personal** - Connect to audience goals
-- **End with action** - Clear next steps
+- **从"所以呢"开始** - 以洞察为主导
+- **使用三的法则** - 三个要点，三个比较
+- **展示而非讲述** - 让数据说话
+- **使其个性化** - 与受众目标关联
+- **以行动结束** - 明确的下一步
 
-### Don'ts
+### 不应该做
 
-- **Don't data dump** - Curate ruthlessly
-- **Don't bury the insight** - Front-load key findings
-- **Don't use jargon** - Match audience vocabulary
-- **Don't show methodology first** - Context, then method
-- **Don't forget the narrative** - Numbers need meaning
+- **不要数据倾倒** - 严格筛选
+- **不要埋没洞察** - 前置关键发现
+- **不要使用行话** - 匹配受众词汇
+- **不要先展示方法** - 先背景，后方法
+- **不要忘记叙事** - 数字需要意义

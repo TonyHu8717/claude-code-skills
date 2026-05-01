@@ -1,257 +1,257 @@
 ---
 name: sciomc
-description: Orchestrate parallel scientist agents for comprehensive analysis with AUTO mode
-argument-hint: <research goal>
+description: 编排并行科学家代理进行综合分析，支持 AUTO 模式
+argument-hint: <研究目标>
 level: 4
 ---
 
-# Research Skill
+# 研究技能
 
-Orchestrate parallel scientist agents for comprehensive research workflows with optional AUTO mode for fully autonomous execution.
+编排并行科学家代理进行综合研究工作流，支持可选的 AUTO 模式实现完全自主执行。
 
-## Overview
+## 概述
 
-Research is a multi-stage workflow that decomposes complex research goals into parallel investigations:
+研究是一个多阶段工作流，将复杂的研究目标分解为并行调查：
 
-1. **Decomposition** - Break research goal into independent stages/hypotheses
-2. **Execution** - Run parallel scientist agents on each stage
-3. **Verification** - Cross-validate findings, check consistency
-4. **Synthesis** - Aggregate results into comprehensive report
+1. **分解** — 将研究目标拆分为独立的阶段/假设
+2. **执行** — 在每个阶段上运行并行科学家代理
+3. **验证** — 交叉验证发现，检查一致性
+4. **综合** — 将结果聚合为综合报告
 
-## Usage Examples
-
-```
-/oh-my-claudecode:sciomc <goal>                    # Standard research with user checkpoints
-/oh-my-claudecode:sciomc AUTO: <goal>              # Fully autonomous until complete
-/oh-my-claudecode:sciomc status                    # Check current research session status
-/oh-my-claudecode:sciomc resume                    # Resume interrupted research session
-/oh-my-claudecode:sciomc list                      # List all research sessions
-/oh-my-claudecode:sciomc report <session-id>       # Generate report for session
-```
-
-### Quick Examples
+## 使用示例
 
 ```
-/oh-my-claudecode:sciomc What are the performance characteristics of different sorting algorithms?
-/oh-my-claudecode:sciomc AUTO: Analyze authentication patterns in this codebase
-/oh-my-claudecode:sciomc How does the error handling work across the API layer?
+/oh-my-claudecode:sciomc <目标>                     # 标准研究，带用户检查点
+/oh-my-claudecode:sciomc AUTO: <目标>               # 完全自主运行直到完成
+/oh-my-claudecode:sciomc status                     # 检查当前研究会话状态
+/oh-my-claudecode:sciomc resume                     # 恢复中断的研究会话
+/oh-my-claudecode:sciomc list                       # 列出所有研究会话
+/oh-my-claudecode:sciomc report <session-id>        # 为会话生成报告
 ```
 
-## Research Protocol
+### 快速示例
 
-### Stage Decomposition Pattern
+```
+/oh-my-claudecode:sciomc 不同排序算法的性能特征是什么？
+/oh-my-claudecode:sciomc AUTO: 分析此代码库中的认证模式
+/oh-my-claudecode:sciomc API 层的错误处理是如何工作的？
+```
 
-When given a research goal, decompose into 3-7 independent stages:
+## 研究协议
+
+### 阶段分解模式
+
+收到研究目标后，分解为 3-7 个独立阶段：
 
 ```markdown
-## Research Decomposition
+## 研究分解
 
-**Goal:** <original research goal>
+**目标：** <原始研究目标>
 
-### Stage 1: <stage-name>
-- **Focus:** What this stage investigates
-- **Hypothesis:** Expected finding (if applicable)
-- **Scope:** Files/areas to examine
-- **Tier:** LOW | MEDIUM | HIGH
+### 阶段 1：<阶段名称>
+- **焦点：** 此阶段调查的内容
+- **假设：** 预期发现（如适用）
+- **范围：** 要检查的文件/区域
+- **层级：** LOW | MEDIUM | HIGH
 
-### Stage 2: <stage-name>
+### 阶段 2：<阶段名称>
 ...
 ```
 
-### Parallel Scientist Invocation
+### 并行科学家调用
 
-Fire independent stages in parallel via Task tool:
-
-```
-// Stage 1 - Simple data gathering
-Task(subagent_type="oh-my-claudecode:scientist", model="haiku", prompt="[RESEARCH_STAGE:1] Investigate...")
-
-// Stage 2 - Standard analysis
-Task(subagent_type="oh-my-claudecode:scientist", model="sonnet", prompt="[RESEARCH_STAGE:2] Analyze...")
-
-// Stage 3 - Complex reasoning
-Task(subagent_type="oh-my-claudecode:scientist", model="opus", prompt="[RESEARCH_STAGE:3] Deep analysis of...")
-```
-
-### Smart Model Routing
-
-**CRITICAL: Always pass `model` parameter explicitly!**
-
-| Task Complexity | Agent | Model | Use For |
-|-----------------|-------|-------|---------|
-| Data gathering | `scientist` (model=haiku) | haiku | File enumeration, pattern counting, simple lookups |
-| Standard analysis | `scientist` | sonnet | Code analysis, pattern detection, documentation review |
-| Complex reasoning | `scientist` | opus | Architecture analysis, cross-cutting concerns, hypothesis validation |
-
-### Routing Decision Guide
-
-| Research Task | Tier | Example Prompt |
-|---------------|------|----------------|
-| "Count occurrences of X" | LOW | "Count all usages of useState hook" |
-| "Find all files matching Y" | LOW | "List all test files in the project" |
-| "Analyze pattern Z" | MEDIUM | "Analyze error handling patterns in API routes" |
-| "Document how W works" | MEDIUM | "Document the authentication flow" |
-| "Explain why X happens" | HIGH | "Explain why race conditions occur in the cache layer" |
-| "Compare approaches A vs B" | HIGH | "Compare Redux vs Context for state management here" |
-
-### Verification Loop
-
-After parallel execution completes, verify findings:
+通过 Task 工具并行启动独立阶段：
 
 ```
-// Cross-validation stage
+// 阶段 1 - 简单数据收集
+Task(subagent_type="oh-my-claudecode:scientist", model="haiku", prompt="[RESEARCH_STAGE:1] 调查...")
+
+// 阶段 2 - 标准分析
+Task(subagent_type="oh-my-claudecode:scientist", model="sonnet", prompt="[RESEARCH_STAGE:2] 分析...")
+
+// 阶段 3 - 复杂推理
+Task(subagent_type="oh-my-claudecode:scientist", model="opus", prompt="[RESEARCH_STAGE:3] 深度分析...")
+```
+
+### 智能模型路由
+
+**关键：始终显式传递 `model` 参数！**
+
+| 任务复杂度 | 代理 | 模型 | 用途 |
+|------------|------|------|------|
+| 数据收集 | `scientist` (model=haiku) | haiku | 文件枚举、模式计数、简单查找 |
+| 标准分析 | `scientist` | sonnet | 代码分析、模式检测、文档审查 |
+| 复杂推理 | `scientist` | opus | 架构分析、跨领域关注点、假设验证 |
+
+### 路由决策指南
+
+| 研究任务 | 层级 | 示例提示 |
+|----------|------|----------|
+| "计算 X 出现次数" | LOW | "计算所有 useState 钩子的使用次数" |
+| "查找所有匹配 Y 的文件" | LOW | "列出项目中所有测试文件" |
+| "分析模式 Z" | MEDIUM | "分析 API 路由中的错误处理模式" |
+| "记录 W 如何工作" | MEDIUM | "记录认证流程" |
+| "解释为什么 X 发生" | HIGH | "解释为什么缓存层中出现竞态条件" |
+| "比较方法 A vs B" | HIGH | "比较 Redux vs Context 在此处的状态管理" |
+
+### 验证循环
+
+并行执行完成后，验证发现：
+
+```
+// 交叉验证阶段
 Task(subagent_type="oh-my-claudecode:scientist", model="sonnet", prompt="
 [RESEARCH_VERIFICATION]
-Cross-validate these findings for consistency:
+交叉验证这些发现的一致性：
 
-Stage 1 findings: <summary>
-Stage 2 findings: <summary>
-Stage 3 findings: <summary>
+阶段 1 发现：<摘要>
+阶段 2 发现：<摘要>
+阶段 3 发现：<摘要>
 
-Check for:
-1. Contradictions between stages
-2. Missing connections
-3. Gaps in coverage
-4. Evidence quality
+检查：
+1. 阶段间的矛盾
+2. 缺失的连接
+3. 覆盖范围的空白
+4. 证据质量
 
-Output: [VERIFIED] or [CONFLICTS:<list>]
+输出：[VERIFIED] 或 [CONFLICTS:<列表>]
 ")
 ```
 
-## AUTO Mode
+## AUTO 模式
 
-AUTO mode runs the complete research workflow autonomously with loop control.
+AUTO 模式自主运行完整的研究工作流，带循环控制。
 
-### Loop Control Protocol
+### 循环控制协议
 
 ```
 [RESEARCH + AUTO - ITERATION {{ITERATION}}/{{MAX}}]
 
-Your previous attempt did not output the completion promise. Continue working.
+您之前的尝试未输出完成承诺。请继续工作。
 
-Current state: {{STATE}}
-Completed stages: {{COMPLETED_STAGES}}
-Pending stages: {{PENDING_STAGES}}
+当前状态：{{STATE}}
+已完成阶段：{{COMPLETED_STAGES}}
+待处理阶段：{{PENDING_STAGES}}
 ```
 
-### Promise Tags
+### 承诺标签
 
-| Tag | Meaning | When to Use |
-|-----|---------|-------------|
-| `[PROMISE:RESEARCH_COMPLETE]` | Research finished successfully | All stages done, verified, report generated |
-| `[PROMISE:RESEARCH_BLOCKED]` | Cannot proceed | Missing data, access issues, circular dependency |
+| 标签 | 含义 | 使用时机 |
+|------|------|----------|
+| `[PROMISE:RESEARCH_COMPLETE]` | 研究成功完成 | 所有阶段完成、已验证、报告已生成 |
+| `[PROMISE:RESEARCH_BLOCKED]` | 无法继续 | 缺少数据、访问问题、循环依赖 |
 
-### AUTO Mode Rules
+### AUTO 模式规则
 
-1. **Max Iterations:** 10 (configurable)
-2. **Continue until:** Promise tag emitted OR max iterations
-3. **State tracking:** Persist after each stage completion
-4. **Cancellation:** `/oh-my-claudecode:cancel` or "stop", "cancel"
+1. **最大迭代次数：** 10（可配置）
+2. **继续直到：** 发出承诺标签或达到最大迭代次数
+3. **状态跟踪：** 每个阶段完成后持久化
+4. **取消：** `/oh-my-claudecode:cancel` 或 "stop"、"cancel"
 
-### AUTO Mode Example
+### AUTO 模式示例
 
 ```
-/oh-my-claudecode:sciomc AUTO: Comprehensive security analysis of the authentication system
+/oh-my-claudecode:sciomc AUTO: 认证系统的综合安全分析
 
-[Decomposition]
-- Stage 1 (LOW): Enumerate auth-related files
-- Stage 2 (MEDIUM): Analyze token handling
-- Stage 3 (MEDIUM): Review session management
-- Stage 4 (HIGH): Identify vulnerability patterns
-- Stage 5 (MEDIUM): Document security controls
+[分解]
+- 阶段 1 (LOW): 枚举认证相关文件
+- 阶段 2 (MEDIUM): 分析令牌处理
+- 阶段 3 (MEDIUM): 审查会话管理
+- 阶段 4 (HIGH): 识别漏洞模式
+- 阶段 5 (MEDIUM): 记录安全控制
 
-[Execution - Parallel]
-Firing stages 1-3 in parallel...
-Firing stages 4-5 after dependencies complete...
+[执行 - 并行]
+并行启动阶段 1-3...
+依赖完成后启动阶段 4-5...
 
-[Verification]
-Cross-validating findings...
+[验证]
+交叉验证发现...
 
-[Synthesis]
-Generating report...
+[综合]
+生成报告...
 
 [PROMISE:RESEARCH_COMPLETE]
 ```
 
-## Parallel Execution Patterns
+## 并行执行模式
 
-### Independent Dataset Analysis (Parallel)
+### 独立数据集分析（并行）
 
-When stages analyze different data sources:
-
-```
-// All fire simultaneously
-Task(subagent_type="oh-my-claudecode:scientist", model="haiku", prompt="[STAGE:1] Analyze src/api/...")
-Task(subagent_type="oh-my-claudecode:scientist", model="haiku", prompt="[STAGE:2] Analyze src/utils/...")
-Task(subagent_type="oh-my-claudecode:scientist", model="haiku", prompt="[STAGE:3] Analyze src/components/...")
-```
-
-### Hypothesis Battery (Parallel)
-
-When testing multiple hypotheses:
+当阶段分析不同数据源时：
 
 ```
-// Test hypotheses simultaneously
-Task(subagent_type="oh-my-claudecode:scientist", model="sonnet", prompt="[HYPOTHESIS:A] Test if caching improves...")
-Task(subagent_type="oh-my-claudecode:scientist", model="sonnet", prompt="[HYPOTHESIS:B] Test if batching reduces...")
-Task(subagent_type="oh-my-claudecode:scientist", model="sonnet", prompt="[HYPOTHESIS:C] Test if lazy loading helps...")
+// 全部同时启动
+Task(subagent_type="oh-my-claudecode:scientist", model="haiku", prompt="[STAGE:1] 分析 src/api/...")
+Task(subagent_type="oh-my-claudecode:scientist", model="haiku", prompt="[STAGE:2] 分析 src/utils/...")
+Task(subagent_type="oh-my-claudecode:scientist", model="haiku", prompt="[STAGE:3] 分析 src/components/...")
 ```
 
-### Cross-Validation (Sequential)
+### 假设测试组（并行）
 
-When verification depends on all findings:
+当测试多个假设时：
 
 ```
-// Wait for all parallel stages
-[stages complete]
+// 同时测试假设
+Task(subagent_type="oh-my-claudecode:scientist", model="sonnet", prompt="[HYPOTHESIS:A] 测试缓存是否改善...")
+Task(subagent_type="oh-my-claudecode:scientist", model="sonnet", prompt="[HYPOTHESIS:B] 测试批处理是否减少...")
+Task(subagent_type="oh-my-claudecode:scientist", model="sonnet", prompt="[HYPOTHESIS:C] 测试延迟加载是否有帮助...")
+```
 
-// Then sequential verification
+### 交叉验证（顺序）
+
+当验证依赖于所有发现时：
+
+```
+// 等待所有并行阶段
+[阶段完成]
+
+// 然后顺序验证
 Task(subagent_type="oh-my-claudecode:scientist", model="opus", prompt="
 [CROSS_VALIDATION]
-Validate consistency across all findings:
-- Finding 1: ...
-- Finding 2: ...
-- Finding 3: ...
+验证所有发现的一致性：
+- 发现 1: ...
+- 发现 2: ...
+- 发现 3: ...
 ")
 ```
 
-### Concurrency Limit
+### 并发限制
 
-**Maximum 20 concurrent scientist agents** to prevent resource exhaustion.
+**最多 20 个并发科学家代理**以防止资源耗尽。
 
-If more than 20 stages, batch them:
+如果超过 20 个阶段，分批处理：
 ```
-Batch 1: Stages 1-5 (parallel)
-[wait for completion]
-Batch 2: Stages 6-7 (parallel)
+批次 1: 阶段 1-5（并行）
+[等待完成]
+批次 2: 阶段 6-7（并行）
 ```
 
-## Session Management
+## 会话管理
 
-### Directory Structure
+### 目录结构
 
 ```
 .omc/research/{session-id}/
-  state.json              # Session state and progress
+  state.json              # 会话状态和进度
   stages/
-    stage-1.md            # Stage 1 findings
-    stage-2.md            # Stage 2 findings
+    stage-1.md            # 阶段 1 发现
+    stage-2.md            # 阶段 2 发现
     ...
   findings/
-    raw/                  # Raw findings from scientists
-    verified/             # Post-verification findings
+    raw/                  # 科学家的原始发现
+    verified/             # 验证后的发现
   figures/
-    figure-1.png          # Generated visualizations
+    figure-1.png          # 生成的可视化
     ...
-  report.md               # Final synthesized report
+  report.md               # 最终综合报告
 ```
 
-### State File Format
+### 状态文件格式
 
 ```json
 {
   "id": "research-20240115-abc123",
-  "goal": "Original research goal",
+  "goal": "原始研究目标",
   "status": "in_progress | complete | blocked | cancelled",
   "mode": "standard | auto",
   "iteration": 3,
@@ -259,78 +259,78 @@ Batch 2: Stages 6-7 (parallel)
   "stages": [
     {
       "id": 1,
-      "name": "Stage name",
+      "name": "阶段名称",
       "tier": "LOW | MEDIUM | HIGH",
       "status": "pending | running | complete | failed",
-      "startedAt": "ISO timestamp",
-      "completedAt": "ISO timestamp",
+      "startedAt": "ISO 时间戳",
+      "completedAt": "ISO 时间戳",
       "findingsFile": "stages/stage-1.md"
     }
   ],
   "verification": {
     "status": "pending | passed | failed",
     "conflicts": [],
-    "completedAt": "ISO timestamp"
+    "completedAt": "ISO 时间戳"
   },
-  "createdAt": "ISO timestamp",
-  "updatedAt": "ISO timestamp"
+  "createdAt": "ISO 时间戳",
+  "updatedAt": "ISO 时间戳"
 }
 ```
 
-### Session Commands
+### 会话命令
 
-| Command | Action |
-|---------|--------|
-| `/oh-my-claudecode:sciomc status` | Show current session progress |
-| `/oh-my-claudecode:sciomc resume` | Resume most recent interrupted session |
-| `/oh-my-claudecode:sciomc resume <session-id>` | Resume specific session |
-| `/oh-my-claudecode:sciomc list` | List all sessions with status |
-| `/oh-my-claudecode:sciomc report <session-id>` | Generate/regenerate report |
-| `/oh-my-claudecode:sciomc cancel` | Cancel current session (preserves state) |
+| 命令 | 操作 |
+|------|------|
+| `/oh-my-claudecode:sciomc status` | 显示当前会话进度 |
+| `/oh-my-claudecode:sciomc resume` | 恢复最近中断的会话 |
+| `/oh-my-claudecode:sciomc resume <session-id>` | 恢复特定会话 |
+| `/oh-my-claudecode:sciomc list` | 列出所有会话及状态 |
+| `/oh-my-claudecode:sciomc report <session-id>` | 生成/重新生成报告 |
+| `/oh-my-claudecode:sciomc cancel` | 取消当前会话（保留状态） |
 
-## Tag Extraction
+## 标签提取
 
-Scientists use structured tags for findings. Extract them with these patterns:
+科学家使用结构化标签记录发现。使用以下模式提取：
 
-### Finding Tags
+### 发现标签
 
 ```
-[FINDING:<id>] <title>
-<evidence and analysis>
+[FINDING:<id>] <标题>
+<证据和分析>
 [/FINDING]
 
 [EVIDENCE:<finding-id>]
-- File: <path>
-- Lines: <range>
-- Content: <relevant code/text>
+- File: <路径>
+- Lines: <范围>
+- Content: <相关代码/文本>
 [/EVIDENCE]
 
-[CONFIDENCE:<level>] # HIGH | MEDIUM | LOW
-<reasoning for confidence level>
+[CONFIDENCE:<级别>] # HIGH | MEDIUM | LOW
+<置信度推理>
 ```
 
-### Extraction Regex Patterns
+### 提取正则模式
 
 ```javascript
-// Finding extraction
+// 发现提取
 const findingPattern = /\[FINDING:(\w+)\]\s*(.*?)\n([\s\S]*?)\[\/FINDING\]/g;
 
-// Evidence extraction
+// 证据提取
 const evidencePattern = /\[EVIDENCE:(\w+)\]([\s\S]*?)\[\/EVIDENCE\]/g;
 
-// Confidence extraction
+// 置信度提取
 const confidencePattern = /\[CONFIDENCE:(HIGH|MEDIUM|LOW)\]\s*(.*)/g;
 
-// Stage completion
+// 阶段完成
 const stageCompletePattern = /\[STAGE_COMPLETE:(\d+)\]/;
 
-// Verification result
+// 验证结果
 const verificationPattern = /\[(VERIFIED|CONFLICTS):?(.*?)\]/;
 ```
 
-### Evidence Window
+### 证据窗口
 
-When extracting evidence, include context window:
+提取证据时，包含上下文窗口：
 
 ```
 [EVIDENCE:F1]
@@ -338,130 +338,130 @@ When extracting evidence, include context window:
 - Lines: 45-52 (context: 40-57)
 - Content:
   ```typescript
-  // Lines 45-52 with 5 lines context above/below
+  // 第 45-52 行，上下各 5 行上下文
   ```
 [/EVIDENCE]
 ```
 
-### Quality Validation
+### 质量验证
 
-Findings must meet quality threshold:
+发现必须满足质量阈值：
 
-| Quality Check | Requirement |
-|---------------|-------------|
-| Evidence present | At least 1 [EVIDENCE] per [FINDING] |
-| Confidence stated | Each finding has [CONFIDENCE] |
-| Source cited | File paths are absolute and valid |
-| Reproducible | Another agent could verify |
+| 质量检查 | 要求 |
+|----------|------|
+| 存在证据 | 每个 [FINDING] 至少有 1 个 [EVIDENCE] |
+| 声明置信度 | 每个发现有 [CONFIDENCE] |
+| 引用来源 | 文件路径是绝对路径且有效 |
+| 可重现 | 其他代理可以验证 |
 
-## Report Generation
+## 报告生成
 
-### Report Template
+### 报告模板
 
 ```markdown
-# Research Report: {{GOAL}}
+# 研究报告：{{GOAL}}
 
-**Session ID:** {{SESSION_ID}}
-**Date:** {{DATE}}
-**Status:** {{STATUS}}
+**会话 ID：** {{SESSION_ID}}
+**日期：** {{DATE}}
+**状态：** {{STATUS}}
 
-## Executive Summary
+## 执行摘要
 
-{{2-3 paragraph summary of key findings}}
+{{关键发现的 2-3 段摘要}}
 
-## Methodology
+## 方法论
 
-### Research Stages
+### 研究阶段
 
-| Stage | Focus | Tier | Status |
-|-------|-------|------|--------|
+| 阶段 | 焦点 | 层级 | 状态 |
+|------|------|------|------|
 {{STAGES_TABLE}}
 
-### Approach
+### 方法
 
-{{Description of decomposition rationale and execution strategy}}
+{{分解原理和执行策略的描述}}
 
-## Key Findings
+## 关键发现
 
-### Finding 1: {{TITLE}}
+### 发现 1：{{TITLE}}
 
-**Confidence:** {{HIGH|MEDIUM|LOW}}
+**置信度：** {{HIGH|MEDIUM|LOW}}
 
-{{Detailed finding with evidence}}
+{{包含证据的详细发现}}
 
-#### Evidence
+#### 证据
 
-{{Embedded evidence blocks}}
+{{嵌入的证据块}}
 
-### Finding 2: {{TITLE}}
+### 发现 2：{{TITLE}}
 ...
 
-## Visualizations
+## 可视化
 
 {{FIGURES}}
 
-## Cross-Validation Results
+## 交叉验证结果
 
-{{Verification summary, any conflicts resolved}}
+{{验证摘要，已解决的任何冲突}}
 
-## Limitations
+## 局限性
 
-- {{Limitation 1}}
-- {{Limitation 2}}
-- {{Areas not covered and why}}
+- {{局限性 1}}
+- {{局限性 2}}
+- {{未覆盖的领域及原因}}
 
-## Recommendations
+## 建议
 
-1. {{Actionable recommendation}}
-2. {{Actionable recommendation}}
+1. {{可操作的建议}}
+2. {{可操作的建议}}
 
-## Appendix
+## 附录
 
-### Raw Data
+### 原始数据
 
-{{Links to raw findings files}}
+{{指向原始发现文件的链接}}
 
-### Session State
+### 会话状态
 
-{{Link to state.json}}
+{{指向 state.json 的链接}}
 ```
 
-### Figure Embedding Protocol
+### 图表嵌入协议
 
-Scientists generate visualizations using this marker:
+科学家使用此标记生成可视化：
 
 ```
 [FIGURE:path/to/figure.png]
-Caption: Description of what the figure shows
-Alt: Accessibility description
+Caption: 图表显示内容的描述
+Alt: 无障碍描述
 [/FIGURE]
 ```
 
-Report generator embeds figures:
+报告生成器嵌入图表：
 
 ```markdown
-## Visualizations
+## 可视化
 
-![Figure 1: Description](figures/figure-1.png)
-*Caption: Description of what the figure shows*
+![图表 1: 描述](figures/figure-1.png)
+*说明：图表显示内容的描述*
 
-![Figure 2: Description](figures/figure-2.png)
-*Caption: Description of what the figure shows*
+![图表 2: 描述](figures/figure-2.png)
+*说明：图表显示内容的描述*
 ```
 
-### Figure Types
+### 图表类型
 
-| Type | Use For | Generated By |
-|------|---------|--------------|
-| Architecture diagram | System structure | scientist |
-| Flow chart | Process flows | scientist |
-| Dependency graph | Module relationships | scientist |
-| Timeline | Sequence of events | scientist |
-| Comparison table | A vs B analysis | scientist |
+| 类型 | 用途 | 生成者 |
+|------|------|--------|
+| 架构图 | 系统结构 | scientist |
+| 流程图 | 流程 | scientist |
+| 依赖图 | 模块关系 | scientist |
+| 时间线 | 事件序列 | scientist |
+| 比较表 | A vs B 分析 | scientist |
 
-## Configuration
+## 配置
 
-Optional settings in `.claude/settings.json`:
+`.claude/settings.json` 中的可选设置：
 
 ```json
 {
@@ -478,34 +478,34 @@ Optional settings in `.claude/settings.json`:
 }
 ```
 
-## Cancellation
+## 取消
 
 ```
 /oh-my-claudecode:cancel
 ```
 
-Or say: "stop research", "cancel research", "abort"
+或说："停止研究"、"取消研究"、"中止"
 
-Progress is preserved in `.omc/research/{session-id}/` for resume.
+进度保存在 `.omc/research/{session-id}/` 中，可供恢复。
 
-## Troubleshooting
+## 故障排除
 
-**Stuck in verification loop?**
-- Check for conflicting findings between stages
-- Review state.json for specific conflicts
-- May need to re-run specific stages with different approach
+**卡在验证循环中？**
+- 检查阶段间的冲突发现
+- 查看 state.json 了解具体冲突
+- 可能需要用不同方法重新运行特定阶段
 
-**Scientists returning low-quality findings?**
-- Check tier assignment - complex analysis needs HIGH tier
-- Ensure prompts include clear scope and expected output format
-- Review if research goal is too broad
+**科学家返回低质量发现？**
+- 检查层级分配 — 复杂分析需要 HIGH 层级
+- 确保提示包含清晰的范围和预期输出格式
+- 审查研究目标是否过于宽泛
 
-**AUTO mode exhausted iterations?**
-- Review state to see where it's stuck
-- Check if goal is achievable with available data
-- Consider breaking into smaller research sessions
+**AUTO 模式耗尽迭代次数？**
+- 查看状态了解卡在哪里
+- 检查目标是否可用数据实现
+- 考虑拆分为更小的研究会话
 
-**Missing figures in report?**
-- Verify figures/ directory exists
-- Check [FIGURE:] tags in findings
-- Ensure paths are relative to session directory
+**报告中缺少图表？**
+- 验证 figures/ 目录存在
+- 检查发现中的 [FIGURE:] 标签
+- 确保路径相对于会话目录

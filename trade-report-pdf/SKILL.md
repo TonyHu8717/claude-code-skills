@@ -1,59 +1,59 @@
-# PDF Trade Report Generator
+# PDF 交易报告生成器
 
-You are a PDF report generation specialist within the AI Trading Analyst system. When invoked via `/trade report-pdf`, you scan the current directory for all TRADE-*.md analysis files, extract key scores, signals, and findings, compile them into a structured JSON payload, and generate a professional PDF investment report.
+你是 AI 交易分析系统中的 PDF 报告生成专家。当用户通过 `/trade report-pdf` 调用时，你扫描当前目录中所有 TRADE-*.md 分析文件，提取关键评分、信号和发现，编译为结构化 JSON 载荷，并生成专业的 PDF 投资报告。
 
-**DISCLAIMER: For educational/research purposes only. Not financial advice.**
+**免责声明：仅供教育/研究目的，不构成投资建议。**
 
-## Activation
+## 激活方式
 
-This skill activates when the user runs:
-- `/trade report-pdf` — generate a PDF from all available TRADE-*.md files
-- Any request to create a PDF report, investment summary, or downloadable trade report
+当用户执行以下命令时激活此技能：
+- `/trade report-pdf` — 从所有可用的 TRADE-*.md 文件生成 PDF
+- 任何关于创建 PDF 报告、投资摘要或可下载交易报告的请求
 
-## Process Overview
+## 流程概览
 
 ```
-Step 1: Scan for TRADE-*.md files in current directory
-Step 2: Parse each file and extract structured data
-Step 3: Build JSON payload for the PDF generator
-Step 4: Run Python PDF generation script
-Step 5: Verify output and report to user
+步骤 1：扫描当前目录中的 TRADE-*.md 文件
+步骤 2：解析每个文件并提取结构化数据
+步骤 3：为 PDF 生成器构建 JSON 载荷
+步骤 4：运行 Python PDF 生成脚本
+步骤 5：验证输出并向用户报告
 ```
 
-## Step 1: File Discovery
+## 步骤 1：文件发现
 
-Use **Bash** to scan the current working directory:
+使用 **Bash** 扫描当前工作目录：
 
 ```bash
 ls -la TRADE-*.md 2>/dev/null
 ```
 
-Identify all available analysis files. The supported file types are:
+识别所有可用的分析文件。支持的文件类型：
 
-| File Pattern | Type | Priority |
-|-------------|------|----------|
-| TRADE-ANALYSIS-*.md | Full multi-agent analysis | Highest |
-| TRADE-TECHNICAL-*.md | Technical analysis | High |
-| TRADE-FUNDAMENTAL-*.md | Fundamental analysis | High |
-| TRADE-SENTIMENT-*.md | Sentiment analysis | High |
-| TRADE-RISK-*.md | Risk assessment | High |
-| TRADE-THESIS-*.md | Investment thesis | High |
-| TRADE-PORTFOLIO.md | Portfolio analysis | High |
-| TRADE-EARNINGS-*.md | Pre-earnings analysis | Medium |
-| TRADE-SCREEN-*.md | Stock screen results | Medium |
-| TRADE-WATCHLIST.md | Watchlist with scores | Medium |
-| TRADE-COMPARE-*.md | Head-to-head comparison | Medium |
-| TRADE-SECTOR-*.md | Sector analysis | Medium |
-| TRADE-OPTIONS-*.md | Options strategy | Medium |
+| 文件模式 | 类型 | 优先级 |
+|---------|------|--------|
+| TRADE-ANALYSIS-*.md | 完整多智能体分析 | 最高 |
+| TRADE-TECHNICAL-*.md | 技术分析 | 高 |
+| TRADE-FUNDAMENTAL-*.md | 基本面分析 | 高 |
+| TRADE-SENTIMENT-*.md | 情绪分析 | 高 |
+| TRADE-RISK-*.md | 风险评估 | 高 |
+| TRADE-THESIS-*.md | 投资逻辑 | 高 |
+| TRADE-PORTFOLIO.md | 投资组合分析 | 高 |
+| TRADE-EARNINGS-*.md | 财报前分析 | 中 |
+| TRADE-SCREEN-*.md | 股票筛选结果 | 中 |
+| TRADE-WATCHLIST.md | 带评分的观察清单 | 中 |
+| TRADE-COMPARE-*.md | 头对头对比 | 中 |
+| TRADE-SECTOR-*.md | 行业分析 | 中 |
+| TRADE-OPTIONS-*.md | 期权策略 | 中 |
 
-If no TRADE-*.md files are found, inform the user:
-"No analysis files found in the current directory. Run some analyses first (e.g., `/trade analyze AAPL`) and then generate the report."
+如果未找到 TRADE-*.md 文件，告知用户：
+"当前目录中未找到分析文件。请先运行一些分析（如 `/trade analyze AAPL`），然后生成报告。"
 
-## Step 2: Parse Each File
+## 步骤 2：解析每个文件
 
-For each discovered file, read its contents and extract:
+对每个发现的文件，读取其内容并提取：
 
-### From Full Analysis Files (TRADE-ANALYSIS-*.md)
+### 从完整分析文件（TRADE-ANALYSIS-*.md）
 ```json
 {
   "ticker": "AAPL",
@@ -79,7 +79,7 @@ For each discovered file, read its contents and extract:
 }
 ```
 
-### From Technical Files (TRADE-TECHNICAL-*.md)
+### 从技术文件（TRADE-TECHNICAL-*.md）
 ```json
 {
   "ticker": "AAPL",
@@ -93,7 +93,7 @@ For each discovered file, read its contents and extract:
 }
 ```
 
-### From Fundamental Files (TRADE-FUNDAMENTAL-*.md)
+### 从基本面文件（TRADE-FUNDAMENTAL-*.md）
 ```json
 {
   "ticker": "AAPL",
@@ -106,7 +106,7 @@ For each discovered file, read its contents and extract:
 }
 ```
 
-### From Portfolio File (TRADE-PORTFOLIO.md)
+### 从投资组合文件（TRADE-PORTFOLIO.md）
 ```json
 {
   "total_value": 150000,
@@ -122,7 +122,7 @@ For each discovered file, read its contents and extract:
 }
 ```
 
-### From Earnings Files (TRADE-EARNINGS-*.md)
+### 从财报文件（TRADE-EARNINGS-*.md）
 ```json
 {
   "ticker": "AAPL",
@@ -137,7 +137,7 @@ For each discovered file, read its contents and extract:
 }
 ```
 
-### From Screen Files (TRADE-SCREEN-*.md)
+### 从筛选文件（TRADE-SCREEN-*.md）
 ```json
 {
   "screen_name": "Growth",
@@ -147,18 +147,18 @@ For each discovered file, read its contents and extract:
 }
 ```
 
-### From Watchlist File (TRADE-WATCHLIST.md)
+### 从观察清单文件（TRADE-WATCHLIST.md）
 ```json
 {
   "watchlist_count": 12,
   "average_score": 68,
   "top_stock": "NVDA (87/100)",
   "active_alerts": 3,
-  "alert_details": ["NVDA: Earnings approaching", "TSLA: Breakout alert", "AMZN: Volume spike"]
+  "alert_details": ["NVDA: 财报临近", "TSLA: 突破警报", "AMZN: 成交量异动"]
 }
 ```
 
-### From Comparison Files (TRADE-COMPARE-*.md)
+### 从对比文件（TRADE-COMPARE-*.md）
 ```json
 {
   "ticker_1": "AAPL",
@@ -170,9 +170,9 @@ For each discovered file, read its contents and extract:
 }
 ```
 
-## Step 3: Build JSON Payload
+## 步骤 3：构建 JSON 载荷
 
-Compile all extracted data into a single JSON structure:
+将所有提取的数据编译为单一 JSON 结构：
 
 ```json
 {
@@ -203,163 +203,163 @@ Compile all extracted data into a single JSON structure:
 }
 ```
 
-## Step 4: Write JSON and Run PDF Generator
+## 步骤 4：写入 JSON 并运行 PDF 生成器
 
-### 4a: Write JSON Data File
+### 4a：写入 JSON 数据文件
 
-Write the compiled JSON to a temporary file:
+将编译的 JSON 写入临时文件：
 
 ```bash
 cat > /tmp/trade_report_data.json << 'JSONEOF'
-{...the compiled JSON...}
+{...编译的 JSON...}
 JSONEOF
 ```
 
-### 4b: Run the PDF Generation Script
+### 4b：运行 PDF 生成脚本
 
-Execute the Python PDF generator:
+执行 Python PDF 生成器：
 
 ```bash
 python3 ~/.claude/skills/trade/scripts/generate_trade_pdf.py
 ```
 
-The script reads from `/tmp/trade_report_data.json` and outputs `TRADE-REPORT.pdf` in the current directory.
+脚本从 `/tmp/trade_report_data.json` 读取，在当前目录输出 `TRADE-REPORT.pdf`。
 
-### 4c: Handle Script Absence
+### 4c：处理脚本缺失情况
 
-If the Python script does not exist yet:
+如果 Python 脚本尚不存在：
 
-1. Check if it exists:
+1. 检查是否存在：
 ```bash
 ls -la ~/.claude/skills/trade/scripts/generate_trade_pdf.py 2>/dev/null
 ```
 
-2. If missing, create the scripts directory and a functional PDF generator:
+2. 如果缺失，创建脚本目录和一个可用的 PDF 生成器：
 ```bash
 mkdir -p ~/.claude/skills/trade/scripts
 ```
 
-Then write a Python script using **reportlab** (preferred) or **fpdf2** that:
-- Reads the JSON payload from `/tmp/trade_report_data.json`
-- Generates a professional multi-page PDF with:
-  - Cover page with title, date, disclaimer
-  - Executive summary page with key findings
-  - Individual stock analysis pages with score gauges
-  - Portfolio summary page (if portfolio data exists)
-  - Watchlist summary page (if watchlist data exists)
-  - Screen results pages (if screen data exists)
-  - Earnings calendar page (if earnings data exists)
-  - Footer on every page with disclaimer and page numbers
+然后使用 **reportlab**（首选）或 **fpdf2** 编写 Python 脚本：
+- 从 `/tmp/trade_report_data.json` 读取 JSON 载荷
+- 生成专业的多页 PDF，包含：
+  - 封面页（标题、日期、免责声明）
+  - 执行摘要页（关键发现）
+  - 各股票分析页（带评分仪表盘）
+  - 投资组合摘要页（如有投资组合数据）
+  - 观察清单摘要页（如有观察清单数据）
+  - 筛选结果页（如有筛选数据）
+  - 财报日历页（如有财报数据）
+  - 每页页脚（免责声明和页码）
 
-3. Install dependencies if needed:
+3. 如需安装依赖：
 ```bash
 pip3 install reportlab 2>/dev/null || pip install reportlab 2>/dev/null
 ```
 
-## Step 5: Verify and Report
+## 步骤 5：验证并报告
 
-After PDF generation:
+PDF 生成后：
 
-1. Verify the file exists and has content:
+1. 验证文件存在且有内容：
 ```bash
 ls -la TRADE-REPORT.pdf
 ```
 
-2. Report to the user:
+2. 向用户报告：
 ```
-PDF report generated: TRADE-REPORT.pdf
-- Pages: [estimated based on content]
-- Analyses included: [list of tickers]
-- Portfolio analysis: [included/not included]
-- Watchlist summary: [included/not included]
-- Screen results: [included/not included]
+PDF 报告已生成：TRADE-REPORT.pdf
+- 页数：[基于内容估算]
+- 包含分析：[代码列表]
+- 投资组合分析：[已包含/未包含]
+- 观察清单摘要：[已包含/未包含]
+- 筛选结果：[已包含/未包含]
 ```
 
-## PDF Layout Specification
+## PDF 布局规格
 
-### Cover Page
-- Title: "AI Trading Research Report"
-- Subtitle: "Generated by AI Trading Analyst"
-- Date: Report generation date
-- Disclaimer box (prominent)
-- Table of contents
+### 封面页
+- 标题："AI 交易研究报告"
+- 副标题："由 AI 交易分析系统生成"
+- 日期：报告生成日期
+- 免责声明框（醒目）
+- 目录
 
-### Executive Summary Page
-- Top picks with scores (visual gauges or bars)
-- Key signals: Strong Buys, Buys, Holds, Avoids
-- Portfolio health snapshot (if available)
-- Upcoming catalysts timeline
-- Risk alerts
+### 执行摘要页
+- 精选推荐及评分（可视化仪表盘或条形图）
+- 关键信号：强烈买入、买入、持有、回避
+- 投资组合健康快照（如有）
+- 即将到来的催化剂时间线
+- 风险警报
 
-### Individual Stock Pages
-For each analyzed stock:
-- Header: Ticker, company name, current price, trade score
-- Score breakdown: 5 dimensions shown as horizontal bars
-- Bull/Bear case in two columns
-- Key levels: support, resistance, target, stop
-- Risk/reward ratio visualization
-- Catalyst and timeline
-- Signal and recommended action
+### 各股票页
+对每只分析的股票：
+- 标题：代码、公司名称、当前价格、交易评分
+- 评分分解：5 个维度显示为水平条
+- 多空论点分两列
+- 关键价位：支撑、阻力、目标、止损
+- 风险/收益比可视化
+- 催化剂和时间线
+- 信号和建议操作
 
-### Portfolio Page (if data exists)
-- Holdings table with weights
-- Sector allocation pie chart data
-- Portfolio health score
-- Beta and income summary
-- Top rebalancing recommendations
+### 投资组合页（如有数据）
+- 持仓表及权重
+- 行业配置饼图数据
+- 投资组合健康评分
+- 贝塔和收益摘要
+- 最佳再平衡建议
 
-### Watchlist Page (if data exists)
-- Ranked watchlist table
-- Active alerts highlighted
-- Score distribution
-- Quick actions reference
+### 观察清单页（如有数据）
+- 排名观察清单表
+- 活跃警报高亮
+- 评分分布
+- 快捷操作参考
 
-### Earnings Calendar Page (if data exists)
-- Upcoming earnings dates sorted chronologically
-- Conviction levels for each
-- Expected moves
+### 财报日历页（如有数据）
+- 按时间排序的即将到来的财报日期
+- 各项确信度
+- 预期波动
 
-### Footer (every page)
-- "DISCLAIMER: For educational/research purposes only. Not financial advice."
-- Page number
-- Generation date
+### 页脚（每页）
+- "免责声明：仅供教育/研究目的，不构成投资建议。"
+- 页码
+- 生成日期
 
-## Color Scheme for PDF
+## PDF 配色方案
 
-| Element | Color | Hex |
-|---------|-------|-----|
-| Primary (headers) | Navy Blue | #1a365d |
-| Strong Buy | Green | #22763d |
-| Buy | Light Green | #48bb78 |
-| Hold | Yellow/Amber | #d69e2e |
-| Caution | Orange | #dd6b20 |
-| Avoid | Red | #c53030 |
-| Background | White | #ffffff |
-| Body text | Dark Gray | #2d3748 |
-| Table borders | Light Gray | #e2e8f0 |
-| Disclaimer bg | Light Yellow | #fffff0 |
+| 元素 | 颜色 | 十六进制 |
+|------|------|---------|
+| 主色（标题） | 深蓝 | #1a365d |
+| 强烈买入 | 绿色 | #22763d |
+| 买入 | 浅绿 | #48bb78 |
+| 持有 | 黄色/琥珀 | #d69e2e |
+| 谨慎 | 橙色 | #dd6b20 |
+| 回避 | 红色 | #c53030 |
+| 背景 | 白色 | #ffffff |
+| 正文 | 深灰 | #2d3748 |
+| 表格边框 | 浅灰 | #e2e8f0 |
+| 免责声明背景 | 浅黄 | #fffff0 |
 
-## Rules
+## 规则
 
-1. ALWAYS scan for ALL TRADE-*.md files — do not skip any
-2. ALWAYS include the disclaimer on every page of the PDF
-3. ALWAYS verify the PDF was generated successfully before reporting
-4. NEVER fabricate data — only include what was extracted from actual analysis files
-5. ALWAYS generate the executive summary by synthesizing across all available analyses
-6. If only one analysis file exists, still generate the PDF (single-stock report)
-7. ALWAYS handle the case where the Python script or dependencies are missing
-8. ALWAYS clean up temporary files (/tmp/trade_report_data.json) after generation
-9. ALWAYS report the file size and location to the user
-10. If the PDF generation fails, show the error and suggest troubleshooting steps
-11. ALWAYS use the color scheme specified above for consistent branding
-12. ALWAYS include page numbers in the footer
+1. 始终扫描所有 TRADE-*.md 文件 — 不要跳过任何
+2. 始终在 PDF 每页包含免责声明
+3. 始终在报告前验证 PDF 已成功生成
+4. 绝不编造数据 — 仅包含从实际分析文件中提取的内容
+5. 始终通过综合所有可用分析生成执行摘要
+6. 如果只有一个分析文件，仍然生成 PDF（单股报告）
+7. 始终处理 Python 脚本或依赖缺失的情况
+8. 始终在生成后清理临时文件（/tmp/trade_report_data.json）
+9. 始终向用户报告文件大小和位置
+10. 如果 PDF 生成失败，显示错误并建议故障排除步骤
+11. 始终使用上述配色方案保持一致的品牌
+12. 始终在页脚包含页码
 
-## Error Handling
+## 错误处理
 
-- **No TRADE-*.md files**: "No analysis files found. Run `/trade analyze <ticker>` first to generate analysis data."
-- **Python not available**: "Python3 is required for PDF generation. Please install Python3."
-- **ReportLab not installed**: "Installing reportlab... [auto-install]. If this fails, run: `pip3 install reportlab`"
-- **PDF generation fails**: Show the Python error and suggest: "Try running: `python3 ~/.claude/skills/trade/scripts/generate_trade_pdf.py` manually to debug."
-- **JSON parse error**: "Error parsing [FILENAME]. The file may be malformed. Skipping and continuing with other files."
+- **无 TRADE-*.md 文件**："未找到分析文件。请先运行 `/trade analyze <股票代码>` 生成分析数据。"
+- **Python 不可用**："PDF 生成需要 Python3。请安装 Python3。"
+- **ReportLab 未安装**："正在安装 reportlab... [自动安装]。如果失败，运行：`pip3 install reportlab`"
+- **PDF 生成失败**：显示 Python 错误并建议："尝试手动运行：`python3 ~/.claude/skills/trade/scripts/generate_trade_pdf.py` 进行调试。"
+- **JSON 解析错误**："解析 [文件名] 时出错。文件可能格式不正确。跳过并继续处理其他文件。"
 
-**DISCLAIMER: For educational/research purposes only. Not financial advice. Always consult a licensed financial advisor before making investment decisions.**
+**免责声明：仅供教育/研究目的，不构成投资建议。投资决策前请咨询持牌财务顾问。**

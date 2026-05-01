@@ -1,39 +1,39 @@
 ---
 name: bats-testing-patterns
-description: Master Bash Automated Testing System (Bats) for comprehensive shell script testing. Use when writing tests for shell scripts, CI/CD pipelines, or requiring test-driven development of shell utilities.
+description: 掌握 Bash 自动化测试系统（Bats），用于全面的 Shell 脚本测试。用于编写 Shell 脚本的测试、CI/CD 流水线或需要测试驱动开发 Shell 工具时使用。
 ---
 
-# Bats Testing Patterns
+# Bats 测试模式
 
-Comprehensive guidance for writing comprehensive unit tests for shell scripts using Bats (Bash Automated Testing System), including test patterns, fixtures, and best practices for production-grade shell testing.
+全面指导如何使用 Bats（Bash 自动化测试系统）为 Shell 脚本编写全面的单元测试，包括测试模式、测试夹具和生产级 Shell 测试的最佳实践。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Writing unit tests for shell scripts
-- Implementing test-driven development (TDD) for scripts
-- Setting up automated testing in CI/CD pipelines
-- Testing edge cases and error conditions
-- Validating behavior across different shell environments
-- Building maintainable test suites for scripts
-- Creating fixtures for complex test scenarios
-- Testing multiple shell dialects (bash, sh, dash)
+- 为 Shell 脚本编写单元测试
+- 为脚本实现测试驱动开发（TDD）
+- 在 CI/CD 流水线中设置自动化测试
+- 测试边界情况和错误条件
+- 验证不同 Shell 环境中的行为
+- 为脚本构建可维护的测试套件
+- 为复杂测试场景创建夹具
+- 测试多种 Shell 方言（bash、sh、dash）
 
-## Bats Fundamentals
+## Bats 基础
 
-### What is Bats?
+### 什么是 Bats？
 
-Bats (Bash Automated Testing System) is a TAP (Test Anything Protocol) compliant testing framework for shell scripts that provides:
+Bats（Bash 自动化测试系统）是一个符合 TAP（Test Anything Protocol）的 Shell 脚本测试框架，提供：
 
-- Simple, natural test syntax
-- TAP output format compatible with CI systems
-- Fixtures and setup/teardown support
-- Assertion helpers
-- Parallel test execution
+- 简单、自然的测试语法
+- 与 CI 系统兼容的 TAP 输出格式
+- 夹具和 setup/teardown 支持
+- 断言辅助函数
+- 并行测试执行
 
-### Installation
+### 安装
 
 ```bash
-# macOS with Homebrew
+# macOS 使用 Homebrew
 brew install bats-core
 
 # Ubuntu/Debian
@@ -41,14 +41,14 @@ git clone https://github.com/bats-core/bats-core.git
 cd bats-core
 ./install.sh /usr/local
 
-# From npm (Node.js)
+# 通过 npm（Node.js）
 npm install --global bats
 
-# Verify installation
+# 验证安装
 bats --version
 ```
 
-### File Structure
+### 文件结构
 
 ```
 project/
@@ -66,48 +66,48 @@ project/
 └── README.md
 ```
 
-## Basic Test Structure
+## 基本测试结构
 
-### Simple Test File
+### 简单测试文件
 
 ```bash
 #!/usr/bin/env bats
 
-# Load test helper if present
+# 加载测试辅助文件（如果存在）
 load test_helper
 
-# Setup runs before each test
+# setup 在每个测试前运行
 setup() {
     export TMPDIR=$(mktemp -d)
 }
 
-# Teardown runs after each test
+# teardown 在每个测试后运行
 teardown() {
     rm -rf "$TMPDIR"
 }
 
-# Test: simple assertion
+# 测试：简单断言
 @test "Function returns 0 on success" {
     run my_function "input"
     [ "$status" -eq 0 ]
 }
 
-# Test: output verification
+# 测试：输出验证
 @test "Function outputs correct result" {
     run my_function "test"
     [ "$output" = "expected output" ]
 }
 
-# Test: error handling
+# 测试：错误处理
 @test "Function returns 1 on missing argument" {
     run my_function
     [ "$status" -eq 1 ]
 }
 ```
 
-## Assertion Patterns
+## 断言模式
 
-### Exit Code Assertions
+### 退出码断言
 
 ```bash
 #!/usr/bin/env bats
@@ -134,7 +134,7 @@ teardown() {
 }
 ```
 
-### Output Assertions
+### 输出断言
 
 ```bash
 #!/usr/bin/env bats
@@ -169,7 +169,7 @@ line3" ]
 }
 ```
 
-### File Assertions
+### 文件断言
 
 ```bash
 #!/usr/bin/env bats
@@ -202,24 +202,24 @@ line3" ]
 }
 ```
 
-## Setup and Teardown Patterns
+## Setup 和 Teardown 模式
 
-### Basic Setup and Teardown
+### 基本 Setup 和 Teardown
 
 ```bash
 #!/usr/bin/env bats
 
 setup() {
-    # Create test directory
+    # 创建测试目录
     TEST_DIR=$(mktemp -d)
     export TEST_DIR
 
-    # Source script under test
+    # 引入被测脚本
     source "${BATS_TEST_DIRNAME}/../bin/script.sh"
 }
 
 teardown() {
-    # Clean up temporary directory
+    # 清理临时目录
     rm -rf "$TEST_DIR"
 }
 
@@ -229,21 +229,21 @@ teardown() {
 }
 ```
 
-### Setup with Resources
+### 带资源的 Setup
 
 ```bash
 #!/usr/bin/env bats
 
 setup() {
-    # Create directory structure
+    # 创建目录结构
     mkdir -p "$TMPDIR/data/input"
     mkdir -p "$TMPDIR/data/output"
 
-    # Create test fixtures
+    # 创建测试夹具
     echo "line1" > "$TMPDIR/data/input/file1.txt"
     echo "line2" > "$TMPDIR/data/input/file2.txt"
 
-    # Initialize environment
+    # 初始化环境
     export DATA_DIR="$TMPDIR/data"
     export INPUT_DIR="$DATA_DIR/input"
     export OUTPUT_DIR="$DATA_DIR/output"
@@ -260,21 +260,21 @@ teardown() {
 }
 ```
 
-### Global Setup/Teardown
+### 全局 Setup/Teardown
 
 ```bash
 #!/usr/bin/env bats
 
-# Load shared setup from test_helper.sh
+# 从 test_helper.sh 加载共享设置
 load test_helper
 
-# setup_file runs once before all tests
+# setup_file 在所有测试前运行一次
 setup_file() {
     export SHARED_RESOURCE=$(mktemp -d)
     echo "Expensive setup" > "$SHARED_RESOURCE/data.txt"
 }
 
-# teardown_file runs once after all tests
+# teardown_file 在所有测试后运行一次
 teardown_file() {
     rm -rf "$SHARED_RESOURCE"
 }
@@ -288,14 +288,14 @@ teardown_file() {
 }
 ```
 
-## Mocking and Stubbing Patterns
+## 模拟和打桩模式
 
-### Function Mocking
+### 函数模拟
 
 ```bash
 #!/usr/bin/env bats
 
-# Mock external command
+# 模拟外部命令
 my_external_tool() {
     echo "mocked output"
     return 0
@@ -308,17 +308,17 @@ my_external_tool() {
 }
 ```
 
-### Command Stubbing
+### 命令打桩
 
 ```bash
 #!/usr/bin/env bats
 
 setup() {
-    # Create stub directory
+    # 创建桩目录
     STUBS_DIR="$TMPDIR/stubs"
     mkdir -p "$STUBS_DIR"
 
-    # Add to PATH
+    # 添加到 PATH
     export PATH="$STUBS_DIR:$PATH"
 }
 
@@ -342,7 +342,7 @@ EOF
 }
 ```
 
-### Variable Stubbing
+### 变量打桩
 
 ```bash
 #!/usr/bin/env bats
@@ -362,14 +362,14 @@ EOF
 }
 ```
 
-## Fixture Management
+## 夹具管理
 
-### Using Fixture Files
+### 使用夹具文件
 
 ```bash
 #!/usr/bin/env bats
 
-# Fixture directory: tests/fixtures/
+# 夹具目录：tests/fixtures/
 
 setup() {
     FIXTURES_DIR="${BATS_TEST_DIRNAME}/fixtures"
@@ -382,18 +382,18 @@ teardown() {
 }
 
 @test "Process fixture file" {
-    # Copy fixture to work directory
+    # 将夹具复制到工作目录
     cp "$FIXTURES_DIR/input.txt" "$WORK_DIR/input.txt"
 
-    # Run function
+    # 运行函数
     run my_process_function "$WORK_DIR/input.txt"
 
-    # Compare output
+    # 比较输出
     diff "$WORK_DIR/output.txt" "$FIXTURES_DIR/expected_output.txt"
 }
 ```
 
-### Dynamic Fixture Generation
+### 动态夹具生成
 
 ```bash
 #!/usr/bin/env bats
@@ -415,9 +415,9 @@ generate_fixture() {
 }
 ```
 
-## Advanced Patterns
+## 高级模式
 
-### Testing Error Conditions
+### 测试错误条件
 
 ```bash
 #!/usr/bin/env bats
@@ -438,7 +438,7 @@ generate_fixture() {
     chmod 000 "$TMPDIR/readonly.txt"
     run my_function "$TMPDIR/readonly.txt"
     [ "$status" -ne 0 ]
-    chmod 644 "$TMPDIR/readonly.txt"  # Cleanup
+    chmod 644 "$TMPDIR/readonly.txt"  # 清理
 }
 
 @test "Function provides helpful error message" {
@@ -448,13 +448,13 @@ generate_fixture() {
 }
 ```
 
-### Testing with Dependencies
+### 带依赖的测试
 
 ```bash
 #!/usr/bin/env bats
 
 setup() {
-    # Check for required tools
+    # 检查必需工具
     if ! command -v jq &>/dev/null; then
         skip "jq is not installed"
     fi
@@ -469,7 +469,7 @@ setup() {
 }
 ```
 
-### Testing Shell Compatibility
+### 测试 Shell 兼容性
 
 ```bash
 #!/usr/bin/env bats
@@ -491,7 +491,7 @@ setup() {
 }
 ```
 
-### Parallel Execution
+### 并行执行
 
 ```bash
 #!/usr/bin/env bats
@@ -514,17 +514,17 @@ setup() {
 }
 ```
 
-## Test Helper Pattern
+## 测试辅助模式
 
 ### test_helper.sh
 
 ```bash
 #!/usr/bin/env bash
 
-# Source script under test
+# 引入被测脚本
 export SCRIPT_DIR="${BATS_TEST_DIRNAME%/*}/bin"
 
-# Common test utilities
+# 通用测试工具
 assert_file_exists() {
     if [ ! -f "$1" ]; then
         echo "Expected file to exist: $1"
@@ -550,7 +550,7 @@ assert_file_equals() {
     fi
 }
 
-# Create temporary test directory
+# 创建临时测试目录
 setup_test_dir() {
     export TEST_DIR=$(mktemp -d)
 }
@@ -560,9 +560,9 @@ cleanup_test_dir() {
 }
 ```
 
-## Integration with CI/CD
+## 与 CI/CD 集成
 
-### GitHub Actions Workflow
+### GitHub Actions 工作流
 
 ```yaml
 name: Tests
@@ -589,7 +589,7 @@ jobs:
           bats tests/*.bats --tap | tee test_output.tap
 ```
 
-### Makefile Integration
+### Makefile 集成
 
 ```makefile
 .PHONY: test test-verbose test-tap
@@ -607,18 +607,18 @@ test-parallel:
 	bats tests/*.bats --parallel 4
 
 coverage: test
-	# Optional: Generate coverage reports
+	# 可选：生成覆盖率报告
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Test one thing per test** - Single responsibility principle
-2. **Use descriptive test names** - Clearly states what is being tested
-3. **Clean up after tests** - Always remove temporary files in teardown
-4. **Test both success and failure paths** - Don't just test happy path
-5. **Mock external dependencies** - Isolate unit under test
-6. **Use fixtures for complex data** - Makes tests more readable
-7. **Run tests in CI/CD** - Catch regressions early
-8. **Test across shell dialects** - Ensure portability
-9. **Keep tests fast** - Run in parallel when possible
-10. **Document complex test setup** - Explain unusual patterns
+1. **每个测试只测试一件事** - 单一职责原则
+2. **使用描述性测试名称** - 清楚说明正在测试什么
+3. **测试后清理** - 始终在 teardown 中删除临时文件
+4. **同时测试成功和失败路径** - 不要只测试正常路径
+5. **模拟外部依赖** - 隔离被测单元
+6. **对复杂数据使用夹具** - 使测试更具可读性
+7. **在 CI/CD 中运行测试** - 尽早发现回归
+8. **跨 Shell 方言测试** - 确保可移植性
+9. **保持测试快速** - 尽可能并行运行
+10. **记录复杂的测试设置** - 解释不寻常的模式

@@ -1,56 +1,56 @@
 ---
 name: python-packaging
-description: Create distributable Python packages with proper project structure, setup.py/pyproject.toml, and publishing to PyPI. Use when packaging Python libraries, creating CLI tools, or distributing Python code.
+description: 创建可分发的 Python 包，包含适当的项目结构、setup.py/pyproject.toml，以及发布到 PyPI。在打包 Python 库、创建 CLI 工具或分发 Python 代码时使用。
 ---
 
-# Python Packaging
+# Python 打包
 
-Comprehensive guide to creating, structuring, and distributing Python packages using modern packaging tools, pyproject.toml, and publishing to PyPI.
+使用现代打包工具、pyproject.toml 和发布到 PyPI 来创建、结构化和分发 Python 包的综合指南。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Creating Python libraries for distribution
-- Building command-line tools with entry points
-- Publishing packages to PyPI or private repositories
-- Setting up Python project structure
-- Creating installable packages with dependencies
-- Building wheels and source distributions
-- Versioning and releasing Python packages
-- Creating namespace packages
-- Implementing package metadata and classifiers
+- 创建用于分发的 Python 库
+- 构建带入口点的命令行工具
+- 将包发布到 PyPI 或私有仓库
+- 设置 Python 项目结构
+- 创建带依赖的可安装包
+- 构建 wheel 和源代码分发
+- 版本管理和发布 Python 包
+- 创建命名空间包
+- 实现包元数据和分类器
 
-## Core Concepts
+## 核心概念
 
-### 1. Package Structure
+### 1. 包结构
 
-- **Source layout**: `src/package_name/` (recommended)
-- **Flat layout**: `package_name/` (simpler but less flexible)
-- **Package metadata**: pyproject.toml, setup.py, or setup.cfg
-- **Distribution formats**: wheel (.whl) and source distribution (.tar.gz)
+- **源代码布局**：`src/package_name/`（推荐）
+- **扁平布局**：`package_name/`（更简单但灵活性较低）
+- **包元数据**：pyproject.toml、setup.py 或 setup.cfg
+- **分发格式**：wheel (.whl) 和源代码分发 (.tar.gz)
 
-### 2. Modern Packaging Standards
+### 2. 现代打包标准
 
-- **PEP 517/518**: Build system requirements
-- **PEP 621**: Metadata in pyproject.toml
-- **PEP 660**: Editable installs
-- **pyproject.toml**: Single source of configuration
+- **PEP 517/518**：构建系统要求
+- **PEP 621**：pyproject.toml 中的元数据
+- **PEP 660**：可编辑安装
+- **pyproject.toml**：配置的单一来源
 
-### 3. Build Backends
+### 3. 构建后端
 
-- **setuptools**: Traditional, widely used
-- **hatchling**: Modern, opinionated
-- **flit**: Lightweight, for pure Python
-- **poetry**: Dependency management + packaging
+- **setuptools**：传统，广泛使用
+- **hatchling**：现代，有主见
+- **flit**：轻量级，适用于纯 Python
+- **poetry**：依赖管理 + 打包
 
-### 4. Distribution
+### 4. 分发
 
-- **PyPI**: Python Package Index (public)
-- **TestPyPI**: Testing before production
-- **Private repositories**: JFrog, AWS CodeArtifact, etc.
+- **PyPI**：Python 包索引（公开）
+- **TestPyPI**：生产前测试
+- **私有仓库**：JFrog、AWS CodeArtifact 等
 
-## Quick Start
+## 快速开始
 
-### Minimal Package Structure
+### 最小包结构
 
 ```
 my-package/
@@ -65,7 +65,7 @@ my-package/
     └── test_module.py
 ```
 
-### Minimal pyproject.toml
+### 最小 pyproject.toml
 
 ```toml
 [build-system]
@@ -90,9 +90,9 @@ dev = [
 ]
 ```
 
-## Package Structure Patterns
+## 包结构模式
 
-### Pattern 1: Source Layout (Recommended)
+### 模式 1：源代码布局（推荐）
 
 ```
 my-package/
@@ -114,20 +114,20 @@ my-package/
     └── index.md
 ```
 
-**Advantages:**
+**优势：**
 
-- Prevents accidentally importing from source
-- Cleaner test imports
-- Better isolation
+- 防止意外从源代码导入
+- 更清晰的测试导入
+- 更好的隔离性
 
-**pyproject.toml for source layout:**
+**源代码布局的 pyproject.toml：**
 
 ```toml
 [tool.setuptools.packages.find]
 where = ["src"]
 ```
 
-### Pattern 2: Flat Layout
+### 模式 2：扁平布局
 
 ```
 my-package/
@@ -140,12 +140,12 @@ my-package/
     └── test_module.py
 ```
 
-**Simpler but:**
+**更简单但：**
 
-- Can import package without installing
-- Less professional for libraries
+- 可以不安装就导入包
+- 对库来说不太专业
 
-### Pattern 3: Multi-Package Project
+### 模式 3：多包项目
 
 ```
 project/
@@ -160,9 +160,9 @@ project/
 └── tests/
 ```
 
-## Complete pyproject.toml Examples
+## 完整的 pyproject.toml 示例
 
-### Pattern 4: Full-Featured pyproject.toml
+### 模式 4：全功能 pyproject.toml
 
 ```toml
 [build-system]
@@ -284,7 +284,7 @@ exclude_lines = [
 ]
 ```
 
-### Pattern 5: Dynamic Versioning
+### 模式 5：动态版本管理
 
 ```toml
 [build-system]
@@ -304,7 +304,7 @@ version = {attr = "my_package.__version__"}
 write_to = "src/my_package/_version.py"
 ```
 
-**In **init**.py:**
+**在 **init**.py 中：**
 
 ```python
 # src/my_package/__init__.py
@@ -315,9 +315,9 @@ from importlib.metadata import version
 __version__ = version("my-package")
 ```
 
-## Command-Line Interface (CLI) Patterns
+## 命令行接口（CLI）模式
 
-### Pattern 6: CLI with Click
+### 模式 6：使用 Click 的 CLI
 
 ```python
 # src/my_package/cli.py
@@ -351,14 +351,14 @@ if __name__ == "__main__":
     main()
 ```
 
-**Register in pyproject.toml:**
+**在 pyproject.toml 中注册：**
 
 ```toml
 [project.scripts]
 my-tool = "my_package.cli:main"
 ```
 
-**Usage:**
+**用法：**
 
 ```bash
 pip install -e .
@@ -367,7 +367,7 @@ my-tool greet Alice --greeting="Hi"
 my-tool repeat --count=3
 ```
 
-### Pattern 7: CLI with argparse
+### 模式 7：使用 argparse 的 CLI
 
 ```python
 # src/my_package/cli.py
@@ -414,9 +414,9 @@ if __name__ == "__main__":
     main()
 ```
 
-## Building and Publishing
+## 构建和发布
 
-### Pattern 8: Build Package Locally
+### 模式 8：本地构建包
 
 ```bash
 # Install build tools
@@ -434,7 +434,7 @@ python -m build
 twine check dist/*
 ```
 
-### Pattern 9: Publishing to PyPI
+### 模式 9：发布到 PyPI
 
 ```bash
 # Install publishing tools
@@ -450,7 +450,7 @@ pip install --index-url https://test.pypi.org/simple/ my-package
 twine upload dist/*
 ```
 
-**Using API tokens (recommended):**
+**使用 API 令牌（推荐）：**
 
 ```bash
 # Create ~/.pypirc
@@ -468,7 +468,7 @@ username = __token__
 password = pypi-...your-test-token...
 ```
 
-### Pattern 10: Automated Publishing with GitHub Actions
+### 模式 10：使用 GitHub Actions 自动发布
 
 ```yaml
 # .github/workflows/publish.yml
@@ -507,4 +507,4 @@ jobs:
         run: twine upload dist/*
 ```
 
-For advanced patterns including data files, namespace packages, C extensions, version management, testing installation, documentation templates, and distribution workflows, see [references/advanced-patterns.md](references/advanced-patterns.md)
+有关高级模式，包括数据文件、命名空间包、C 扩展、版本管理、测试安装、文档模板和分发工作流，请参阅 [references/advanced-patterns.md](references/advanced-patterns.md)

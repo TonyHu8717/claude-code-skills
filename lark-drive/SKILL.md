@@ -224,19 +224,19 @@ Shortcut 是对常用操作的高级封装（`lark-cli drive +<verb> [flags]`）
 
 | Shortcut | 说明 |
 |----------|------|
-| [`+search`](references/lark-drive-search.md) | Search Lark docs, Wiki, and spreadsheet files with flat filter flags (preferred over `docs +search`). Natural-language-friendly: `--edited-since`, `--mine`, `--doc-types`, etc. |
-| [`+upload`](references/lark-drive-upload.md) | Upload a local file to a Drive folder or wiki node |
-| [`+create-folder`](references/lark-drive-create-folder.md) | Create a Drive folder, optionally under a parent folder, with bot auto-grant support |
-| [`+download`](references/lark-drive-download.md) | Download a file from Drive to local |
-| [`+create-shortcut`](references/lark-drive-create-shortcut.md) | Create a shortcut to an existing Drive file in another folder |
-| [`+add-comment`](references/lark-drive-add-comment.md) | Add a comment to doc/docx/sheet/slides, also supports wiki URL resolving to doc/docx/sheet/slides |
-| [`+export`](references/lark-drive-export.md) | Export a doc/docx/sheet/bitable to a local file with limited polling |
-| [`+export-download`](references/lark-drive-export-download.md) | Download an exported file by file_token |
-| [`+import`](references/lark-drive-import.md) | Import a local file to Drive as a cloud document (docx, sheet, bitable) |
-| [`+move`](references/lark-drive-move.md) | Move a file or folder to another location in Drive |
-| [`+delete`](references/lark-drive-delete.md) | Delete a Drive file or folder with limited polling for folder deletes |
-| [`+task_result`](references/lark-drive-task-result.md) | Poll async task result for import, export, move, or delete operations |
-| [`+apply-permission`](references/lark-drive-apply-permission.md) | Apply to the document owner for view/edit access (user-only; 5/day per document) |
+| [`+search`](references/lark-drive-search.md) | 使用扁平过滤 flag 搜索飞书文档、Wiki 和电子表格文件（优于 `docs +search`）。自然语言友好：`--edited-since`、`--mine`、`--doc-types` 等。 |
+| [`+upload`](references/lark-drive-upload.md) | 将本地文件上传到云空间文件夹或 wiki 节点 |
+| [`+create-folder`](references/lark-drive-create-folder.md) | 创建云空间文件夹，可选在父文件夹下创建，支持 bot 自动授权 |
+| [`+download`](references/lark-drive-download.md) | 从云空间下载文件到本地 |
+| [`+create-shortcut`](references/lark-drive-create-shortcut.md) | 在另一个文件夹中创建指向现有云空间文件的快捷方式 |
+| [`+add-comment`](references/lark-drive-add-comment.md) | 为 doc/docx/sheet/slides 添加评论，也支持 wiki URL 解析为 doc/docx/sheet/slides |
+| [`+export`](references/lark-drive-export.md) | 将 doc/docx/sheet/bitable 导出为本地文件（有限轮询） |
+| [`+export-download`](references/lark-drive-export-download.md) | 通过 file_token 下载已导出的文件 |
+| [`+import`](references/lark-drive-import.md) | 将本地文件导入为飞书在线云文档（docx、sheet、bitable） |
+| [`+move`](references/lark-drive-move.md) | 将文件或文件夹移动到云空间中的另一个位置 |
+| [`+delete`](references/lark-drive-delete.md) | 删除云空间文件或文件夹（文件夹删除有有限轮询） |
+| [`+task_result`](references/lark-drive-task-result.md) | 轮询导入、导出、移动或删除操作的异步任务结果 |
+| [`+apply-permission`](references/lark-drive-apply-permission.md) | 向文档所有者申请查看/编辑权限（仅用户身份；每个文档每天 5 次） |
 
 ## API Resources
 

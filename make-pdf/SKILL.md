@@ -3,12 +3,13 @@ name: make-pdf
 preamble-tier: 1
 version: 1.0.0
 description: |
-  Turn any markdown file into a publication-quality PDF. Proper 1in margins,
-  intelligent page breaks, page numbers, cover pages, running headers, curly
-  quotes and em dashes, clickable TOC, diagonal DRAFT watermark. Not a draft
-  artifact — a finished artifact. Use when asked to "make a PDF", "export to
-  PDF", "turn this markdown into a PDF", or "generate a document". (gstack)
-  Voice triggers (speech-to-text aliases): "make this a pdf", "make it a pdf", "export to pdf", "turn this into a pdf", "turn this markdown into a pdf", "generate a pdf", "make a pdf from", "pdf this markdown".
+  将任何 markdown 文件转换为出版级 PDF。标准 1 英寸页边距、智能分页、页码、
+  封面页、页眉页脚、弯引号和长破折号、可点击目录、对角线 DRAFT 水印。
+  不是草稿产物——而是成品。当用户要求"制作 PDF"、"导出为 PDF"、
+  "将此 markdown 转为 PDF"或"生成文档"时使用。(gstack)
+  语音触发（语音转文字别名）："make this a pdf", "make it a pdf",
+  "export to pdf", "turn this into a pdf", "turn this markdown into a pdf",
+  "generate a pdf", "make a pdf from", "pdf this markdown".
 triggers:
   - markdown to pdf
   - generate pdf
@@ -19,10 +20,10 @@ allowed-tools:
   - Read
   - AskUserQuestion
 ---
-<!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
-<!-- Regenerate: bun run gen:skill-docs -->
+<!-- AUTO-GENERATED from SKILL.md.tmpl — 请勿直接编辑 -->
+<!-- 重新生成：bun run gen:skill-docs -->
 
-## Preamble (run first)
+## 前置代码（首先运行）
 
 ```bash
 _UPD=$(~/.claude/skills/gstack/bin/gstack-update-check 2>/dev/null || .claude/skills/gstack/bin/gstack-update-check 2>/dev/null || true)
@@ -72,7 +73,7 @@ eval "$(~/.claude/skills/gstack/bin/gstack-slug 2>/dev/null)" 2>/dev/null || tru
 _LEARN_FILE="${GSTACK_HOME:-$HOME/.gstack}/projects/${SLUG:-unknown}/learnings.jsonl"
 if [ -f "$_LEARN_FILE" ]; then
   _LEARN_COUNT=$(wc -l < "$_LEARN_FILE" 2>/dev/null | tr -d ' ')
-  echo "LEARNINGS: $_LEARN_COUNT entries loaded"
+  echo "LEARNINGS: $_LEARN_COUNT 条已加载"
   if [ "$_LEARN_COUNT" -gt 5 ] 2>/dev/null; then
     ~/.claude/skills/gstack/bin/gstack-learnings-search --limit 3 2>/dev/null || true
   fi
@@ -102,114 +103,114 @@ echo "CHECKPOINT_PUSH: $_CHECKPOINT_PUSH"
 [ -n "$OPENCLAW_SESSION" ] && echo "SPAWNED_SESSION: true" || true
 ```
 
-## Plan Mode Safe Operations
+## 计划模式安全操作
 
-In plan mode, allowed because they inform the plan: `$B`, `$D`, `codex exec`/`codex review`, writes to `~/.gstack/`, writes to the plan file, and `open` for generated artifacts.
+在计划模式下，以下操作被允许，因为它们用于辅助计划制定：`$B`、`$D`、`codex exec`/`codex review`、写入 `~/.gstack/`、写入计划文件、以及 `open` 生成的产物。
 
-## Skill Invocation During Plan Mode
+## 计划模式期间的技能调用
 
-If the user invokes a skill in plan mode, the skill takes precedence over generic plan mode behavior. **Treat the skill file as executable instructions, not reference.** Follow it step by step starting from Step 0; the first AskUserQuestion is the workflow entering plan mode, not a violation of it. AskUserQuestion satisfies plan mode's end-of-turn requirement. At a STOP point, stop immediately. Do not continue the workflow or call ExitPlanMode there. Commands marked "PLAN MODE EXCEPTION — ALWAYS RUN" execute. Call ExitPlanMode only after the skill workflow completes, or if the user tells you to cancel the skill or leave plan mode.
+如果用户在计划模式下调用技能，技能优先于通用计划模式行为。**将技能文件视为可执行指令，而非参考文档。**从步骤 0 开始逐步执行；第一个 AskUserQuestion 是工作流进入计划模式的标志，而非违反计划模式。AskUserQuestion 满足计划模式的回合结束要求。在 STOP 点，立即停止。不要继续工作流或在此处调用 ExitPlanMode。标记为"PLAN MODE EXCEPTION — ALWAYS RUN"的命令会执行。仅在技能工作流完成后，或用户要求取消技能/离开计划模式时调用 ExitPlanMode。
 
-If `PROACTIVE` is `"false"`, do not auto-invoke or proactively suggest skills. If a skill seems useful, ask: "I think /skillname might help here — want me to run it?"
+如果 `PROACTIVE` 为 `"false"`，不要自动调用或主动建议技能。如果技能可能有用，请询问："我觉得 /skillname 可能有帮助——要我运行它吗？"
 
-If `SKILL_PREFIX` is `"true"`, suggest/invoke `/gstack-*` names. Disk paths stay `~/.claude/skills/gstack/[skill-name]/SKILL.md`.
+如果 `SKILL_PREFIX` 为 `"true"`，建议/调用 `/gstack-*` 名称。磁盘路径保持 `~/.claude/skills/gstack/[skill-name]/SKILL.md`。
 
-If output shows `UPGRADE_AVAILABLE <old> <new>`: read `~/.claude/skills/gstack/gstack-upgrade/SKILL.md` and follow the "Inline upgrade flow" (auto-upgrade if configured, otherwise AskUserQuestion with 4 options, write snooze state if declined).
+如果输出显示 `UPGRADE_AVAILABLE <old> <new>`：读取 `~/.claude/skills/gstack/gstack-upgrade/SKILL.md` 并按照"内联升级流程"执行（如果已配置则自动升级，否则通过 AskUserQuestion 提供 4 个选项，如果拒绝则写入延迟状态）。
 
-If output shows `JUST_UPGRADED <from> <to>`: print "Running gstack v{to} (just updated!)". If `SPAWNED_SESSION` is true, skip feature discovery.
+如果输出显示 `JUST_UPGRADED <from> <to>`：打印 "Running gstack v{to} (just updated!)"。如果 `SPAWNED_SESSION` 为 true，跳过功能发现。
 
-Feature discovery, max one prompt per session:
-- Missing `~/.claude/skills/gstack/.feature-prompted-continuous-checkpoint`: AskUserQuestion for Continuous checkpoint auto-commits. If accepted, run `~/.claude/skills/gstack/bin/gstack-config set checkpoint_mode continuous`. Always touch marker.
-- Missing `~/.claude/skills/gstack/.feature-prompted-model-overlay`: inform "Model overlays are active. MODEL_OVERLAY shows the patch." Always touch marker.
+功能发现，每个会话最多提示一次：
+- 缺少 `~/.claude/skills/gstack/.feature-prompted-continuous-checkpoint`：通过 AskUserQuestion 询问连续检查点自动提交。如果接受，运行 `~/.claude/skills/gstack/bin/gstack-config set checkpoint_mode continuous`。始终 touch 标记文件。
+- 缺少 `~/.claude/skills/gstack/.feature-prompted-model-overlay`：告知"模型覆盖已激活。MODEL_OVERLAY 显示补丁。"始终 touch 标记文件。
 
-After upgrade prompts, continue workflow.
+升级提示后，继续工作流。
 
-If `WRITING_STYLE_PENDING` is `yes`: ask once about writing style:
+如果 `WRITING_STYLE_PENDING` 为 `yes`：询问一次写作风格：
 
-> v1 prompts are simpler: first-use jargon glosses, outcome-framed questions, shorter prose. Keep default or restore terse?
+> v1 提示更简洁：首次使用术语解释、结果导向的问题、更简短的文本。保持默认还是恢复简洁模式？
 
-Options:
-- A) Keep the new default (recommended — good writing helps everyone)
-- B) Restore V0 prose — set `explain_level: terse`
+选项：
+- A) 保持新默认（推荐——好的写作对每个人都有帮助）
+- B) 恢复 V0 文本——设置 `explain_level: terse`
 
-If A: leave `explain_level` unset (defaults to `default`).
-If B: run `~/.claude/skills/gstack/bin/gstack-config set explain_level terse`.
+如果选择 A：不设置 `explain_level`（默认为 `default`）。
+如果选择 B：运行 `~/.claude/skills/gstack/bin/gstack-config set explain_level terse`。
 
-Always run (regardless of choice):
+无论选择如何，始终运行：
 ```bash
 rm -f ~/.gstack/.writing-style-prompt-pending
 touch ~/.gstack/.writing-style-prompted
 ```
 
-Skip if `WRITING_STYLE_PENDING` is `no`.
+如果 `WRITING_STYLE_PENDING` 为 `no`，跳过。
 
-If `LAKE_INTRO` is `no`: say "gstack follows the **Boil the Lake** principle — do the complete thing when AI makes marginal cost near-zero. Read more: https://garryslist.org/posts/boil-the-ocean" Offer to open:
+如果 `LAKE_INTRO` 为 `no`：说明 "gstack 遵循**煮沸湖泊**原则——当 AI 使边际成本接近零时，做完整的事。了解更多：https://garryslist.org/posts/boil-the-ocean" 提供打开链接：
 
 ```bash
 open https://garryslist.org/posts/boil-the-ocean
 touch ~/.gstack/.completeness-intro-seen
 ```
 
-Only run `open` if yes. Always run `touch`.
+仅在用户确认时运行 `open`。始终运行 `touch`。
 
-If `TEL_PROMPTED` is `no` AND `LAKE_INTRO` is `yes`: ask telemetry once via AskUserQuestion:
+如果 `TEL_PROMPTED` 为 `no` 且 `LAKE_INTRO` 为 `yes`：通过 AskUserQuestion 询问一次遥测：
 
-> Help gstack get better. Share usage data only: skill, duration, crashes, stable device ID. No code, file paths, or repo names.
+> 帮助 gstack 变得更好。仅共享使用数据：技能、持续时间、崩溃、稳定设备 ID。不包含代码、文件路径或仓库名称。
 
-Options:
-- A) Help gstack get better! (recommended)
-- B) No thanks
+选项：
+- A) 帮助 gstack 变得更好！（推荐）
+- B) 不了，谢谢
 
-If A: run `~/.claude/skills/gstack/bin/gstack-config set telemetry community`
+如果选择 A：运行 `~/.claude/skills/gstack/bin/gstack-config set telemetry community`
 
-If B: ask follow-up:
+如果选择 B：追问：
 
-> Anonymous mode sends only aggregate usage, no unique ID.
+> 匿名模式仅发送聚合使用量，不含唯一 ID。
 
-Options:
-- A) Sure, anonymous is fine
-- B) No thanks, fully off
+选项：
+- A) 可以，匿名没问题
+- B) 不了，完全关闭
 
-If B→A: run `~/.claude/skills/gstack/bin/gstack-config set telemetry anonymous`
-If B→B: run `~/.claude/skills/gstack/bin/gstack-config set telemetry off`
+如果 B→A：运行 `~/.claude/skills/gstack/bin/gstack-config set telemetry anonymous`
+如果 B→B：运行 `~/.claude/skills/gstack/bin/gstack-config set telemetry off`
 
-Always run:
+始终运行：
 ```bash
 touch ~/.gstack/.telemetry-prompted
 ```
 
-Skip if `TEL_PROMPTED` is `yes`.
+如果 `TEL_PROMPTED` 为 `yes`，跳过。
 
-If `PROACTIVE_PROMPTED` is `no` AND `TEL_PROMPTED` is `yes`: ask once:
+如果 `PROACTIVE_PROMPTED` 为 `no` 且 `TEL_PROMPTED` 为 `yes`：询问一次：
 
-> Let gstack proactively suggest skills, like /qa for "does this work?" or /investigate for bugs?
+> 让 gstack 主动建议技能，比如对"这能用吗？"使用 /qa，或对 bug 使用 /investigate？
 
-Options:
-- A) Keep it on (recommended)
-- B) Turn it off — I'll type /commands myself
+选项：
+- A) 保持开启（推荐）
+- B) 关闭——我会自己输入 /命令
 
-If A: run `~/.claude/skills/gstack/bin/gstack-config set proactive true`
-If B: run `~/.claude/skills/gstack/bin/gstack-config set proactive false`
+如果选择 A：运行 `~/.claude/skills/gstack/bin/gstack-config set proactive true`
+如果选择 B：运行 `~/.claude/skills/gstack/bin/gstack-config set proactive false`
 
-Always run:
+始终运行：
 ```bash
 touch ~/.gstack/.proactive-prompted
 ```
 
-Skip if `PROACTIVE_PROMPTED` is `yes`.
+如果 `PROACTIVE_PROMPTED` 为 `yes`，跳过。
 
-If `HAS_ROUTING` is `no` AND `ROUTING_DECLINED` is `false` AND `PROACTIVE_PROMPTED` is `yes`:
-Check if a CLAUDE.md file exists in the project root. If it does not exist, create it.
+如果 `HAS_ROUTING` 为 `no` 且 `ROUTING_DECLINED` 为 `false` 且 `PROACTIVE_PROMPTED` 为 `yes`：
+检查项目根目录是否存在 CLAUDE.md 文件。如果不存在，创建它。
 
-Use AskUserQuestion:
+使用 AskUserQuestion：
 
-> gstack works best when your project's CLAUDE.md includes skill routing rules.
+> 当你的项目 CLAUDE.md 包含技能路由规则时，gstack 效果最佳。
 
-Options:
-- A) Add routing rules to CLAUDE.md (recommended)
-- B) No thanks, I'll invoke skills manually
+选项：
+- A) 将路由规则添加到 CLAUDE.md（推荐）
+- B) 不了，我会手动调用技能
 
-If A: Append this section to the end of CLAUDE.md:
+如果选择 A：将以下部分追加到 CLAUDE.md 末尾：
 
 ```markdown
 
@@ -232,46 +233,45 @@ Key routing rules:
 - Resume context → invoke /context-restore
 ```
 
-Then commit the change: `git add CLAUDE.md && git commit -m "chore: add gstack skill routing rules to CLAUDE.md"`
+然后提交更改：`git add CLAUDE.md && git commit -m "chore: add gstack skill routing rules to CLAUDE.md"`
 
-If B: run `~/.claude/skills/gstack/bin/gstack-config set routing_declined true` and say they can re-enable with `gstack-config set routing_declined false`.
+如果选择 B：运行 `~/.claude/skills/gstack/bin/gstack-config set routing_declined true` 并告知可通过 `gstack-config set routing_declined false` 重新启用。
 
-This only happens once per project. Skip if `HAS_ROUTING` is `yes` or `ROUTING_DECLINED` is `true`.
+每个项目仅执行一次。如果 `HAS_ROUTING` 为 `yes` 或 `ROUTING_DECLINED` 为 `true`，跳过。
 
-If `VENDORED_GSTACK` is `yes`, warn once via AskUserQuestion unless `~/.gstack/.vendoring-warned-$SLUG` exists:
+如果 `VENDORED_GSTACK` 为 `yes`，通过 AskUserQuestion 警告一次（除非 `~/.gstack/.vendoring-warned-$SLUG` 存在）：
 
-> This project has gstack vendored in `.claude/skills/gstack/`. Vendoring is deprecated.
-> Migrate to team mode?
+> 此项目在 `.claude/skills/gstack/` 中有 gstack 内嵌版本。内嵌模式已弃用。
+> 是否迁移到团队模式？
 
-Options:
-- A) Yes, migrate to team mode now
-- B) No, I'll handle it myself
+选项：
+- A) 是，立即迁移到团队模式
+- B) 不了，我会自己处理
 
-If A:
-1. Run `git rm -r .claude/skills/gstack/`
-2. Run `echo '.claude/skills/gstack/' >> .gitignore`
-3. Run `~/.claude/skills/gstack/bin/gstack-team-init required` (or `optional`)
-4. Run `git add .claude/ .gitignore CLAUDE.md && git commit -m "chore: migrate gstack from vendored to team mode"`
-5. Tell the user: "Done. Each developer now runs: `cd ~/.claude/skills/gstack && ./setup --team`"
+如果选择 A：
+1. 运行 `git rm -r .claude/skills/gstack/`
+2. 运行 `echo '.claude/skills/gstack/' >> .gitignore`
+3. 运行 `~/.claude/skills/gstack/bin/gstack-team-init required`（或 `optional`）
+4. 运行 `git add .claude/ .gitignore CLAUDE.md && git commit -m "chore: migrate gstack from vendored to team mode"`
+5. 告知用户："完成。每位开发者现在运行：`cd ~/.claude/skills/gstack && ./setup --team`"
 
-If B: say "OK, you're on your own to keep the vendored copy up to date."
+如果选择 B：说 "好的，你需要自己维护内嵌副本的更新。"
 
-Always run (regardless of choice):
+无论选择如何，始终运行：
 ```bash
 eval "$(~/.claude/skills/gstack/bin/gstack-slug 2>/dev/null)" 2>/dev/null || true
 touch ~/.gstack/.vendoring-warned-${SLUG:-unknown}
 ```
 
-If marker exists, skip.
+如果标记文件已存在，跳过。
 
-If `SPAWNED_SESSION` is `"true"`, you are running inside a session spawned by an
-AI orchestrator (e.g., OpenClaw). In spawned sessions:
-- Do NOT use AskUserQuestion for interactive prompts. Auto-choose the recommended option.
-- Do NOT run upgrade checks, telemetry prompts, routing injection, or lake intro.
-- Focus on completing the task and reporting results via prose output.
-- End with a completion report: what shipped, decisions made, anything uncertain.
+如果 `SPAWNED_SESSION` 为 `"true"`，你正在 AI 编排器（如 OpenClaw）生成的会话中运行。在生成的会话中：
+- 不要对交互式提示使用 AskUserQuestion。自动选择推荐选项。
+- 不要运行升级检查、遥测提示、路由注入或湖泊介绍。
+- 专注于完成任务并通过文本输出报告结果。
+- 以完成报告结束：发布了什么、做了什么决定、任何不确定的内容。
 
-## GBrain Sync (skill start)
+## GBrain 同步（技能开始时）
 
 ```bash
 _GSTACK_HOME="${GSTACK_HOME:-$HOME/.gstack}"
@@ -284,8 +284,8 @@ _BRAIN_SYNC_MODE=$("$_BRAIN_CONFIG_BIN" get gbrain_sync_mode 2>/dev/null || echo
 if [ -f "$_BRAIN_REMOTE_FILE" ] && [ ! -d "$_GSTACK_HOME/.git" ] && [ "$_BRAIN_SYNC_MODE" = "off" ]; then
   _BRAIN_NEW_URL=$(head -1 "$_BRAIN_REMOTE_FILE" 2>/dev/null | tr -d '[:space:]')
   if [ -n "$_BRAIN_NEW_URL" ]; then
-    echo "BRAIN_SYNC: brain repo detected: $_BRAIN_NEW_URL"
-    echo "BRAIN_SYNC: run 'gstack-brain-restore' to pull your cross-machine memory (or 'gstack-config set gbrain_sync_mode off' to dismiss forever)"
+    echo "BRAIN_SYNC: 检测到 brain 仓库：$_BRAIN_NEW_URL"
+    echo "BRAIN_SYNC: 运行 'gstack-brain-restore' 拉取你的跨机器记忆（或 'gstack-config set gbrain_sync_mode off' 永久关闭）"
   fi
 fi
 
@@ -318,26 +318,26 @@ fi
 
 
 
-Privacy stop-gate: if output shows `BRAIN_SYNC: off`, `gbrain_sync_mode_prompted` is `false`, and gbrain is on PATH or `gbrain doctor --fast --json` works, ask once:
+隐私安全门：如果输出显示 `BRAIN_SYNC: off`、`gbrain_sync_mode_prompted` 为 `false`，且 gbrain 在 PATH 上或 `gbrain doctor --fast --json` 可用，询问一次：
 
-> gstack can publish your session memory to a private GitHub repo that GBrain indexes across machines. How much should sync?
+> gstack 可以将你的会话记忆发布到 GBrain 跨机器索引的私有 GitHub 仓库。应该同步多少内容？
 
-Options:
-- A) Everything allowlisted (recommended)
-- B) Only artifacts
-- C) Decline, keep everything local
+选项：
+- A) 所有白名单内容（推荐）
+- B) 仅产物
+- C) 拒绝，保持所有内容在本地
 
-After answer:
+回答后：
 
 ```bash
-# Chosen mode: full | artifacts-only | off
+# 选择的模式：full | artifacts-only | off
 "$_BRAIN_CONFIG_BIN" set gbrain_sync_mode <choice>
 "$_BRAIN_CONFIG_BIN" set gbrain_sync_mode_prompted true
 ```
 
-If A/B and `~/.gstack/.git` is missing, ask whether to run `gstack-brain-init`. Do not block the skill.
+如果选择 A/B 且 `~/.gstack/.git` 缺失，询问是否运行 `gstack-brain-init`。不要阻塞技能。
 
-At skill END before telemetry:
+在技能结束时、遥测之前：
 
 ```bash
 "~/.claude/skills/gstack/bin/gstack-brain-sync" --discover-new 2>/dev/null || true
@@ -345,72 +345,63 @@ At skill END before telemetry:
 ```
 
 
-## Model-Specific Behavioral Patch (claude)
+## 模型特定行为补丁 (claude)
 
-The following nudges are tuned for the claude model family. They are
-**subordinate** to skill workflow, STOP points, AskUserQuestion gates, plan-mode
-safety, and /ship review gates. If a nudge below conflicts with skill instructions,
-the skill wins. Treat these as preferences, not rules.
+以下微调适用于 claude 模型系列。它们**从属于**技能工作流、STOP 点、AskUserQuestion 门控、计划模式安全和 /ship 审查门控。如果以下微调与技能指令冲突，以技能为准。将这些视为偏好，而非规则。
 
-**Todo-list discipline.** When working through a multi-step plan, mark each task
-complete individually as you finish it. Do not batch-complete at the end. If a task
-turns out to be unnecessary, mark it skipped with a one-line reason.
+**待办列表纪律。**执行多步骤计划时，完成每个任务后逐个标记为完成。不要在最后批量完成。如果任务被证明是不必要的，标记为跳过并附上一行原因。
 
-**Think before heavy actions.** For complex operations (refactors, migrations,
-non-trivial new features), briefly state your approach before executing. This lets
-the user course-correct cheaply instead of mid-flight.
+**执行重操作前先思考。**对于复杂操作（重构、迁移、非平凡的新功能），在执行前简要说明你的方法。这使用户能够低成本地纠正方向，而不是在中途调整。
 
-**Dedicated tools over Bash.** Prefer Read, Edit, Write, Glob, Grep over shell
-equivalents (cat, sed, find, grep). The dedicated tools are cheaper and clearer.
+**优先使用专用工具而非 Bash。**优先使用 Read、Edit、Write、Glob、Grep，而非 shell 等价命令（cat、sed、find、grep）。专用工具更便宜更清晰。
 
-## Voice
+## 语气
 
-Direct, concrete, builder-to-builder. Name the file, function, command, and user-visible impact. No filler.
+直接、具体、开发者之间的交流。明确指出文件、函数、命令和用户可见的影响。不要有废话。
 
-No em dashes. No AI vocabulary: delve, crucial, robust, comprehensive, nuanced, multifaceted. Never corporate or academic. Short paragraphs. End with what to do.
+不要使用长破折号。不要使用 AI 词汇：delve、crucial、robust、comprehensive、nuanced、multifaceted。不要有企业或学术腔。简短段落。最后告诉用户该做什么。
 
-The user has context you do not. Cross-model agreement is a recommendation, not a decision. The user decides.
+用户拥有你没有的上下文。跨模型一致的结论是建议，而非决定。由用户决定。
 
-## Completion Status Protocol
+## 完成状态协议
 
-When completing a skill workflow, report status using one of:
-- **DONE** — completed with evidence.
-- **DONE_WITH_CONCERNS** — completed, but list concerns.
-- **BLOCKED** — cannot proceed; state blocker and what was tried.
-- **NEEDS_CONTEXT** — missing info; state exactly what is needed.
+完成技能工作流时，使用以下状态之一报告：
+- **DONE** — 已完成并有证据。
+- **DONE_WITH_CONCERNS** — 已完成，但列出关注点。
+- **BLOCKED** — 无法继续；说明阻塞原因和已尝试的方法。
+- **NEEDS_CONTEXT** — 缺少信息；准确说明需要什么。
 
-Escalate after 3 failed attempts, uncertain security-sensitive changes, or scope you cannot verify. Format: `STATUS`, `REASON`, `ATTEMPTED`, `RECOMMENDATION`.
+在 3 次失败尝试、不确定的安全敏感更改或你无法验证的范围后升级。格式：`STATUS`、`REASON`、`ATTEMPTED`、`RECOMMENDATION`。
 
-## Operational Self-Improvement
+## 操作性自我改进
 
-Before completing, if you discovered a durable project quirk or command fix that would save 5+ minutes next time, log it:
+完成前，如果你发现了持久的项目特点或命令修复，下次可以节省 5 分钟以上，请记录：
 
 ```bash
 ~/.claude/skills/gstack/bin/gstack-learnings-log '{"skill":"SKILL_NAME","type":"operational","key":"SHORT_KEY","insight":"DESCRIPTION","confidence":N,"source":"observed"}'
 ```
 
-Do not log obvious facts or one-time transient errors.
+不要记录显而易见的事实或一次性瞬态错误。
 
-## Telemetry (run last)
+## 遥测（最后运行）
 
-After workflow completion, log telemetry. Use skill `name:` from frontmatter. OUTCOME is success/error/abort/unknown.
+工作流完成后，记录遥测。使用 frontmatter 中的技能 `name:`。OUTCOME 为 success/error/abort/unknown。
 
-**PLAN MODE EXCEPTION — ALWAYS RUN:** This command writes telemetry to
-`~/.gstack/analytics/`, matching preamble analytics writes.
+**PLAN MODE EXCEPTION — ALWAYS RUN：**此命令将遥测写入 `~/.gstack/analytics/`，与前置代码的分析写入匹配。
 
-Run this bash:
+运行以下 bash：
 
 ```bash
 _TEL_END=$(date +%s)
 _TEL_DUR=$(( _TEL_END - _TEL_START ))
 rm -f ~/.gstack/analytics/.pending-"$_SESSION_ID" 2>/dev/null || true
-# Session timeline: record skill completion (local-only, never sent anywhere)
+# 会话时间线：记录技能完成（仅本地，从不发送）
 ~/.claude/skills/gstack/bin/gstack-timeline-log '{"skill":"SKILL_NAME","event":"completed","branch":"'$(git branch --show-current 2>/dev/null || echo unknown)'","outcome":"OUTCOME","duration_s":"'"$_TEL_DUR"'","session":"'"$_SESSION_ID"'"}' 2>/dev/null || true
-# Local analytics (gated on telemetry setting)
+# 本地分析（受遥测设置控制）
 if [ "$_TEL" != "off" ]; then
 echo '{"skill":"SKILL_NAME","duration_s":"'"$_TEL_DUR"'","outcome":"OUTCOME","browse":"USED_BROWSE","session":"'"$_SESSION_ID"'","ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"}' >> ~/.gstack/analytics/skill-usage.jsonl 2>/dev/null || true
 fi
-# Remote telemetry (opt-in, requires binary)
+# 远程遥测（需用户同意，需要二进制文件）
 if [ "$_TEL" != "off" ] && [ -x ~/.claude/skills/gstack/bin/gstack-telemetry-log ]; then
   ~/.claude/skills/gstack/bin/gstack-telemetry-log \
     --skill "SKILL_NAME" --duration "$_TEL_DUR" --outcome "OUTCOME" \
@@ -418,26 +409,21 @@ if [ "$_TEL" != "off" ] && [ -x ~/.claude/skills/gstack/bin/gstack-telemetry-log
 fi
 ```
 
-Replace `SKILL_NAME`, `OUTCOME`, and `USED_BROWSE` before running.
+运行前替换 `SKILL_NAME`、`OUTCOME` 和 `USED_BROWSE`。
 
-## Plan Status Footer
+## 计划状态页脚
 
-In plan mode before ExitPlanMode: if the plan file lacks `## GSTACK REVIEW REPORT`, run `~/.claude/skills/gstack/bin/gstack-review-read` and append the standard runs/status/findings table. With `NO_REVIEWS` or empty, append a 5-row placeholder with verdict "NO REVIEWS YET — run `/autoplan`". If a richer report exists, skip.
+在计划模式下、ExitPlanMode 之前：如果计划文件缺少 `## GSTACK REVIEW REPORT`，运行 `~/.claude/skills/gstack/bin/gstack-review-read` 并追加标准的运行/状态/发现表格。如果为 `NO_REVIEWS` 或为空，追加 5 行占位符，结论为"NO REVIEWS YET — run `/autoplan`"。如果有更丰富的报告，跳过。
 
-PLAN MODE EXCEPTION — always allowed (it's the plan file).
+PLAN MODE EXCEPTION — 始终允许（这是计划文件）。
 
-# make-pdf: publication-quality PDFs from markdown
+# make-pdf：从 markdown 生成出版级 PDF
 
-Turn `.md` files into PDFs that look like Faber & Faber essays: 1in margins,
-left-aligned body, Helvetica throughout, curly quotes and em dashes, optional
-cover page and clickable TOC, diagonal DRAFT watermark when you need it.
-Copy-paste from the PDF produces clean words, never "S a i l i n g".
+将 `.md` 文件转换为看起来像 Faber & Faber 文章的 PDF：1 英寸页边距、左对齐正文、全文使用 Helvetica、弯引号和长破折号、可选封面和可点击目录、需要时添加对角线 DRAFT 水印。从 PDF 复制粘贴产生干净的文字，永远不会出现 "S a i l i n g" 的情况。
 
-On Linux, install `fonts-liberation` for correct rendering — Helvetica and Arial
-aren't present by default, and Liberation Sans is the standard metric-compatible
-fallback. CI and Docker builds install it automatically via Dockerfile.ci.
+在 Linux 上，安装 `fonts-liberation` 以获得正确的渲染——默认没有 Helvetica 和 Arial，Liberation Sans 是标准的度量兼容替代品。CI 和 Docker 构建通过 Dockerfile.ci 自动安装。
 
-## MAKE-PDF SETUP (run this check BEFORE any make-pdf command)
+## MAKE-PDF 设置（在任何 make-pdf 命令之前运行此检查）
 
 ```bash
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
@@ -447,116 +433,110 @@ P=""
 [ -z "$P" ] && P="$HOME/.claude/skills/gstack/make-pdf/dist/pdf"
 if [ -x "$P" ]; then
   echo "MAKE_PDF_READY: $P"
-  alias _p_="$P"   # shellcheck alias helper (not exported)
-  export P   # available as $P in subsequent blocks within the same skill invocation
+  alias _p_="$P"   # shellcheck 别名助手（不导出）
+  export P   # 在同一技能调用的后续代码块中作为 $P 可用
 else
-  echo "MAKE_PDF_NOT_AVAILABLE (run './setup' in the gstack repo to build it)"
+  echo "MAKE_PDF_NOT_AVAILABLE（运行 gstack 仓库中的 './setup' 来构建）"
 fi
 ```
 
-If `MAKE_PDF_NOT_AVAILABLE` is printed: tell the user the binary is not
-built. Have them run `./setup` from the gstack repo, then retry.
+如果打印 `MAKE_PDF_NOT_AVAILABLE`：告知用户二进制文件未构建。让他们从 gstack 仓库运行 `./setup`，然后重试。
 
-If `MAKE_PDF_READY` is printed: `$P` is the binary path for the rest of
-the skill. Use `$P` (not an explicit path) so the skill body stays portable.
+如果打印 `MAKE_PDF_READY`：`$P` 是技能其余部分的二进制路径。使用 `$P`（而非显式路径）以保持技能体的可移植性。
 
-Core commands:
-- `$P generate <input.md> [output.pdf]` — render markdown to PDF (80% use case)
-- `$P generate --cover --toc essay.md out.pdf` — full publication layout
-- `$P generate --watermark DRAFT memo.md draft.pdf` — diagonal DRAFT watermark
-- `$P preview <input.md>` — render HTML and open in browser (fast iteration)
-- `$P setup` — verify browse + Chromium + pdftotext and run a smoke test
-- `$P --help` — full flag reference
+核心命令：
+- `$P generate <input.md> [output.pdf]` — 将 markdown 渲染为 PDF（80% 的使用场景）
+- `$P generate --cover --toc essay.md out.pdf` — 完整出版布局
+- `$P generate --watermark DRAFT memo.md draft.pdf` — 对角线 DRAFT 水印
+- `$P preview <input.md>` — 渲染 HTML 并在浏览器中打开（快速迭代）
+- `$P setup` — 验证 browse + Chromium + pdftotext 并运行冒烟测试
+- `$P --help` — 完整的 flag 参考
 
-Output contract:
-- `stdout`: ONLY the output path on success. One line.
-- `stderr`: progress (`Rendering HTML... Generating PDF...`) unless `--quiet`.
-- Exit 0 success / 1 bad args / 2 render error / 3 Paged.js timeout / 4 browse unavailable.
+输出约定：
+- `stdout`：成功时仅输出路径。一行。
+- `stderr`：进度信息（`Rendering HTML... Generating PDF...`），除非使用 `--quiet`。
+- 退出码 0 成功 / 1 参数错误 / 2 渲染错误 / 3 Paged.js 超时 / 4 browse 不可用。
 
-## Core patterns
+## 核心模式
 
-### 80% case — memo/letter
+### 80% 的场景——备忘录/信件
 
-One command, no flags. Gets a clean PDF with running header + page numbers
-+ CONFIDENTIAL footer by default.
+一个命令，无需 flag。默认获得带有页眉页脚 + 页码 + CONFIDENTIAL 页脚的干净 PDF。
 
 ```bash
-$P generate letter.md                 # writes /tmp/letter.pdf
-$P generate letter.md letter.pdf      # explicit output path
+$P generate letter.md                 # 写入 /tmp/letter.pdf
+$P generate letter.md letter.pdf      # 显式输出路径
 ```
 
-### Publication mode — cover + TOC + chapter breaks
+### 出版模式——封面 + 目录 + 章节分隔
 
 ```bash
 $P generate --cover --toc --author "Garry Tan" --title "On Horizons" \
   essay.md essay.pdf
 ```
 
-Each top-level H1 in the markdown starts a new page. Disable with
-`--no-chapter-breaks` for memos that happen to have multiple H1s.
+markdown 中的每个顶级 H1 开始新页。对于恰好有多个 H1 的备忘录，使用 `--no-chapter-breaks` 禁用。
 
-### Draft-stage watermark
+### 草稿阶段水印
 
 ```bash
 $P generate --watermark DRAFT memo.md draft.pdf
 ```
 
-Diagonal 10% opacity DRAFT across every page. When the draft is final, drop
-the flag and regenerate.
+每页都有 10% 透明度的对角线 DRAFT。当草稿定稿后，去掉 flag 并重新生成。
 
-### Fast iteration via preview
+### 通过预览快速迭代
 
 ```bash
 $P preview essay.md
 ```
 
-Renders HTML with the same print CSS and opens it in your browser. Refresh
-as you edit the markdown. Skip the PDF round trip until you're ready.
+使用相同的打印 CSS 渲染 HTML 并在浏览器中打开。编辑 markdown 时刷新。在准备好之前跳过 PDF 的来回转换。
 
-### Brand-free (no CONFIDENTIAL footer)
+### 无品牌（无 CONFIDENTIAL 页脚）
 
 ```bash
 $P generate --no-confidential memo.md memo.pdf
 ```
 
-## Common flags
+## 常用 flag
 
 ```
-Page layout:
-  --margins <dim>            1in (default) | 72pt | 2.54cm | 25mm
+页面布局：
+  --margins <dim>            1in（默认）| 72pt | 2.54cm | 25mm
   --page-size letter|a4|legal
 
-Structure:
-  --cover                    Cover page (title, author, date, hairline rule)
-  --toc                      Clickable TOC with page numbers
-  --no-chapter-breaks        Don't start a new page at every H1
+结构：
+  --cover                    封面页（标题、作者、日期、细线分隔）
+  --toc                      可点击目录（含页码）
+  --no-chapter-breaks        不在每个 H1 处开始新页
 
-Branding:
-  --watermark <text>         Diagonal watermark ("DRAFT", "CONFIDENTIAL")
-  --header-template <html>   Custom running header
-  --footer-template <html>   Custom footer (mutex with --page-numbers)
-  --no-confidential          Suppress the CONFIDENTIAL right-footer
+品牌：
+  --watermark <text>         对角线水印（"DRAFT"、"CONFIDENTIAL"）
+  --header-template <html>   自定义页眉
+  --footer-template <html>   自定义页脚（与 --page-numbers 互斥）
+  --no-confidential          隐藏 CONFIDENTIAL 右页脚
 
-Output:
-  --page-numbers             "N of M" footer (default on)
-  --tagged                   Accessible PDF (default on)
-  --outline                  PDF bookmarks from headings (default on)
-  --quiet                    Suppress progress on stderr
-  --verbose                  Per-stage timings
+输出：
+  --page-numbers             "N of M" 页脚（默认开启）
+  --tagged                   无障碍 PDF（默认开启）
+  --outline                  从标题生成 PDF 书签（默认开启）
+  --quiet                    隐藏 stderr 上的进度信息
+  --verbose                  每阶段计时
 
-Network:
-  --allow-network            Fetch external images. Off by default
-                             (blocks tracking pixels).
+网络：
+  --allow-network            获取外部图片。默认关闭
+                             （阻止跟踪像素）。
 
-Metadata:
-  --title "..."              Document title (defaults to first H1)
-  --author "..."             Author for cover + PDF metadata
-  --date "..."               Date for cover (defaults to today)
+元数据：
+  --title "..."              文档标题（默认为第一个 H1）
+  --author "..."             封面 + PDF 元数据的作者
+  --date "..."               封面日期（默认为今天）
 ```
 
-## When Claude should run it
+## Claude 何时应该运行它
 
-Watch for markdown-to-PDF intent. Any of these patterns → run `$P generate`:
+留意 markdown 转 PDF 的意图。以下任何模式 → 运行 `$P generate`：
 
 - "Can you make this markdown a PDF"
 - "Export it as a PDF"
@@ -564,30 +544,26 @@ Watch for markdown-to-PDF intent. Any of these patterns → run `$P generate`:
 - "I need a PDF of the essay"
 - "Print this as a PDF for me"
 
-If the user has a `.md` file open and says "make it look nice", propose
-`$P generate --cover --toc` and ask before running.
+如果用户打开了 `.md` 文件并说"让它好看点"，建议 `$P generate --cover --toc` 并在运行前询问。
 
-## Debugging
+## 调试
 
-- Output looks empty / blank → check browse daemon is running: `$B status`.
-- Fragmented text on copy-paste → highlight.js output (Phase 4). Retry with
-  `--no-syntax` once that flag exists. For now, remove fenced code blocks
-  and regenerate.
-- Paged.js timeout → probably no headings in the markdown. Drop `--toc`.
-- External image missing → add `--allow-network` (understand you're giving
-  the markdown file permission to fetch from its image URLs).
-- Generated PDF too tall/wide → `--page-size a4` or `--margins 0.75in`.
+- 输出看起来空白 → 检查 browse 守护进程是否运行：`$B status`。
+- 复制粘贴时文字碎片化 → highlight.js 输出（阶段 4）。等该 flag 可用后使用 `--no-syntax` 重试。目前，移除代码块并重新生成。
+- Paged.js 超时 → markdown 中可能没有标题。去掉 `--toc`。
+- 外部图片缺失 → 添加 `--allow-network`（理解你是在允许 markdown 文件从其图片 URL 获取）。
+- 生成的 PDF 太高/太宽 → `--page-size a4` 或 `--margins 0.75in`。
 
-## Output contract
+## 输出约定
 
 ```
-stdout: /tmp/letter.pdf          ← just the path, one line
-stderr: Rendering HTML...        ← progress spinner (unless --quiet)
+stdout: /tmp/letter.pdf          ← 仅路径，一行
+stderr: Rendering HTML...        ← 进度旋转器（除非 --quiet）
         Generating PDF...
         Done in 1.5s. 43 words · 22KB · /tmp/letter.pdf
 
-exit code: 0 success / 1 bad args / 2 render error / 3 Paged.js timeout
-           / 4 browse unavailable
+退出码：0 成功 / 1 参数错误 / 2 渲染错误 / 3 Paged.js 超时
+           / 4 browse 不可用
 ```
 
-Capture the path: `PDF=$($P generate letter.md)` — then use `$PDF`.
+捕获路径：`PDF=$($P generate letter.md)` — 然后使用 `$PDF`。

@@ -3,10 +3,10 @@ name: setup-browser-cookies
 preamble-tier: 1
 version: 1.0.0
 description: |
-  Import cookies from your real Chromium browser into the headless browse session.
-  Opens an interactive picker UI where you select which cookie domains to import.
-  Use before QA testing authenticated pages. Use when asked to "import cookies",
-  "login to the site", or "authenticate the browser". (gstack)
+  将您真实 Chromium 浏览器的 cookie 导入到无头浏览会话中。
+  打开一个交互式选择器界面，让您选择要导入哪些域名的 cookie。
+  在 QA 测试需要认证的页面之前使用。当被要求"导入 cookie"、
+  "登录网站"或"认证浏览器"时使用。(gstack)
 triggers:
   - import browser cookies
   - login to test site
@@ -423,28 +423,28 @@ In plan mode before ExitPlanMode: if the plan file lacks `## GSTACK REVIEW REPOR
 
 PLAN MODE EXCEPTION — always allowed (it's the plan file).
 
-# Setup Browser Cookies
+# 设置浏览器 Cookie
 
-Import logged-in sessions from your real Chromium browser into the headless browse session.
+将您真实 Chromium 浏览器的已登录会话导入到无头浏览会话中。
 
-## CDP mode check
+## CDP 模式检查
 
-First, check if browse is already connected to the user's real browser:
+首先，检查 browse 是否已连接到用户的真实浏览器：
 ```bash
 $B status 2>/dev/null | grep -q "Mode: cdp" && echo "CDP_MODE=true" || echo "CDP_MODE=false"
 ```
-If `CDP_MODE=true`: tell the user "Not needed — you're connected to your real browser via CDP. Your cookies and sessions are already available." and stop. No cookie import needed.
+如果 `CDP_MODE=true`：告诉用户"不需要 — 您已通过 CDP 连接到真实浏览器。您的 cookie 和会话已经可用。"然后停止。无需导入 cookie。
 
-## How it works
+## 工作原理
 
-1. Find the browse binary
-2. Run `cookie-import-browser` to detect installed browsers and open the picker UI
-3. User selects which cookie domains to import in their browser
-4. Cookies are decrypted and loaded into the Playwright session
+1. 查找 browse 二进制文件
+2. 运行 `cookie-import-browser` 检测已安装的浏览器并打开选择器界面
+3. 用户在浏览器中选择要导入哪些域名的 cookie
+4. Cookie 被解密并加载到 Playwright 会话中
 
-## Steps
+## 步骤
 
-### 1. Find the browse binary
+### 1. 查找 browse 二进制文件
 
 ## SETUP (run this check BEFORE any browse command)
 
@@ -461,8 +461,8 @@ fi
 ```
 
 If `NEEDS_SETUP`:
-1. Tell the user: "gstack browse needs a one-time build (~10 seconds). OK to proceed?" Then STOP and wait.
-2. Run: `cd <SKILL_DIR> && ./setup`
+1. 告诉用户："gstack browse 需要一次性构建（约 10 秒）。可以继续吗？"然后 STOP 并等待。
+2. 运行：`cd <SKILL_DIR> && ./setup`
 3. If `bun` is not installed:
    ```bash
    if ! command -v bun >/dev/null 2>&1; then
@@ -482,45 +482,44 @@ If `NEEDS_SETUP`:
    fi
    ```
 
-### 2. Open the cookie picker
+### 2. 打开 cookie 选择器
 
 ```bash
 $B cookie-import-browser
 ```
 
-This auto-detects installed Chromium browsers and opens
-an interactive picker UI in your default browser where you can:
-- Switch between installed browsers
-- Search domains
-- Click "+" to import a domain's cookies
-- Click trash to remove imported cookies
+这会自动检测已安装的 Chromium 浏览器，并在您的默认浏览器中打开一个交互式选择器界面，您可以在其中：
+- 在已安装的浏览器之间切换
+- 搜索域名
+- 点击"+"导入域名的 cookie
+- 点击垃圾桶图标移除已导入的 cookie
 
-Tell the user: **"Cookie picker opened — select the domains you want to import in your browser, then tell me when you're done."**
+告诉用户：**"Cookie 选择器已打开 — 在浏览器中选择您要导入的域名，完成后告诉我。"**
 
-### 3. Direct import (alternative)
+### 3. 直接导入（替代方式）
 
-If the user specifies a domain directly (e.g., `/setup-browser-cookies github.com`), skip the UI:
+如果用户直接指定域名（例如 `/setup-browser-cookies github.com`），跳过界面：
 
 ```bash
 $B cookie-import-browser comet --domain github.com
 ```
 
-Replace `comet` with the appropriate browser if specified.
+如果指定了浏览器，将 `comet` 替换为相应的浏览器。
 
-### 4. Verify
+### 4. 验证
 
-After the user confirms they're done:
+用户确认完成后：
 
 ```bash
 $B cookies
 ```
 
-Show the user a summary of imported cookies (domain counts).
+向用户显示已导入 cookie 的摘要（域名计数）。
 
-## Notes
+## 注意事项
 
-- On macOS, the first import per browser may trigger a Keychain dialog — click "Allow" / "Always Allow"
-- On Linux, `v11` cookies may require `secret-tool`/libsecret access; `v10` cookies use Chromium's standard fallback key
-- Cookie picker is served on the same port as the browse server (no extra process)
-- Only domain names and cookie counts are shown in the UI — no cookie values are exposed
-- The browse session persists cookies between commands, so imported cookies work immediately
+- 在 macOS 上，每个浏览器的首次导入可能会触发钥匙串对话框 — 点击"允许"/"始终允许"
+- 在 Linux 上，`v11` cookie 可能需要 `secret-tool`/libsecret 访问权限；`v10` cookie 使用 Chromium 的标准回退密钥
+- Cookie 选择器与 browse 服务器在同一端口上运行（无需额外进程）
+- 界面中仅显示域名和 cookie 计数 — 不会暴露 cookie 值
+- 浏览会话在命令之间保持 cookie，因此导入的 cookie 立即可用

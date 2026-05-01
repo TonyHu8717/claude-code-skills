@@ -1,424 +1,424 @@
 ---
 name: team-composition-analysis
-description: Design optimal team structures, hiring plans, compensation strategies, and equity allocation for early-stage startups from pre-seed through Series A. Use this skill when planning headcount, determining which roles to hire next, setting compensation or equity ranges, designing org structure, or building a hiring budget aligned to funding milestones.
+description: 为从种子前到 A 轮的早期创业公司设计最优团队结构、招聘计划、薪酬策略和股权分配。在规划人员编制、确定下一个招聘角色、设定薪酬或股权范围、设计组织架构或构建与融资里程碑对齐的招聘预算时使用此技能。
 version: 1.0.0
 ---
 
-# Team Composition Analysis
+# 团队组合分析
 
-Design optimal team structures, hiring plans, compensation strategies, and equity allocation for early-stage startups from pre-seed through Series A.
+为从种子前到 A 轮的早期创业公司设计最优团队结构、招聘计划、薪酬策略和股权分配。
 
-## Overview
+## 概述
 
-Build the right team at the right time with appropriate compensation and equity. Plan role-by-role hiring aligned with revenue milestones, budget constraints, and market benchmarks.
+在正确的时间以适当的薪酬和股权构建正确的团队。规划与营收里程碑、预算约束和市场基准对齐的逐角色招聘。
 
-## Team Structure by Stage
+## 按阶段的团队结构
 
-### Pre-Seed (0-$500K ARR)
+### 种子前（$0-$50 万 ARR）
 
-**Team Size: 2-5 people**
+**团队规模：2-5 人**
 
-**Core Roles:**
+**核心角色：**
 
-- Founders (2-3): Product, engineering, business
-- First engineer (if needed)
-- Contract roles: Design, marketing
+- 创始人（2-3）：产品、工程、业务
+- 第一位工程师（如需要）
+- 合同角色：设计、营销
 
-**Focus:** Build and validate product-market fit
+**重点：** 构建和验证产品市场契合度
 
-### Seed ($500K-$2M ARR)
+### 种子轮（$50 万-$200 万 ARR）
 
-**Team Size: 5-15 people**
+**团队规模：5-15 人**
 
-**Key Hires:**
+**关键招聘：**
 
-- Engineering lead + 2-3 engineers
-- First sales/business development
-- Product manager
-- Marketing/growth lead
+- 工程负责人 + 2-3 名工程师
+- 首位销售/业务拓展
+- 产品经理
+- 营销/增长负责人
 
-**Focus:** Scale product and prove repeatable sales
+**重点：** 扩展产品并证明可重复销售
 
-### Series A ($2M-$10M ARR)
+### A 轮（$200 万-$1000 万 ARR）
 
-**Team Size: 15-50 people**
+**团队规模：15-50 人**
 
-**Department Build-Out:**
+**部门构建：**
 
-- Engineering (40%): 6-20 people
-- Sales & Marketing (30%): 5-15 people
-- Customer Success (10%): 2-5 people
-- G&A (10%): 2-5 people
-- Product (10%): 2-5 people
+- 工程（40%）：6-20 人
+- 销售与营销（30%）：5-15 人
+- 客户成功（10%）：2-5 人
+- 行政管理（10%）：2-5 人
+- 产品（10%）：2-5 人
 
-**Focus:** Scale revenue and build repeatable processes
+**重点：** 扩展营收并构建可重复流程
 
-## Role-by-Role Planning
+## 逐角色规划
 
-### Engineering Team
+### 工程团队
 
-**Pre-Seed:**
+**种子前：**
 
-- Founders write code
-- 0-1 contract developers
+- 创始人写代码
+- 0-1 名合同开发者
 
-**Seed:**
+**种子轮：**
 
-- Engineering Lead (first $150K-$180K)
-- 2-3 Full-Stack Engineers ($120K-$150K)
-- 1 Frontend or Backend Specialist ($130K-$160K)
+- 工程负责人（首位 $15 万-$18 万）
+- 2-3 名全栈工程师（$12 万-$15 万）
+- 1 名前端或后端专家（$13 万-$16 万）
 
-**Series A:**
+**A 轮：**
 
-- VP Engineering ($180K-$250K + equity)
-- 2-3 Senior Engineers ($150K-$180K)
-- 3-5 Mid-Level Engineers ($120K-$150K)
-- 1-2 Junior Engineers ($90K-$120K)
-- 1 DevOps/Infrastructure ($140K-$170K)
+- 工程 VP（$18 万-$25 万 + 股权）
+- 2-3 名高级工程师（$15 万-$18 万）
+- 3-5 名中级工程师（$12 万-$15 万）
+- 1-2 名初级工程师（$9 万-$12 万）
+- 1 名 DevOps/基础设施（$14 万-$17 万）
 
-### Sales & Marketing
+### 销售与营销
 
-**Pre-Seed:**
+**种子前：**
 
-- Founders do sales
-- Contract marketing help
+- 创始人做销售
+- 合同营销辅助
 
-**Seed:**
+**种子轮：**
 
-- First Sales Hire / Head of Sales ($120K-$150K + commission)
-- Marketing/Growth Lead ($100K-$140K)
-- SDR or BDR (if B2B) ($50K-$70K + commission)
+- 首位销售招聘 / 销售负责人（$12 万-$15 万 + 佣金）
+- 营销/增长负责人（$10 万-$14 万）
+- SDR 或 BDR（如 B2B）（$5 万-$7 万 + 佣金）
 
-**Series A:**
+**A 轮：**
 
-- VP Sales ($150K-$200K + commission + equity)
-- 3-5 Account Executives ($80K-$120K + commission)
-- 2-3 SDRs/BDRs ($50K-$70K + commission)
-- Marketing Manager ($90K-$130K)
-- Content/Demand Gen ($70K-$100K)
+- 销售 VP（$15 万-$20 万 + 佣金 + 股权）
+- 3-5 名客户经理（$8 万-$12 万 + 佣金）
+- 2-3 名 SDR/BDR（$5 万-$7 万 + 佣金）
+- 营销经理（$9 万-$13 万）
+- 内容/需求生成（$7 万-$10 万）
 
-### Product Team
+### 产品团队
 
-**Pre-Seed:**
+**种子前：**
 
-- Founder as product lead
+- 创始人兼任产品负责人
 
-**Seed:**
+**种子轮：**
 
-- First Product Manager ($120K-$150K)
-- Contract designer
+- 首位产品经理（$12 万-$15 万）
+- 合同设计师
 
-**Series A:**
+**A 轮：**
 
-- Head of Product ($150K-$180K)
-- 1-2 Product Managers ($120K-$150K)
-- Product Designer ($100K-$140K)
-- UX Researcher (optional) ($90K-$130K)
+- 产品负责人（$15 万-$18 万）
+- 1-2 名产品经理（$12 万-$15 万）
+- 产品设计师（$10 万-$14 万）
+- UX 研究员（可选）（$9 万-$13 万）
 
-### Customer Success
+### 客户成功
 
-**Pre-Seed:**
+**种子前：**
 
-- Founders handle support
+- 创始人处理支持
 
-**Seed:**
+**种子轮：**
 
-- First CS hire (optional) ($60K-$90K)
+- 首位客户成功招聘（可选）（$6 万-$9 万）
 
-**Series A:**
+**A 轮：**
 
-- CS Manager ($100K-$130K)
-- 2-4 CS Representatives ($60K-$90K)
-- Support Engineer (technical) ($80K-$120K)
+- 客户成功经理（$10 万-$13 万）
+- 2-4 名客户成功代表（$6 万-$9 万）
+- 支持工程师（技术）（$8 万-$12 万）
 
-### G&A (General & Administrative)
+### 行政管理
 
-**Pre-Seed:**
+**种子前：**
 
-- Contractors (accounting, legal)
+- 合同工（会计、法务）
 
-**Seed:**
+**种子轮：**
 
-- Operations/Office Manager ($70K-$100K)
-- Contract CFO
+- 运营/办公室经理（$7 万-$10 万）
+- 合同 CFO
 
-**Series A:**
+**A 轮：**
 
-- CFO or Finance Lead ($150K-$200K)
-- Recruiter ($80K-$120K)
-- Office Manager / EA ($60K-$90K)
+- CFO 或财务负责人（$15 万-$20 万）
+- 招聘专员（$8 万-$12 万）
+- 办公室经理 / 行政助理（$6 万-$9 万）
 
-## Compensation Strategy
+## 薪酬策略
 
-### Base Salary Benchmarks (US, 2024)
+### 基本工资基准（美国，2024）
 
-**Engineering:**
+**工程：**
 
-- Junior: $90K-$120K
-- Mid-Level: $120K-$150K
-- Senior: $150K-$180K
-- Staff/Principal: $180K-$220K
-- Engineering Manager: $160K-$200K
-- VP Engineering: $180K-$250K
+- 初级：$9 万-$12 万
+- 中级：$12 万-$15 万
+- 高级：$15 万-$18 万
+- Staff/首席：$18 万-$22 万
+- 工程经理：$16 万-$20 万
+- 工程 VP：$18 万-$25 万
 
-**Sales:**
+**销售：**
 
-- SDR/BDR: $50K-$70K base + $50K-$70K commission
-- Account Executive: $80K-$120K base + $80K-$120K commission
-- Sales Manager: $120K-$160K base + $80K-$120K commission
-- VP Sales: $150K-$200K base + $150K-$200K commission
+- SDR/BDR：$5 万-$7 万底薪 + $5 万-$7 万佣金
+- 客户经理：$8 万-$12 万底薪 + $8 万-$12 万佣金
+- 销售经理：$12 万-$16 万底薪 + $8 万-$12 万佣金
+- 销售 VP：$15 万-$20 万底薪 + $15 万-$20 万佣金
 
-**Product:**
+**产品：**
 
-- Product Manager: $120K-$150K
-- Senior PM: $150K-$180K
-- Head of Product: $150K-$180K
-- VP Product: $180K-$220K
+- 产品经理：$12 万-$15 万
+- 高级 PM：$15 万-$18 万
+- 产品负责人：$15 万-$18 万
+- 产品 VP：$18 万-$22 万
 
-**Marketing:**
+**营销：**
 
-- Marketing Manager: $90K-$130K
-- Content/Demand Gen: $70K-$100K
-- Head of Marketing: $130K-$170K
-- VP Marketing: $150K-$200K
+- 营销经理：$9 万-$13 万
+- 内容/需求生成：$7 万-$10 万
+- 营销负责人：$13 万-$17 万
+- 营销 VP：$15 万-$20 万
 
-**Customer Success:**
+**客户成功：**
 
-- CS Representative: $60K-$90K
-- CS Manager: $100K-$130K
-- VP Customer Success: $140K-$180K
+- 客户成功代表：$6 万-$9 万
+- 客户成功经理：$10 万-$13 万
+- 客户成功 VP：$14 万-$18 万
 
-### Total Compensation Formula
+### 总薪酬公式
 
 ```
-Total Comp = Base Salary × 1.30 (benefits & taxes) + Equity Value
+总薪酬 = 基本工资 × 1.30（福利和税费）+ 股权价值
 ```
 
-**Fully-Loaded Cost:**
+**全包成本：**
 
-- Base salary
-- Payroll taxes (7.65% FICA)
-- Benefits (health insurance, 401k): $10K-$15K per employee
-- Other (workspace, equipment, software): $5K-$10K per employee
+- 基本工资
+- 工资税（7.65% FICA）
+- 福利（健康保险、401k）：每位员工 $1 万-$1.5 万
+- 其他（工作空间、设备、软件）：每位员工 $5 千-$1 万
 
-**Rule of Thumb:** Multiply base salary by 1.3-1.4 for fully-loaded cost
+**经验法则：** 基本工资乘以 1.3-1.4 得到全包成本
 
-### Geographic Adjustments
+### 地区调整
 
-**San Francisco / New York:** +20-30% above benchmarks
-**Seattle / Boston / Los Angeles:** +10-20%
-**Austin / Denver / Chicago:** +0-10%
-**Remote / Other US Cities:** -10-20%
-**International:** Varies widely by country
+**旧金山 / 纽约：** 高于基准 +20-30%
+**西雅图 / 波士顿 / 洛杉矶：** +10-20%
+**奥斯汀 / 丹佛 / 芝加哥：** +0-10%
+**远程 / 其他美国城市：** -10-20%
+**国际：** 因国家差异很大
 
-## Equity Allocation
+## 股权分配
 
-### Equity by Role and Stage
+### 按角色和阶段的股权
 
-**Founders:**
+**创始人：**
 
-- First founder: 40-60%
-- Second founder: 20-40%
-- Third founder: 10-20%
-- Vesting: 4 years with 1-year cliff
+- 第一位创始人：40-60%
+- 第二位创始人：20-40%
+- 第三位创始人：10-20%
+- 归属：4 年，1 年悬崖
 
-**Early Employees (Pre-Seed):**
+**早期员工（种子前）：**
 
-- First engineer: 0.5-2.0%
-- First 5 employees: 0.25-1.0% each
+- 第一位工程师：0.5-2.0%
+- 前 5 名员工：每人 0.25-1.0%
 
-**Seed Stage Hires:**
+**种子轮招聘：**
 
-- VP/Head level: 0.5-1.5%
-- Senior IC: 0.1-0.5%
-- Mid-level: 0.05-0.25%
-- Junior: 0.01-0.1%
+- VP/负责人级别：0.5-1.5%
+- 高级 IC：0.1-0.5%
+- 中级：0.05-0.25%
+- 初级：0.01-0.1%
 
-**Series A Hires:**
+**A 轮招聘：**
 
-- C-level (CTO, CFO): 1.0-3.0%
-- VP level: 0.3-1.0%
-- Director level: 0.1-0.5%
-- Senior IC: 0.05-0.2%
-- Mid-level: 0.01-0.1%
-- Junior: 0.005-0.05%
+- C 级（CTO、CFO）：1.0-3.0%
+- VP 级：0.3-1.0%
+- 总监级：0.1-0.5%
+- 高级 IC：0.05-0.2%
+- 中级：0.01-0.1%
+- 初级：0.005-0.05%
 
-### Equity Pool Sizing
+### 股权池规模
 
-**Option Pool by Round:**
+**按轮次的期权池：**
 
-- Pre-Seed: 10-15% reserved
-- Seed: 10-15% top-up
-- Series A: 10-15% top-up
-- Series B+: 5-10% per round
+- 种子前：预留 10-15%
+- 种子轮：补充 10-15%
+- A 轮：补充 10-15%
+- B 轮+：每轮 5-10%
 
-**Pre-Funding Dilution:**
-Investors often require option pool creation before investment, diluting founders.
+**融资前稀释：**
+投资者通常要求在投资前创建期权池，稀释创始人。
 
-**Example:**
-
-```
-Pre-money: $10M
-Investors want 15% option pool post-money
-
-Calculation:
-Post-money: $15M ($10M + $5M investment)
-Option pool: $2.25M (15% × $15M)
-Founders diluted by pool creation before new money
-```
-
-## Organizational Design
-
-### Reporting Structure
-
-**Pre-Seed:**
+**示例：**
 
 ```
-Founders (flat structure)
-├── Contractors
-└── First hires (report to founders)
+投资前估值：$1000 万
+投资者要求投资后 15% 期权池
+
+计算：
+投资后估值：$1500 万（$1000 万 + $500 万投资）
+期权池：$225 万（15% × $1500 万）
+创始人在新资金前因池创建被稀释
 ```
 
-**Seed:**
+## 组织设计
+
+### 汇报结构
+
+**种子前：**
 
 ```
-CEO
-├── Engineering Lead (2-4 engineers)
-├── Sales/Growth Lead (1-2 reps)
-├── Product Manager
-└── Operations
+创始人（扁平结构）
+├── 合同工
+└── 首批员工（向创始人汇报）
 ```
 
-**Series A:**
+**种子轮：**
 
 ```
 CEO
-├── CTO / VP Engineering (6-20 people)
-│   ├── Engineering Manager(s)
-│   └── Individual Contributors
-├── VP Sales (5-15 people)
-│   ├── Sales Manager
-│   ├── Account Executives
-│   └── SDRs
-├── Head of Product (2-5 people)
-│   ├── Product Managers
-│   └── Designers
-├── Head of Customer Success (2-5 people)
-└── CFO / Finance Lead (2-5 people)
-    ├── Recruiter
-    └── Operations
+├── 工程负责人（2-4 名工程师）
+├── 销售/增长负责人（1-2 名代表）
+├── 产品经理
+└── 运营
 ```
 
-### Span of Control
-
-**Manager Ratios:**
-
-- First-line managers: 4-8 direct reports
-- Directors: 3-5 direct reports (managers)
-- VPs: 3-5 direct reports (directors)
-- CEO: 5-8 direct reports (executive team)
-
-## Full-Time vs. Contract
-
-### Use Full-Time for:
-
-- Core product development
-- Sales (revenue-generating roles)
-- Mission-critical operations
-- Institutional knowledge roles
-
-### Use Contractors for:
-
-- Specialized short-term needs (legal, accounting)
-- Variable workload (design, marketing campaigns)
-- Skills outside core competency
-- Testing role before FTE hire
-- Geographic expansion before permanent presence
-
-### Cost Comparison
-
-**Full-Time:**
-
-- Lower hourly cost
-- Benefits and overhead
-- Long-term commitment
-- Cultural fit matters
-
-**Contract:**
-
-- Higher hourly rate ($75-$200/hour vs. $40-$100/hour FTE equivalent)
-- No benefits or overhead
-- Flexible engagement
-- Easier to scale up/down
-
-## Hiring Velocity
-
-### Realistic Timeline
-
-**Role Opening to Hire:**
-
-- Junior: 6-8 weeks
-- Mid-Level: 8-12 weeks
-- Senior: 12-16 weeks
-- Executive: 16-24 weeks
-
-**Time to Productivity:**
-
-- Junior: 4-6 months
-- Mid-Level: 2-4 months
-- Senior: 1-3 months
-- Executive: 3-6 months
-
-### Planning Buffer
-
-Always add 2-3 months buffer to hiring plans.
-
-**Example:**
-If need engineer by July 1:
-
-- Start recruiting: April 1 (12 weeks)
-- Productivity: September 1 (2 months ramp)
-
-## Budget Planning
-
-### Compensation as % of Revenue
-
-**Early Stage (Seed):**
-
-- Total comp: 120-150% of revenue (burning cash to grow)
-- Engineering: 50-60%
-- Sales: 30-40%
-- Other: 20-30%
-
-**Growth Stage (Series A):**
-
-- Total comp: 70-100% of revenue
-- Engineering: 35-45%
-- Sales: 25-35%
-- Other: 20-30%
-
-### Headcount Budget Formula
+**A 轮：**
 
 ```
-Total Comp Budget = Σ (Role Count × Fully-Loaded Cost × % of Year)
+CEO
+├── CTO / 工程 VP（6-20 人）
+│   ├── 工程经理
+│   └── 个人贡献者
+├── 销售 VP（5-15 人）
+│   ├── 销售经理
+│   ├── 客户经理
+│   └── SDR
+├── 产品负责人（2-5 人）
+│   ├── 产品经理
+│   └── 设计师
+├── 客户成功负责人（2-5 人）
+└── CFO / 财务负责人（2-5 人）
+    ├── 招聘专员
+    └── 运营
+```
 
-Example:
-3 Engineers × $202K × 100% = $606K
-2 AEs × $230K × 75% (mid-year start) = $345K
-1 PM × $162K × 100% = $162K
-Total: $1.1M
+### 管理幅度
+
+**管理者比例：**
+
+- 一线管理者：4-8 名直接下属
+- 总监：3-5 名直接下属（管理者）
+- VP：3-5 名直接下属（总监）
+- CEO：5-8 名直接下属（高管团队）
+
+## 全职 vs 合同
+
+### 使用全职的情况：
+
+- 核心产品开发
+- 销售（创收角色）
+- 关键任务运营
+- 机构知识角色
+
+### 使用合同工的情况：
+
+- 专业短期需求（法务、会计）
+- 可变工作量（设计、营销活动）
+- 核心能力之外的技能
+- 全职招聘前的测试角色
+- 永久存在前的地理扩张
+
+### 成本对比
+
+**全职：**
+
+- 每小时成本更低
+- 福利和管理费用
+- 长期承诺
+- 文化契合很重要
+
+**合同：**
+
+- 每小时费率更高（$75-$200/小时 vs $40-$100/小时等效全职）
+- 无福利或管理费用
+- 灵活合作
+- 更容易扩缩
+
+## 招聘速度
+
+### 现实时间线
+
+**从开放职位到入职：**
+
+- 初级：6-8 周
+- 中级：8-12 周
+- 高级：12-16 周
+- 高管：16-24 周
+
+**达到生产力时间：**
+
+- 初级：4-6 个月
+- 中级：2-4 个月
+- 高级：1-3 个月
+- 高管：3-6 个月
+
+### 规划缓冲
+
+始终在招聘计划中增加 2-3 个月缓冲。
+
+**示例：**
+如果需要在 7 月 1 日前有工程师：
+
+- 开始招聘：4 月 1 日（12 周）
+- 生产力：9 月 1 日（2 个月上手）
+
+## 预算规划
+
+### 薪酬占营收百分比
+
+**早期（种子轮）：**
+
+- 总薪酬：营收的 120-150%（烧钱增长）
+- 工程：50-60%
+- 销售：30-40%
+- 其他：20-30%
+
+**增长阶段（A 轮）：**
+
+- 总薪酬：营收的 70-100%
+- 工程：35-45%
+- 销售：25-35%
+- 其他：20-30%
+
+### 人员编制预算公式
+
+```
+总薪酬预算 = Σ（角色数量 × 全包成本 × 年度百分比）
+
+示例：
+3 名工程师 × $20.2 万 × 100% = $60.6 万
+2 名 AE × $23 万 × 75%（年中入职）= $34.5 万
+1 名 PM × $16.2 万 × 100% = $16.2 万
+总计：$111.3 万
 ```
 
 
-## Quick Start
+## 快速开始
 
-To plan team composition:
+规划团队组合：
 
-1. **Identify stage** - Pre-seed, seed, or Series A
-2. **Define roles** - What functions are needed now
-3. **Prioritize hires** - Critical path for business goals
-4. **Set compensation** - Base salary + equity by level
-5. **Plan timeline** - Account for recruiting and ramp time
-6. **Calculate budget** - Fully-loaded cost × headcount
-7. **Design org chart** - Reporting structure and span of control
-8. **Allocate equity** - Fair allocation that preserves pool
+1. **确定阶段** — 种子前、种子轮或 A 轮
+2. **定义角色** — 现在需要什么职能
+3. **优先排序招聘** — 业务目标的关键路径
+4. **设定薪酬** — 按级别的基本工资 + 股权
+5. **规划时间线** — 考虑招聘和上手时间
+6. **计算预算** — 全包成本 × 人员编制
+7. **设计组织架构** — 汇报结构和管理幅度
+8. **分配股权** — 保留池的公平分配

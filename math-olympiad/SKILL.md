@@ -1,411 +1,297 @@
 ---
 name: math-olympiad
 description:
-  "Solve competition math problems (IMO, Putnam, USAMO, AIME) with adversarial
-  verification that catches the errors self-verification misses. Activates when
-  asked to 'solve this IMO problem', 'prove this olympiad inequality', 'verify
-  this competition proof', 'find a counterexample', 'is this proof correct', or
-  for any problem with 'IMO', 'Putnam', 'USAMO', 'olympiad', or 'competition
-  math' in it. Uses pure reasoning (no tools) — then a fresh-context adversarial
-  verifier attacks the proof using specific failure patterns, not generic 'check
-  logic'. Outputs calibrated confidence — will say 'no confident solution'
-  rather than bluff. If LaTeX is available, produces a clean PDF after
-  verification passes."
+  "解决竞赛数学问题（IMO、Putnam、USAMO、AIME），通过对抗性验证
+  捕捉自我验证遗漏的错误。当用户要求'解决这道 IMO 问题'、'证明这个
+  奥林匹克不等式'、'验证这个竞赛证明'、'找反例'、'这个证明正确吗'，
+  或问题中包含 'IMO'、'Putnam'、'USAMO'、'olympiad'、'competition math'
+  时激活。使用纯推理（无工具）——然后在全新上下文中使用特定失败模式
+  （而非通用的'检查逻辑'）的对抗性验证器攻击证明。输出经过校准的
+  置信度——会说'无可靠解'而非强行回答。如果 LaTeX 可用，在验证
+  通过后生成干净的 PDF。"
 version: 0.1.0
 ---
 
-# Math Olympiad Solver
+# 数学奥林匹克求解器
 
-## The five things that change outcomes
+## 改变结果的五件事
 
-1. **Strip thinking before verifying** — a verifier that sees the reasoning is
-   biased toward agreement. Fresh context, cleaned proof only.
-2. **"Does this prove RH?"** — if your theorem's specialization to ζ is a famous
-   open problem, you have a gap. Most reliable red flag.
-3. **Short proof → extract the general lemma** — try 2×2 counterexamples. If
-   general form is false, find what's special about THIS instance.
-4. **Same gap twice → step back** — the case split may be obscuring a unified
-   argument. Three lines sometimes does what twelve pages couldn't.
-5. **Say "no confident solution"** — wrong-and-confident is worse than honest
-   abstain.
+1. **验证前剥离思考过程** — 看到推理过程的验证器会偏向同意。使用全新上下文，仅保留清理后的证明。
+2. **"这证明了 RH 吗？"** — 如果你的定理对 ζ 的特化是一个著名的开放问题，说明存在漏洞。这是最可靠的红旗信号。
+3. **简短证明 → 提取一般引理** — 尝试 2×2 反例。如果一般形式是错误的，找出这个特例的特殊之处。
+4. **同一漏洞出现两次 → 退后一步** — 情况分类可能掩盖了统一论证。三行有时能做到十二页做不到的事。
+5. **说"无可靠解"** — 错误但自信比诚实放弃更糟糕。
 
 ---
 
-**Tool policy**: Solvers and verifiers use THINKING ONLY in the tight-budget
-workflow. Competition math is reasoning. Computation is for deep mode (§6c), and
-even then bounded — a recurrence that's doubly-exponential can't be computed
-past n~30, work mod 2^m instead.
+**工具策略**：求解器和验证器在紧凑预算工作流中仅使用思考。竞赛数学是推理。计算用于深度模式（§6c），即使是那样也有界——双指数递推在 n~30 之后无法计算，改用 mod 2^m 工作。
 
 ---
 
-## When to use which approach
+## 何时使用哪种方法
 
-| Problem                                              | Approach                                                                       | Verification              |
-| ---------------------------------------------------- | ------------------------------------------------------------------------------ | ------------------------- |
-| AIME numeric answer                                  | Best-of-N → majority vote                                                      | Answer check only         |
-| Olympiad proof (IMO/Putnam/USAMO)                    | Full workflow below                                                            | 5-pass adversarial        |
-| "Is this proof correct?"                             | Skip to verification (step 4)                                                  | Adversarial + spec-gaming |
-| **Full problem set** (e.g. all 6 from a competition) | Sequential: one full workflow per problem, collect results, compile single PDF | Per-problem adversarial   |
+| 问题                                                | 方法                                                                        | 验证                 |
+| --------------------------------------------------- | --------------------------------------------------------------------------- | -------------------- |
+| AIME 数值答案                                       | N 选最佳 → 多数投票                                                         | 仅答案检查           |
+| 奥林匹克证明（IMO/Putnam/USAMO）                    | 完整工作流如下                                                              | 5 轮对抗性验证       |
+| "这个证明正确吗？"                                  | 跳到验证（步骤 4）                                                          | 对抗性 + 规范博弈    |
+| **完整题集**（如某次竞赛的全部 6 题）               | 顺序执行：每题一个完整工作流，收集结果，编译单个 PDF                        | 逐题对抗性验证       |
 
-**Batch in one Workflow**: Set `opts.label` on every `agent()` call to include
-the problem ID (e.g., `label: "P3:solver:2"`). Without labels, 36 results come
-back with no problem association. Run problems in parallel — the label is what
-matters, not ordering.
+**单工作流批量处理**：在每个 `agent()` 调用上设置 `opts.label` 以包含题目 ID（如 `label: "P3:solver:2"`）。没有标签的话，36 个结果回来时无法关联到具体题目。并行运行各题——标签才是关键，而非顺序。
 
-### For a full problem set
+### 完整题集
 
-Launch one solver workflow per problem (same VERBATIM prompt, different
-statement). Run them in parallel. When all return, run adversarial verification
-per problem. Problems that pass get their proof in the PDF; problems that
-abstain get "No confident solution" with partial notes.
+为每道题启动一个求解器工作流（相同的 VERBATIM 提示，不同的题目描述）。并行运行。当全部返回后，为每道题运行对抗性验证。通过的题目将其证明放入 PDF；放弃的题目显示"无可靠解"并附部分笔记。
 
-Don't try to solve all N problems in one agent's context — each problem needs
-its own thinking budget and its own fresh-context verifier. The composition is
-mechanical: collect the per-problem outputs, fill in LaTeX sections, compile
-once. | "Simplify this proof" | Skip to presentation (step 8) | — |
+不要试图在一个 agent 的上下文中解决所有 N 道题——每道题需要自己的思考预算和自己的全新上下文验证器。组合是机械的：收集每题的输出，填充 LaTeX 部分，一次编译。 | "简化这个证明" | 跳到展示（步骤 8） | — |
 
 ---
 
-## The Workflow
+## 工作流
 
-### 1. Interpretation check (30 seconds, catches 50/63 of one class of errors)
+### 1. 解释检查（30 秒，捕获 63 个错误中的 50 个）
 
-Before solving anything, identify the interpretation.
+在解决任何问题之前，先确认解释方式。
 
-> Read the problem statement. List 2-3 ways it could be interpreted. For each:
-> is this reading TRIVIAL? If one reading makes the problem easy and another
-> makes it hard, the hard one is almost certainly intended. State which
-> interpretation you're solving and WHY you believe it's the intended one.
+> 阅读题目。列出 2-3 种可能的解释方式。对于每种：这个解释是否是平凡的？如果一种解释使问题变简单而另一种使问题变困难，困难的那个几乎肯定是出题者的意图。说明你正在解决哪种解释以及为什么你认为这是出题者的意图。
 
-The Aletheia case study found 50 of 63 "technically correct" solutions were for
-the wrong interpretation. Olympiad problems often have a trap easy reading.
+Aletheia 案例研究发现 63 个"技术上正确"的解中有 50 个是针对错误解释的。奥林匹克问题通常有一个容易落入的陷阱解释。
 
-### 2. Generate candidates with internal refinement (parallel, thinking only)
+### 2. 生成候选解并内部精化（并行，仅思考）
 
-Launch 8-12 attempt agents in parallel. **Each agent internally iterates** —
-solve → self-improve → self-verify → correct → repeat. This is the Yang-Huang
-structure that achieves 85.7% on IMO: one-shot solving isn't enough; per-attempt
-refinement matters.
+并行启动 8-12 个尝试 agent。**每个 agent 内部迭代** — 求解 → 自我改进 → 自我验证 → 修正 → 重复。这是 Yang-Huang 结构，在 IMO 上达到 85.7%：一次性求解是不够的；每次尝试的精化很重要。
 
-**The Agent tool cannot enforce tool restriction.** Subagents get the full tool
-set. The only mechanism is the prompt. Use this prompt VERBATIM — do not
-summarize, do not synthesize your own:
+**Agent 工具无法强制工具限制。**子 agent 获得完整的工具集。唯一的机制是提示词。请逐字使用以下提示词——不要总结，不要自己合成：
 
 ```
-NO COMPUTATION. Do not use Bash, Python, WebSearch, Read, Write, or any tool that runs code or fetches data. Numerical verification is not a proof step. "I computed n=1..10 and the pattern holds" is not a proof.
+不要计算。不要使用 Bash、Python、WebSearch、Read、Write 或任何运行代码或获取数据的工具。数值验证不是证明步骤。"我计算了 n=1..10 且模式成立"不是证明。
 
-(If your agent harness requires a StructuredOutput or similar return-mechanism tool call, that is NOT a computation tool — call it to return your answer. The restriction is on tools that DO work, not tools that REPORT work.)
+（如果你的 agent 框架需要 StructuredOutput 或类似的返回机制工具调用，那不是计算工具——调用它来返回你的答案。限制的是做工作的工具，不是报告工作的工具。）
 
-Your internal process (iterate until done):
-- Solve: Complete rigorous solution.
-- Self-improve: Reread. Fix gaps before a grader sees it.
-- Self-verify: Strict grader mode. Every step justified?
-- Correct: Fix and re-verify. Up to 5 rounds.
-- Stop: Self-verify passes twice clean, OR 5 rounds, OR approach fundamentally wrong.
+你的内部过程（迭代直到完成）：
+- 求解：完成严格解。
+- 自我改进：重新阅读。在评分者看到之前修复漏洞。
+- 自我验证：严格评分者模式。每一步都有依据吗？
+- 修正：修复并重新验证。最多 5 轮。
+- 停止：自我验证两次连续通过，或 5 轮，或方法根本性错误。
 
-A correct answer from flawed reasoning is a failure. If incomplete, say so honestly. Never hide gaps.
+从有缺陷的推理得出正确答案是失败。如果不完整，诚实说明。永远不要隐藏漏洞。
 
-PROBLEM: <insert the problem statement here>
-ANGLE: <insert one starting angle here>
+问题：<在此插入题目描述>
+角度：<在此插入一个起始角度>
 ```
 
-The first two paragraphs are load-bearing. A session that writes its own prompt
-and omits them will produce subagents that grind Python for 30 iterations and
-confidently get wrong answers — a pattern that fits n≤10 but fails at n=100 is
-not a proof.
+前两段是关键。自己编写提示词并省略它们的会话将产生在 30 次迭代中磨 Python 并自信地得出错误答案的子 agent——一个适合 n≤10 但在 n=100 时失败的模式不是证明。
 
-Starting angles (vary across agents — see `references/solver_heuristics.md`):
+起始角度（在各 agent 之间变化——参见 `references/solver_heuristics.md`）：
 
-- Work out small cases (test past n=3)
-- Look for an invariant or monovariant
-- Consider the extremal case
-- Try induction
-- What symmetries?
-- Work backwards
-- Drop a condition — where does it become trivially false?
-- Generalize (inventor's paradox — more structure is sometimes easier)
+- 计算小情况（测试超过 n=3）
+- 寻找不变量或单调量
+- 考虑极端情况
+- 尝试归纳法
+- 有什么对称性？
+- 反向推导
+- 去掉一个条件——在哪里变得平凡地错误？
+- 推广（发明者悖论——更多结构有时更容易）
 
-Each returns its FINAL state (not intermediate rounds):
+每个 agent 返回其最终状态（非中间轮次）：
 
 ```
-**Verdict**: complete solution | partial result | no progress
-**Rounds**: [how many verify→correct cycles]
-**Method**: [key idea, one paragraph]
-**Detailed Solution**: [full step-by-step, every step justified]
-**Answer**: [if applicable]
-**Self-verification notes**: [what you caught and fixed; remaining concerns]
+**结论**：完整解 | 部分结果 | 无进展
+**轮次**：[验证→修正循环次数]
+**方法**：[关键思路，一段话]
+**详细解**：[完整步骤，每步有依据]
+**答案**：[如适用]
+**自我验证笔记**：[你发现和修正的内容；剩余担忧]
 ```
 
-**Retry policy**: If an agent fails or times out, retry once. Transient failures
-happen.
+**重试策略**：如果 agent 失败或超时，重试一次。瞬态失败会发生。
 
-### 3. Clean the solution (context isolation — the #1 lever)
+### 3. 清理解法（上下文隔离——最重要的杠杆）
 
-The thinking trace biases the verifier toward agreement — a long chain of
-reasoning reads as supporting evidence even when the conclusion is wrong. Before
-any verification, strip:
+思考痕迹会使验证器偏向同意——即使结论是错误的，长推理链也会被读作支持证据。在任何验证之前，剥离：
 
-- All thinking-block content
-- All "Let me try..." / "Actually wait..." / "Hmm" prose
-- All false starts and backtracking
+- 所有思考块内容
+- 所有"让我试试..." / "实际上等等..." / "嗯"的表述
+- 所有错误的开始和回溯
 
-What remains: problem statement + clean final argument only.
+剩下的：仅题目描述 + 干净的最终论证。
 
-Extract only the **Method** + **Proof** + **Answer** sections from each solver's
-output. The verifier never sees how the solver got there.
+从每个求解器的输出中仅提取**方法** + **证明** + **答案**部分。验证器永远看不到求解器是如何得出结论的。
 
-### 4. Adversarial verify (fresh context, pattern-armed)
+### 4. 对抗性验证（全新上下文，配备模式）
 
-For each cleaned solution, launch a fresh verifier agent. **Fresh context**: it
-sees only (problem statement + cleaned solution). **No tools.**
+对每个清理后的解法，启动一个新的验证器 agent。**全新上下文**：它只看到（题目描述 + 清理后的解法）。**无工具。**
 
-The verifier's job is to ATTACK, not grade. Load
-`references/adversarial_prompts.md` for the prompts. The key patterns it runs:
+验证器的工作是攻击，而非评分。加载 `references/adversarial_prompts.md` 获取提示词。它运行的关键模式：
 
-| Pattern | The check                                                                                                                                                          |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **#4**  | Does this theorem specialize to a famous object (ζ, quadratic reciprocity, etc.) and prove something open about it? → gap                                          |
-| **#18** | Substitute the proof's own intermediate identities into any "remaining gap." Recover the original claim? → tautological                                            |
-| **#40** | Is any step a "one-line lemma"? Extract the GENERAL form. Find a 2×2 counterexample. If the general form is false, find what special structure saves THIS instance |
-| **#5**  | For each invoked theorem: re-check hypotheses FROM SCRATCH. "Continuous on [0,1]" ≠ "continuous on ℝ"                                                              |
-| **#6**  | Any infinite sum "bounded" via a regularized value? Check the boundary — if there's a pole there, the sum diverges                                                 |
+| 模式  | 检查内容                                                                                                                                                          |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **#4**  | 这个定理是否特化为著名对象（ζ、二次互反律等）并证明了关于它的开放问题？→ 漏洞                                                                                      |
+| **#18** | 将证明自身的中间恒等式代入任何"剩余间隙"。能恢复原始命题吗？→ 重言式                                                                                                |
+| **#40** | 任何步骤是"一行引理"吗？提取一般形式。找 2×2 反例。如果一般形式是错误的，找出什么特殊结构挽救了这个特例                                                               |
+| **#5**  | 对于每个引用的定理：从头重新检查假设。"在 [0,1] 上连续" ≠ "在 ℝ 上连续"                                                                                            |
+| **#6**  | 任何通过正则化值"有界"的无穷级数？检查边界——如果那里有极点，级数发散                                                                                               |
 
-Full pattern list: `references/verifier_patterns.md`
+完整模式列表：`references/verifier_patterns.md`
 
-Verifier returns:
+验证器返回：
 
 ```
-**Verdict**: HOLDS | HOLE FOUND | UNCLEAR
+**结论**：成立 | 发现漏洞 | 不确定
 
-**If HOLE FOUND**:
-- Location: [quote the problematic step]
-- Pattern: [which check fired, or "other"]
-- Why it breaks: [specific]
-- Fixable?: [yes with X / no, fundamental]
+**如果发现漏洞**：
+- 位置：[引用有问题的步骤]
+- 模式：[哪个检查触发，或"其他"]
+- 为何失效：[具体说明]
+- 可修复？[是，需要 X / 否，根本性问题]
 ```
 
-### 5. Rank and vote-verify (asymmetric + early exit)
+### 5. 排名和投票验证（非对称 + 提前退出）
 
-Rank solutions by (verdict, verifier confidence). Take the top one. Run up to 5
-fresh verifier agents.
+按（结论、验证器置信度）对解法排序。取最好的一个。运行最多 5 个新的验证器 agent。
 
-**Asymmetric thresholds**: 4 HOLDS to confirm, 2 HOLE FOUND to refute. Why
-asymmetric: one flaky verifier shouldn't kill a correct proof; but two
-independent dissents is a real signal.
+**非对称阈值**：4 个成立确认，2 个发现漏洞否定。为什么非对称：一个不稳定的验证器不应否定正确的证明；但两个独立的不同意见是真正的信号。
 
-**Pigeonhole early exit**: stop launching verifiers once the outcome is decided.
+**鸽巢提前退出**：一旦结果确定，停止启动验证器。
 
-- 2 say HOLE FOUND → refuted, stop (save the remaining 3 calls)
-- 4 say HOLDS → confirmed, stop (save the 5th)
-- After 3 verifiers: if 2 HOLDS + 1 HOLE, launch 2 more (outcome undecided). If
-  3 HOLDS + 0 HOLE, launch 1 more (could still hit 4-1).
+- 2 个说发现漏洞 → 被否定，停止（节省剩余 3 次调用）
+- 4 个说成立 → 确认，停止（节省第 5 次）
+- 3 个验证器后：如果 2 成立 + 1 漏洞，再启动 2 个（结果未定）。如果 3 成立 + 0 漏洞，再启动 1 个（仍可能达到 4-1）。
 
-**Dual context-isolation**: each verifier is blind to (a) the solver's thinking
-trace — already stripped in step 3 — AND (b) other verifiers' verdicts. Each
-verifier thinks it's the first. No "3 agents already confirmed this" social
-proof.
+**双重上下文隔离**：每个验证器对 (a) 求解器的思考痕迹——已在步骤 3 中剥离——和 (b) 其他验证器的结论都是盲的。每个验证器都认为自己是第一个。没有"3 个 agent 已经确认了"的社会证明。
 
-**A solver cannot verify its own solution.** Different agent, fresh context.
+**求解器不能验证自己的解法。**不同的 agent，全新上下文。
 
-### 5b. When one case won't close — step back before grinding
+### 5b. 当一个情况无法关闭——在死磕之前退后一步
 
-If a proof splits into cases and one case proves easily but the other resists:
-**before grinding through the hard case, ask whether there's a route that makes
-the split disappear.**
+如果证明分为多种情况，一种情况容易证明但另一种顽固抵抗：**在死磕困难情况之前，先问是否存在使分类消失的路径。**
 
-The pattern that saves you: the hard case's very hypothesis often implies
-something strong about an _intermediate object_ you haven't looked at. Use that
-implication directly instead of the original chain.
+能挽救你的模式：困难情况的假设本身通常暗示了关于你尚未查看的_中间对象_的强结论。直接使用该推论，而非原始链条。
 
-Concrete shape: proving f(n) ≤ cn for a constrained function f, with a case
-split on a prime p dividing f(n). One branch closes by index arguments in
-(ℤ/p^e)\*. The other branch resists — same group structure, but the arithmetic
-doesn't contradict. The fix: the hypothesis "p | f(n)" plugged back into the
-governing equation implies **f(p) = p itself**. Once you have that, a
-Fermat+Dirichlet argument kills both branches in three lines. The case split was
-a detour — it was splitting on a variable that, under the hypothesis, takes a
-known value.
+具体形态：证明受限函数 f 满足 f(n) ≤ cn，其中情况分类基于整除 f(n) 的素数 p。一个分支通过 (ℤ/p^e)\* 中的指数参数关闭。另一个分支顽固抵抗——相同的群结构，但算术不矛盾。修复方法：假设 "p | f(n)" 代回控制方程意味着 **f(p) = p 本身**。一旦有了这个，Fermat+Dirichlet 论证三行搞定两个分支。情况分类是弯路——它是在一个在假设下取已知值的变量上分类。
 
-Check when stuck on case B:
+在情况 B 卡住时检查：
 
-- What does case B's hypothesis imply about f at _other_ inputs?
-- Is there a different pair (a,b) to plug into the governing equation?
-- Are you proving too much? (A cleaner contradiction needs less machinery.)
+- 情况 B 的假设对 f 在_其他_输入上意味着什么？
+- 有不同的一对 (a,b) 可以代入控制方程吗？
+- 你是否证明了太多？（更干净的矛盾需要更少的工具。）
 
-This is also a presentation-pass win: the split-free proof is shorter AND more
-general.
+这也是展示环节的胜利：无分类证明更短且更一般。
 
-### 6. Revise (if needed)
+### 6. 修正（如果需要）
 
-If verification finds a hole: launch a reviser agent. It gets (cleaned
-solution + verifier's hole report). STILL no access to the original thinking —
-the reviser works from the hole, not by rereading how you got there.
+如果验证发现漏洞：启动修正 agent。它获得（清理后的解法 + 验证器的漏洞报告）。仍然无法访问原始思考——修正器从漏洞出发工作，而不是重新阅读你是如何得出结论的。
 
 ```
-A verifier found this issue in the proof:
-[hole report]
+验证器在证明中发现了这个问题：
+[漏洞报告]
 
-Fix the proof. If the hole is fundamental (the approach doesn't work), say so and return **Verdict: no confident solution** with what partial progress remains.
+修复证明。如果漏洞是根本性的（方法不可行），说明并返回**结论：无可靠解**以及剩余的部分进展。
 
-For any step you cannot fully close, mark it inline: [GAP: specific description of what remains]. Gaps in the proof text, not in a separate list — they're greppable and the next reviser knows exactly where to look.
+对于任何你无法完全关闭的步骤，在行内标记：[差距：剩余内容的具体描述]。差距在证明正文中，而非单独列表——它们可被 grep 搜索，下一个修正器确切知道从哪里找。
 ```
 
-Up to 3 revise cycles. Then re-run the vote on the revised proof.
+最多 3 轮修正。然后对修正后的证明重新运行投票。
 
-**If pattern #40 fired** (one-line-proof-too-clean), the reviser gets a stronger
-brief — the Adversarial Brief template from `references/adversarial_prompts.md`
-§7. It forces a binary: "the general lemma is obviously false (here's a 2×2
-counterexample) — so either find what's special about THIS case, or find where
-the proof breaks." Can't return "looks fine."
+**如果模式 #40 触发**（一行证明过于干净），修正器获得更强的指令——来自 `references/adversarial_prompts.md` §7 的对抗性指令模板。它强制二选一："一般引理显然是错误的（这是 2×2 反例）——所以要么找出这个特例的特殊之处，要么找出证明在哪里失效。"不能返回"看起来没问题。"
 
-### 6c. Deep mode (when tight-budget abstains)
+### 6c. 深度模式（当紧凑预算放弃时）
 
-The standard workflow is tight-budget: 8 solvers, ~15 min, pure reasoning. When
-it abstains, the problem may need more time, not more capability.
+标准工作流是紧凑预算：8 个求解器，约 15 分钟，纯推理。当它放弃时，问题可能需要更多时间，而非更多能力。
 
-**Deep mode** is a single focused agent with:
+**深度模式**是一个专注的单一 agent，具有：
 
-- **Unlimited time** — no wall-clock pressure
-- **Targeted computation allowed** — modular arithmetic checks, small-case
-  enumeration, symbolic verification of identities. NOT exploratory brute force
-  or unbounded recursion.
-- **The abstention reason as starting point** — if verifiers found a specific
-  gap, start there. If solvers never claimed complete, start from what they
-  partially proved.
+- **无限时间** — 无时间压力
+- **允许有针对性的计算** — 模算术检查、小情况枚举、恒等式的符号验证。不是探索性暴力或无界递推。
+- **以放弃原因作为起点** — 如果验证器发现了具体漏洞，从那里开始。如果求解器从未声称完成，从它们部分证明的内容开始。
 
-The archetype: a focused agent that gets the proven-so-far state plus "one case
-of Lemma 5 is open" — and finds a 3-line argument the case split was obscuring.
-Often under 10 minutes with almost no computation. Deep mode is about giving the
-problem sustained attention, not throwing compute at it.
+原型：一个专注的 agent 获得到目前为止已证明的状态加上"引理 5 的一个情况未关闭"——并找到一个情况分类所掩盖的 3 行论证。通常不到 10 分钟，几乎不需要计算。深度模式是给问题持续关注，而非投入算力。
 
-**What deep mode is NOT**: open-ended exploration, literature search, looking up
-solutions, multi-day investigation. That's a different workflow
-(`math-research`). Deep mode is still "solve THIS problem yourself" — just
-without the clock.
+**深度模式不是什么**：开放式探索、文献搜索、查找答案、多日调查。那是不同的工作流（`math-research`）。深度模式仍然是"自己解决这个问题"——只是没有时间限制。
 
-**NO WEB. NO LOOKUP.** Deep mode may use Bash/Python for bounded computation,
-but NEVER WebFetch, WebSearch, or any network access. Finding the solution on
-AoPS or a blog is not solving the problem — it's cheating on an olympiad, and it
-teaches us nothing about the skill's actual capability. Put this at the TOP of
-the deep-mode prompt:
+**不能联网。不能查找。**深度模式可以使用 Bash/Python 进行有界计算，但绝不能使用 WebFetch、WebSearch 或任何网络访问。在 AoPS 或博客上找到答案不是解决问题——这是在奥林匹克竞赛中作弊，它教不了我们关于技能实际能力的任何东西。将此放在深度模式提示词的顶部：
 
 ```
-NO WEB ACCESS. Do not use WebFetch, WebSearch, or any tool that touches the internet. Do not look up this problem, its solution, or related problems. You are solving this yourself — the only allowed computation is local (Bash/Python for mod-k arithmetic, small-case enumeration n≤10, symbolic identity checks). If you invoke a web tool, the proof is void.
+不能联网。不要使用 WebFetch、WebSearch 或任何接触互联网的工具。不要查找这个问题、它的答案或相关问题。你自己解决——唯一允许的计算是本地的（Bash/Python 用于模 k 算术、小情况枚举 n≤10、符号恒等式检查）。如果你调用了网络工具，证明无效。
 ```
 
-**Computation bounds in deep mode** (bug #8 lesson): A6's b\_{n+1}=2b_n²+b_n+1
-is doubly-exponential; b_99 has ~10^{2^98} digits. Never compute such objects
-exactly — work in ℤ/2^m, or track only v_p(·), or prove the recursion mod the
-quantity you care about. If a computation is running longer than 60 seconds,
-it's probably unbounded. Kill it and work symbolically.
+**深度模式中的计算界线**（bug #8 教训）：A6 的 b_{n+1}=2b_n²+b_n+1 是双指数的；b_99 有约 10^{2^98} 位数字。永远不要精确计算此类对象——在 ℤ/2^m 中工作，或仅跟踪 v_p(·)，或对你关心的量取模证明递推。如果计算运行超过 60 秒，它可能是无界的。终止它并进行符号推导。
 
-**Step 6d (not optional)**: After any ABSTAIN at the verify stage, automatically
-launch one deep-mode agent before writing the abstention into the output. Give
-it:
+**步骤 6d（非可选）**：在验证阶段任何放弃之后，在将放弃写入输出之前，自动启动一个深度模式 agent。给它：
 
-- The problem statement
-- The best partial proof from tight-budget solvers
-- The verifier gap descriptions (what specifically didn't close)
-- The instruction: "NO WEB ACCESS — do not look up this problem or its solution.
-  Bounded local computation allowed (mod 2^k, small cases n≤10, symbolic
-  identity checks via Bash/Python only). 60-second computation limit. If n≤10
-  brute force reveals a pattern the tight-budget solvers missed, that pattern IS
-  the proof structure."
+- 题目描述
+- 紧凑预算求解器的最佳部分证明
+- 验证器的漏洞描述（具体什么没有关闭）
+- 指令："不能联网——不要查找这个问题或它的答案。允许有界的本地计算（mod 2^k、小情况 n≤10、仅通过 Bash/Python 的符号恒等式检查）。60 秒计算限制。如果 n≤10 暴力揭示了紧凑预算求解器遗漏的模式，该模式就是证明结构。"
 
-The deep agent may find the construction the pure-reasoning solvers couldn't
-see. If it also abstains, THEN write the abstention. Do not skip this step —
-problems with √n or log n answers are often invisible to pure reasoning because
-the optimal structure is the asymmetric one.
+深度 agent 可能发现纯推理求解器看不到的构造。如果它也放弃，然后才写放弃。不要跳过这一步——具有 √n 或 log n 答案的问题对纯推理通常是不可见的，因为最优结构是非对称的。
 
-**Orchestrator self-restraint**: The orchestrator itself must not web-search the
-problem "to help" the deep agent. If you're tempted to Fetch an AoPS thread
-"just to check the answer," don't — that contaminates the skill's output and
-misrepresents its capability.
+**编排器自律**：编排器本身不得为了"帮助"深度 agent 而网络搜索问题。如果你忍不住 Fetch 一个 AoPS 帖子"只是想看看答案"，不要——这会污染技能的输出并歪曲其能力。
 
-### 7. Calibrated abstention
+### 7. 校准的放弃
 
-If 3 revise cycles all fail: **stop and admit it.**
+如果 3 轮修正全部失败：**停下来承认。**
 
 ```
-**Verdict**: no confident solution
+**结论**：无可靠解
 
-**What was tried**: [approaches]
-**What WAS proven**: [any lemma or partial result that survived verification]
-**Where it breaks**: [the unfixed hole]
+**尝试过的方法**：[各种方法]
+**已证明的内容**：[通过验证的任何引理或部分结果]
+**失效之处**：[未修复的漏洞]
 ```
 
-Do NOT guess. A wrong confident answer is worse than an honest "couldn't solve
-it." The metric that matters is CONDITIONAL accuracy — when you say "solved,"
-are you right?
+不要猜测。错误但自信的答案比诚实的"解不出来"更糟糕。重要的指标是条件准确率——当你说"解决了"时，你对了吗？
 
-### 8. Presentation pass (after correctness is established)
+### 8. 展示环节（在正确性确立之后）
 
-A VERIFIED-CORRECT proof is often not a BEAUTIFUL proof. The order you
-discovered it is rarely the best order to present it. Launch a fresh
-presentation agent with the verified proof.
+一个经过验证正确的证明通常不是一个漂亮的证明。你发现它的顺序很少是展示它的最佳顺序。启动一个新的展示 agent，提供已验证的证明。
 
-Load `references/presentation_prompts.md`. The agent asks:
+加载 `references/presentation_prompts.md`。agent 会问：
 
-- What's the simplest way to say this?
-- Which lemmas should be inlined? Which deserve to stand alone?
-- Is anything OVERKILL? (constructing a double exponential when linear suffices)
-- Now that we know the answer, is there a 3-line hindsight proof?
+- 最简单的表达方式是什么？
+- 哪些引理应该内联？哪些值得独立存在？
+- 有没有过度设计？（构造双指数当线性就够）
+- 现在我们知道答案了，有没有一个 3 行的事后诸葛亮证明？
 
-Output: LaTeX-formatted proof. If `pdflatex` is available
-(`scripts/check_latex.sh` returns 0), also compile to PDF via
-`scripts/compile_pdf.sh`.
+输出：LaTeX 格式的证明。如果 `pdflatex` 可用（`scripts/check_latex.sh` 返回 0），也通过 `scripts/compile_pdf.sh` 编译为 PDF。
 
 ---
 
-## Model tier defaults
+## 模型层级默认值
 
-Read `references/model_tier_defaults.md` for full details. Summary:
+阅读 `references/model_tier_defaults.md` 获取完整细节。摘要：
 
-| Model  | Solvers | Verify passes          | Abstain after  | Presentation           |
-| ------ | ------- | ---------------------- | -------------- | ---------------------- |
-| Haiku  | 8       | 3                      | 2 revise fails | skip                   |
-| Sonnet | 4       | 5                      | 3 revise fails | yes                    |
-| Opus   | 3       | 5 + full pattern sweep | 4 revise fails | 2 drafts, pick cleaner |
+| 模型   | 求解器 | 验证轮次           | 放弃条件       | 展示               |
+| ------ | ------ | ------------------ | -------------- | ------------------ |
+| Haiku  | 8      | 3                  | 2 轮修正失败   | 跳过               |
+| Sonnet | 4      | 5                  | 3 轮修正失败   | 是                 |
+| Opus   | 3      | 5 + 完整模式扫描   | 4 轮修正失败   | 2 个草稿，取更干净 |
 
-Weaker models: more parallel attempts, faster abstention. Stronger models:
-deeper verification, more presentation effort.
-
----
-
-## For numeric-answer problems (AIME-style)
-
-Skip the proof machinery. Run 5-7 solvers with varied approaches, take majority
-vote on the numeric answer. If no majority: verify the top 2 candidates by
-substitution.
+较弱模型：更多并行尝试，更快放弃。更强模型：更深入验证，更多展示工作。
 
 ---
 
-## Key references
+## 数值答案问题（AIME 风格）
 
-- `references/verifier_patterns.md` — the 12 adversarial checks
-- `references/adversarial_prompts.md` — ready-to-use verifier prompts
-- `references/presentation_prompts.md` — beautification prompts + LaTeX template
-- `references/model_tier_defaults.md` — per-model configuration
+跳过证明机制。运行 5-7 个使用不同方法的求解器，对数值答案进行多数投票。如果没有多数：通过代入验证前 2 个候选。
 
 ---
 
-## What makes this different from generic verify-and-refine
+## 关键参考
 
-1. **Dual context isolation**: verifier is blind to (a) the solver's thinking
-   trace — which biases toward agreement — and (b) other verifiers' verdicts —
-   social proof also biases. Each verifier thinks it's first.
-2. **Pattern-specific attacks**: not "is this correct?" but "does this make the
-   #40 mistake? the #4 mistake?" Specific beats generic. The 7-category
-   refutation taxonomy gives the verifier a checklist.
-3. **Asymmetric vote + pigeonhole exit**: 4-to-confirm, 2-to-refute. One flaky
-   verifier doesn't kill a correct proof; two dissents does. Stop launching
-   verifiers once the outcome is decided — saves ~30% of verification cost on
-   clear cases.
-4. **Specification-gaming check first**: explicitly asks "is this the intended
-   interpretation?" before solving. The #1 failure mode in prior work (50/63
-   "correct" answers solved the wrong reading).
-5. **Calibrated abstention**: will say "no confident solution" with partial
-   results. Optimizes conditional accuracy, not coverage.
-6. **Presentation pass**: correctness and elegance are separate steps. The
-   presentation agent gets the VERIFIED proof and finds the cleanest way to say
-   it.
+- `references/verifier_patterns.md` — 12 个对抗性检查
+- `references/adversarial_prompts.md` — 即用的验证器提示词
+- `references/presentation_prompts.md` — 美化提示词 + LaTeX 模板
+- `references/model_tier_defaults.md` — 每模型配置
+
+---
+
+## 与通用验证精化方法的区别
+
+1. **双重上下文隔离**：验证器对 (a) 求解器的思考痕迹——这会偏向同意——和 (b) 其他验证器的结论——社会证明也会偏向——都是盲的。每个验证器都认为自己是第一个。
+2. **特定模式攻击**：不是"这正确吗？"而是"这犯了 #40 错误吗？#4 错误吗？"具体胜过一般。7 类反驳分类法给验证器一个检查清单。
+3. **非对称投票 + 鸽巢退出**：4 确认，2 否定。一个不稳定的验证器不会否定正确的证明；两个不同意见会。一旦结果确定就停止启动验证器——在清晰案例上节省约 30% 的验证成本。
+4. **规范博弈检查优先**：在求解前明确问"这是出题者的意图吗？"这是先前工作中的头号失败模式（50/63 个"正确"答案解决了错误的解释）。
+5. **校准的放弃**：会说"无可靠解"并附部分结果。优化条件准确率，而非覆盖率。
+6. **展示环节**：正确性和优雅性是分开的步骤。展示 agent 获得已验证的证明并找到最干净的表达方式。

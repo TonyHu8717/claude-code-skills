@@ -1,73 +1,73 @@
 ---
 name: rag-implementation
-description: Build Retrieval-Augmented Generation (RAG) systems for LLM applications with vector databases and semantic search. Use when implementing knowledge-grounded AI, building document Q&A systems, or integrating LLMs with external knowledge bases.
+description: 为 LLM 应用构建带向量数据库和语义搜索的检索增强生成（RAG）系统。在实现知识驱动的 AI、构建文档问答系统或将 LLM 与外部知识库集成时使用。
 ---
 
-# RAG Implementation
+# RAG 实现
 
-Master Retrieval-Augmented Generation (RAG) to build LLM applications that provide accurate, grounded responses using external knowledge sources.
+掌握检索增强生成（RAG），构建使用外部知识源提供准确、有依据响应的 LLM 应用程序。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Building Q&A systems over proprietary documents
-- Creating chatbots with current, factual information
-- Implementing semantic search with natural language queries
-- Reducing hallucinations with grounded responses
-- Enabling LLMs to access domain-specific knowledge
-- Building documentation assistants
-- Creating research tools with source citation
+- 在专有文档上构建问答系统
+- 创建具有当前事实信息的聊天机器人
+- 实现带自然语言查询的语义搜索
+- 通过有依据的响应减少幻觉
+- 使 LLM 能够访问领域特定知识
+- 构建文档助手
+- 创建带源引用的研究工具
 
-## Core Components
+## 核心组件
 
-### 1. Vector Databases
+### 1. 向量数据库
 
-**Purpose**: Store and retrieve document embeddings efficiently
+**用途**：高效存储和检索文档嵌入
 
-**Options:**
+**选项：**
 
-- **Pinecone**: Managed, scalable, serverless
-- **Weaviate**: Open-source, hybrid search, GraphQL
-- **Milvus**: High performance, on-premise
-- **Chroma**: Lightweight, easy to use, local development
-- **Qdrant**: Fast, filtered search, Rust-based
-- **pgvector**: PostgreSQL extension, SQL integration
+- **Pinecone**：托管、可扩展、无服务器
+- **Weaviate**：开源、混合搜索、GraphQL
+- **Milvus**：高性能、本地部署
+- **Chroma**：轻量级、易于使用、本地开发
+- **Qdrant**：快速、过滤搜索、基于 Rust
+- **pgvector**：PostgreSQL 扩展、SQL 集成
 
-### 2. Embeddings
+### 2. 嵌入
 
-**Purpose**: Convert text to numerical vectors for similarity search
+**用途**：将文本转换为数值向量以进行相似性搜索
 
-**Models (2026):**
-| Model | Dimensions | Best For |
+**模型（2026）：**
+| 模型 | 维度 | 最适用于 |
 |-------|------------|----------|
-| **voyage-3-large** | 1024 | Claude apps (Anthropic recommended) |
-| **voyage-code-3** | 1024 | Code search |
-| **text-embedding-3-large** | 3072 | OpenAI apps, high accuracy |
-| **text-embedding-3-small** | 1536 | OpenAI apps, cost-effective |
-| **bge-large-en-v1.5** | 1024 | Open source, local deployment |
-| **multilingual-e5-large** | 1024 | Multi-language support |
+| **voyage-3-large** | 1024 | Claude 应用（Anthropic 推荐） |
+| **voyage-code-3** | 1024 | 代码搜索 |
+| **text-embedding-3-large** | 3072 | OpenAI 应用、高精度 |
+| **text-embedding-3-small** | 1536 | OpenAI 应用、性价比 |
+| **bge-large-en-v1.5** | 1024 | 开源、本地部署 |
+| **multilingual-e5-large** | 1024 | 多语言支持 |
 
-### 3. Retrieval Strategies
+### 3. 检索策略
 
-**Approaches:**
+**方法：**
 
-- **Dense Retrieval**: Semantic similarity via embeddings
-- **Sparse Retrieval**: Keyword matching (BM25, TF-IDF)
-- **Hybrid Search**: Combine dense + sparse with weighted fusion
-- **Multi-Query**: Generate multiple query variations
-- **HyDE**: Generate hypothetical documents for better retrieval
+- **密集检索**：通过嵌入的语义相似性
+- **稀疏检索**：关键词匹配（BM25、TF-IDF）
+- **混合搜索**：结合密集 + 稀疏与加权融合
+- **多查询**：生成多个查询变体
+- **HyDE**：生成假设文档以获得更好的检索
 
-### 4. Reranking
+### 4. 重排序
 
-**Purpose**: Improve retrieval quality by reordering results
+**用途**：通过重新排序结果提高检索质量
 
-**Methods:**
+**方法：**
 
-- **Cross-Encoders**: BERT-based reranking (ms-marco-MiniLM)
-- **Cohere Rerank**: API-based reranking
-- **Maximal Marginal Relevance (MMR)**: Diversity + relevance
-- **LLM-based**: Use LLM to score relevance
+- **交叉编码器**：基于 BERT 的重排序（ms-marco-MiniLM）
+- **Cohere Rerank**：基于 API 的重排序
+- **最大边际相关性（MMR）**：多样性 + 相关性
+- **基于 LLM**：使用 LLM 评分相关性
 
-## Quick Start with LangGraph
+## 使用 LangGraph 快速开始
 
 ```python
 from langgraph.graph import StateGraph, START, END
@@ -132,9 +132,9 @@ result = await rag_chain.ainvoke({"question": "What are the main features?"})
 print(result["answer"])
 ```
 
-## Advanced RAG Patterns
+## 高级 RAG 模式
 
-### Pattern 1: Hybrid Search with RRF
+### 模式 1：带 RRF 的混合搜索
 
 ```python
 from langchain_community.retrievers import BM25Retriever
@@ -154,7 +154,7 @@ ensemble_retriever = EnsembleRetriever(
 )
 ```
 
-### Pattern 2: Multi-Query Retrieval
+### 模式 2：多查询检索
 
 ```python
 from langchain.retrievers.multi_query import MultiQueryRetriever
@@ -169,7 +169,7 @@ multi_query_retriever = MultiQueryRetriever.from_llm(
 results = await multi_query_retriever.ainvoke("What is the main topic?")
 ```
 
-### Pattern 3: Contextual Compression
+### 模式 3：上下文压缩
 
 ```python
 from langchain.retrievers import ContextualCompressionRetriever
@@ -187,7 +187,7 @@ compression_retriever = ContextualCompressionRetriever(
 compressed_docs = await compression_retriever.ainvoke("specific query")
 ```
 
-### Pattern 4: Parent Document Retriever
+### 模式 4：父文档检索器
 
 ```python
 from langchain.retrievers import ParentDocumentRetriever
@@ -215,7 +215,7 @@ await parent_retriever.aadd_documents(documents)
 results = await parent_retriever.ainvoke("query")
 ```
 
-### Pattern 5: HyDE (Hypothetical Document Embeddings)
+### 模式 5：HyDE（假设文档嵌入）
 
 ```python
 from langchain_core.prompts import ChatPromptTemplate
@@ -259,9 +259,9 @@ builder.add_edge("generate", END)
 hyde_rag = builder.compile()
 ```
 
-## Document Chunking Strategies
+## 文档分块策略
 
-### Recursive Character Text Splitter
+### 递归字符文本分割器
 
 ```python
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -276,7 +276,7 @@ splitter = RecursiveCharacterTextSplitter(
 chunks = splitter.split_documents(documents)
 ```
 
-### Token-Based Splitting
+### 基于 Token 的分割
 
 ```python
 from langchain_text_splitters import TokenTextSplitter
@@ -288,7 +288,7 @@ splitter = TokenTextSplitter(
 )
 ```
 
-### Semantic Chunking
+### 语义分块
 
 ```python
 from langchain_experimental.text_splitter import SemanticChunker
@@ -300,7 +300,7 @@ splitter = SemanticChunker(
 )
 ```
 
-### Markdown Header Splitter
+### Markdown 标题分割器
 
 ```python
 from langchain_text_splitters import MarkdownHeaderTextSplitter
@@ -317,9 +317,9 @@ splitter = MarkdownHeaderTextSplitter(
 )
 ```
 
-## Vector Store Configurations
+## 向量存储配置
 
-### Pinecone (Serverless)
+### Pinecone（无服务器）
 
 ```python
 from pinecone import Pinecone, ServerlessSpec
@@ -358,7 +358,7 @@ vectorstore = WeaviateVectorStore(
 )
 ```
 
-### Chroma (Local Development)
+### Chroma（本地开发）
 
 ```python
 from langchain_chroma import Chroma
@@ -370,7 +370,7 @@ vectorstore = Chroma(
 )
 ```
 
-### pgvector (PostgreSQL)
+### pgvector（PostgreSQL）
 
 ```python
 from langchain_postgres.vectorstores import PGVector
@@ -384,9 +384,9 @@ vectorstore = PGVector(
 )
 ```
 
-## Retrieval Optimization
+## 检索优化
 
-### 1. Metadata Filtering
+### 1. 元数据过滤
 
 ```python
 from langchain_core.documents import Document
@@ -409,7 +409,7 @@ results = await vectorstore.asimilarity_search(
 )
 ```
 
-### 2. Maximal Marginal Relevance (MMR)
+### 2. 最大边际相关性（MMR）
 
 ```python
 # Balance relevance with diversity
@@ -421,7 +421,7 @@ results = await vectorstore.amax_marginal_relevance_search(
 )
 ```
 
-### 3. Reranking with Cross-Encoder
+### 3. 使用交叉编码器重排序
 
 ```python
 from sentence_transformers import CrossEncoder
@@ -456,9 +456,9 @@ reranked_retriever = ContextualCompressionRetriever(
 )
 ```
 
-## Prompt Engineering for RAG
+## RAG 的提示工程
 
-### Contextual Prompt with Citations
+### 带引用的上下文提示
 
 ```python
 rag_prompt = ChatPromptTemplate.from_template(
@@ -480,7 +480,7 @@ rag_prompt = ChatPromptTemplate.from_template(
 )
 ```
 
-### Structured Output for RAG
+### RAG 的结构化输出
 
 ```python
 from pydantic import BaseModel, Field
@@ -495,7 +495,7 @@ class RAGResponse(BaseModel):
 structured_llm = llm.with_structured_output(RAGResponse)
 ```
 
-## Evaluation Metrics
+## 评估指标
 
 ```python
 from typing import TypedDict

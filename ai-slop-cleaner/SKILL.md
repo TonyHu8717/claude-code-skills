@@ -1,133 +1,133 @@
 ---
 name: ai-slop-cleaner
-description: Clean AI-generated code slop with a regression-safe, deletion-first workflow and optional reviewer-only mode
+description: 使用回归安全、删除优先的工作流清理 AI 生成的代码垃圾，支持可选的仅审查模式
 level: 3
 ---
 
-# AI Slop Cleaner
+# AI 垃圾代码清理器
 
-Use this skill to clean AI-generated code slop without drifting scope or changing intended behavior. In OMC, this is the bounded cleanup workflow for code that works but feels bloated, repetitive, weakly tested, or over-abstracted.
+使用此技能清理 AI 生成的代码垃圾，而不会偏离范围或改变预期行为。在 OMC 中，这是针对能运行但感觉臃肿、重复、测试薄弱或过度抽象的代码的有界清理工作流。
 
-## When to Use
+## 使用场景
 
-Use this skill when:
-- the user explicitly says `deslop`, `anti-slop`, or `AI slop`
-- the request is to clean up or refactor code that feels noisy, repetitive, or overly abstract
-- follow-up implementation left duplicate logic, dead code, wrapper layers, boundary leaks, or weak regression coverage
-- the user wants a reviewer-only anti-slop pass via `--review`
-- the goal is simplification and cleanup, not new feature delivery
+在以下情况下使用此技能：
+- 用户明确说 `deslop`、`anti-slop` 或 `AI slop`
+- 请求清理或重构感觉嘈杂、重复或过度抽象的代码
+- 后续实现留下了重复逻辑、死代码、包装层、边界泄漏或薄弱的回归覆盖
+- 用户想要通过 `--review` 进行仅审查的反垃圾代码检查
+- 目标是简化和清理，而不是交付新功能
 
-## When Not to Use
+## 不使用场景
 
-Do not use this skill when:
-- the task is mainly a new feature build or product change
-- the user wants a broad redesign instead of an incremental cleanup pass
-- the request is a generic refactor with no simplification or anti-slop intent
-- behavior is too unclear to protect with tests or a concrete verification plan
+在以下情况下不要使用此技能：
+- 任务主要是新功能构建或产品变更
+- 用户想要广泛的重新设计而不是增量清理
+- 请求是没有简化或反垃圾意图的通用重构
+- 行为太不清楚，无法用测试或具体验证计划来保护
 
-## OMC Execution Posture
+## OMC 执行姿态
 
-- Preserve behavior unless the user explicitly asks for behavior changes.
-- Lock behavior with focused regression tests first whenever practical.
-- Write a cleanup plan before editing code.
-- Prefer deletion over addition.
-- Reuse existing utilities and patterns before introducing new ones.
-- Avoid new dependencies unless the user explicitly requests them.
-- Keep diffs small, reversible, and smell-focused.
-- Stay concise and evidence-dense: inspect, edit, verify, and report.
-- Treat new user instructions as local scope updates without dropping earlier non-conflicting constraints.
+- 除非用户明确要求行为变更，否则保留行为。
+- 只要可行，先用聚焦的回归测试锁定行为。
+- 在编辑代码之前编写清理计划。
+- 优先删除而非添加。
+- 在引入新工具之前重用现有工具和模式。
+- 除非用户明确要求，否则避免新依赖。
+- 保持差异小、可逆且聚焦于异味。
+- 保持简洁和证据密集：检查、编辑、验证和报告。
+- 将新用户指令视为本地范围更新，而不丢弃先前不冲突的约束。
 
-## Scoped File-List Usage
+## 有界文件列表使用
 
-This skill can be bounded to an explicit file list or changed-file scope when the caller already knows the safe cleanup surface.
+当调用者已经知道安全的清理表面时，此技能可以限定为显式文件列表或已更改文件范围。
 
-- Good fit: `oh-my-claudecode:ai-slop-cleaner skills/ralph/SKILL.md skills/ai-slop-cleaner/SKILL.md`
-- Good fit: a Ralph session handing off only the files changed in that session
-- Preserve the same regression-safe workflow even when the scope is a short file list
-- Do not silently expand a changed-file scope into broader cleanup work unless the user explicitly asks for it
+- 适合：`oh-my-claudecode:ai-slop-cleaner skills/ralph/SKILL.md skills/ai-slop-cleaner/SKILL.md`
+- 适合：Ralph 会话仅交接该会话中更改的文件
+- 即使范围是短文件列表，也保持相同的回归安全工作流
+- 除非用户明确要求，否则不要将已更改文件范围静默扩展到更广泛的清理工作
 
-## Ralph Integration
+## Ralph 集成
 
-Ralph can invoke this skill as a bounded post-review cleanup pass.
+Ralph 可以将此技能作为有界的审查后清理传递来调用。
 
-- In that workflow, the cleaner runs in standard mode (not `--review`)
-- The cleanup scope is the Ralph session's changed files only
-- After the cleanup pass, Ralph re-runs regression verification before completion
-- `--review` remains the reviewer-only follow-up mode, not the default Ralph integration path
+- 在该工作流中，清理器以标准模式运行（不是 `--review`）
+- 清理范围仅限于 Ralph 会话的已更改文件
+- 清理传递后，Ralph 在完成前重新运行回归验证
+- `--review` 仍然是仅审查的后续模式，而不是默认的 Ralph 集成路径
 
-## Review Mode (`--review`)
+## 审查模式（`--review`）
 
-`--review` is a reviewer-only pass after cleanup work is drafted. It exists to preserve explicit writer/reviewer separation for anti-slop work.
+`--review` 是清理工作草拟后的仅审查传递。它存在的目的是为反垃圾工作保留显式的编写者/审查者分离。
 
-- **Writer pass**: make the cleanup changes with behavior locked by tests.
-- **Reviewer pass**: inspect the cleanup plan, changed files, and verification evidence.
-- The same pass must not both write and self-approve high-impact cleanup without a separate review step.
+- **编写者传递**：进行清理变更，用测试锁定行为。
+- **审查者传递**：检查清理计划、已更改文件和验证证据。
+- 同一传递不能在没有单独审查步骤的情况下既编写又自行批准高影响清理。
 
-In review mode:
-1. Do **not** start by editing files.
-2. Review the cleanup plan, changed files, and regression coverage.
-3. Check specifically for:
-   - leftover dead code or unused exports
-   - duplicate logic that should have been consolidated
-   - needless wrappers or abstractions that still blur boundaries
-   - missing tests or weak verification for preserved behavior
-   - cleanup that appears to have changed behavior without intent
-4. Produce a reviewer verdict with required follow-ups.
-5. Hand needed changes back to a separate writer pass instead of fixing and approving in one step.
+在审查模式下：
+1. **不要**从编辑文件开始。
+2. 审查清理计划、已更改文件和回归覆盖。
+3. 特别检查：
+   - 残留的死代码或未使用的导出
+   - 应该已合并的重复逻辑
+   - 仍然模糊边界的不必要包装或抽象
+   - 保留行为的缺失测试或薄弱验证
+   - 看起来无意中改变了行为的清理
+4. 生成审查结论和必需的后续工作。
+5. 将需要的变更交回单独的编写者传递，而不是一步修复并批准。
 
-## Workflow
+## 工作流
 
-1. **Protect current behavior first**
-   - Identify what must stay the same.
-   - Add or run the narrowest regression tests needed before editing.
-   - If tests cannot come first, record the verification plan explicitly before touching code.
+1. **首先保护当前行为**
+   - 识别必须保持不变的内容。
+   - 在编辑前添加或运行最窄的回归测试。
+   - 如果测试不能先进行，在修改代码前显式记录验证计划。
 
-2. **Write a cleanup plan before code**
-   - Bound the pass to the requested files or feature area.
-   - List the concrete smells to remove.
-   - Order the work from safest deletion to riskier consolidation.
+2. **在代码前编写清理计划**
+   - 将传递限定于请求的文件或功能区域。
+   - 列出要移除的具体异味。
+   - 从最安全的删除到风险更高的合并排序工作。
 
-3. **Classify the slop before editing**
-   - **Duplication** — repeated logic, copy-paste branches, redundant helpers
-   - **Dead code** — unused code, unreachable branches, stale flags, debug leftovers
-   - **Needless abstraction** — pass-through wrappers, speculative indirection, single-use helper layers
-   - **Boundary violations** — hidden coupling, misplaced responsibilities, wrong-layer imports or side effects
-   - **Missing tests** — behavior not locked, weak regression coverage, edge-case gaps
+3. **在编辑前分类垃圾**
+   - **重复** — 重复的逻辑、复制粘贴分支、冗余辅助工具
+   - **死代码** — 未使用的代码、不可达分支、过时标志、调试残留
+   - **不必要抽象** — 直通包装、投机性间接、单用途辅助层
+   - **边界违规** — 隐藏耦合、错放职责、错误层导入或副作用
+   - **缺失测试** — 行为未锁定、回归覆盖薄弱、边缘情况缺口
 
-4. **Run one smell-focused pass at a time**
-   - **Pass 1: Dead code deletion**
-   - **Pass 2: Duplicate removal**
-   - **Pass 3: Naming and error-handling cleanup**
-   - **Pass 4: Test reinforcement**
-   - Re-run targeted verification after each pass.
-   - Do not bundle unrelated refactors into the same edit set.
+4. **一次运行一个聚焦于异味的传递**
+   - **传递 1：死代码删除**
+   - **传递 2：重复移除**
+   - **传递 3：命名和错误处理清理**
+   - **传递 4：测试加强**
+   - 每次传递后重新运行目标验证。
+   - 不要将不相关的重构捆绑到同一编辑集中。
 
-5. **Run the quality gates**
-   - Keep regression tests green.
-   - Run the relevant lint, typecheck, and unit/integration tests for the touched area.
-   - Run existing static or security checks when available.
-   - If a gate fails, fix the issue or back out the risky cleanup instead of forcing it through.
+5. **运行质量门禁**
+   - 保持回归测试绿色。
+   - 运行相关区域的 lint、类型检查和单元/集成测试。
+   - 可用时运行现有的静态或安全检查。
+   - 如果门禁失败，修复问题或撤回风险清理，而不是强行通过。
 
-6. **Close with an evidence-dense report**
-   Always report:
-   - **Changed files**
-   - **Simplifications**
-   - **Behavior lock / verification run**
-   - **Remaining risks**
+6. **以证据密集的报告结束**
+   始终报告：
+   - **已更改文件**
+   - **简化**
+   - **行为锁定/验证运行**
+   - **剩余风险**
 
-## Usage
+## 用法
 
 - `/oh-my-claudecode:ai-slop-cleaner <target>`
 - `/oh-my-claudecode:ai-slop-cleaner <target> --review`
 - `/oh-my-claudecode:ai-slop-cleaner <file-a> <file-b> <file-c>`
-- From Ralph: run the cleaner on the Ralph session's changed files only, then return to Ralph for post-cleanup regression verification
+- 从 Ralph：仅在 Ralph 会话的已更改文件上运行清理器，然后返回 Ralph 进行清理后回归验证
 
-## Good Fits
+## 适合场景
 
-**Good:** `deslop this module: too many wrappers, duplicate helpers, and dead code`
+**适合**：`deslop this module: too many wrappers, duplicate helpers, and dead code`
 
-**Good:** `cleanup the AI slop in src/auth and tighten boundaries without changing behavior`
+**适合**：`cleanup the AI slop in src/auth and tighten boundaries without changing behavior`
 
-**Bad:** `refactor auth to support SSO`
+**不适合**：`refactor auth to support SSO`
 
-**Bad:** `clean up formatting`
+**不适合**：`clean up formatting`

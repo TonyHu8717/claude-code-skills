@@ -1,316 +1,316 @@
 ---
 name: workflow-orchestration-patterns
-description: Design durable workflows with Temporal for distributed systems. Covers workflow vs activity separation, saga patterns, state management, and determinism constraints. Use when building long-running processes, distributed transactions, or microservice orchestration.
+description: 使用 Temporal 为分布式系统设计持久化工作流。涵盖工作流与活动分离、saga 模式、状态管理和确定性约束。适用于构建长时间运行的进程、分布式事务或微服务编排。
 ---
 
-# Workflow Orchestration Patterns
+# 工作流编排模式
 
-Master workflow orchestration architecture with Temporal, covering fundamental design decisions, resilience patterns, and best practices for building reliable distributed systems.
+掌握使用 Temporal 的工作流编排架构，涵盖基础设计决策、弹性模式和构建可靠分布式系统的最佳实践。
 
-## When to Use Workflow Orchestration
+## 何时使用工作流编排
 
-### Ideal Use Cases (Source: docs.temporal.io)
+### 理想用例（来源：docs.temporal.io）
 
-- **Multi-step processes** spanning machines/services/databases
-- **Distributed transactions** requiring all-or-nothing semantics
-- **Long-running workflows** (hours to years) with automatic state persistence
-- **Failure recovery** that must resume from last successful step
-- **Business processes**: bookings, orders, campaigns, approvals
-- **Entity lifecycle management**: inventory tracking, account management, cart workflows
-- **Infrastructure automation**: CI/CD pipelines, provisioning, deployments
-- **Human-in-the-loop** systems requiring timeouts and escalations
+- **跨机器/服务/数据库的多步骤流程**
+- **需要全有或全无语义的分布式事务**
+- **长时间运行的工作流**（小时到年）带自动状态持久化
+- **必须从最后成功步骤恢复的故障恢复**
+- **业务流程**：预订、订单、活动、审批
+- **实体生命周期管理**：库存跟踪、账户管理、购物车工作流
+- **基础设施自动化**：CI/CD 管道、配置、部署
+- **需要超时和升级的人机交互系统**
 
-### When NOT to Use
+### 何时不使用
 
-- Simple CRUD operations (use direct API calls)
-- Pure data processing pipelines (use Airflow, batch processing)
-- Stateless request/response (use standard APIs)
-- Real-time streaming (use Kafka, event processors)
+- 简单的 CRUD 操作（使用直接 API 调用）
+- 纯数据处理管道（使用 Airflow、批处理）
+- 无状态请求/响应（使用标准 API）
+- 实时流（使用 Kafka、事件处理器）
 
-## Critical Design Decision: Workflows vs Activities
+## 关键设计决策：工作流 vs 活动
 
-**The Fundamental Rule** (Source: temporal.io/blog/workflow-engine-principles):
+**基本规则**（来源：temporal.io/blog/workflow-engine-principles）：
 
-- **Workflows** = Orchestration logic and decision-making
-- **Activities** = External interactions (APIs, databases, network calls)
+- **工作流** = 编排逻辑和决策
+- **活动** = 外部交互（API、数据库、网络调用）
 
-### Workflows (Orchestration)
+### 工作流（编排）
 
-**Characteristics:**
+**特征**：
 
-- Contain business logic and coordination
-- **MUST be deterministic** (same inputs → same outputs)
-- **Cannot** perform direct external calls
-- State automatically preserved across failures
-- Can run for years despite infrastructure failures
+- 包含业务逻辑和协调
+- **必须是确定性的**（相同输入 → 相同输出）
+- **不能**执行直接外部调用
+- 状态在故障间自动保留
+- 尽管基础设施故障可运行多年
 
-**Example workflow tasks:**
+**示例工作流任务**：
 
-- Decide which steps to execute
-- Handle compensation logic
-- Manage timeouts and retries
-- Coordinate child workflows
+- 决定执行哪些步骤
+- 处理补偿逻辑
+- 管理超时和重试
+- 协调子工作流
 
-### Activities (External Interactions)
+### 活动（外部交互）
 
-**Characteristics:**
+**特征**：
 
-- Handle all external system interactions
-- Can be non-deterministic (API calls, DB writes)
-- Include built-in timeouts and retry logic
-- **Must be idempotent** (calling N times = calling once)
-- Short-lived (seconds to minutes typically)
+- 处理所有外部系统交互
+- 可以是非确定性的（API 调用、数据库写入）
+- 包含内置超时和重试逻辑
+- **必须是幂等的**（调用 N 次 = 调用 1 次）
+- 短生命周期（通常秒到分钟）
 
-**Example activity tasks:**
+**示例活动任务**：
 
-- Call payment gateway API
-- Write to database
-- Send emails or notifications
-- Query external services
+- 调用支付网关 API
+- 写入数据库
+- 发送邮件或通知
+- 查询外部服务
 
-### Design Decision Framework
-
-```
-Does it touch external systems? → Activity
-Is it orchestration/decision logic? → Workflow
-```
-
-## Core Workflow Patterns
-
-### 1. Saga Pattern with Compensation
-
-**Purpose**: Implement distributed transactions with rollback capability
-
-**Pattern** (Source: temporal.io/blog/compensating-actions-part-of-a-complete-breakfast-with-sagas):
+### 设计决策框架
 
 ```
-For each step:
-  1. Register compensation BEFORE executing
-  2. Execute the step (via activity)
-  3. On failure, run all compensations in reverse order (LIFO)
+是否涉及外部系统？ → 活动
+是否是编排/决策逻辑？ → 工作流
 ```
 
-**Example: Payment Workflow**
+## 核心工作流模式
 
-1. Reserve inventory (compensation: release inventory)
-2. Charge payment (compensation: refund payment)
-3. Fulfill order (compensation: cancel fulfillment)
+### 1. 带补偿的 Saga 模式
 
-**Critical Requirements:**
+**目的**：实现带回滚能力的分布式事务
 
-- Compensations must be idempotent
-- Register compensation BEFORE executing step
-- Run compensations in reverse order
-- Handle partial failures gracefully
+**模式**（来源：temporal.io/blog/compensating-actions-part-of-a-complete-breakfast-with-sagas）：
 
-### 2. Entity Workflows (Actor Model)
+```
+对于每个步骤：
+  1. 执行前注册补偿
+  2. 执行步骤（通过活动）
+  3. 失败时，按反向顺序运行所有补偿（LIFO）
+```
 
-**Purpose**: Long-lived workflow representing single entity instance
+**示例：支付工作流**
 
-**Pattern** (Source: docs.temporal.io/evaluate/use-cases-design-patterns):
+1. 预留库存（补偿：释放库存）
+2. 扣款（补偿：退款）
+3. 履约订单（补偿：取消履约）
 
-- One workflow execution = one entity (cart, account, inventory item)
-- Workflow persists for entity lifetime
-- Receives signals for state changes
-- Supports queries for current state
+**关键要求**：
 
-**Example Use Cases:**
+- 补偿必须是幂等的
+- 执行步骤前注册补偿
+- 按反向顺序运行补偿
+- 优雅处理部分失败
 
-- Shopping cart (add items, checkout, expiration)
-- Bank account (deposits, withdrawals, balance checks)
-- Product inventory (stock updates, reservations)
+### 2. 实体工作流（Actor 模型）
 
-**Benefits:**
+**目的**：代表单个实体实例的长期工作流
 
-- Encapsulates entity behavior
-- Guarantees consistency per entity
-- Natural event sourcing
+**模式**（来源：docs.temporal.io/evaluate/use-cases-design-patterns）：
 
-### 3. Fan-Out/Fan-In (Parallel Execution)
+- 一个工作流执行 = 一个实体（购物车、账户、库存项）
+- 工作流在实体生命周期内持续
+- 接收信号进行状态变更
+- 支持查询当前状态
 
-**Purpose**: Execute multiple tasks in parallel, aggregate results
+**示例用例**：
 
-**Pattern:**
+- 购物车（添加商品、结账、过期）
+- 银行账户（存款、取款、余额查询）
+- 产品库存（库存更新、预留）
 
-- Spawn child workflows or parallel activities
-- Wait for all to complete
-- Aggregate results
-- Handle partial failures
+**好处**：
 
-**Scaling Rule** (Source: temporal.io/blog/workflow-engine-principles):
+- 封装实体行为
+- 保证每个实体的一致性
+- 自然的事件溯源
 
-- Don't scale individual workflows
-- For 1M tasks: spawn 1K child workflows × 1K tasks each
-- Keep each workflow bounded
+### 3. 扇出/扇入（并行执行）
 
-### 4. Async Callback Pattern
+**目的**：并行执行多个任务，聚合结果
 
-**Purpose**: Wait for external event or human approval
+**模式**：
 
-**Pattern:**
+- 生成子工作流或并行活动
+- 等待所有完成
+- 聚合结果
+- 处理部分失败
 
-- Workflow sends request and waits for signal
-- External system processes asynchronously
-- Sends signal to resume workflow
-- Workflow continues with response
+**扩展规则**（来源：temporal.io/blog/workflow-engine-principles）：
 
-**Use Cases:**
+- 不要扩展单个工作流
+- 对于 100 万个任务：生成 1000 个子工作流 × 每个 1000 个任务
+- 保持每个工作流有界
 
-- Human approval workflows
-- Webhook callbacks
-- Long-running external processes
+### 4. 异步回调模式
 
-## State Management and Determinism
+**目的**：等待外部事件或人工审批
 
-### Automatic State Preservation
+**模式**：
 
-**How Temporal Works** (Source: docs.temporal.io/workflows):
+- 工作流发送请求并等待信号
+- 外部系统异步处理
+- 发送信号恢复工作流
+- 工作流继续处理响应
 
-- Complete program state preserved automatically
-- Event History records every command and event
-- Seamless recovery from crashes
-- Applications restore pre-failure state
+**用例**：
 
-### Determinism Constraints
+- 人工审批工作流
+- Webhook 回调
+- 长时间运行的外部进程
 
-**Workflows Execute as State Machines**:
+## 状态管理和确定性
 
-- Replay behavior must be consistent
-- Same inputs → identical outputs every time
+### 自动状态保留
 
-**Prohibited in Workflows** (Source: docs.temporal.io/workflows):
+**Temporal 工作原理**（来源：docs.temporal.io/workflows）：
 
-- ❌ Threading, locks, synchronization primitives
-- ❌ Random number generation (`random()`)
-- ❌ Global state or static variables
-- ❌ System time (`datetime.now()`)
-- ❌ Direct file I/O or network calls
-- ❌ Non-deterministic libraries
+- 完整程序状态自动保留
+- 事件历史记录每个命令和事件
+- 从崩溃中无缝恢复
+- 应用恢复到故障前状态
 
-**Allowed in Workflows**:
+### 确定性约束
 
-- ✅ `workflow.now()` (deterministic time)
-- ✅ `workflow.random()` (deterministic random)
-- ✅ Pure functions and calculations
-- ✅ Calling activities (non-deterministic operations)
+**工作流作为状态机执行**：
 
-### Versioning Strategies
+- 重放行为必须一致
+- 相同输入 → 每次相同输出
 
-**Challenge**: Changing workflow code while old executions still running
+**工作流中禁止**（来源：docs.temporal.io/workflows）：
 
-**Solutions**:
+- ❌ 线程、锁、同步原语
+- ❌ 随机数生成（`random()`）
+- ❌ 全局状态或静态变量
+- ❌ 系统时间（`datetime.now()`）
+- ❌ 直接文件 I/O 或网络调用
+- ❌ 非确定性库
 
-1. **Versioning API**: Use `workflow.get_version()` for safe changes
-2. **New Workflow Type**: Create new workflow, route new executions to it
-3. **Backward Compatibility**: Ensure old events replay correctly
+**工作流中允许**：
 
-## Resilience and Error Handling
+- ✅ `workflow.now()`（确定性时间）
+- ✅ `workflow.random()`（确定性随机）
+- ✅ 纯函数和计算
+- ✅ 调用活动（非确定性操作）
 
-### Retry Policies
+### 版本控制策略
 
-**Default Behavior**: Temporal retries activities forever
+**挑战**：更改工作流代码时旧执行仍在运行
 
-**Configure Retry**:
+**解决方案**：
 
-- Initial retry interval
-- Backoff coefficient (exponential backoff)
-- Maximum interval (cap retry delay)
-- Maximum attempts (eventually fail)
+1. **版本控制 API**：使用 `workflow.get_version()` 进行安全更改
+2. **新工作流类型**：创建新工作流，将新执行路由到它
+3. **向后兼容**：确保旧事件正确重放
 
-**Non-Retryable Errors**:
+## 弹性和错误处理
 
-- Invalid input (validation failures)
-- Business rule violations
-- Permanent failures (resource not found)
+### 重试策略
 
-### Idempotency Requirements
+**默认行为**：Temporal 永远重试活动
 
-**Why Critical** (Source: docs.temporal.io/activities):
+**配置重试**：
 
-- Activities may execute multiple times
-- Network failures trigger retries
-- Duplicate execution must be safe
+- 初始重试间隔
+- 退避系数（指数退避）
+- 最大间隔（限制重试延迟）
+- 最大尝试次数（最终失败）
 
-**Implementation Strategies**:
+**不可重试错误**：
 
-- Idempotency keys (deduplication)
-- Check-then-act with unique constraints
-- Upsert operations instead of insert
-- Track processed request IDs
+- 无效输入（验证失败）
+- 业务规则违反
+- 永久失败（资源未找到）
 
-### Activity Heartbeats
+### 幂等性要求
 
-**Purpose**: Detect stalled long-running activities
+**为什么关键**（来源：docs.temporal.io/activities）：
 
-**Pattern**:
+- 活动可能执行多次
+- 网络故障触发重试
+- 重复执行必须安全
 
-- Activity sends periodic heartbeat
-- Includes progress information
-- Timeout if no heartbeat received
-- Enables progress-based retry
+**实现策略**：
 
-## Best Practices
+- 幂等键（去重）
+- 带唯一约束的先检查后操作
+- 使用 upsert 操作代替 insert
+- 跟踪已处理的请求 ID
 
-### Workflow Design
+### 活动心跳
 
-1. **Keep workflows focused** - Single responsibility per workflow
-2. **Small workflows** - Use child workflows for scalability
-3. **Clear boundaries** - Workflow orchestrates, activities execute
-4. **Test locally** - Use time-skipping test environment
+**目的**：检测停滞的长时间运行活动
 
-### Activity Design
+**模式**：
 
-1. **Idempotent operations** - Safe to retry
-2. **Short-lived** - Seconds to minutes, not hours
-3. **Timeout configuration** - Always set timeouts
-4. **Heartbeat for long tasks** - Report progress
-5. **Error handling** - Distinguish retryable vs non-retryable
+- 活动发送定期心跳
+- 包含进度信息
+- 未收到心跳则超时
+- 启用基于进度的重试
 
-### Common Pitfalls
+## 最佳实践
 
-**Workflow Violations**:
+### 工作流设计
 
-- Using `datetime.now()` instead of `workflow.now()`
-- Threading or async operations in workflow code
-- Calling external APIs directly from workflow
-- Non-deterministic logic in workflows
+1. **保持工作聚焦** - 每个工作流单一职责
+2. **小工作流** - 使用子工作流提高可扩展性
+3. **清晰边界** - 工作流编排，活动执行
+4. **本地测试** - 使用时间跳跃测试环境
 
-**Activity Mistakes**:
+### 活动设计
 
-- Non-idempotent operations (can't handle retries)
-- Missing timeouts (activities run forever)
-- No error classification (retry validation errors)
-- Ignoring payload limits (2MB per argument)
+1. **幂等操作** - 重试安全
+2. **短生命周期** - 秒到分钟，不是小时
+3. **超时配置** - 始终设置超时
+4. **长时间任务用心跳** - 报告进度
+5. **错误处理** - 区分可重试 vs 不可重试
 
-### Operational Considerations
+### 常见陷阱
 
-**Monitoring**:
+**工作流违规**：
 
-- Workflow execution duration
-- Activity failure rates
-- Retry attempts and backoff
-- Pending workflow counts
+- 使用 `datetime.now()` 而非 `workflow.now()`
+- 工作流代码中使用线程或异步操作
+- 从工作流直接调用外部 API
+- 工作流中使用非确定性逻辑
 
-**Scalability**:
+**活动错误**：
 
-- Horizontal scaling with workers
-- Task queue partitioning
-- Child workflow decomposition
-- Activity batching when appropriate
+- 非幂等操作（无法处理重试）
+- 缺少超时（活动永远运行）
+- 无错误分类（重试验证错误）
+- 忽略负载限制（每个参数 2MB）
 
-## Additional Resources
+### 运维考虑
 
-**Official Documentation**:
+**监控**：
 
-- Temporal Core Concepts: docs.temporal.io/workflows
-- Workflow Patterns: docs.temporal.io/evaluate/use-cases-design-patterns
-- Best Practices: docs.temporal.io/develop/best-practices
-- Saga Pattern: temporal.io/blog/saga-pattern-made-easy
+- 工作流执行持续时间
+- 活动失败率
+- 重试尝试和退避
+- 待处理工作流数量
 
-**Key Principles**:
+**可扩展性**：
 
-1. Workflows = orchestration, Activities = external calls
-2. Determinism is non-negotiable for workflows
-3. Idempotency is critical for activities
-4. State preservation is automatic
-5. Design for failure and recovery
+- 使用 worker 水平扩展
+- 任务队列分区
+- 子工作流分解
+- 适当时批量活动
+
+## 额外资源
+
+**官方文档**：
+
+- Temporal 核心概念：docs.temporal.io/workflows
+- 工作流模式：docs.temporal.io/evaluate/use-cases-design-patterns
+- 最佳实践：docs.temporal.io/develop/best-practices
+- Saga 模式：temporal.io/blog/saga-pattern-made-easy
+
+**关键原则**：
+
+1. 工作流 = 编排，活动 = 外部调用
+2. 确定性对工作流是不可协商的
+3. 幂等性对活动是关键的
+4. 状态保留是自动的
+5. 为故障和恢复而设计

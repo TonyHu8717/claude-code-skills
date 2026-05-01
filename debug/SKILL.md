@@ -1,35 +1,38 @@
 ---
 name: debug
-description: Diagnose the current OMC session or repo state using logs, traces, state, and focused reproduction
+description: 使用日志、追踪、状态和聚焦复现来诊断当前 OMC 会话或仓库状态
 ---
 
-# Debug
+# 调试
 
-Use this skill when the user wants help diagnosing a current OMC/Claude-Code session problem, workflow breakage, or confusing runtime behavior.
+当用户需要帮助诊断当前 OMC/Claude-Code 会话问题、工作流中断或令人困惑的运行时行为时，使用此技能。
 
-## Goal
-Find the real failure signal quickly and explain the next corrective step.
+## 目标
 
-## Workflow
-1. Read the user’s issue description carefully.
-2. Inspect the most relevant local evidence first:
-   - trace tools
-   - state tools
-   - notepad / project memory when relevant
-   - failing tests or commands
-3. Reproduce the issue narrowly if possible.
-4. Distinguish symptoms from root cause.
-5. Recommend the smallest next fix or verification step.
+快速找到真正的故障信号，并说明下一个纠正步骤。
 
-## Rules
-- Prefer real evidence over guesses.
-- Use the trace/state surfaces when the issue involves orchestration, hooks, or agent flow.
-- If the issue is actually a product/runtime bug rather than app code, say so plainly.
-- Do not prescribe broad rewrites before isolating the failure.
+## 工作流程
 
-## Output
-- Observed failure
-- Root-cause hypothesis
-- Evidence for that hypothesis
-- Smallest next action
+1. 仔细阅读用户的问题描述。
+2. 首先检查最相关的本地证据：
+   - 追踪工具
+   - 状态工具
+   - 便笺 / 项目记忆（相关时）
+   - 失败的测试或命令
+3. 如果可能，窄范围复现问题。
+4. 区分症状和根本原因。
+5. 推荐最小的下一步修复或验证步骤。
 
+## 规则
+
+- 优先使用真实证据而非猜测。
+- 当问题涉及编排、钩子或代理流程时，使用追踪/状态界面。
+- 如果问题实际上是产品/运行时错误而非应用代码，请直说。
+- 在隔离故障之前，不要建议大规模重写。
+
+## 输出
+
+- 观察到的故障
+- 根本原因假设
+- 支持该假设的证据
+- 最小的下一步行动

@@ -1,22 +1,22 @@
 ---
 name: nft-standards
-description: Implement NFT standards (ERC-721, ERC-1155) with proper metadata handling, minting strategies, and marketplace integration. Use when creating NFT contracts, building NFT marketplaces, or implementing digital asset systems.
+description: 实现 NFT 标准（ERC-721、ERC-1155），包含适当的元数据处理、铸造策略和市场集成。在创建 NFT 合约、构建 NFT 市场或实现数字资产系统时使用。
 ---
 
-# NFT Standards
+# NFT 标准
 
-Master ERC-721 and ERC-1155 NFT standards, metadata best practices, and advanced NFT features.
+掌握 ERC-721 和 ERC-1155 NFT 标准、元数据最佳实践和高级 NFT 功能。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Creating NFT collections (art, gaming, collectibles)
-- Implementing marketplace functionality
-- Building on-chain or off-chain metadata
-- Creating soulbound tokens (non-transferable)
-- Implementing royalties and revenue sharing
-- Developing dynamic/evolving NFTs
+- 创建 NFT 集合（艺术、游戏、收藏品）
+- 实现市场功能
+- 构建链上或链下元数据
+- 创建灵魂绑定代币（不可转让）
+- 实现版税和收入分享
+- 开发动态/进化 NFT
 
-## ERC-721 (Non-Fungible Token Standard)
+## ERC-721（非同质化代币标准）
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -51,11 +51,11 @@ contract MyNFT is ERC721URIStorage, ERC721Enumerable, Ownable {
     }
 
     function generateTokenURI(uint256 tokenId) internal pure returns (string memory) {
-        // Return IPFS URI or on-chain metadata
+        // 返回 IPFS URI 或链上元数据
         return string(abi.encodePacked("ipfs://QmHash/", Strings.toString(tokenId), ".json"));
     }
 
-    // Required overrides
+    // 必需的重写
     function _beforeTokenTransfer(
         address from,
         address to,
@@ -88,7 +88,7 @@ contract MyNFT is ERC721URIStorage, ERC721Enumerable, Ownable {
 }
 ```
 
-## ERC-1155 (Multi-Token Standard)
+## ERC-1155（多代币标准）
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -147,9 +147,9 @@ contract GameItems is ERC1155, Ownable {
 }
 ```
 
-## Metadata Standards
+## 元数据标准
 
-### Off-Chain Metadata (IPFS)
+### 链下元数据（IPFS）
 
 ```json
 {
@@ -175,7 +175,7 @@ contract GameItems is ERC1155, Ownable {
 }
 ```
 
-### On-Chain Metadata
+### 链上元数据
 
 ```solidity
 contract OnChainNFT is ERC721 {
@@ -211,13 +211,13 @@ contract OnChainNFT is ERC721 {
     }
 
     function generateSVG(Traits memory traits) internal pure returns (string memory) {
-        // Generate SVG based on traits
+        // 根据特征生成 SVG
         return "...";
     }
 }
 ```
 
-## Royalties (EIP-2981)
+## 版税（EIP-2981）
 
 ```solidity
 import "@openzeppelin/contracts/interfaces/IERC2981.sol";
@@ -240,7 +240,7 @@ contract NFTWithRoyalties is ERC721, IERC2981 {
     }
 
     function setRoyalty(address recipient, uint96 fee) external onlyOwner {
-        require(fee <= 1000, "Royalty fee too high"); // Max 10%
+        require(fee <= 1000, "Royalty fee too high"); // 最大 10%
         royaltyRecipient = recipient;
         royaltyFee = fee;
     }
@@ -257,7 +257,7 @@ contract NFTWithRoyalties is ERC721, IERC2981 {
 }
 ```
 
-## Soulbound Tokens (Non-Transferable)
+## 灵魂绑定代币（不可转让）
 
 ```solidity
 contract SoulboundToken is ERC721 {
@@ -278,7 +278,7 @@ contract SoulboundToken is ERC721 {
         _safeMint(to, tokenId);
     }
 
-    // Burn is allowed (user can destroy their SBT)
+    // 允许销毁（用户可以销毁自己的 SBT）
     function burn(uint256 tokenId) external {
         require(ownerOf(tokenId) == msg.sender, "Not token owner");
         _burn(tokenId);
@@ -286,7 +286,7 @@ contract SoulboundToken is ERC721 {
 }
 ```
 
-## Dynamic NFTs
+## 动态 NFT
 
 ```solidity
 contract DynamicNFT is ERC721 {
@@ -304,7 +304,7 @@ contract DynamicNFT is ERC721 {
         TokenState storage state = tokenStates[tokenId];
         state.experience += exp;
 
-        // Level up logic
+        // 升级逻辑
         if (state.experience >= state.level * 100) {
             state.level++;
         }
@@ -315,7 +315,7 @@ contract DynamicNFT is ERC721 {
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         TokenState memory state = tokenStates[tokenId];
 
-        // Generate metadata based on current state
+        // 根据当前状态生成元数据
         return generateMetadata(tokenId, state);
     }
 
@@ -324,13 +324,13 @@ contract DynamicNFT is ERC721 {
         pure
         returns (string memory)
     {
-        // Dynamic metadata generation
+        // 动态元数据生成
         return "";
     }
 }
 ```
 
-## Gas-Optimized Minting (ERC721A)
+## Gas 优化铸造（ERC721A）
 
 ```solidity
 import "erc721a/contracts/ERC721A.sol";

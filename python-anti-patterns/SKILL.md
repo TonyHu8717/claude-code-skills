@@ -1,25 +1,25 @@
 ---
 name: python-anti-patterns
-description: Use this skill when reviewing Python code for common anti-patterns to avoid. Use as a checklist when reviewing code, before finalizing implementations, or when debugging issues that might stem from known bad practices.
+description: 在审查 Python 代码中应避免的常见反模式时使用此技能。在审查代码、最终确定实现或调试可能源于已知不良实践的问题时，将其作为检查清单使用。
 ---
 
-# Python Anti-Patterns Checklist
+# Python 反模式检查清单
 
-A reference checklist of common mistakes and anti-patterns in Python code. Review this before finalizing implementations to catch issues early.
+Python 代码中常见错误和反模式的参考检查清单。在最终确定实现之前审查此清单，以便尽早发现问题。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Reviewing code before merge
-- Debugging mysterious issues
-- Teaching or learning Python best practices
-- Establishing team coding standards
-- Refactoring legacy code
+- 合并前审查代码
+- 调试神秘问题
+- 教授或学习 Python 最佳实践
+- 制定团队编码标准
+- 重构遗留代码
 
-**Note:** This skill focuses on what to avoid. For guidance on positive patterns and architecture, see the `python-design-patterns` skill.
+**注意：** 此技能侧重于应避免的内容。有关正面模式和架构的指导，请参阅 `python-design-patterns` 技能。
 
-## Infrastructure Anti-Patterns
+## 基础设施反模式
 
-### Scattered Timeout/Retry Logic
+### 分散的超时/重试逻辑
 
 ```python
 # BAD: Timeout logic duplicated everywhere
@@ -38,7 +38,7 @@ def fetch_orders(user_id):
         return None
 ```
 
-**Fix:** Centralize in decorators or client wrappers.
+**修复：** 集中到装饰器或客户端包装器中。
 
 ```python
 # GOOD: Centralized retry logic
@@ -47,7 +47,7 @@ def http_get(url: str) -> Response:
     return requests.get(url, timeout=30)
 ```
 
-### Double Retry
+### 双重重试
 
 ```python
 # BAD: Retrying at multiple layers
@@ -56,9 +56,9 @@ def call_service():
     return client.request()  # Client also has retry configured!
 ```
 
-**Fix:** Retry at one layer only. Know your infrastructure's retry behavior.
+**修复：** 仅在一层进行重试。了解基础设施的重试行为。
 
-### Hard-Coded Configuration
+### 硬编码配置
 
 ```python
 # BAD: Secrets and config in code
@@ -69,7 +69,7 @@ def connect():
     return psycopg.connect(f"host={DB_HOST}...")
 ```
 
-**Fix:** Use environment variables with typed settings.
+**修复：** 使用带类型设置的环境变量。
 
 ```python
 # GOOD
@@ -82,9 +82,9 @@ class Settings(BaseSettings):
 settings = Settings()
 ```
 
-## Architecture Anti-Patterns
+## 架构反模式
 
-### Exposed Internal Types
+### 暴露内部类型
 
 ```python
 # BAD: Leaking ORM model to API
@@ -93,7 +93,7 @@ def get_user(id: str) -> UserModel:  # SQLAlchemy model
     return db.query(UserModel).get(id)
 ```
 
-**Fix:** Use DTOs/response models.
+**修复：** 使用 DTO/响应模型。
 
 ```python
 # GOOD
@@ -103,7 +103,7 @@ def get_user(id: str) -> UserResponse:
     return UserResponse.from_orm(user)
 ```
 
-### Mixed I/O and Business Logic
+### 混合 I/O 和业务逻辑
 
 ```python
 # BAD: SQL embedded in business logic
@@ -116,7 +116,7 @@ def calculate_discount(user_id: str) -> float:
     return 0.0
 ```
 
-**Fix:** Repository pattern. Keep business logic pure.
+**修复：** 仓储模式。保持业务逻辑纯净。
 
 ```python
 # GOOD
@@ -127,9 +127,9 @@ def calculate_discount(user: User, orders: list[Order]) -> float:
     return 0.0
 ```
 
-## Error Handling Anti-Patterns
+## 错误处理反模式
 
-### Bare Exception Handling
+### 裸异常处理
 
 ```python
 # BAD: Swallowing all exceptions
@@ -139,7 +139,7 @@ except Exception:
     pass  # Silent failure - bugs hidden forever
 ```
 
-**Fix:** Catch specific exceptions. Log or handle appropriately.
+**修复：** 捕获特定异常。适当记录或处理。
 
 ```python
 # GOOD
@@ -153,7 +153,7 @@ except ValueError as e:
     raise BadRequestError(str(e))
 ```
 
-### Ignored Partial Failures
+### 忽略部分失败
 
 ```python
 # BAD: Stops on first error
@@ -165,7 +165,7 @@ def process_batch(items):
     return results
 ```
 
-**Fix:** Capture both successes and failures.
+**修复：** 同时捕获成功和失败。
 
 ```python
 # GOOD
@@ -180,7 +180,7 @@ def process_batch(items) -> BatchResult:
     return BatchResult(succeeded, failed)
 ```
 
-### Missing Input Validation
+### 缺少输入验证
 
 ```python
 # BAD: No validation
@@ -188,7 +188,7 @@ def create_user(data: dict):
     return User(**data)  # Crashes deep in code on bad input
 ```
 
-**Fix:** Validate early at API boundaries.
+**修复：** 在 API 边界尽早验证。
 
 ```python
 # GOOD
@@ -197,9 +197,9 @@ def create_user(data: dict) -> User:
     return User.from_input(validated)
 ```
 
-## Resource Anti-Patterns
+## 资源反模式
 
-### Unclosed Resources
+### 未关闭的资源
 
 ```python
 # BAD: File never closed
@@ -208,7 +208,7 @@ def read_file(path):
     return f.read()  # What if this raises?
 ```
 
-**Fix:** Use context managers.
+**修复：** 使用上下文管理器。
 
 ```python
 # GOOD
@@ -217,7 +217,7 @@ def read_file(path):
         return f.read()
 ```
 
-### Blocking in Async
+### 在异步中阻塞
 
 ```python
 # BAD: Blocks the entire event loop
@@ -226,7 +226,7 @@ async def fetch_data():
     response = requests.get(url)  # Also blocks!
 ```
 
-**Fix:** Use async-native libraries.
+**修复：** 使用异步原生库。
 
 ```python
 # GOOD
@@ -236,9 +236,9 @@ async def fetch_data():
         response = await client.get(url)
 ```
 
-## Type Safety Anti-Patterns
+## 类型安全反模式
 
-### Missing Type Hints
+### 缺少类型提示
 
 ```python
 # BAD: No types
@@ -246,7 +246,7 @@ def process(data):
     return data["value"] * 2
 ```
 
-**Fix:** Annotate all public functions.
+**修复：** 为所有公共函数添加注解。
 
 ```python
 # GOOD
@@ -254,7 +254,7 @@ def process(data: dict[str, int]) -> int:
     return data["value"] * 2
 ```
 
-### Untyped Collections
+### 无类型集合
 
 ```python
 # BAD: Generic list without type parameter
@@ -262,7 +262,7 @@ def get_users() -> list:
     ...
 ```
 
-**Fix:** Use type parameters.
+**修复：** 使用类型参数。
 
 ```python
 # GOOD
@@ -270,9 +270,9 @@ def get_users() -> list[User]:
     ...
 ```
 
-## Testing Anti-Patterns
+## 测试反模式
 
-### Only Testing Happy Paths
+### 仅测试正常路径
 
 ```python
 # BAD: Only tests success case
@@ -281,7 +281,7 @@ def test_create_user():
     assert user.id is not None
 ```
 
-**Fix:** Test error conditions and edge cases.
+**修复：** 测试错误条件和边界情况。
 
 ```python
 # GOOD
@@ -299,7 +299,7 @@ def test_create_user_duplicate_email():
         service.create_user(valid_data)
 ```
 
-### Over-Mocking
+### 过度模拟
 
 ```python
 # BAD: Mocking everything
@@ -311,39 +311,39 @@ def test_user_service():
     # Test doesn't verify real behavior
 ```
 
-**Fix:** Use integration tests for critical paths. Mock only external services.
+**修复：** 对关键路径使用集成测试。仅模拟外部服务。
 
-## Quick Review Checklist
+## 快速审查检查清单
 
-Before finalizing code, verify:
+在最终确定代码之前，请验证：
 
-- [ ] No scattered timeout/retry logic (centralized)
-- [ ] No double retry (app + infrastructure)
-- [ ] No hard-coded configuration or secrets
-- [ ] No exposed internal types (ORM models, protobufs)
-- [ ] No mixed I/O and business logic
-- [ ] No bare `except Exception: pass`
-- [ ] No ignored partial failures in batches
-- [ ] No missing input validation
-- [ ] No unclosed resources (using context managers)
-- [ ] No blocking calls in async code
-- [ ] All public functions have type hints
-- [ ] Collections have type parameters
-- [ ] Error paths are tested
-- [ ] Edge cases are covered
+- [ ] 没有分散的超时/重试逻辑（已集中）
+- [ ] 没有双重重试（应用 + 基础设施）
+- [ ] 没有硬编码的配置或密钥
+- [ ] 没有暴露内部类型（ORM 模型、protobufs）
+- [ ] 没有混合 I/O 和业务逻辑
+- [ ] 没有裸 `except Exception: pass`
+- [ ] 没有忽略批量中的部分失败
+- [ ] 没有缺少输入验证
+- [ ] 没有未关闭的资源（使用上下文管理器）
+- [ ] 异步代码中没有阻塞调用
+- [ ] 所有公共函数都有类型提示
+- [ ] 集合有类型参数
+- [ ] 错误路径已测试
+- [ ] 边界情况已覆盖
 
-## Common Fixes Summary
+## 常见修复总结
 
-| Anti-Pattern | Fix |
+| 反模式 | 修复 |
 |-------------|-----|
-| Scattered retry logic | Centralized decorators |
-| Hard-coded config | Environment variables + pydantic-settings |
-| Exposed ORM models | DTO/response schemas |
-| Mixed I/O + logic | Repository pattern |
-| Bare except | Catch specific exceptions |
-| Batch stops on error | Return BatchResult with successes/failures |
-| No validation | Validate at boundaries with Pydantic |
-| Unclosed resources | Context managers |
-| Blocking in async | Async-native libraries |
-| Missing types | Type annotations on all public APIs |
-| Only happy path tests | Test errors and edge cases |
+| 分散的重试逻辑 | 集中的装饰器 |
+| 硬编码配置 | 环境变量 + pydantic-settings |
+| 暴露 ORM 模型 | DTO/响应模式 |
+| 混合 I/O + 逻辑 | 仓储模式 |
+| 裸异常 | 捕获特定异常 |
+| 批量遇错停止 | 返回包含成功/失败的 BatchResult |
+| 无验证 | 在边界使用 Pydantic 验证 |
+| 未关闭的资源 | 上下文管理器 |
+| 异步中阻塞 | 异步原生库 |
+| 缺少类型 | 所有公共 API 的类型注解 |
+| 仅测试正常路径 | 测试错误和边界情况 |

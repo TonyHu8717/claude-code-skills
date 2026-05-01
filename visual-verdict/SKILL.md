@@ -1,27 +1,27 @@
 ---
 name: visual-verdict
-description: Structured visual QA verdict for screenshot-to-reference comparisons
+description: 用于截图与参考图比较的结构化视觉 QA 判定
 level: 2
 ---
 
 <Purpose>
-Use this skill to compare generated UI screenshots against one or more reference images and return a strict JSON verdict that can drive the next edit iteration.
+使用此技能将生成的 UI 截图与一个或多个参考图像进行比较，并返回严格的 JSON 判定，以驱动下一次编辑迭代。
 </Purpose>
 
 <Use_When>
-- The task includes visual fidelity requirements (layout, spacing, typography, component styling)
-- You have a generated screenshot and at least one reference image
-- You need deterministic pass/fail guidance before continuing edits
+- 任务包含视觉保真度要求（布局、间距、排版、组件样式）
+- 你有生成的截图和至少一张参考图像
+- 在继续编辑之前需要确定性的通过/失败指导
 </Use_When>
 
 <Inputs>
-- `reference_images[]` (one or more image paths)
-- `generated_screenshot` (current output image)
-- Optional: `category_hint` (e.g., `hackernews`, `sns-feed`, `dashboard`)
+- `reference_images[]`（一个或多个图像路径）
+- `generated_screenshot`（当前输出图像）
+- 可选：`category_hint`（如 `hackernews`、`sns-feed`、`dashboard`）
 </Inputs>
 
 <Output_Contract>
-Return **JSON only** with this exact shape:
+返回**仅 JSON**，格式如下：
 
 ```json
 {
@@ -34,25 +34,25 @@ Return **JSON only** with this exact shape:
 }
 ```
 
-Rules:
-- `score`: integer 0-100
-- `verdict`: short status (`pass`, `revise`, or `fail`)
-- `category_match`: `true` when the generated screenshot matches the intended UI category/style
-- `differences[]`: concrete visual mismatches (layout, spacing, typography, colors, hierarchy)
-- `suggestions[]`: actionable next edits tied to the differences
-- `reasoning`: 1-2 sentence summary
+规则：
+- `score`：整数 0-100
+- `verdict`：简短状态（`pass`、`revise` 或 `fail`）
+- `category_match`：当生成的截图匹配目标 UI 类别/风格时为 `true`
+- `differences[]`：具体的视觉不匹配（布局、间距、排版、颜色、层次）
+- `suggestions[]`：与差异相关的可操作的下一步编辑
+- `reasoning`：1-2 句摘要
 
 <Threshold_And_Loop>
-- Target pass threshold is **90+**.
-- If `score < 90`, continue editing and rerun `/oh-my-claudecode:visual-verdict` before any further visual review pass.
-- Do **not** treat the visual task as complete until the next screenshot clears the threshold.
+- 目标通过阈值为 **90+**。
+- 如果 `score < 90`，继续编辑并在任何进一步的视觉审查之前重新运行 `/oh-my-claudecode:visual-verdict`。
+- 在下一张截图达到阈值之前，**不要**将视觉任务视为完成。
 </Threshold_And_Loop>
 
 <Debug_Visualization>
-When mismatch diagnosis is hard:
-1. Keep `$visual-verdict` as the authoritative decision.
-2. Use pixel-level diff tooling (pixel diff / pixelmatch overlay) as a **secondary debug aid** to localize hotspots.
-3. Convert pixel diff hotspots into concrete `differences[]` and `suggestions[]` updates.
+当不匹配诊断困难时：
+1. 保持 `$visual-verdict` 作为权威决策。
+2. 使用像素级差异工具（pixel diff / pixelmatch overlay）作为**辅助调试工具**来定位热点。
+3. 将像素差异热点转换为具体的 `differences[]` 和 `suggestions[]` 更新。
 </Debug_Visualization>
 
 <Example>
@@ -62,14 +62,14 @@ When mismatch diagnosis is hard:
   "verdict": "revise",
   "category_match": true,
   "differences": [
-    "Top nav spacing is tighter than reference",
-    "Primary button uses smaller font weight"
+    "顶部导航间距比参考更紧凑",
+    "主按钮使用了更小的字体粗细"
   ],
   "suggestions": [
-    "Increase nav item horizontal padding by 4px",
-    "Set primary button font-weight to 600"
+    "将导航项水平内边距增加 4px",
+    "将主按钮 font-weight 设置为 600"
   ],
-  "reasoning": "Core layout matches, but style details still diverge."
+  "reasoning": "核心布局匹配，但样式细节仍有差异。"
 }
 ```
 </Example>

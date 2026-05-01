@@ -1,42 +1,42 @@
 ---
 name: block-no-verify-hook
-description: Configure a PreToolUse hook to prevent AI agents from skipping git pre-commit hooks with --no-verify and other bypass flags. Use when setting up Claude Code projects that enforce commit quality gates.
+description: 配置 PreToolUse 钩子，防止 AI 代理使用 --no-verify 和其他绕过标志跳过 git pre-commit 钩子。适用于需要强制执行提交质量门禁的 Claude Code 项目。
 ---
 
-# Block No-Verify Hook
+# 阻止 No-Verify 钩子
 
-PreToolUse hook configuration that intercepts and blocks bypass-flag usage before execution, ensuring AI agents cannot skip pre-commit hooks, GPG signing, or other git safety mechanisms.
+PreToolUse 钩子配置，可在执行前拦截并阻止绕过标志的使用，确保 AI 代理无法跳过 pre-commit 钩子、GPG 签名或其他 git 安全机制。
 
-## Overview
+## 概述
 
-AI coding agents (Claude Code, Codex, etc.) can run shell commands with flags like `--no-verify` that bypass pre-commit hooks. This defeats the purpose of linting, formatting, testing, and security checks configured in pre-commit hooks. The block-no-verify hook adds a PreToolUse guard that rejects any tool call containing bypass flags before execution.
+AI 编码代理（Claude Code、Codex 等）可以运行带有 `--no-verify` 等标志的 shell 命令来绕过 pre-commit 钩子。这会使 pre-commit 钩子中配置的代码检查、格式化、测试和安全检查失效。block-no-verify 钩子添加了一个 PreToolUse 守卫，在执行前拒绝任何包含绕过标志的工具调用。
 
-## Problem
+## 问题
 
-When AI agents commit code, they may use bypass flags to avoid hook failures:
+当 AI 代理提交代码时，可能会使用绕过标志来避免钩子失败：
 
 ```bash
-# These commands skip pre-commit hooks entirely
+# 这些命令会完全跳过 pre-commit 钩子
 git commit --no-verify -m "quick fix"
 git push --no-verify
 git commit --no-gpg-sign -m "unsigned commit"
 git merge --no-verify feature-branch
 ```
 
-This allows:
-- Unformatted code to enter the repository
-- Linting errors to bypass checks
-- Security scanning to be skipped
-- Unsigned commits to bypass signing policies
-- Test suites to be circumvented
+这会导致：
+- 未格式化的代码进入仓库
+- 代码检查错误绕过检查
+- 安全扫描被跳过
+- 未签名的提交绕过签名策略
+- 测试套件被规避
 
-## Solution
+## 解决方案
 
-Add a `PreToolUse` hook to `.claude/settings.json` that inspects every Bash tool call and blocks commands containing bypass flags.
+在 `.claude/settings.json` 中添加 `PreToolUse` 钩子，检查每个 Bash 工具调用并阻止包含绕过标志的命令。
 
-### Configuration
+### 配置
 
-Add the following to your project's `.claude/settings.json`:
+在项目的 `.claude/settings.json` 中添加以下内容：
 
 ```json
 {
@@ -54,33 +54,33 @@ Add the following to your project's `.claude/settings.json`:
 }
 ```
 
-### How It Works
+### 工作原理
 
-1. **Matcher**: The hook targets only `Bash` tool calls, so it does not interfere with other tools (Read, Edit, Grep, etc.).
-2. **Inspection**: The `$TOOL_INPUT` environment variable contains the full command the agent is about to execute. The hook uses `printf` to safely pass input (avoiding `echo` pitfalls with special characters) and checks for `--no-verify` or `--no-gpg-sign` flags only when preceded by a `git` command.
-3. **Blocking**: If a bypass flag is found in a git command, the hook exits with code 2 and prints an error message. Exit code 2 signals Claude Code to reject the tool call entirely.
-4. **Pass-through**: If no bypass flag is found, the hook exits with code 0 and the command executes normally.
+1. **匹配器**：钩子仅针对 `Bash` 工具调用，因此不会干扰其他工具（Read、Edit、Grep 等）。
+2. **检查**：`$TOOL_INPUT` 环境变量包含代理即将执行的完整命令。钩子使用 `printf` 安全传递输入（避免 `echo` 对特殊字符的处理问题），并仅在前面有 `git` 命令时检查 `--no-verify` 或 `--no-gpg-sign` 标志。
+3. **阻止**：如果在 git 命令中发现绕过标志，钩子将以退出码 2 退出并打印错误消息。退出码 2 表示 Claude Code 应完全拒绝该工具调用。
+4. **放行**：如果未发现绕过标志，钩子以退出码 0 退出，命令正常执行。
 
-### Exit Codes
+### 退出码
 
-| Code | Meaning |
-|------|---------|
-| 0 | Allow the tool call to proceed |
-| 1 | Error (tool call still proceeds, warning shown) |
-| 2 | Block the tool call entirely |
+| 代码 | 含义 |
+|------|------|
+| 0 | 允许工具调用继续 |
+| 1 | 错误（工具调用仍继续，显示警告） |
+| 2 | 完全阻止工具调用 |
 
-## Blocked Flags
+## 被阻止的标志
 
-| Flag | Purpose | Why Blocked |
-|------|---------|-------------|
-| `--no-verify` | Skips pre-commit and commit-msg hooks | Bypasses linting, formatting, testing, security checks |
-| `--no-gpg-sign` | Skips GPG commit signing | Bypasses commit signing policy |
+| 标志 | 用途 | 阻止原因 |
+|------|------|----------|
+| `--no-verify` | 跳过 pre-commit 和 commit-msg 钩子 | 绕过代码检查、格式化、测试、安全检查 |
+| `--no-gpg-sign` | 跳过 GPG 提交签名 | 绕过提交签名策略 |
 
-## Installation
+## 安装
 
-### Per-Project Setup
+### 项目级设置
 
-Create or update `.claude/settings.json` in your project root:
+在项目根目录创建或更新 `.claude/settings.json`：
 
 ```bash
 mkdir -p .claude
@@ -101,9 +101,9 @@ cat > .claude/settings.json << 'EOF'
 EOF
 ```
 
-### Global Setup
+### 全局设置
 
-To enforce across all projects, add to `~/.claude/settings.json`:
+要在所有项目中强制执行，添加到 `~/.claude/settings.json`：
 
 ```bash
 mkdir -p ~/.claude
@@ -124,23 +124,23 @@ cat > ~/.claude/settings.json << 'EOF'
 EOF
 ```
 
-## Verification
+## 验证
 
-Test that the hook blocks bypass flags:
+测试钩子是否阻止绕过标志：
 
 ```bash
-# This should be blocked by the hook:
+# 这应该被钩子阻止：
 git commit --no-verify -m "test"
 
-# This should succeed normally:
+# 这应该正常成功：
 git commit -m "test"
 ```
 
-## Extending the Hook
+## 扩展钩子
 
-### Adding More Blocked Flags
+### 添加更多被阻止的标志
 
-To block additional flags (e.g., `--force`), extend the grep pattern:
+要阻止其他标志（例如 `--force`），扩展 grep 模式：
 
 ```json
 {
@@ -158,9 +158,9 @@ To block additional flags (e.g., `--force`), extend the grep pattern:
 }
 ```
 
-### Combining with Other Hooks
+### 与其他钩子组合
 
-The block-no-verify hook works alongside other PreToolUse hooks:
+block-no-verify 钩子可与其他 PreToolUse 钩子并行工作：
 
 ```json
 {
@@ -185,9 +185,9 @@ The block-no-verify hook works alongside other PreToolUse hooks:
 }
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Commit the settings file** -- Add `.claude/settings.json` to version control so all team members benefit from the hook.
-2. **Document in onboarding** -- Mention the hook in your project's contributing guide so developers understand why bypass flags are blocked.
-3. **Pair with pre-commit hooks** -- The block-no-verify hook ensures pre-commit hooks run; make sure you have meaningful pre-commit hooks configured.
-4. **Test after setup** -- Verify the hook works by intentionally triggering it in a test commit.
+1. **提交设置文件** — 将 `.claude/settings.json` 添加到版本控制，让所有团队成员受益于该钩子。
+2. **在入门文档中说明** — 在项目的贡献指南中提及该钩子，让开发者了解为什么绕过标志被阻止。
+3. **与 pre-commit 钩子配合** — block-no-verify 钩子确保 pre-commit 钩子运行；确保你配置了有意义的 pre-commit 钩子。
+4. **设置后测试** — 通过在测试提交中故意触发来验证钩子是否正常工作。

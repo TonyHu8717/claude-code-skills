@@ -3,11 +3,10 @@ name: ship
 preamble-tier: 4
 version: 1.0.0
 description: |
-  Ship workflow: detect + merge base branch, run tests, review diff, bump VERSION,
-  update CHANGELOG, commit, push, create PR. Use when asked to "ship", "deploy",
-  "push to main", "create a PR", "merge and push", or "get it deployed".
-  Proactively invoke this skill (do NOT push/PR directly) when the user says code
-  is ready, asks about deploying, wants to push code up, or asks to create a PR. (gstack)
+  发布工作流：检测并合并基础分支、运行测试、审查 diff、升级 VERSION、
+  更新 CHANGELOG、提交、推送、创建 PR。当用户要求 "ship"、"deploy"、
+  "push to main"、"create a PR"、"merge and push" 或 "get it deployed" 时使用。
+  当用户说代码已就绪、询问部署、想推送代码或要求创建 PR 时，主动调用此技能（不要直接推送/创建 PR）。(gstack)
 allowed-tools:
   - Bash
   - Read
@@ -684,99 +683,96 @@ In plan mode before ExitPlanMode: if the plan file lacks `## GSTACK REVIEW REPOR
 
 PLAN MODE EXCEPTION — always allowed (it's the plan file).
 
-## Step 0: Detect platform and base branch
+## 步骤 0：检测平台和基础分支
 
-First, detect the git hosting platform from the remote URL:
+首先，从远程 URL 检测 git 托管平台：
 
 ```bash
 git remote get-url origin 2>/dev/null
 ```
 
-- If the URL contains "github.com" → platform is **GitHub**
-- If the URL contains "gitlab" → platform is **GitLab**
-- Otherwise, check CLI availability:
-  - `gh auth status 2>/dev/null` succeeds → platform is **GitHub** (covers GitHub Enterprise)
-  - `glab auth status 2>/dev/null` succeeds → platform is **GitLab** (covers self-hosted)
-  - Neither → **unknown** (use git-native commands only)
+- 如果 URL 包含 "github.com" → 平台为 **GitHub**
+- 如果 URL 包含 "gitlab" → 平台为 **GitLab**
+- 否则，检查 CLI 可用性：
+  - `gh auth status 2>/dev/null` 成功 → 平台为 **GitHub**（覆盖 GitHub Enterprise）
+  - `glab auth status 2>/dev/null` 成功 → 平台为 **GitLab**（覆盖自托管）
+  - 都不成功 → **unknown**（仅使用 git 原生命令）
 
-Determine which branch this PR/MR targets, or the repo's default branch if no
-PR/MR exists. Use the result as "the base branch" in all subsequent steps.
+确定此 PR/MR 的目标分支，如果不存在 PR/MR 则使用仓库的默认分支。将结果作为后续所有步骤中的"基础分支"。
 
-**If GitHub:**
-1. `gh pr view --json baseRefName -q .baseRefName` — if succeeds, use it
-2. `gh repo view --json defaultBranchRef -q .defaultBranchRef.name` — if succeeds, use it
+**如果平台是 GitHub：**
+1. `gh pr view --json baseRefName -q .baseRefName` — 如果成功，使用该结果
+2. `gh repo view --json defaultBranchRef -q .defaultBranchRef.name` — 如果成功，使用该结果
 
-**If GitLab:**
-1. `glab mr view -F json 2>/dev/null` and extract the `target_branch` field — if succeeds, use it
-2. `glab repo view -F json 2>/dev/null` and extract the `default_branch` field — if succeeds, use it
+**如果平台是 GitLab：**
+1. `glab mr view -F json 2>/dev/null` 并提取 `target_branch` 字段 — 如果成功，使用该结果
+2. `glab repo view -F json 2>/dev/null` 并提取 `default_branch` 字段 — 如果成功，使用该结果
 
-**Git-native fallback (if unknown platform, or CLI commands fail):**
+**Git 原生回退（如果平台未知或 CLI 命令失败）：**
 1. `git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|refs/remotes/origin/||'`
-2. If that fails: `git rev-parse --verify origin/main 2>/dev/null` → use `main`
-3. If that fails: `git rev-parse --verify origin/master 2>/dev/null` → use `master`
+2. 如果失败：`git rev-parse --verify origin/main 2>/dev/null` → 使用 `main`
+3. 如果失败：`git rev-parse --verify origin/master 2>/dev/null` → 使用 `master`
 
-If all fail, fall back to `main`.
+如果都失败，回退到 `main`。
 
-Print the detected base branch name. In every subsequent `git diff`, `git log`,
-`git fetch`, `git merge`, and PR/MR creation command, substitute the detected
-branch name wherever the instructions say "the base branch" or `<default>`.
+打印检测到的基础分支名称。在后续所有 `git diff`、`git log`、`git fetch`、`git merge` 和 PR/MR 创建命令中，将检测到的分支名称替换指令中提到的"基础分支"或 `<default>`。
 
 ---
 
 
 
-# Ship: Fully Automated Ship Workflow
+# Ship：全自动发布工作流
 
-You are running the `/ship` workflow. This is a **non-interactive, fully automated** workflow. Do NOT ask for confirmation at any step. The user said `/ship` which means DO IT. Run straight through and output the PR URL at the end.
+你正在运行 `/ship` 工作流。这是一个**非交互式、全自动**工作流。不要在任何步骤要求确认。用户输入 `/ship` 意味着直接执行。一气呵成，最后输出 PR URL。
 
-**Only stop for:**
-- On the base branch (abort)
-- Merge conflicts that can't be auto-resolved (stop, show conflicts)
-- In-branch test failures (pre-existing failures are triaged, not auto-blocking)
-- Pre-landing review finds ASK items that need user judgment
-- MINOR or MAJOR version bump needed (ask — see Step 12)
-- Greptile review comments that need user decision (complex fixes, false positives)
-- AI-assessed coverage below minimum threshold (hard gate with user override — see Step 7)
-- Plan items NOT DONE with no user override (see Step 8)
-- Plan verification failures (see Step 8.1)
-- TODOS.md missing and user wants to create one (ask — see Step 14)
-- TODOS.md disorganized and user wants to reorganize (ask — see Step 14)
+**仅在以下情况停止：**
+- 在基础分支上（中止）
+- 无法自动解决的合并冲突（停止，显示冲突）
+- 分支内测试失败（已有失败会被分类，不会自动阻断）
+- 着陆前审查发现需要用户判断的 ASK 项
+- 需要 MINOR 或 MAJOR 版本升级（询问 — 见步骤 12）
+- Greptile 审查评论需要用户决定（复杂修复、误报）
+- AI 评估的覆盖率低于最低阈值（硬性门控，用户可覆盖 — 见步骤 7）
+- 计划项未完成且用户未覆盖（见步骤 8）
+- 计划验证失败（见步骤 8.1）
+- TODOS.md 缺失且用户想创建（询问 — 见步骤 14）
+- TODOS.md 结构混乱且用户想重组（询问 — 见步骤 14）
 
-**Never stop for:**
-- Uncommitted changes (always include them)
-- Version bump choice (auto-pick MICRO or PATCH — see Step 12)
-- CHANGELOG content (auto-generate from diff)
-- Commit message approval (auto-commit)
-- Multi-file changesets (auto-split into bisectable commits)
-- TODOS.md completed-item detection (auto-mark)
-- Auto-fixable review findings (dead code, N+1, stale comments — fixed automatically)
-- Test coverage gaps within target threshold (auto-generate and commit, or flag in PR body)
+**不要在以下情况停止：**
+- 未提交的更改（始终包含）
+- 版本升级选择（自动选择 MICRO 或 PATCH — 见步骤 12）
+- CHANGELOG 内容（从 diff 自动生成）
+- 提交消息审批（自动提交）
+- 多文件变更集（自动拆分为可二分的提交）
+- TODOS.md 已完成项检测（自动标记）
+- 可自动修复的审查发现（死代码、N+1、过时注释 — 自动修复）
+- 在目标阈值内的测试覆盖差距（自动生成并提交，或在 PR 正文中标注）
 
-**Re-run behavior (idempotency):**
-Re-running `/ship` means "run the whole checklist again." Every verification step
-(tests, coverage audit, plan completion, pre-landing review, adversarial review,
-VERSION/CHANGELOG check, TODOS, document-release) runs on every invocation.
-Only *actions* are idempotent:
-- Step 12: If VERSION already bumped, skip the bump but still read the version
-- Step 17: If already pushed, skip the push command
-- Step 19: If PR exists, update the body instead of creating a new PR
-Never skip a verification step because a prior `/ship` run already performed it.
+**重运行行为（幂等性）：**
+重新运行 `/ship` 意味着"重新执行整个检查清单"。每个验证步骤
+（测试、覆盖率审计、计划完成度、着陆前审查、对抗性审查、
+VERSION/CHANGELOG 检查、TODOS、文档同步）每次调用都会运行。
+只有*操作*是幂等的：
+- 步骤 12：如果 VERSION 已升级，跳过升级但仍读取版本
+- 步骤 17：如果已推送，跳过推送命令
+- 步骤 19：如果 PR 已存在，更新正文而不是创建新 PR
+不要因为之前的 `/ship` 运行已经执行过就跳过验证步骤。
 
 ---
 
-## Step 1: Pre-flight
+## 步骤 1：预检
 
-1. Check the current branch. If on the base branch or the repo's default branch, **abort**: "You're on the base branch. Ship from a feature branch."
+1. 检查当前分支。如果在基础分支或仓库默认分支上，**中止**："你在基础分支上。请从功能分支发布。"
 
-2. Run `git status` (never use `-uall`). Uncommitted changes are always included — no need to ask.
+2. 运行 `git status`（不要使用 `-uall`）。未提交的更改始终包含 — 无需询问。
 
-3. Run `git diff <base>...HEAD --stat` and `git log <base>..HEAD --oneline` to understand what's being shipped.
+3. 运行 `git diff <base>...HEAD --stat` 和 `git log <base>..HEAD --oneline` 了解将要发布的内容。
 
-4. Check review readiness:
+4. 检查审查就绪状态：
 
-## Review Readiness Dashboard
+## 审查就绪仪表板
 
-After completing the review, read the review log and config to display the dashboard.
+完成审查后，读取审查日志和配置以显示仪表板。
 
 ```bash
 ~/.claude/skills/gstack/bin/gstack-review-read
@@ -806,86 +802,84 @@ Display:
 +====================================================================+
 ```
 
-**Review tiers:**
-- **Eng Review (required by default):** The only review that gates shipping. Covers architecture, code quality, tests, performance. Can be disabled globally with \`gstack-config set skip_eng_review true\` (the "don't bother me" setting).
-- **CEO Review (optional):** Use your judgment. Recommend it for big product/business changes, new user-facing features, or scope decisions. Skip for bug fixes, refactors, infra, and cleanup.
-- **Design Review (optional):** Use your judgment. Recommend it for UI/UX changes. Skip for backend-only, infra, or prompt-only changes.
-- **Adversarial Review (automatic):** Always-on for every review. Every diff gets both Claude adversarial subagent and Codex adversarial challenge. Large diffs (200+ lines) additionally get Codex structured review with P1 gate. No configuration needed.
-- **Outside Voice (optional):** Independent plan review from a different AI model. Offered after all review sections complete in /plan-ceo-review and /plan-eng-review. Falls back to Claude subagent if Codex is unavailable. Never gates shipping.
+**审查层级：**
+- **工程审查（默认必需）：** 唯一限制发布的审查。涵盖架构、代码质量、测试、性能。可通过 \`gstack-config set skip_eng_review true\`（"别打扰我"设置）全局禁用。
+- **CEO 审查（可选）：** 自行判断。建议用于大型产品/业务变更、新的面向用户功能或范围决策。跳过 bug 修复、重构、基础设施和清理工作。
+- **设计审查（可选）：** 自行判断。建议用于 UI/UX 变更。跳过仅后端、基础设施或提示词变更。
+- **对抗性审查（自动）：** 每次审查始终开启。每个 diff 都会同时获得 Claude 对抗性子代理和 Codex 对抗性挑战。大型 diff（200+ 行）还会获得 Codex 结构化审查和 P1 门控。无需配置。
+- **外部声音（可选）：** 来自不同 AI 模型的独立计划审查。在 /plan-ceo-review 和 /plan-eng-review 的所有审查部分完成后提供。如果 Codex 不可用则回退到 Claude 子代理。从不限制发布。
 
-**Verdict logic:**
-- **CLEARED**: Eng Review has >= 1 entry within 7 days from either \`review\` or \`plan-eng-review\` with status "clean" (or \`skip_eng_review\` is \`true\`)
-- **NOT CLEARED**: Eng Review missing, stale (>7 days), or has open issues
-- CEO, Design, and Codex reviews are shown for context but never block shipping
-- If \`skip_eng_review\` config is \`true\`, Eng Review shows "SKIPPED (global)" and verdict is CLEARED
+**判定逻辑：**
+- **已通过**：工程审查在 7 天内有 >= 1 条来自 \`review\` 或 \`plan-eng-review\` 的记录，状态为 "clean"（或 \`skip_eng_review\` 为 \`true\`）
+- **未通过**：工程审查缺失、过期（>7 天）或有未解决的问题
+- CEO、设计和 Codex 审查仅作为上下文显示，从不限制发布
+- 如果 \`skip_eng_review\` 配置为 \`true\`，工程审查显示 "SKIPPED (global)" 且判定为已通过
 
-**Staleness detection:** After displaying the dashboard, check if any existing reviews may be stale:
-- Parse the \`---HEAD---\` section from the bash output to get the current HEAD commit hash
-- For each review entry that has a \`commit\` field: compare it against the current HEAD. If different, count elapsed commits: \`git rev-list --count STORED_COMMIT..HEAD\`. Display: "Note: {skill} review from {date} may be stale — {N} commits since review"
-- For entries without a \`commit\` field (legacy entries): display "Note: {skill} review from {date} has no commit tracking — consider re-running for accurate staleness detection"
-- If all reviews match the current HEAD, do not display any staleness notes
+**过期检测：** 显示仪表板后，检查是否有现有审查可能已过期：
+- 从 bash 输出中解析 \`---HEAD---\` 部分以获取当前 HEAD 提交哈希
+- 对于每个有 \`commit\` 字段的审查条目：将其与当前 HEAD 进行比较。如果不同，计算经过的提交数：\`git rev-list --count STORED_COMMIT..HEAD\`。显示："注意：{skill} 审查来自 {date} 可能已过期 — 审查后有 {N} 个提交"
+- 对于没有 \`commit\` 字段的条目（旧条目）：显示 "注意：{skill} 审查来自 {date} 没有提交跟踪 — 建议重新运行以获得准确的过期检测"
+- 如果所有审查都匹配当前 HEAD，不显示任何过期说明
 
-If the Eng Review is NOT "CLEAR":
+如果工程审查不是 "已通过"：
 
-Print: "No prior eng review found — ship will run its own pre-landing review in Step 9."
+打印："未找到先前的工程审查 — ship 将在步骤 9 运行自己的着陆前审查。"
 
-Check diff size: `git diff <base>...HEAD --stat | tail -1`. If the diff is >200 lines, add: "Note: This is a large diff. Consider running `/plan-eng-review` or `/autoplan` for architecture-level review before shipping."
+检查 diff 大小：`git diff <base>...HEAD --stat | tail -1`。如果 diff > 200 行，添加："注意：这是一个大型 diff。考虑在发布前运行 `/plan-eng-review` 或 `/autoplan` 进行架构级审查。"
 
-If CEO Review is missing, mention as informational ("CEO Review not run — recommended for product changes") but do NOT block.
+如果 CEO 审查缺失，作为信息性提示提及（"CEO 审查未运行 — 建议用于产品变更"）但不要阻断。
 
-For Design Review: run `source <(~/.claude/skills/gstack/bin/gstack-diff-scope <base> 2>/dev/null)`. If `SCOPE_FRONTEND=true` and no design review (plan-design-review or design-review-lite) exists in the dashboard, mention: "Design Review not run — this PR changes frontend code. The lite design check will run automatically in Step 9, but consider running /design-review for a full visual audit post-implementation." Still never block.
+对于设计审查：运行 `source <(~/.claude/skills/gstack/bin/gstack-diff-scope <base> 2>/dev/null)`。如果 `SCOPE_FRONTEND=true` 且仪表板中没有设计审查（plan-design-review 或 design-review-lite），提示："设计审查未运行 — 此 PR 更改了前端代码。精简设计检查将在步骤 9 自动运行，但建议在实现后运行 /design-review 进行完整的视觉审计。"仍然不要阻断。
 
-Continue to Step 2 — do NOT block or ask. Ship runs its own review in Step 9.
+继续到步骤 2 — 不要阻断或询问。Ship 在步骤 9 运行自己的审查。
 
 ---
 
-## Step 2: Distribution Pipeline Check
+## 步骤 2：分发管道检查
 
-If the diff introduces a new standalone artifact (CLI binary, library package, tool) — not a web
-service with existing deployment — verify that a distribution pipeline exists.
+如果 diff 引入了新的独立制品（CLI 二进制文件、库包、工具） — 而非已有部署的 Web 服务 — 验证是否存在分发管道。
 
-1. Check if the diff adds a new `cmd/` directory, `main.go`, or `bin/` entry point:
+1. 检查 diff 是否添加了新的 `cmd/` 目录、`main.go` 或 `bin/` 入口点：
    ```bash
    git diff origin/<base> --name-only | grep -E '(cmd/.*/main\.go|bin/|Cargo\.toml|setup\.py|package\.json)' | head -5
    ```
 
-2. If new artifact detected, check for a release workflow:
+2. 如果检测到新制品，检查是否有发布工作流：
    ```bash
    ls .github/workflows/ 2>/dev/null | grep -iE 'release|publish|dist'
    grep -qE 'release|publish|deploy' .gitlab-ci.yml 2>/dev/null && echo "GITLAB_CI_RELEASE"
    ```
 
-3. **If no release pipeline exists and a new artifact was added:** Use AskUserQuestion:
-   - "This PR adds a new binary/tool but there's no CI/CD pipeline to build and publish it.
-     Users won't be able to download the artifact after merge."
-   - A) Add a release workflow now (CI/CD release pipeline — GitHub Actions or GitLab CI depending on platform)
-   - B) Defer — add to TODOS.md
-   - C) Not needed — this is internal/web-only, existing deployment covers it
+3. **如果不存在发布管道且添加了新制品：** 使用 AskUserQuestion：
+   - "此 PR 添加了新的二进制文件/工具，但没有 CI/CD 管道来构建和发布它。用户在合并后将无法下载该制品。"
+   - A) 立即添加发布工作流（CI/CD 发布管道 — GitHub Actions 或 GitLab CI，取决于平台）
+   - B) 延后 — 添加到 TODOS.md
+   - C) 不需要 — 这是内部/仅 Web 的，现有部署已覆盖
 
-4. **If release pipeline exists:** Continue silently.
-5. **If no new artifact detected:** Skip silently.
+4. **如果发布管道存在：** 静默继续。
+5. **如果未检测到新制品：** 静默跳过。
 
 ---
 
-## Step 3: Merge the base branch (BEFORE tests)
+## 步骤 3：合并基础分支（在测试之前）
 
-Fetch and merge the base branch into the feature branch so tests run against the merged state:
+获取并合并基础分支到功能分支，以便测试针对合并后的状态运行：
 
 ```bash
 git fetch origin <base> && git merge origin/<base> --no-edit
 ```
 
-**If there are merge conflicts:** Try to auto-resolve if they are simple (VERSION, schema.rb, CHANGELOG ordering). If conflicts are complex or ambiguous, **STOP** and show them.
+**如果存在合并冲突：** 尝试自动解决简单的冲突（VERSION、schema.rb、CHANGELOG 排序）。如果冲突复杂或有歧义，**停止**并显示冲突。
 
-**If already up to date:** Continue silently.
+**如果已是最新：** 静默继续。
 
 ---
 
-## Step 4: Test Framework Bootstrap
+## 步骤 4：测试框架引导
 
-## Test Framework Bootstrap
+## 测试框架引导
 
-**Detect existing test framework and project runtime:**
+**检测现有测试框架和项目运行时：**
 
 ```bash
 setopt +o nomatch 2>/dev/null || true  # zsh compat
@@ -907,27 +901,27 @@ ls -d test/ tests/ spec/ __tests__/ cypress/ e2e/ 2>/dev/null
 [ -f .gstack/no-test-bootstrap ] && echo "BOOTSTRAP_DECLINED"
 ```
 
-**If test framework detected** (config files or test directories found):
-Print "Test framework detected: {name} ({N} existing tests). Skipping bootstrap."
-Read 2-3 existing test files to learn conventions (naming, imports, assertion style, setup patterns).
-Store conventions as prose context for use in Phase 8e.5 or Step 7. **Skip the rest of bootstrap.**
+**如果检测到测试框架**（找到配置文件或测试目录）：
+打印 "检测到测试框架：{name}（{N} 个现有测试）。跳过引导。"
+读取 2-3 个现有测试文件以了解约定（命名、导入、断言风格、设置模式）。
+将约定存储为文本上下文，供阶段 8e.5 或步骤 7 使用。**跳过引导的其余部分。**
 
-**If BOOTSTRAP_DECLINED** appears: Print "Test bootstrap previously declined — skipping." **Skip the rest of bootstrap.**
+**如果出现 BOOTSTRAP_DECLINED：** 打印 "测试引导之前被拒绝 — 跳过。"**跳过引导的其余部分。**
 
-**If NO runtime detected** (no config files found): Use AskUserQuestion:
-"I couldn't detect your project's language. What runtime are you using?"
-Options: A) Node.js/TypeScript B) Ruby/Rails C) Python D) Go E) Rust F) PHP G) Elixir H) This project doesn't need tests.
-If user picks H → write `.gstack/no-test-bootstrap` and continue without tests.
+**如果未检测到运行时**（未找到配置文件）：使用 AskUserQuestion：
+"我无法检测到你项目的语言。你使用的是什么运行时？"
+选项：A) Node.js/TypeScript B) Ruby/Rails C) Python D) Go E) Rust F) PHP G) Elixir H) 这个项目不需要测试。
+如果用户选择 H → 写入 `.gstack/no-test-bootstrap` 并在没有测试的情况下继续。
 
-**If runtime detected but no test framework — bootstrap:**
+**如果检测到运行时但没有测试框架 — 引导：**
 
-### B2. Research best practices
+### B2. 研究最佳实践
 
-Use WebSearch to find current best practices for the detected runtime:
+使用 WebSearch 查找检测到的运行时的当前最佳实践：
 - `"[runtime] best test framework 2025 2026"`
 - `"[framework A] vs [framework B] comparison"`
 
-If WebSearch is unavailable, use this built-in knowledge table:
+如果 WebSearch 不可用，使用此内置知识表：
 
 | Runtime | Primary recommendation | Alternative |
 |---------|----------------------|-------------|
@@ -940,112 +934,112 @@ If WebSearch is unavailable, use this built-in knowledge table:
 | PHP | phpunit + mockery | pest |
 | Elixir | ExUnit (built-in) + ex_machina | — |
 
-### B3. Framework selection
+### B3. 框架选择
 
-Use AskUserQuestion:
-"I detected this is a [Runtime/Framework] project with no test framework. I researched current best practices. Here are the options:
-A) [Primary] — [rationale]. Includes: [packages]. Supports: unit, integration, smoke, e2e
-B) [Alternative] — [rationale]. Includes: [packages]
-C) Skip — don't set up testing right now
-RECOMMENDATION: Choose A because [reason based on project context]"
+使用 AskUserQuestion：
+"我检测到这是一个 [Runtime/Framework] 项目，没有测试框架。我研究了当前的最佳实践。以下是选项：
+A) [首选] — [理由]。包含：[packages]。支持：单元测试、集成测试、冒烟测试、端到端测试
+B) [备选] — [理由]。包含：[packages]
+C) 跳过 — 暂时不设置测试
+建议：选择 A，因为 [基于项目上下文的原因]"
 
-If user picks C → write `.gstack/no-test-bootstrap`. Tell user: "If you change your mind later, delete `.gstack/no-test-bootstrap` and re-run." Continue without tests.
+如果用户选择 C → 写入 `.gstack/no-test-bootstrap`。告诉用户："如果你稍后改变主意，删除 `.gstack/no-test-bootstrap` 并重新运行。"在没有测试的情况下继续。
 
-If multiple runtimes detected (monorepo) → ask which runtime to set up first, with option to do both sequentially.
+如果检测到多个运行时（monorepo）→ 询问首先设置哪个运行时，可以选择按顺序设置两者。
 
-### B4. Install and configure
+### B4. 安装和配置
 
-1. Install the chosen packages (npm/bun/gem/pip/etc.)
-2. Create minimal config file
-3. Create directory structure (test/, spec/, etc.)
-4. Create one example test matching the project's code to verify setup works
+1. 安装选择的包（npm/bun/gem/pip 等）
+2. 创建最小配置文件
+3. 创建目录结构（test/、spec/ 等）
+4. 创建一个匹配项目代码的示例测试以验证设置是否正常工作
 
-If package installation fails → debug once. If still failing → revert with `git checkout -- package.json package-lock.json` (or equivalent for the runtime). Warn user and continue without tests.
+如果包安装失败 → 调试一次。如果仍然失败 → 使用 `git checkout -- package.json package-lock.json`（或运行时的等效命令）回退。警告用户并在没有测试的情况下继续。
 
-### B4.5. First real tests
+### B4.5. 第一批真实测试
 
-Generate 3-5 real tests for existing code:
+为现有代码生成 3-5 个真实测试：
 
-1. **Find recently changed files:** `git log --since=30.days --name-only --format="" | sort | uniq -c | sort -rn | head -10`
-2. **Prioritize by risk:** Error handlers > business logic with conditionals > API endpoints > pure functions
-3. **For each file:** Write one test that tests real behavior with meaningful assertions. Never `expect(x).toBeDefined()` — test what the code DOES.
-4. Run each test. Passes → keep. Fails → fix once. Still fails → delete silently.
-5. Generate at least 1 test, cap at 5.
+1. **查找最近更改的文件：** `git log --since=30.days --name-only --format="" | sort | uniq -c | sort -rn | head -10`
+2. **按风险优先级排序：** 错误处理器 > 带有条件逻辑的业务逻辑 > API 端点 > 纯函数
+3. **对于每个文件：** 编写一个测试真实行为的测试，使用有意义的断言。永远不要 `expect(x).toBeDefined()` — 测试代码实际做了什么。
+4. 运行每个测试。通过 → 保留。失败 → 修复一次。仍然失败 → 静默删除。
+5. 至少生成 1 个测试，最多 5 个。
 
-Never import secrets, API keys, or credentials in test files. Use environment variables or test fixtures.
+永远不要在测试文件中导入密钥、API 密钥或凭据。使用环境变量或测试夹具。
 
-### B5. Verify
+### B5. 验证
 
 ```bash
-# Run the full test suite to confirm everything works
+# 运行完整测试套件以确认一切正常
 {detected test command}
 ```
 
-If tests fail → debug once. If still failing → revert all bootstrap changes and warn user.
+如果测试失败 → 调试一次。如果仍然失败 → 回退所有引导更改并警告用户。
 
-### B5.5. CI/CD pipeline
+### B5.5. CI/CD 管道
 
 ```bash
-# Check CI provider
+# 检查 CI 提供商
 ls -d .github/ 2>/dev/null && echo "CI:github"
 ls .gitlab-ci.yml .circleci/ bitrise.yml 2>/dev/null
 ```
 
-If `.github/` exists (or no CI detected — default to GitHub Actions):
-Create `.github/workflows/test.yml` with:
+如果 `.github/` 存在（或未检测到 CI — 默认使用 GitHub Actions）：
+创建 `.github/workflows/test.yml`，包含：
 - `runs-on: ubuntu-latest`
-- Appropriate setup action for the runtime (setup-node, setup-ruby, setup-python, etc.)
-- The same test command verified in B5
-- Trigger: push + pull_request
+- 运行时的适当设置操作（setup-node、setup-ruby、setup-python 等）
+- 与 B5 中验证的相同测试命令
+- 触发条件：push + pull_request
 
-If non-GitHub CI detected → skip CI generation with note: "Detected {provider} — CI pipeline generation supports GitHub Actions only. Add test step to your existing pipeline manually."
+如果检测到非 GitHub CI → 跳过 CI 生成，注明："检测到 {provider} — CI 管道生成仅支持 GitHub Actions。请手动将测试步骤添加到现有管道中。"
 
-### B6. Create TESTING.md
+### B6. 创建 TESTING.md
 
-First check: If TESTING.md already exists → read it and update/append rather than overwriting. Never destroy existing content.
+首先检查：如果 TESTING.md 已存在 → 读取它并更新/追加，而不是覆盖。永远不要破坏现有内容。
 
-Write TESTING.md with:
-- Philosophy: "100% test coverage is the key to great vibe coding. Tests let you move fast, trust your instincts, and ship with confidence — without them, vibe coding is just yolo coding. With tests, it's a superpower."
-- Framework name and version
-- How to run tests (the verified command from B5)
-- Test layers: Unit tests (what, where, when), Integration tests, Smoke tests, E2E tests
-- Conventions: file naming, assertion style, setup/teardown patterns
+写入 TESTING.md，包含：
+- 理念："100% 测试覆盖率是优秀氛围编码的关键。测试让你快速行动、信任本能、自信发布 — 没有它们，氛围编码就是裸奔编码。有了测试，它就是超能力。"
+- 框架名称和版本
+- 如何运行测试（B5 中验证的命令）
+- 测试层级：单元测试（什么、哪里、何时）、集成测试、冒烟测试、端到端测试
+- 约定：文件命名、断言风格、设置/拆卸模式
 
-### B7. Update CLAUDE.md
+### B7. 更新 CLAUDE.md
 
-First check: If CLAUDE.md already has a `## Testing` section → skip. Don't duplicate.
+首先检查：如果 CLAUDE.md 已经有 `## Testing` 部分 → 跳过。不要重复。
 
-Append a `## Testing` section:
-- Run command and test directory
-- Reference to TESTING.md
-- Test expectations:
-  - 100% test coverage is the goal — tests make vibe coding safe
-  - When writing new functions, write a corresponding test
-  - When fixing a bug, write a regression test
-  - When adding error handling, write a test that triggers the error
-  - When adding a conditional (if/else, switch), write tests for BOTH paths
-  - Never commit code that makes existing tests fail
+追加 `## Testing` 部分：
+- 运行命令和测试目录
+- 参考 TESTING.md
+- 测试期望：
+  - 100% 测试覆盖率是目标 — 测试让氛围编码安全
+  - 编写新函数时，编写相应的测试
+  - 修复 bug 时，编写回归测试
+  - 添加错误处理时，编写触发错误的测试
+  - 添加条件语句（if/else、switch）时，为两条路径都编写测试
+  - 永远不要提交导致现有测试失败的代码
 
-### B8. Commit
+### B8. 提交
 
 ```bash
 git status --porcelain
 ```
 
-Only commit if there are changes. Stage all bootstrap files (config, test directory, TESTING.md, CLAUDE.md, .github/workflows/test.yml if created):
+仅在有更改时提交。暂存所有引导文件（配置、测试目录、TESTING.md、CLAUDE.md、如果创建了则包括 .github/workflows/test.yml）：
 `git commit -m "chore: bootstrap test framework ({framework name})"`
 
 ---
 
 ---
 
-## Step 5: Run tests (on merged code)
+## 步骤 5：运行测试（在合并后的代码上）
 
-**Do NOT run `RAILS_ENV=test bin/rails db:migrate`** — `bin/test-lane` already calls
-`db:test:prepare` internally, which loads the schema into the correct lane database.
-Running bare test migrations without INSTANCE hits an orphan DB and corrupts structure.sql.
+**不要运行 `RAILS_ENV=test bin/rails db:migrate`** — `bin/test-lane` 已经在内部调用
+`db:test:prepare`，它会将 schema 加载到正确的 lane 数据库中。
+在没有 INSTANCE 的情况下运行裸测试迁移会命中孤立数据库并损坏 structure.sql。
 
-Run both test suites in parallel:
+并行运行两个测试套件：
 
 ```bash
 bin/test-lane 2>&1 | tee /tmp/ship_tests.txt &
@@ -1055,123 +1049,123 @@ wait
 
 After both complete, read the output files and check pass/fail.
 
-**If any test fails:** Do NOT immediately stop. Apply the Test Failure Ownership Triage:
+**如果任何测试失败：** 不要立即停止。应用测试失败归属分类：
 
-## Test Failure Ownership Triage
+## 测试失败归属分类
 
-When tests fail, do NOT immediately stop. First, determine ownership:
+当测试失败时，不要立即停止。首先确定归属：
 
-### Step T1: Classify each failure
+### 步骤 T1：对每个失败进行分类
 
-For each failing test:
+对于每个失败的测试：
 
-1. **Get the files changed on this branch:**
+1. **获取此分支上更改的文件：**
    ```bash
    git diff origin/<base>...HEAD --name-only
    ```
 
-2. **Classify the failure:**
-   - **In-branch** if: the failing test file itself was modified on this branch, OR the test output references code that was changed on this branch, OR you can trace the failure to a change in the branch diff.
-   - **Likely pre-existing** if: neither the test file nor the code it tests was modified on this branch, AND the failure is unrelated to any branch change you can identify.
-   - **When ambiguous, default to in-branch.** It is safer to stop the developer than to let a broken test ship. Only classify as pre-existing when you are confident.
+2. **对失败进行分类：**
+   - **分支内失败** 如果：失败的测试文件本身在此分支上被修改，或者测试输出引用了此分支上被更改的代码，或者你可以将失败追溯到分支 diff 中的更改。
+   - **可能是已有失败** 如果：测试文件和它测试的代码都没有在此分支上被修改，并且失败与你能识别的任何分支更改无关。
+   - **当有歧义时，默认归类为分支内失败。** 阻止开发者比让损坏的测试发布更安全。只有在确信时才归类为已有失败。
 
-   This classification is heuristic — use your judgment reading the diff and the test output. You do not have a programmatic dependency graph.
+   此分类是启发式的 — 使用你对 diff 和测试输出的判断来判断。你没有程序化的依赖图。
 
-### Step T2: Handle in-branch failures
+### 步骤 T2：处理分支内失败
 
-**STOP.** These are your failures. Show them and do not proceed. The developer must fix their own broken tests before shipping.
+**停止。** 这是你的失败。显示它们并停止。开发者必须在发布前修复自己的损坏测试。
 
-### Step T3: Handle pre-existing failures
+### 步骤 T3：处理已有失败
 
-Check `REPO_MODE` from the preamble output.
+从 preamble 输出中检查 `REPO_MODE`。
 
-**If REPO_MODE is `solo`:**
+**如果 REPO_MODE 是 `solo`：**
 
-Use AskUserQuestion:
+使用 AskUserQuestion：
 
-> These test failures appear pre-existing (not caused by your branch changes):
+> 这些测试失败看起来是已有的（不是由你的分支更改引起的）：
 >
-> [list each failure with file:line and brief error description]
+> [列出每个失败，包含 file:line 和简要错误描述]
 >
-> Since this is a solo repo, you're the only one who will fix these.
+> 由于这是独立仓库，你是唯一会修复这些的人。
 >
-> RECOMMENDATION: Choose A — fix now while the context is fresh. Completeness: 9/10.
-> A) Investigate and fix now (human: ~2-4h / CC: ~15min) — Completeness: 10/10
-> B) Add as P0 TODO — fix after this branch lands — Completeness: 7/10
-> C) Skip — I know about this, ship anyway — Completeness: 3/10
+> 建议：选择 A — 趁上下文新鲜现在修复。完整度：9/10。
+> A) 立即调查并修复（人工：~2-4 小时 / CC：~15 分钟）— 完整度：10/10
+> B) 添加为 P0 TODO — 在此分支着陆后修复 — 完整度：7/10
+> C) 跳过 — 我知道这个问题，仍然发布 — 完整度：3/10
 
-**If REPO_MODE is `collaborative` or `unknown`:**
+**如果 REPO_MODE 是 `collaborative` 或 `unknown`：**
 
-Use AskUserQuestion:
+使用 AskUserQuestion：
 
-> These test failures appear pre-existing (not caused by your branch changes):
+> 这些测试失败看起来是已有的（不是由你的分支更改引起的）：
 >
-> [list each failure with file:line and brief error description]
+> [列出每个失败，包含 file:line 和简要错误描述]
 >
-> This is a collaborative repo — these may be someone else's responsibility.
+> 这是协作仓库 — 这些可能是其他人的责任。
 >
-> RECOMMENDATION: Choose B — assign it to whoever broke it so the right person fixes it. Completeness: 9/10.
-> A) Investigate and fix now anyway — Completeness: 10/10
-> B) Blame + assign GitHub issue to the author — Completeness: 9/10
-> C) Add as P0 TODO — Completeness: 7/10
-> D) Skip — ship anyway — Completeness: 3/10
+> 建议：选择 B — 分配给破坏它的人，让正确的人修复它。完整度：9/10。
+> A) 仍然调查并修复 — 完整度：10/10
+> B) 归责 + 分配 GitHub issue 给作者 — 完整度：9/10
+> C) 添加为 P0 TODO — 完整度：7/10
+> D) 跳过 — 仍然发布 — 完整度：3/10
 
-### Step T4: Execute the chosen action
+### 步骤 T4：执行选定的操作
 
-**If "Investigate and fix now":**
-- Switch to /investigate mindset: root cause first, then minimal fix.
-- Fix the pre-existing failure.
-- Commit the fix separately from the branch's changes: `git commit -m "fix: pre-existing test failure in <test-file>"`
-- Continue with the workflow.
+**如果选择"立即调查并修复"：**
+- 切换到 /investigate 心态：先找根因，然后最小修复。
+- 修复已有失败。
+- 将修复与分支更改分开提交：`git commit -m "fix: pre-existing test failure in <test-file>"`
+- 继续工作流。
 
-**If "Add as P0 TODO":**
-- If `TODOS.md` exists, add the entry following the format in `review/TODOS-format.md` (or `.claude/skills/review/TODOS-format.md`).
-- If `TODOS.md` does not exist, create it with the standard header and add the entry.
-- Entry should include: title, the error output, which branch it was noticed on, and priority P0.
-- Continue with the workflow — treat the pre-existing failure as non-blocking.
+**如果选择"添加为 P0 TODO"：**
+- 如果 `TODOS.md` 存在，按照 `review/TODOS-format.md`（或 `.claude/skills/review/TODOS-format.md`）中的格式添加条目。
+- 如果 `TODOS.md` 不存在，使用标准标题创建它并添加条目。
+- 条目应包含：标题、错误输出、在哪个分支上注意到的，以及优先级 P0。
+- 继续工作流 — 将已有失败视为非阻断。
 
-**If "Blame + assign GitHub issue" (collaborative only):**
-- Find who likely broke it. Check BOTH the test file AND the production code it tests:
+**如果选择"归责 + 分配 GitHub issue"（仅协作仓库）：**
+- 查找可能破坏它的人。同时检查测试文件和它测试的生产代码：
   ```bash
-  # Who last touched the failing test?
+  # 谁最后接触了失败的测试？
   git log --format="%an (%ae)" -1 -- <failing-test-file>
-  # Who last touched the production code the test covers? (often the actual breaker)
+  # 谁最后接触了测试覆盖的生产代码？（通常是真正的破坏者）
   git log --format="%an (%ae)" -1 -- <source-file-under-test>
   ```
-  If these are different people, prefer the production code author — they likely introduced the regression.
-- Create an issue assigned to that person (use the platform detected in Step 0):
-  - **If GitHub:**
+  如果是不同的人，优先选择生产代码作者 — 他们可能引入了回归。
+- 创建分配给该人的 issue（使用步骤 0 检测到的平台）：
+  - **如果是 GitHub：**
     ```bash
     gh issue create \
       --title "Pre-existing test failure: <test-name>" \
       --body "Found failing on branch <current-branch>. Failure is pre-existing.\n\n**Error:**\n```\n<first 10 lines>\n```\n\n**Last modified by:** <author>\n**Noticed by:** gstack /ship on <date>" \
       --assignee "<github-username>"
     ```
-  - **If GitLab:**
+  - **如果是 GitLab：**
     ```bash
     glab issue create \
       -t "Pre-existing test failure: <test-name>" \
       -d "Found failing on branch <current-branch>. Failure is pre-existing.\n\n**Error:**\n```\n<first 10 lines>\n```\n\n**Last modified by:** <author>\n**Noticed by:** gstack /ship on <date>" \
       -a "<gitlab-username>"
     ```
-- If neither CLI is available or `--assignee`/`-a` fails (user not in org, etc.), create the issue without assignee and note who should look at it in the body.
-- Continue with the workflow.
+- 如果两个 CLI 都不可用或 `--assignee`/`-a` 失败（用户不在组织中等），创建没有 assignee 的 issue 并在正文中注明谁应该查看它。
+- 继续工作流。
 
-**If "Skip":**
-- Continue with the workflow.
-- Note in output: "Pre-existing test failure skipped: <test-name>"
+**如果选择"跳过"：**
+- 继续工作流。
+- 在输出中注明："已有的测试失败已跳过：\<test-name\>"
 
-**After triage:** If any in-branch failures remain unfixed, **STOP**. Do not proceed. If all failures were pre-existing and handled (fixed, TODOed, assigned, or skipped), continue to Step 6.
+**分类后：** 如果任何分支内失败仍未修复，**停止**。不要继续。如果所有失败都是已有的且已处理（已修复、已 TODO、已分配或已跳过），继续到步骤 6。
 
-**If all pass:** Continue silently — just note the counts briefly.
+**如果全部通过：** 静默继续 — 简要记录计数。
 
 ---
 
-## Step 6: Eval Suites (conditional)
+## 步骤 6：评估套件（条件性）
 
-Evals are mandatory when prompt-related files change. Skip this step entirely if no prompt files are in the diff.
+当提示词相关文件更改时，评估是必需的。如果 diff 中没有提示词文件，完全跳过此步骤。
 
-**1. Check if the diff touches prompt-related files:**
+**1. 检查 diff 是否涉及提示词相关文件：**
 
 ```bash
 git diff origin/<base> --name-only
@@ -1186,9 +1180,9 @@ Match against these patterns (from CLAUDE.md):
 - `config/system_prompts/*.txt`
 - `test/evals/**/*` (eval infrastructure changes affect all suites)
 
-**If no matches:** Print "No prompt-related files changed — skipping evals." and continue to Step 9.
+**如果没有匹配：** 打印 "没有提示词相关文件更改 — 跳过评估。" 并继续到步骤 9。
 
-**2. Identify affected eval suites:**
+**2. 识别受影响的评估套件：**
 
 Each eval runner (`test/evals/*_eval_runner.rb`) declares `PROMPT_SOURCE_FILES` listing which source files affect it. Grep these to find which suites match the changed files:
 
@@ -1198,27 +1192,27 @@ grep -l "changed_file_basename" test/evals/*_eval_runner.rb
 
 Map runner → test file: `post_generation_eval_runner.rb` → `post_generation_eval_test.rb`.
 
-**Special cases:**
-- Changes to `test/evals/judges/*.rb`, `test/evals/support/*.rb`, or `test/evals/fixtures/` affect ALL suites that use those judges/support files. Check imports in the eval test files to determine which.
-- Changes to `config/system_prompts/*.txt` — grep eval runners for the prompt filename to find affected suites.
-- If unsure which suites are affected, run ALL suites that could plausibly be impacted. Over-testing is better than missing a regression.
+**特殊情况：**
+- 对 `test/evals/judges/*.rb`、`test/evals/support/*.rb` 或 `test/evals/fixtures/` 的更改会影响所有使用这些 judge/支持文件的套件。检查评估测试文件中的导入以确定哪些。
+- 对 `config/system_prompts/*.txt` 的更改 — grep 评估运行器以查找提示词文件名以找到受影响的套件。
+- 如果不确定哪些套件受影响，运行所有可能受影响的套件。过度测试比回归更好。
 
-**3. Run affected suites at `EVAL_JUDGE_TIER=full`:**
+**3. 在 `EVAL_JUDGE_TIER=full` 下运行受影响的套件：**
 
-`/ship` is a pre-merge gate, so always use full tier (Sonnet structural + Opus persona judges).
+`/ship` 是合并前门控，因此始终使用完整层级（Sonnet 结构化 + Opus 人格 judge）。
 
 ```bash
 EVAL_JUDGE_TIER=full EVAL_VERBOSE=1 bin/test-lane --eval test/evals/<suite>_eval_test.rb 2>&1 | tee /tmp/ship_evals.txt
 ```
 
-If multiple suites need to run, run them sequentially (each needs a test lane). If the first suite fails, stop immediately — don't burn API cost on remaining suites.
+如果需要运行多个套件，按顺序运行（每个都需要一个测试通道）。如果第一个套件失败，立即停止 — 不要在剩余套件上消耗 API 成本。
 
-**4. Check results:**
+**4. 检查结果：**
 
-- **If any eval fails:** Show the failures, the cost dashboard, and **STOP**. Do not proceed.
-- **If all pass:** Note pass counts and cost. Continue to Step 9.
+- **如果任何评估失败：** 显示失败、成本仪表板，并**停止**。不要继续。
+- **如果全部通过：** 记录通过计数和成本。继续到步骤 9。
 
-**5. Save eval output** — include eval results and cost dashboard in the PR body (Step 19).
+**5. 保存评估输出** — 将评估结果和成本仪表板包含在 PR 正文中（步骤 19）。
 
 **Tier reference (for context — /ship always uses `full`):**
 | Tier | When | Speed (cached) | Cost |
@@ -1229,19 +1223,19 @@ If multiple suites need to run, run them sequentially (each needs a test lane). 
 
 ---
 
-## Step 7: Test Coverage Audit
+## 步骤 7：测试覆盖率审计
 
-**Dispatch this step as a subagent** using the Agent tool with `subagent_type: "general-purpose"`. The subagent runs the coverage audit in a fresh context window — the parent only sees the conclusion, not intermediate file reads. This is context-rot defense.
+**将此步骤作为子代理分派**，使用 Agent 工具，`subagent_type: "general-purpose"`。子代理在新的上下文窗口中运行覆盖率审计 — 父代理只看到结论，不看到中间的文件读取。这是上下文腐烂防御。
 
-**Subagent prompt:** Pass the following instructions to the subagent, with `<base>` substituted with the base branch:
+**子代理提示：** 将以下指令传递给子代理，将 `<base>` 替换为基础分支：
 
-> You are running a ship-workflow test coverage audit. Run `git diff <base>...HEAD` as needed. Do not commit or push — report only.
+> 你正在运行 ship 工作流测试覆盖率审计。根据需要运行 `git diff <base>...HEAD`。不要提交或推送 — 仅报告。
 >
-> 100% coverage is the goal — every untested path is a path where bugs hide and vibe coding becomes yolo coding. Evaluate what was ACTUALLY coded (from the diff), not what was planned.
+> 100% 覆盖率是目标 — 每个未测试的路径都是 bug 藏身之处，氛围编码变成裸奔编码。评估实际编码的内容（来自 diff），而不是计划的内容。
 
-### Test Framework Detection
+### 测试框架检测
 
-Before analyzing coverage, detect the project's test framework:
+在分析覆盖率之前，检测项目的测试框架：
 
 1. **Read CLAUDE.md** — look for a `## Testing` section with test command and framework name. If found, use that as the authoritative source.
 2. **If CLAUDE.md has no testing section, auto-detect:**
@@ -1259,101 +1253,101 @@ ls jest.config.* vitest.config.* playwright.config.* cypress.config.* .rspec pyt
 ls -d test/ tests/ spec/ __tests__/ cypress/ e2e/ 2>/dev/null
 ```
 
-3. **If no framework detected:** falls through to the Test Framework Bootstrap step (Step 4) which handles full setup.
+3. **如果未检测到框架：** 进入测试框架引导步骤（步骤 4），该步骤处理完整设置。
 
-**0. Before/after test count:**
+**0. 前后测试计数：**
 
 ```bash
 # Count test files before any generation
 find . -name '*.test.*' -o -name '*.spec.*' -o -name '*_test.*' -o -name '*_spec.*' | grep -v node_modules | wc -l
 ```
 
-Store this number for the PR body.
+存储此数字供 PR 正文使用。
 
-**1. Trace every codepath changed** using `git diff origin/<base>...HEAD`:
+**1. 追踪每个更改的代码路径**，使用 `git diff origin/<base>...HEAD`：
 
-Read every changed file. For each one, trace how data flows through the code — don't just list functions, actually follow the execution:
+读取每个更改的文件。对于每个文件，追踪数据如何流经代码 — 不要只是列出函数，实际跟踪执行：
 
-1. **Read the diff.** For each changed file, read the full file (not just the diff hunk) to understand context.
-2. **Trace data flow.** Starting from each entry point (route handler, exported function, event listener, component render), follow the data through every branch:
-   - Where does input come from? (request params, props, database, API call)
-   - What transforms it? (validation, mapping, computation)
-   - Where does it go? (database write, API response, rendered output, side effect)
-   - What can go wrong at each step? (null/undefined, invalid input, network failure, empty collection)
-3. **Diagram the execution.** For each changed file, draw an ASCII diagram showing:
-   - Every function/method that was added or modified
-   - Every conditional branch (if/else, switch, ternary, guard clause, early return)
-   - Every error path (try/catch, rescue, error boundary, fallback)
-   - Every call to another function (trace into it — does IT have untested branches?)
-   - Every edge: what happens with null input? Empty array? Invalid type?
+1. **读取 diff。** 对于每个更改的文件，读取完整文件（不仅仅是 diff hunk）以了解上下文。
+2. **追踪数据流。** 从每个入口点（路由处理器、导出的函数、事件监听器、组件渲染）开始，跟踪数据通过每个分支：
+   - 输入来自哪里？（请求参数、props、数据库、API 调用）
+   - 什么转换它？（验证、映射、计算）
+   - 它去哪里？（数据库写入、API 响应、渲染输出、副作用）
+   - 每一步可能出什么问题？（null/undefined、无效输入、网络故障、空集合）
+3. **绘制执行图。** 对于每个更改的文件，绘制一个 ASCII 图显示：
+   - 每个被添加或修改的函数/方法
+   - 每个条件分支（if/else、switch、三元表达式、guard 子句、提前返回）
+   - 每个错误路径（try/catch、rescue、错误边界、回退）
+   - 每个对其他函数的调用（追踪进去 — 它是否有未测试的分支？）
+   - 每个边界情况：null 输入会怎样？空数组？无效类型？
 
-This is the critical step — you're building a map of every line of code that can execute differently based on input. Every branch in this diagram needs a test.
+这是关键步骤 — 你在构建一张地图，显示每行代码可以基于输入执行不同的路径。此图中的每个分支都需要一个测试。
 
-**2. Map user flows, interactions, and error states:**
+**2. 映射用户流程、交互和错误状态：**
 
-Code coverage isn't enough — you need to cover how real users interact with the changed code. For each changed feature, think through:
+代码覆盖率不够 — 你需要覆盖真实用户如何与更改的代码交互。对于每个更改的功能，思考：
 
-- **User flows:** What sequence of actions does a user take that touches this code? Map the full journey (e.g., "user clicks 'Pay' → form validates → API call → success/failure screen"). Each step in the journey needs a test.
-- **Interaction edge cases:** What happens when the user does something unexpected?
-  - Double-click/rapid resubmit
-  - Navigate away mid-operation (back button, close tab, click another link)
-  - Submit with stale data (page sat open for 30 minutes, session expired)
-  - Slow connection (API takes 10 seconds — what does the user see?)
-  - Concurrent actions (two tabs, same form)
-- **Error states the user can see:** For every error the code handles, what does the user actually experience?
-  - Is there a clear error message or a silent failure?
-  - Can the user recover (retry, go back, fix input) or are they stuck?
-  - What happens with no network? With a 500 from the API? With invalid data from the server?
-- **Empty/zero/boundary states:** What does the UI show with zero results? With 10,000 results? With a single character input? With maximum-length input?
+- **用户流程：** 用户执行什么操作序列会触及此代码？映射完整旅程（例如，"用户点击'支付' → 表单验证 → API 调用 → 成功/失败屏幕"）。旅程中的每一步都需要一个测试。
+- **交互边界情况：** 当用户做了意想不到的事情时会发生什么？
+  - 双击/快速重新提交
+  - 操作中途导航离开（返回按钮、关闭标签页、点击另一个链接）
+  - 使用过时数据提交（页面打开了 30 分钟，会话过期）
+  - 慢速连接（API 需要 10 秒 — 用户看到什么？）
+  - 并发操作（两个标签页，同一表单）
+- **用户可见的错误状态：** 对于代码处理的每个错误，用户实际体验到什么？
+  - 有清晰的错误消息还是静默失败？
+  - 用户能恢复（重试、返回、修复输入）还是被卡住？
+  - 没有网络会怎样？API 返回 500？服务器返回无效数据？
+- **空/零/边界状态：** UI 在零结果时显示什么？10,000 个结果？单个字符输入？最大长度输入？
 
-Add these to your diagram alongside the code branches. A user flow with no test is just as much a gap as an untested if/else.
+将这些添加到你的图表中，与代码分支并列。没有测试的用户流程与未测试的 if/else 一样是差距。
 
-**3. Check each branch against existing tests:**
+**3. 对照现有测试检查每个分支：**
 
-Go through your diagram branch by branch — both code paths AND user flows. For each one, search for a test that exercises it:
-- Function `processPayment()` → look for `billing.test.ts`, `billing.spec.ts`, `test/billing_test.rb`
-- An if/else → look for tests covering BOTH the true AND false path
-- An error handler → look for a test that triggers that specific error condition
-- A call to `helperFn()` that has its own branches → those branches need tests too
-- A user flow → look for an integration or E2E test that walks through the journey
-- An interaction edge case → look for a test that simulates the unexpected action
+逐个分支检查你的图表 — 代码路径和用户流程。对于每个分支，搜索执行它的测试：
+- 函数 `processPayment()` → 查找 `billing.test.ts`、`billing.spec.ts`、`test/billing_test.rb`
+- 一个 if/else → 查找覆盖 true 和 false 路径的测试
+- 一个错误处理器 → 查找触发该特定错误条件的测试
+- 对 `helperFn()` 的调用，它有自己的分支 → 这些分支也需要测试
+- 一个用户流程 → 查找贯穿旅程的集成或端到端测试
+- 一个交互边界情况 → 查找模拟意外操作的测试
 
-Quality scoring rubric:
-- ★★★  Tests behavior with edge cases AND error paths
-- ★★   Tests correct behavior, happy path only
-- ★    Smoke test / existence check / trivial assertion (e.g., "it renders", "it doesn't throw")
+质量评分标准：
+- ★★★ 测试行为包含边界情况和错误路径
+- ★★ 测试正确行为，仅快乐路径
+- ★ 冒烟测试/存在性检查/简单断言（例如，"它渲染了"，"它没有抛出异常"）
 
-### E2E Test Decision Matrix
+### 端到端测试决策矩阵
 
-When checking each branch, also determine whether a unit test or E2E/integration test is the right tool:
+检查每个分支时，同时确定单元测试还是端到端/集成测试是正确的工具：
 
-**RECOMMEND E2E (mark as [→E2E] in the diagram):**
-- Common user flow spanning 3+ components/services (e.g., signup → verify email → first login)
-- Integration point where mocking hides real failures (e.g., API → queue → worker → DB)
-- Auth/payment/data-destruction flows — too important to trust unit tests alone
+**推荐端到端测试（在图表中标记为 [→E2E]）：**
+- 跨越 3+ 个组件/服务的常见用户流程（例如，注册 → 验证邮箱 → 首次登录）
+- 模拟隐藏真实失败的集成点（例如，API → 队列 → worker → 数据库）
+- 认证/支付/数据销毁流程 — 太重要了，不能仅信任单元测试
 
-**RECOMMEND EVAL (mark as [→EVAL] in the diagram):**
-- Critical LLM call that needs a quality eval (e.g., prompt change → test output still meets quality bar)
-- Changes to prompt templates, system instructions, or tool definitions
+**推荐评估（在图表中标记为 [→EVAL]）：**
+- 需要质量评估的关键 LLM 调用（例如，提示词更改 → 测试输出仍需满足质量标准）
+- 对提示词模板、系统指令或工具定义的更改
 
-**STICK WITH UNIT TESTS:**
-- Pure function with clear inputs/outputs
-- Internal helper with no side effects
-- Edge case of a single function (null input, empty array)
-- Obscure/rare flow that isn't customer-facing
+**坚持使用单元测试：**
+- 具有清晰输入/输出的纯函数
+- 没有副作用的内部辅助函数
+- 单个函数的边界情况（null 输入、空数组）
+- 不面向客户的模糊/罕见流程
 
-### REGRESSION RULE (mandatory)
+### 回归规则（强制性）
 
-**IRON RULE:** When the coverage audit identifies a REGRESSION — code that previously worked but the diff broke — a regression test is written immediately. No AskUserQuestion. No skipping. Regressions are the highest-priority test because they prove something broke.
+**铁律：** 当覆盖率审计识别出回归 — 之前正常工作但 diff 破坏了的代码 — 立即编写回归测试。不要 AskUserQuestion。不要跳过。回归是最高优先级的测试，因为它们证明了某些东西坏了。
 
-A regression is when:
-- The diff modifies existing behavior (not new code)
-- The existing test suite (if any) doesn't cover the changed path
-- The change introduces a new failure mode for existing callers
+回归是指：
+- diff 修改了现有行为（不是新代码）
+- 现有测试套件（如果有）不覆盖更改的路径
+- 更改引入了现有调用者的新失败模式
 
-When uncertain whether a change is a regression, err on the side of writing the test.
+当不确定更改是否是回归时，倾向于编写测试。
 
-Format: commit as `test: regression test for {what broke}`
+格式：提交为 `test: regression test for {what broke}`
 
 **4. Output ASCII coverage diagram:**
 
@@ -1376,75 +1370,75 @@ COVERAGE: 5/13 paths tested (38%)  |  Code paths: 3/5 (60%)  |  User flows: 2/8 
 QUALITY: ★★★:2 ★★:2 ★:1  |  GAPS: 8 (2 E2E, 1 eval)
 ```
 
-Legend: ★★★ behavior + edge + error  |  ★★ happy path  |  ★ smoke check
-[→E2E] = needs integration test  |  [→EVAL] = needs LLM eval
+图例：★★★ 行为 + 边界 + 错误  |  ★★ 快乐路径  |  ★ 冒烟检查
+[→E2E] = 需要集成测试  |  [→EVAL] = 需要 LLM 评估
 
-**Fast path:** All paths covered → "Step 7: All new code paths have test coverage ✓" Continue.
+**快速路径：** 所有路径已覆盖 → "步骤 7：所有新代码路径都有测试覆盖 ✓" 继续。
 
-**5. Generate tests for uncovered paths:**
+**5. 为未覆盖的路径生成测试：**
 
-If test framework detected (or bootstrapped in Step 4):
-- Prioritize error handlers and edge cases first (happy paths are more likely already tested)
-- Read 2-3 existing test files to match conventions exactly
-- Generate unit tests. Mock all external dependencies (DB, API, Redis).
-- For paths marked [→E2E]: generate integration/E2E tests using the project's E2E framework (Playwright, Cypress, Capybara, etc.)
-- For paths marked [→EVAL]: generate eval tests using the project's eval framework, or flag for manual eval if none exists
-- Write tests that exercise the specific uncovered path with real assertions
-- Run each test. Passes → commit as `test: coverage for {feature}`
-- Fails → fix once. Still fails → revert, note gap in diagram.
+如果检测到测试框架（或在步骤 4 中引导）：
+- 优先处理错误处理器和边界情况（快乐路径更可能已被测试）
+- 读取 2-3 个现有测试文件以完全匹配约定
+- 生成单元测试。模拟所有外部依赖（DB、API、Redis）。
+- 对于标记为 [→E2E] 的路径：使用项目的端到端框架（Playwright、Cypress、Capybara 等）生成集成/端到端测试
+- 对于标记为 [→EVAL] 的路径：使用项目的评估框架生成评估测试，如果没有则标记为手动评估
+- 编写执行特定未覆盖路径的测试，使用真实断言
+- 运行每个测试。通过 → 提交为 `test: coverage for {feature}`
+- 失败 → 修复一次。仍然失败 → 回退，在图表中记录差距。
 
-Caps: 30 code paths max, 20 tests generated max (code + user flow combined), 2-min per-test exploration cap.
+上限：最多 30 个代码路径，最多生成 20 个测试（代码 + 用户流程合计），每个测试最多 2 分钟探索。
 
-If no test framework AND user declined bootstrap → diagram only, no generation. Note: "Test generation skipped — no test framework configured."
+如果无测试框架且用户拒绝引导 → 仅图表，不生成。注意："测试生成已跳过 — 未配置测试框架。"
 
-**Diff is test-only changes:** Skip Step 7 entirely: "No new application code paths to audit."
+**Diff 仅为测试更改：** 完全跳过步骤 7："没有新的应用程序代码路径需要审计。"
 
-**6. After-count and coverage summary:**
+**6. 后计数和覆盖率摘要：**
 
 ```bash
 # Count test files after generation
 find . -name '*.test.*' -o -name '*.spec.*' -o -name '*_test.*' -o -name '*_spec.*' | grep -v node_modules | wc -l
 ```
 
-For PR body: `Tests: {before} → {after} (+{delta} new)`
-Coverage line: `Test Coverage Audit: N new code paths. M covered (X%). K tests generated, J committed.`
+供 PR 正文使用：`Tests: {before} → {after} (+{delta} new)`
+覆盖率行：`Test Coverage Audit: N new code paths. M covered (X%). K tests generated, J committed.`
 
-**7. Coverage gate:**
+**7. 覆盖率门控：**
 
-Before proceeding, check CLAUDE.md for a `## Test Coverage` section with `Minimum:` and `Target:` fields. If found, use those percentages. Otherwise use defaults: Minimum = 60%, Target = 80%.
+在继续之前，检查 CLAUDE.md 是否有 `## Test Coverage` 部分，包含 `Minimum:` 和 `Target:` 字段。如果找到，使用这些百分比。否则使用默认值：最低 = 60%，目标 = 80%。
 
-Using the coverage percentage from the diagram in substep 4 (the `COVERAGE: X/Y (Z%)` line):
+使用子步骤 4 图表中的覆盖率百分比（`COVERAGE: X/Y (Z%)` 行）：
 
-- **>= target:** Pass. "Coverage gate: PASS ({X}%)." Continue.
-- **>= minimum, < target:** Use AskUserQuestion:
-  - "AI-assessed coverage is {X}%. {N} code paths are untested. Target is {target}%."
-  - RECOMMENDATION: Choose A because untested code paths are where production bugs hide.
-  - Options:
-    A) Generate more tests for remaining gaps (recommended)
-    B) Ship anyway — I accept the coverage risk
-    C) These paths don't need tests — mark as intentionally uncovered
-  - If A: Loop back to substep 5 (generate tests) targeting the remaining gaps. After second pass, if still below target, present AskUserQuestion again with updated numbers. Maximum 2 generation passes total.
-  - If B: Continue. Include in PR body: "Coverage gate: {X}% — user accepted risk."
-  - If C: Continue. Include in PR body: "Coverage gate: {X}% — {N} paths intentionally uncovered."
+- **>= 目标：** 通过。"Coverage gate: PASS ({X}%)." 继续。
+- **>= 最低，< 目标：** 使用 AskUserQuestion：
+  - "AI 评估的覆盖率为 {X}%。{N} 个代码路径未测试。目标是 {target}%。"
+  - 建议：选择 A，因为未测试的代码路径是生产 bug 藏身之处。
+  - 选项：
+    A) 为剩余差距生成更多测试（推荐）
+    B) 仍然发布 — 我接受覆盖率风险
+    C) 这些路径不需要测试 — 标记为有意未覆盖
+  - 如果选择 A：回到子步骤 5（生成测试），针对剩余差距。第二次遍历后，如果仍低于目标，再次呈现 AskUserQuestion 并更新数字。最多 2 次生成遍历。
+  - 如果选择 B：继续。在 PR 正文中包含："Coverage gate: {X}% — user accepted risk."
+  - 如果选择 C：继续。在 PR 正文中包含："Coverage gate: {X}% — {N} paths intentionally uncovered."
 
-- **< minimum:** Use AskUserQuestion:
-  - "AI-assessed coverage is critically low ({X}%). {N} of {M} code paths have no tests. Minimum threshold is {minimum}%."
-  - RECOMMENDATION: Choose A because less than {minimum}% means more code is untested than tested.
-  - Options:
-    A) Generate tests for remaining gaps (recommended)
-    B) Override — ship with low coverage (I understand the risk)
-  - If A: Loop back to substep 5. Maximum 2 passes. If still below minimum after 2 passes, present the override choice again.
-  - If B: Continue. Include in PR body: "Coverage gate: OVERRIDDEN at {X}%."
+- **< 最低：** 使用 AskUserQuestion：
+  - "AI 评估的覆盖率严重偏低（{X}%）。{M} 个代码路径中有 {N} 个没有测试。最低阈值是 {minimum}%。"
+  - 建议：选择 A，因为低于 {minimum}% 意味着未测试的代码比测试的多。
+  - 选项：
+    A) 为剩余差距生成测试（推荐）
+    B) 覆盖 — 低覆盖率发布（我理解风险）
+  - 如果选择 A：回到子步骤 5。最多 2 次遍历。如果 2 次后仍低于最低值，再次呈现覆盖选择。
+  - 如果选择 B：继续。在 PR 正文中包含："Coverage gate: OVERRIDDEN at {X}%."
 
-**Coverage percentage undetermined:** If the coverage diagram doesn't produce a clear numeric percentage (ambiguous output, parse error), **skip the gate** with: "Coverage gate: could not determine percentage — skipping." Do not default to 0% or block.
+**覆盖率百分比未确定：** 如果覆盖率图表没有产生清晰的数字百分比（输出有歧义、解析错误），**跳过门控**："Coverage gate: could not determine percentage — skipping." 不要默认为 0% 或阻断。
 
-**Test-only diffs:** Skip the gate (same as the existing fast-path).
+**仅测试的 diff：** 跳过门控（与现有快速路径相同）。
 
-**100% coverage:** "Coverage gate: PASS (100%)." Continue.
+**100% 覆盖率：** "Coverage gate: PASS (100%)." 继续。
 
-### Test Plan Artifact
+### 测试计划工件
 
-After producing the coverage diagram, write a test plan artifact so `/qa` and `/qa-only` can consume it:
+生成覆盖率图后，编写测试计划工件，以便 `/qa` 和 `/qa-only` 可以使用它：
 
 ```bash
 eval "$(~/.claude/skills/gstack/bin/gstack-slug 2>/dev/null)" && mkdir -p ~/.gstack/projects/$SLUG
@@ -1476,30 +1470,30 @@ Repo: {owner/repo}
 > After your analysis, output a single JSON object on the LAST LINE of your response (no other text after it):
 > `{"coverage_pct":N,"gaps":N,"diagram":"<full markdown coverage diagram for PR body>","tests_added":["path",...]}`
 
-**Parent processing:**
+**父代理处理：**
 
-1. Read the subagent's final output. Parse the LAST line as JSON.
-2. Store `coverage_pct` (for Step 20 metrics), `gaps` (user summary), `tests_added` (for the commit).
-3. Embed `diagram` verbatim in the PR body's `## Test Coverage` section (Step 19).
-4. Print a one-line summary: `Coverage: {coverage_pct}%, {gaps} gaps. {tests_added.length} tests added.`
+1. 读取子代理的最终输出。将最后一行解析为 JSON。
+2. 存储 `coverage_pct`（用于步骤 20 指标）、`gaps`（用户摘要）、`tests_added`（用于提交）。
+3. 将 `diagram` 逐字嵌入 PR 正文的 `## Test Coverage` 部分（步骤 19）。
+4. 打印一行摘要：`Coverage: {coverage_pct}%, {gaps} gaps. {tests_added.length} tests added.`
 
-**If the subagent fails, times out, or returns invalid JSON:** Fall back to running the audit inline in the parent. Do not block /ship on subagent failure — partial results are better than none.
+**如果子代理失败、超时或返回无效 JSON：** 回退到在父代理中内联运行审计。不要因子代理失败而阻断 /ship — 部分结果总比没有好。
 
 ---
 
-## Step 8: Plan Completion Audit
+## 步骤 8：计划完成度审计
 
-**Dispatch this step as a subagent** using the Agent tool with `subagent_type: "general-purpose"`. The subagent reads the plan file and every referenced code file in its own fresh context. Parent gets only the conclusion.
+**将此步骤作为子代理分派**，使用 Agent 工具，`subagent_type: "general-purpose"`。子代理在自己的新上下文中读取计划文件和每个引用的代码文件。父代理只得到结论。
 
-**Subagent prompt:** Pass these instructions to the subagent:
+**子代理提示：** 将这些指令传递给子代理：
 
-> You are running a ship-workflow plan completion audit. The base branch is `<base>`. Use `git diff <base>...HEAD` to see what shipped. Do not commit or push — report only.
+> 你正在运行 ship 工作流计划完成度审计。基础分支是 `<base>`。使用 `git diff <base>...HEAD` 查看发布了什么。不要提交或推送 — 仅报告。
 >
-> ### Plan File Discovery
+> ### 计划文件发现
 
-1. **Conversation context (primary):** Check if there is an active plan file in this conversation. The host agent's system messages include plan file paths when in plan mode. If found, use it directly — this is the most reliable signal.
+1. **对话上下文（主要）：** 检查此对话中是否有活动的计划文件。宿主代理的系统消息在计划模式下包含计划文件路径。如果找到，直接使用 — 这是最可靠的信号。
 
-2. **Content-based search (fallback):** If no plan file is referenced in conversation context, search by content:
+2. **基于内容的搜索（回退）：** 如果对话上下文中没有引用计划文件，按内容搜索：
 
 ```bash
 setopt +o nomatch 2>/dev/null || true  # zsh compat
@@ -1519,15 +1513,15 @@ done
 [ -n "$PLAN" ] && echo "PLAN_FILE: $PLAN" || echo "NO_PLAN_FILE"
 ```
 
-3. **Validation:** If a plan file was found via content-based search (not conversation context), read the first 20 lines and verify it is relevant to the current branch's work. If it appears to be from a different project or feature, treat as "no plan file found."
+3. **验证：** 如果通过基于内容的搜索找到计划文件（不是对话上下文），读取前 20 行并验证它与当前分支的工作相关。如果它看起来来自不同的项目或功能，视为"未找到计划文件"。
 
-**Error handling:**
-- No plan file found → skip with "No plan file detected — skipping."
-- Plan file found but unreadable (permissions, encoding) → skip with "Plan file found but unreadable — skipping."
+**错误处理：**
+- 未找到计划文件 → 跳过："未检测到计划文件 — 跳过。"
+- 找到计划文件但不可读（权限、编码） → 跳过："找到计划文件但不可读 — 跳过。"
 
-### Actionable Item Extraction
+### 可操作项提取
 
-Read the plan file. Extract every actionable item — anything that describes work to be done. Look for:
+读取计划文件。提取每个可操作项 — 描述要完成的工作的任何内容。查找：
 
 - **Checkbox items:** `- [ ] ...` or `- [x] ...`
 - **Numbered steps** under implementation headings: "1. Create ...", "2. Add ...", "3. Modify ..."
@@ -1536,36 +1530,36 @@ Read the plan file. Extract every actionable item — anything that describes wo
 - **Test requirements:** "Test that X", "Add test for Y", "Verify Z"
 - **Data model changes:** "Add column X to table Y", "Create migration for Z"
 
-**Ignore:**
-- Context/Background sections (`## Context`, `## Background`, `## Problem`)
-- Questions and open items (marked with ?, "TBD", "TODO: decide")
-- Review report sections (`## GSTACK REVIEW REPORT`)
-- Explicitly deferred items ("Future:", "Out of scope:", "NOT in scope:", "P2:", "P3:", "P4:")
-- CEO Review Decisions sections (these record choices, not work items)
+**忽略：**
+- 上下文/背景部分（`## Context`、`## Background`、`## Problem`）
+- 问题和待定项（标记为 ?、"TBD"、"TODO: decide"）
+- 审查报告部分（`## GSTACK REVIEW REPORT`）
+- 明确延迟的项（"Future:"、"Out of scope:"、"NOT in scope:"、"P2:"、"P3:"、"P4:"）
+- CEO 审查决策部分（这些记录选择，不是工作项）
 
-**Cap:** Extract at most 50 items. If the plan has more, note: "Showing top 50 of N plan items — full list in plan file."
+**上限：** 最多提取 50 项。如果计划有更多，注明："显示前 50 项，共 N 项计划项 — 完整列表在计划文件中。"
 
-**No items found:** If the plan contains no extractable actionable items, skip with: "Plan file contains no actionable items — skipping completion audit."
+**未找到项：** 如果计划不包含可提取的可操作项，跳过："计划文件不包含可操作项 — 跳过完成度审计。"
 
-For each item, note:
-- The item text (verbatim or concise summary)
-- Its category: CODE | TEST | MIGRATION | CONFIG | DOCS
+对于每项，记录：
+- 项文本（逐字或简洁摘要）
+- 其类别：CODE | TEST | MIGRATION | CONFIG | DOCS
 
-### Cross-Reference Against Diff
+### 交叉引用 Diff
 
-Run `git diff origin/<base>...HEAD` and `git log origin/<base>..HEAD --oneline` to understand what was implemented.
+运行 `git diff origin/<base>...HEAD` 和 `git log origin/<base>..HEAD --oneline` 以了解实现了什么。
 
-For each extracted plan item, check the diff and classify:
+对于每个提取的计划项，检查 diff 并分类：
 
-- **DONE** — Clear evidence in the diff that this item was implemented. Cite the specific file(s) changed.
-- **PARTIAL** — Some work toward this item exists in the diff but it's incomplete (e.g., model created but controller missing, function exists but edge cases not handled).
-- **NOT DONE** — No evidence in the diff that this item was addressed.
-- **CHANGED** — The item was implemented using a different approach than the plan described, but the same goal is achieved. Note the difference.
+- **已完成** — diff 中有明确证据表明此项已实现。引用更改的特定文件。
+- **部分完成** — diff 中存在对此项的一些工作但不完整（例如，模型已创建但控制器缺失，函数存在但边界情况未处理）。
+- **未完成** — diff 中没有证据表明此项已被处理。
+- **已更改** — 项使用了与计划描述不同的方法实现，但达到了相同的目标。注意差异。
 
-**Be conservative with DONE** — require clear evidence in the diff. A file being touched is not enough; the specific functionality described must be present.
-**Be generous with CHANGED** — if the goal is met by different means, that counts as addressed.
+**对已完成要保守** — 要求 diff 中有明确证据。仅文件被改动是不够的；描述的特定功能必须存在。
+**对已更改要宽容** — 如果目标通过不同手段达到，那算作已处理。
 
-### Output Format
+### 输出格式
 
 ```
 PLAN COMPLETION AUDIT
@@ -1590,25 +1584,25 @@ COMPLETION: 4/7 DONE, 1 PARTIAL, 1 NOT DONE, 1 CHANGED
 ─────────────────────────────────
 ```
 
-### Gate Logic
+### 门控逻辑
 
-After producing the completion checklist:
+生成完成度检查清单后：
 
-- **All DONE or CHANGED:** Pass. "Plan completion: PASS — all items addressed." Continue.
-- **Only PARTIAL items (no NOT DONE):** Continue with a note in the PR body. Not blocking.
-- **Any NOT DONE items:** Use AskUserQuestion:
-  - Show the completion checklist above
-  - "{N} items from the plan are NOT DONE. These were part of the original plan but are missing from the implementation."
-  - RECOMMENDATION: depends on item count and severity. If 1-2 minor items (docs, config), recommend B. If core functionality is missing, recommend A.
-  - Options:
-    A) Stop — implement the missing items before shipping
-    B) Ship anyway — defer these to a follow-up (will create P1 TODOs in Step 5.5)
-    C) These items were intentionally dropped — remove from scope
-  - If A: STOP. List the missing items for the user to implement.
-  - If B: Continue. For each NOT DONE item, create a P1 TODO in Step 5.5 with "Deferred from plan: {plan file path}".
-  - If C: Continue. Note in PR body: "Plan items intentionally dropped: {list}."
+- **全部已完成或已更改：** 通过。"Plan completion: PASS — all items addressed." 继续。
+- **仅有部分完成项（无未完成）：** 继续，在 PR 正文中注明。不阻断。
+- **任何未完成项：** 使用 AskUserQuestion：
+  - 显示上面的完成度检查清单
+  - "计划中有 {N} 项未完成。这些是原始计划的一部分，但在实现中缺失。"
+  - 建议：取决于项数和严重程度。如果是 1-2 个次要项（文档、配置），建议 B。如果核心功能缺失，建议 A。
+  - 选项：
+    A) 停止 — 在发布前实现缺失的项
+    B) 仍然发布 — 将这些延迟到后续（将在步骤 5.5 创建 P1 TODO）
+    C) 这些项被有意删除 — 从范围中移除
+  - 如果选择 A：停止。列出缺失的项供用户实现。
+  - 如果选择 B：继续。对于每个未完成项，在步骤 5.5 创建 P1 TODO，内容为 "Deferred from plan: {plan file path}"。
+  - 如果选择 C：继续。在 PR 正文中注明："Plan items intentionally dropped: {list}."
 
-**No plan file found:** Skip entirely. "No plan file detected — skipping plan completion audit."
+**未找到计划文件：** 完全跳过。"未检测到计划文件 — 跳过计划完成度审计。"
 
 **Include in PR body (Step 8):** Add a `## Plan Completion` section with the checklist summary.
 >
@@ -1626,20 +1620,20 @@ After producing the completion checklist:
 
 ---
 
-## Step 8.1: Plan Verification
+## 步骤 8.1：计划验证
 
-Automatically verify the plan's testing/verification steps using the `/qa-only` skill.
+使用 `/qa-only` 技能自动验证计划的测试/验证步骤。
 
-### 1. Check for verification section
+### 1. 检查验证部分
 
-Using the plan file already discovered in Step 8, look for a verification section. Match any of these headings: `## Verification`, `## Test plan`, `## Testing`, `## How to test`, `## Manual testing`, or any section with verification-flavored items (URLs to visit, things to check visually, interactions to test).
+使用步骤 8 中已发现的计划文件，查找验证部分。匹配以下任何标题：`## Verification`、`## Test plan`、`## Testing`、`## How to test`、`## Manual testing`，或任何包含验证风格项（要访问的 URL、要目视检查的内容、要测试的交互）的部分。
 
-**If no verification section found:** Skip with "No verification steps found in plan — skipping auto-verification."
-**If no plan file was found in Step 8:** Skip (already handled).
+**如果未找到验证部分：** 跳过："计划中未找到验证步骤 — 跳过自动验证。"
+**如果步骤 8 中未找到计划文件：** 跳过（已处理）。
 
-### 2. Check for running dev server
+### 2. 检查正在运行的开发服务器
 
-Before invoking browse-based verification, check if a dev server is reachable:
+在调用基于浏览的验证之前，检查开发服务器是否可达：
 
 ```bash
 curl -s -o /dev/null -w '%{http_code}' http://localhost:3000 2>/dev/null || \
@@ -1648,45 +1642,45 @@ curl -s -o /dev/null -w '%{http_code}' http://localhost:5173 2>/dev/null || \
 curl -s -o /dev/null -w '%{http_code}' http://localhost:4000 2>/dev/null || echo "NO_SERVER"
 ```
 
-**If NO_SERVER:** Skip with "No dev server detected — skipping plan verification. Run /qa separately after deploying."
+**如果 NO_SERVER：** 跳过："未检测到开发服务器 — 跳过计划验证。部署后单独运行 /qa。"
 
-### 3. Invoke /qa-only inline
+### 3. 内联调用 /qa-only
 
-Read the `/qa-only` skill from disk:
+从磁盘读取 `/qa-only` 技能：
 
 ```bash
 cat ${CLAUDE_SKILL_DIR}/../qa-only/SKILL.md
 ```
 
-**If unreadable:** Skip with "Could not load /qa-only — skipping plan verification."
+**如果不可读：** 跳过："无法加载 /qa-only — 跳过计划验证。"
 
-Follow the /qa-only workflow with these modifications:
-- **Skip the preamble** (already handled by /ship)
-- **Use the plan's verification section as the primary test input** — treat each verification item as a test case
-- **Use the detected dev server URL** as the base URL
-- **Skip the fix loop** — this is report-only verification during /ship
-- **Cap at the verification items from the plan** — do not expand into general site QA
+按照以下修改遵循 /qa-only 工作流：
+- **跳过 preamble**（已由 /ship 处理）
+- **使用计划的验证部分作为主要测试输入** — 将每个验证项视为一个测试用例
+- **使用检测到的开发服务器 URL** 作为基础 URL
+- **跳过修复循环** — 这是 /ship 期间的仅报告验证
+- **限制在计划的验证项范围内** — 不要扩展到一般站点 QA
 
-### 4. Gate logic
+### 4. 门控逻辑
 
-- **All verification items PASS:** Continue silently. "Plan verification: PASS."
-- **Any FAIL:** Use AskUserQuestion:
-  - Show the failures with screenshot evidence
-  - RECOMMENDATION: Choose A if failures indicate broken functionality. Choose B if cosmetic only.
-  - Options:
-    A) Fix the failures before shipping (recommended for functional issues)
-    B) Ship anyway — known issues (acceptable for cosmetic issues)
-- **No verification section / no server / unreadable skill:** Skip (non-blocking).
+- **所有验证项通过：** 静默继续。"Plan verification: PASS."
+- **任何失败：** 使用 AskUserQuestion：
+  - 显示失败和截图证据
+  - 建议：如果失败表明功能损坏，选择 A。如果仅是外观问题，选择 B。
+  - 选项：
+    A) 在发布前修复失败（推荐用于功能问题）
+    B) 仍然发布 — 已知问题（可接受外观问题）
+- **无验证部分 / 无服务器 / 技能不可读：** 跳过（非阻断）。
 
-### 5. Include in PR body
+### 5. 包含在 PR 正文中
 
-Add a `## Verification Results` section to the PR body (Step 19):
-- If verification ran: summary of results (N PASS, M FAIL, K SKIPPED)
-- If skipped: reason for skipping (no plan, no server, no verification section)
+在 PR 正文（步骤 19）中添加 `## Verification Results` 部分：
+- 如果验证已运行：结果摘要（N PASS、M FAIL、K SKIPPED）
+- 如果跳过：跳过原因（无计划、无服务器、无验证部分）
 
-## Prior Learnings
+## 先前学习
 
-Search for relevant learnings from previous sessions:
+搜索先前会话中的相关学习：
 
 ```bash
 _CROSS_PROJ=$(~/.claude/skills/gstack/bin/gstack-config get cross_project_learnings 2>/dev/null || echo "unset")
@@ -1698,53 +1692,52 @@ else
 fi
 ```
 
-If `CROSS_PROJECT` is `unset` (first time): Use AskUserQuestion:
+如果 `CROSS_PROJECT` 是 `unset`（首次）：使用 AskUserQuestion：
 
-> gstack can search learnings from your other projects on this machine to find
-> patterns that might apply here. This stays local (no data leaves your machine).
-> Recommended for solo developers. Skip if you work on multiple client codebases
-> where cross-contamination would be a concern.
+> gstack 可以搜索你在此机器上其他项目的学习记录，以找到
+> 可能适用于此的模式。这保持本地（没有数据离开你的机器）。
+> 推荐给独立开发者。如果你在多个客户端代码库上工作，
+> 交叉污染会是问题，请跳过。
 
-Options:
-- A) Enable cross-project learnings (recommended)
-- B) Keep learnings project-scoped only
+选项：
+- A) 启用跨项目学习（推荐）
+- B) 仅保持学习项目范围
 
-If A: run `~/.claude/skills/gstack/bin/gstack-config set cross_project_learnings true`
-If B: run `~/.claude/skills/gstack/bin/gstack-config set cross_project_learnings false`
+如果选择 A：运行 `~/.claude/skills/gstack/bin/gstack-config set cross_project_learnings true`
+如果选择 B：运行 `~/.claude/skills/gstack/bin/gstack-config set cross_project_learnings false`
 
-Then re-run the search with the appropriate flag.
+然后使用适当的标志重新运行搜索。
 
-If learnings are found, incorporate them into your analysis. When a review finding
-matches a past learning, display:
+如果找到学习记录，将它们纳入你的分析。当审查发现
+匹配过去的学习时，显示：
 
 **"Prior learning applied: [key] (confidence N/10, from [date])"**
 
-This makes the compounding visible. The user should see that gstack is getting
-smarter on their codebase over time.
+这使复利可见。用户应该看到 gstack 随着时间推移在他们的代码库上变得越来越聪明。
 
-## Step 8.2: Scope Drift Detection
+## 步骤 8.2：范围漂移检测
 
-Before reviewing code quality, check: **did they build what was requested — nothing more, nothing less?**
+在审查代码质量之前，检查：**他们是否构建了所要求的 — 不多不少？**
 
 1. Read `TODOS.md` (if it exists). Read PR description (`gh pr view --json body --jq .body 2>/dev/null || true`).
    Read commit messages (`git log origin/<base>..HEAD --oneline`).
    **If no PR exists:** rely on commit messages and TODOS.md for stated intent — this is the common case since /review runs before /ship creates the PR.
-2. Identify the **stated intent** — what was this branch supposed to accomplish?
-3. Run `git diff origin/<base>...HEAD --stat` and compare the files changed against the stated intent.
+2. 识别**声明的意图** — 此分支应该完成什么？
+3. 运行 `git diff origin/<base>...HEAD --stat` 并将更改的文件与声明的意图进行比较。
 
-4. Evaluate with skepticism (incorporating plan completion results if available from an earlier step or adjacent section):
+4. 以怀疑态度评估（如果可用，纳入先前步骤或相邻部分的计划完成度结果）：
 
-   **SCOPE CREEP detection:**
-   - Files changed that are unrelated to the stated intent
-   - New features or refactors not mentioned in the plan
-   - "While I was in there..." changes that expand blast radius
+   **范围蔓延检测：**
+   - 更改的文件与声明的意图无关
+   - 计划中未提到的新功能或重构
+   - "当我在这里的时候..."的更改扩大了影响范围
 
-   **MISSING REQUIREMENTS detection:**
-   - Requirements from TODOS.md/PR description not addressed in the diff
-   - Test coverage gaps for stated requirements
-   - Partial implementations (started but not finished)
+   **缺失需求检测：**
+   - TODOS.md/PR 描述中的需求未在 diff 中处理
+   - 声明需求的测试覆盖差距
+   - 部分实现（已开始但未完成）
 
-5. Output (before the main review begins):
+5. 输出（在主审查开始之前）：
    \`\`\`
    Scope Check: [CLEAN / DRIFT DETECTED / REQUIREMENTS MISSING]
    Intent: <1-line summary of what was requested>
@@ -1753,35 +1746,35 @@ Before reviewing code quality, check: **did they build what was requested — no
    [If missing: list each unaddressed requirement]
    \`\`\`
 
-6. This is **INFORMATIONAL** — does not block the review. Proceed to the next step.
+6. 这是**信息性的** — 不阻断审查。继续下一步。
 
 ---
 
 ---
 
-## Step 9: Pre-Landing Review
+## 步骤 9：着陆前审查
 
-Review the diff for structural issues that tests don't catch.
+审查 diff 中测试无法捕获的结构性问题。
 
-1. Read `.claude/skills/review/checklist.md`. If the file cannot be read, **STOP** and report the error.
+1. 读取 `.claude/skills/review/checklist.md`。如果文件无法读取，**停止**并报告错误。
 
-2. Run `git diff origin/<base>` to get the full diff (scoped to feature changes against the freshly-fetched base branch).
+2. 运行 `git diff origin/<base>` 获取完整 diff（针对新获取的基础分支的功能更改）。
 
-3. Apply the review checklist in two passes:
-   - **Pass 1 (CRITICAL):** SQL & Data Safety, LLM Output Trust Boundary
-   - **Pass 2 (INFORMATIONAL):** All remaining categories
+3. 分两遍应用审查检查清单：
+   - **第一遍（关键）：** SQL 和数据安全、LLM 输出信任边界
+   - **第二遍（信息性）：** 所有剩余类别
 
-## Confidence Calibration
+## 置信度校准
 
-Every finding MUST include a confidence score (1-10):
+每个发现必须包含置信度评分（1-10）：
 
-| Score | Meaning | Display rule |
+| 评分 | 含义 | 显示规则 |
 |-------|---------|-------------|
-| 9-10 | Verified by reading specific code. Concrete bug or exploit demonstrated. | Show normally |
-| 7-8 | High confidence pattern match. Very likely correct. | Show normally |
-| 5-6 | Moderate. Could be a false positive. | Show with caveat: "Medium confidence, verify this is actually an issue" |
-| 3-4 | Low confidence. Pattern is suspicious but may be fine. | Suppress from main report. Include in appendix only. |
-| 1-2 | Speculation. | Only report if severity would be P0. |
+| 9-10 | 通过阅读具体代码验证。展示了具体的 bug 或漏洞。 | 正常显示 |
+| 7-8 | 高置信度模式匹配。非常可能正确。 | 正常显示 |
+| 5-6 | 中等。可能是误报。 | 附带警告显示："中等置信度，验证这是否确实是一个问题" |
+| 3-4 | 低置信度。模式可疑但可能没问题。 | 从主报告中抑制。仅包含在附录中。 |
+| 1-2 | 推测。 | 仅在严重程度为 P0 时报告。 |
 
 **Finding format:**
 
@@ -1791,37 +1784,34 @@ Example:
 \`[P1] (confidence: 9/10) app/models/user.rb:42 — SQL injection via string interpolation in where clause\`
 \`[P2] (confidence: 5/10) app/controllers/api/v1/users_controller.rb:18 — Possible N+1 query, verify with production logs\`
 
-**Calibration learning:** If you report a finding with confidence < 7 and the user
-confirms it IS a real issue, that is a calibration event. Your initial confidence was
-too low. Log the corrected pattern as a learning so future reviews catch it with
-higher confidence.
+**校准学习：** 如果你报告了一个置信度 < 7 的发现，而用户确认它确实是一个问题，那就是一个校准事件。你的初始置信度太低了。将修正后的模式记录为学习，以便未来的审查以更高的置信度捕获它。
 
-## Design Review (conditional, diff-scoped)
+## 设计审查（条件性，diff 范围）
 
-Check if the diff touches frontend files using `gstack-diff-scope`:
+使用 `gstack-diff-scope` 检查 diff 是否涉及前端文件：
 
 ```bash
 source <(~/.claude/skills/gstack/bin/gstack-diff-scope <base> 2>/dev/null)
 ```
 
-**If `SCOPE_FRONTEND=false`:** Skip design review silently. No output.
+**如果 `SCOPE_FRONTEND=false`：** 静默跳过设计审查。无输出。
 
-**If `SCOPE_FRONTEND=true`:**
+**如果 `SCOPE_FRONTEND=true`：**
 
-1. **Check for DESIGN.md.** If `DESIGN.md` or `design-system.md` exists in the repo root, read it. All design findings are calibrated against it — patterns blessed in DESIGN.md are not flagged. If not found, use universal design principles.
+1. **检查 DESIGN.md。** 如果仓库根目录存在 `DESIGN.md` 或 `design-system.md`，读取它。所有设计发现都根据它校准 — DESIGN.md 中认可的模式不会被标记。如果未找到，使用通用设计原则。
 
-2. **Read `.claude/skills/review/design-checklist.md`.** If the file cannot be read, skip design review with a note: "Design checklist not found — skipping design review."
+2. **读取 `.claude/skills/review/design-checklist.md`。** 如果文件无法读取，跳过设计审查并注明："未找到设计检查清单 — 跳过设计审查。"
 
-3. **Read each changed frontend file** (full file, not just diff hunks). Frontend files are identified by the patterns listed in the checklist.
+3. **读取每个更改的前端文件**（完整文件，不仅仅是 diff hunk）。前端文件由检查清单中列出的模式识别。
 
-4. **Apply the design checklist** against the changed files. For each item:
-   - **[HIGH] mechanical CSS fix** (`outline: none`, `!important`, `font-size < 16px`): classify as AUTO-FIX
-   - **[HIGH/MEDIUM] design judgment needed**: classify as ASK
-   - **[LOW] intent-based detection**: present as "Possible — verify visually or run /design-review"
+4. **对更改的文件应用设计检查清单**。对于每项：
+   - **[HIGH] 机械性 CSS 修复**（`outline: none`、`!important`、`font-size < 16px`）：分类为自动修复
+   - **[HIGH/MEDIUM] 需要设计判断**：分类为询问
+   - **[LOW] 基于意图的检测**：呈现为"可能 — 目视验证或运行 /design-review"
 
-5. **Include findings** in the review output under a "Design Review" header, following the output format in the checklist. Design findings merge with code review findings into the same Fix-First flow.
+5. **将发现包含在**审查输出中的"Design Review"标题下，遵循检查清单中的输出格式。设计发现与代码审查发现合并到同一个修复优先流程中。
 
-6. **Log the result** for the Review Readiness Dashboard:
+6. **记录结果**供审查就绪仪表板使用：
 
 ```bash
 ~/.claude/skills/gstack/bin/gstack-review-log '{"skill":"design-review-lite","timestamp":"TIMESTAMP","status":"STATUS","findings":N,"auto_fixed":M,"commit":"COMMIT"}'
@@ -1829,7 +1819,7 @@ source <(~/.claude/skills/gstack/bin/gstack-diff-scope <base> 2>/dev/null)
 
 Substitute: TIMESTAMP = ISO 8601 datetime, STATUS = "clean" if 0 findings or "issues_found", N = total findings, M = auto-fixed count, COMMIT = output of `git rev-parse --short HEAD`.
 
-7. **Codex design voice** (optional, automatic if available):
+7. **Codex 设计声音**（可选，如果可用则自动运行）：
 
 ```bash
 which codex 2>/dev/null && echo "CODEX_AVAILABLE" || echo "CODEX_NOT_AVAILABLE"
@@ -1848,15 +1838,15 @@ Use a 5-minute timeout (`timeout: 300000`). After the command completes, read st
 cat "$TMPERR_DRL" && rm -f "$TMPERR_DRL"
 ```
 
-**Error handling:** All errors are non-blocking. On auth failure, timeout, or empty response — skip with a brief note and continue.
+**错误处理：** 所有错误都是非阻断的。认证失败、超时或空响应时 — 跳过并简要说明，继续。
 
-Present Codex output under a `CODEX (design):` header, merged with the checklist findings above.
+在 `CODEX (design):` 标题下呈现 Codex 输出，与上面的检查清单发现合并。
 
-   Include any design findings alongside the code review findings. They follow the same Fix-First flow below.
+   将设计发现与代码审查发现一起包含。它们遵循下面相同的修复优先流程。
 
-## Step 9.1: Review Army — Specialist Dispatch
+## 步骤 9.1：审查军团 — 专家调度
 
-### Detect stack and scope
+### 检测技术栈和范围
 
 ```bash
 source <(~/.claude/skills/gstack/bin/gstack-diff-scope <base> 2>/dev/null) || true
@@ -1882,57 +1872,57 @@ TEST_FW=""
 echo "TEST_FW: ${TEST_FW:-unknown}"
 ```
 
-### Read specialist hit rates (adaptive gating)
+### 读取专家命中率（自适应门控）
 
 ```bash
 ~/.claude/skills/gstack/bin/gstack-specialist-stats 2>/dev/null || true
 ```
 
-### Select specialists
+### 选择专家
 
-Based on the scope signals above, select which specialists to dispatch.
+根据上面的范围信号，选择要调度的专家。
 
-**Always-on (dispatch on every review with 50+ changed lines):**
-1. **Testing** — read `~/.claude/skills/gstack/review/specialists/testing.md`
-2. **Maintainability** — read `~/.claude/skills/gstack/review/specialists/maintainability.md`
+**始终开启（每次审查 50+ 行更改时调度）：**
+1. **测试** — 读取 `~/.claude/skills/gstack/review/specialists/testing.md`
+2. **可维护性** — 读取 `~/.claude/skills/gstack/review/specialists/maintainability.md`
 
-**If DIFF_LINES < 50:** Skip all specialists. Print: "Small diff ($DIFF_LINES lines) — specialists skipped." Continue to the Fix-First flow (item 4).
+**如果 DIFF_LINES < 50：** 跳过所有专家。打印："Small diff ($DIFF_LINES lines) — specialists skipped." 继续到修复优先流程（第 4 项）。
 
-**Conditional (dispatch if the matching scope signal is true):**
-3. **Security** — if SCOPE_AUTH=true, OR if SCOPE_BACKEND=true AND DIFF_LINES > 100. Read `~/.claude/skills/gstack/review/specialists/security.md`
-4. **Performance** — if SCOPE_BACKEND=true OR SCOPE_FRONTEND=true. Read `~/.claude/skills/gstack/review/specialists/performance.md`
-5. **Data Migration** — if SCOPE_MIGRATIONS=true. Read `~/.claude/skills/gstack/review/specialists/data-migration.md`
-6. **API Contract** — if SCOPE_API=true. Read `~/.claude/skills/gstack/review/specialists/api-contract.md`
-7. **Design** — if SCOPE_FRONTEND=true. Use the existing design review checklist at `~/.claude/skills/gstack/review/design-checklist.md`
+**条件性（如果匹配的范围信号为 true 则调度）：**
+3. **安全** — 如果 SCOPE_AUTH=true，或 SCOPE_BACKEND=true 且 DIFF_LINES > 100。读取 `~/.claude/skills/gstack/review/specialists/security.md`
+4. **性能** — 如果 SCOPE_BACKEND=true 或 SCOPE_FRONTEND=true。读取 `~/.claude/skills/gstack/review/specialists/performance.md`
+5. **数据迁移** — 如果 SCOPE_MIGRATIONS=true。读取 `~/.claude/skills/gstack/review/specialists/data-migration.md`
+6. **API 契约** — 如果 SCOPE_API=true。读取 `~/.claude/skills/gstack/review/specialists/api-contract.md`
+7. **设计** — 如果 SCOPE_FRONTEND=true。使用现有的设计审查检查清单 `~/.claude/skills/gstack/review/design-checklist.md`
 
-### Adaptive gating
+### 自适应门控
 
-After scope-based selection, apply adaptive gating based on specialist hit rates:
+基于范围的选择之后，根据专家命中率应用自适应门控：
 
-For each conditional specialist that passed scope gating, check the `gstack-specialist-stats` output above:
-- If tagged `[GATE_CANDIDATE]` (0 findings in 10+ dispatches): skip it. Print: "[specialist] auto-gated (0 findings in N reviews)."
-- If tagged `[NEVER_GATE]`: always dispatch regardless of hit rate. Security and data-migration are insurance policy specialists — they should run even when silent.
+对于每个通过范围门控的条件专家，检查上面的 `gstack-specialist-stats` 输出：
+- 如果标记为 `[GATE_CANDIDATE]`（10+ 次调度中 0 个发现）：跳过它。打印："[specialist] auto-gated (0 findings in N reviews)."
+- 如果标记为 `[NEVER_GATE]`：无论命中率如何始终调度。安全和数据迁移是保险策略专家 — 即使静默也应该运行。
 
-**Force flags:** If the user's prompt includes `--security`, `--performance`, `--testing`, `--maintainability`, `--data-migration`, `--api-contract`, `--design`, or `--all-specialists`, force-include that specialist regardless of gating.
+**强制标志：** 如果用户的提示包含 `--security`、`--performance`、`--testing`、`--maintainability`、`--data-migration`、`--api-contract`、`--design` 或 `--all-specialists`，无论门控如何都强制包含该专家。
 
-Note which specialists were selected, gated, and skipped. Print the selection:
+记录哪些专家被选中、门控和跳过。打印选择：
 "Dispatching N specialists: [names]. Skipped: [names] (scope not detected). Gated: [names] (0 findings in N+ reviews)."
 
 ---
 
-### Dispatch specialists in parallel
+### 并行调度专家
 
-For each selected specialist, launch an independent subagent via the Agent tool.
-**Launch ALL selected specialists in a single message** (multiple Agent tool calls)
-so they run in parallel. Each subagent has fresh context — no prior review bias.
+对于每个选定的专家，通过 Agent 工具启动一个独立的子代理。
+**在一条消息中启动所有选定的专家**（多个 Agent 工具调用）
+以便它们并行运行。每个子代理都有新的上下文 — 没有先前的审查偏差。
 
-**Each specialist subagent prompt:**
+**每个专家子代理提示：**
 
-Construct the prompt for each specialist. The prompt includes:
+为每个专家构建提示。提示包括：
 
-1. The specialist's checklist content (you already read the file above)
-2. Stack context: "This is a {STACK} project."
-3. Past learnings for this domain (if any exist):
+1. 专家的检查清单内容（你已经读取了上面的文件）
+2. 技术栈上下文："This is a {STACK} project."
+3. 此领域的过去学习（如果存在）：
 
 ```bash
 ~/.claude/skills/gstack/bin/gstack-learnings-search --type pitfall --query "{specialist domain}" --limit 5 2>/dev/null || true
@@ -1940,7 +1930,7 @@ Construct the prompt for each specialist. The prompt includes:
 
 If learnings are found, include them: "Past learnings for this domain: {learnings}"
 
-4. Instructions:
+4. 指令：
 
 "You are a specialist code reviewer. Read the checklist below, then run
 `git diff origin/<base>` to get the full diff. Apply the checklist against the diff.
@@ -1964,47 +1954,47 @@ Past learnings: {learnings or 'none'}
 CHECKLIST:
 {checklist content}"
 
-**Subagent configuration:**
-- Use `subagent_type: "general-purpose"`
-- Do NOT use `run_in_background` — all specialists must complete before merge
-- If any specialist subagent fails or times out, log the failure and continue with results from successful specialists. Specialists are additive — partial results are better than no results.
+**子代理配置：**
+- 使用 `subagent_type: "general-purpose"`
+- 不要使用 `run_in_background` — 所有专家必须在合并前完成
+- 如果任何专家子代理失败或超时，记录失败并继续使用成功专家的结果。专家是累加的 — 部分结果总比没有好。
 
 ---
 
-### Step 9.2: Collect and merge findings
+### 步骤 9.2：收集和合并发现
 
-After all specialist subagents complete, collect their outputs.
+所有专家子代理完成后，收集它们的输出。
 
-**Parse findings:**
-For each specialist's output:
-1. If output is "NO FINDINGS" — skip, this specialist found nothing
-2. Otherwise, parse each line as a JSON object. Skip lines that are not valid JSON.
-3. Collect all parsed findings into a single list, tagged with their specialist name.
+**解析发现：**
+对于每个专家的输出：
+1. 如果输出是 "NO FINDINGS" — 跳过，此专家没有发现任何东西
+2. 否则，将每行解析为 JSON 对象。跳过不是有效 JSON 的行。
+3. 将所有解析的发现收集到一个列表中，标记其专家名称。
 
-**Fingerprint and deduplicate:**
-For each finding, compute its fingerprint:
-- If `fingerprint` field is present, use it
-- Otherwise: `{path}:{line}:{category}` (if line is present) or `{path}:{category}`
+**指纹和去重：**
+对于每个发现，计算其指纹：
+- 如果 `fingerprint` 字段存在，使用它
+- 否则：`{path}:{line}:{category}`（如果行存在）或 `{path}:{category}`
 
-Group findings by fingerprint. For findings sharing the same fingerprint:
-- Keep the finding with the highest confidence score
-- Tag it: "MULTI-SPECIALIST CONFIRMED ({specialist1} + {specialist2})"
-- Boost confidence by +1 (cap at 10)
-- Note the confirming specialists in the output
+按指纹分组发现。对于共享相同指纹的发现：
+- 保留置信度评分最高的发现
+- 标记它："MULTI-SPECIALIST CONFIRMED ({specialist1} + {specialist2})"
+- 置信度 +1（上限为 10）
+- 在输出中注明确认的专家
 
-**Apply confidence gates:**
-- Confidence 7+: show normally in the findings output
-- Confidence 5-6: show with caveat "Medium confidence — verify this is actually an issue"
-- Confidence 3-4: move to appendix (suppress from main findings)
-- Confidence 1-2: suppress entirely
+**应用置信度门控：**
+- 置信度 7+：在发现输出中正常显示
+- 置信度 5-6：附带警告显示 "Medium confidence — verify this is actually an issue"
+- 置信度 3-4：移到附录（从主发现中抑制）
+- 置信度 1-2：完全抑制
 
-**Compute PR Quality Score:**
-After merging, compute the quality score:
+**计算 PR 质量评分：**
+合并后，计算质量评分：
 `quality_score = max(0, 10 - (critical_count * 2 + informational_count * 0.5))`
-Cap at 10. Log this in the review result at the end.
+上限为 10。在审查结果末尾记录此项。
 
-**Output merged findings:**
-Present the merged findings in the same format as the current review:
+**输出合并发现：**
+以与当前审查相同的格式呈现合并发现：
 
 ```
 SPECIALIST REVIEW: N findings (X critical, Y informational) from Z specialists
@@ -2017,49 +2007,48 @@ SPECIALIST REVIEW: N findings (X critical, Y informational) from Z specialists
 PR Quality Score: X/10
 ```
 
-These findings flow into the Fix-First flow (item 4) alongside the checklist pass (Step 9).
-The Fix-First heuristic applies identically — specialist findings follow the same AUTO-FIX vs ASK classification.
+这些发现流入修复优先流程（第 4 项），与检查清单遍历（步骤 9）并行。
+修复优先启发式同样适用 — 专家发现遵循相同的自动修复 vs 询问分类。
 
-**Compile per-specialist stats:**
-After merging findings, compile a `specialists` object for the review-log persist.
-For each specialist (testing, maintainability, security, performance, data-migration, api-contract, design, red-team):
-- If dispatched: `{"dispatched": true, "findings": N, "critical": N, "informational": N}`
-- If skipped by scope: `{"dispatched": false, "reason": "scope"}`
-- If skipped by gating: `{"dispatched": false, "reason": "gated"}`
-- If not applicable (e.g., red-team not activated): omit from the object
+**编译每个专家的统计：**
+合并发现后，为审查日志持久化编译一个 `specialists` 对象。
+对于每个专家（testing、maintainability、security、performance、data-migration、api-contract、design、red-team）：
+- 如果已调度：`{"dispatched": true, "findings": N, "critical": N, "informational": N}`
+- 如果被范围跳过：`{"dispatched": false, "reason": "scope"}`
+- 如果被门控跳过：`{"dispatched": false, "reason": "gated"}`
+- 如果不适用（例如，red-team 未激活）：从对象中省略
 
-Include the Design specialist even though it uses `design-checklist.md` instead of the specialist schema files.
-Remember these stats — you will need them for the review-log entry in Step 5.8.
+即使设计专家使用 `design-checklist.md` 而不是专家 schema 文件，也要包含它。
+记住这些统计 — 你将在步骤 5.8 的审查日志条目中需要它们。
 
 ---
 
-### Red Team dispatch (conditional)
+### 红队调度（条件性）
 
-**Activation:** Only if DIFF_LINES > 200 OR any specialist produced a CRITICAL finding.
+**激活条件：** 仅当 DIFF_LINES > 200 或任何专家产生了 CRITICAL 发现时。
 
-If activated, dispatch one more subagent via the Agent tool (foreground, not background).
+如果激活，通过 Agent 工具再调度一个子代理（前台，非后台）。
 
-The Red Team subagent receives:
-1. The red-team checklist from `~/.claude/skills/gstack/review/specialists/red-team.md`
-2. The merged specialist findings from Step 9.2 (so it knows what was already caught)
-3. The git diff command
+红队子代理接收：
+1. 来自 `~/.claude/skills/gstack/review/specialists/red-team.md` 的红队检查清单
+2. 来自步骤 9.2 的合并专家发现（以便它知道什么已经被捕获）
+3. git diff 命令
 
-Prompt: "You are a red team reviewer. The code has already been reviewed by N specialists
+提示："You are a red team reviewer. The code has already been reviewed by N specialists
 who found the following issues: {merged findings summary}. Your job is to find what they
 MISSED. Read the checklist, run `git diff origin/<base>`, and look for gaps.
 Output findings as JSON objects (same schema as the specialists). Focus on cross-cutting
 concerns, integration boundary issues, and failure modes that specialist checklists
 don't cover."
 
-If the Red Team finds additional issues, merge them into the findings list before
-the Fix-First flow (item 4). Red Team findings are tagged with `"specialist":"red-team"`.
+如果红队发现额外问题，在修复优先流程（第 4 项）之前将它们合并到发现列表中。红队发现标记为 `"specialist":"red-team"`。
 
-If the Red Team returns NO FINDINGS, note: "Red Team review: no additional issues found."
-If the Red Team subagent fails or times out, skip silently and continue.
+如果红队返回 NO FINDINGS，注明："Red Team review: no additional issues found."
+如果红队子代理失败或超时，静默跳过并继续。
 
-### Step 9.3: Cross-review finding dedup
+### 步骤 9.3：跨审查发现去重
 
-Before classifying findings, check if any were previously skipped by the user in a prior review on this branch.
+在分类发现之前，检查是否有任何发现在此分支的先前审查中被用户跳过。
 
 ```bash
 ~/.claude/skills/gstack/bin/gstack-review-read
@@ -2067,51 +2056,50 @@ Before classifying findings, check if any were previously skipped by the user in
 
 Parse the output: only lines BEFORE `---CONFIG---` are JSONL entries (the output also contains `---CONFIG---` and `---HEAD---` footer sections that are not JSONL — ignore those).
 
-For each JSONL entry that has a `findings` array:
-1. Collect all fingerprints where `action: "skipped"`
-2. Note the `commit` field from that entry
+对于每个有 `findings` 数组的 JSONL 条目：
+1. 收集所有 `action: "skipped"` 的指纹
+2. 记录该条目的 `commit` 字段
 
-If skipped fingerprints exist, get the list of files changed since that review:
+如果存在被跳过的指纹，获取自该审查以来更改的文件列表：
 
 ```bash
 git diff --name-only <prior-review-commit> HEAD
 ```
 
-For each current finding (from both the checklist pass (Step 9) and specialist review (Step 9.1-9.2)), check:
-- Does its fingerprint match a previously skipped finding?
-- Is the finding's file path NOT in the changed-files set?
+对于每个当前发现（来自检查清单遍历（步骤 9）和专家审查（步骤 9.1-9.2）），检查：
+- 其指纹是否与先前跳过的发现匹配？
+- 发现的文件路径是否不在更改文件集中？
 
-If both conditions are true: suppress the finding. It was intentionally skipped and the relevant code hasn't changed.
+如果两个条件都为真：抑制该发现。它被有意跳过，相关代码没有更改。
 
-Print: "Suppressed N findings from prior reviews (previously skipped by user)"
+打印："Suppressed N findings from prior reviews (previously skipped by user)"
 
-**Only suppress `skipped` findings — never `fixed` or `auto-fixed`** (those might regress and should be re-checked).
+**仅抑制 `skipped` 发现 — 永远不要抑制 `fixed` 或 `auto-fixed`**（那些可能回归，应该重新检查）。
 
-If no prior reviews exist or none have a `findings` array, skip this step silently.
+如果不存在先前审查或没有 `findings` 数组，静默跳过此步骤。
 
-Output a summary header: `Pre-Landing Review: N issues (X critical, Y informational)`
+输出摘要标题：`Pre-Landing Review: N issues (X critical, Y informational)`
 
-4. **Classify each finding from both the checklist pass and specialist review (Step 9.1-Step 9.2) as AUTO-FIX or ASK** per the Fix-First Heuristic in
-   checklist.md. Critical findings lean toward ASK; informational lean toward AUTO-FIX.
+4. **将来自检查清单遍历和专家审查（步骤 9.1-步骤 9.2）的每个发现分类为自动修复或询问**，按照 checklist.md 中的修复优先启发式。关键发现倾向于询问；信息性发现倾向于自动修复。
 
-5. **Auto-fix all AUTO-FIX items.** Apply each fix. Output one line per fix:
+5. **自动修复所有自动修复项。** 应用每个修复。每行输出一个修复：
    `[AUTO-FIXED] [file:line] Problem → what you did`
 
-6. **If ASK items remain,** present them in ONE AskUserQuestion:
-   - List each with number, severity, problem, recommended fix
-   - Per-item options: A) Fix  B) Skip
-   - Overall RECOMMENDATION
-   - If 3 or fewer ASK items, you may use individual AskUserQuestion calls instead
+6. **如果仍有询问项，** 在一个 AskUserQuestion 中呈现：
+   - 列出每项的编号、严重程度、问题、推荐修复
+   - 每项的选项：A) 修复  B) 跳过
+   - 整体建议
+   - 如果询问项 <= 3 个，你可以使用单独的 AskUserQuestion 调用
 
-7. **After all fixes (auto + user-approved):**
-   - If ANY fixes were applied: commit fixed files by name (`git add <fixed-files> && git commit -m "fix: pre-landing review fixes"`), then **STOP** and tell the user to run `/ship` again to re-test.
-   - If no fixes applied (all ASK items skipped, or no issues found): continue to Step 12.
+7. **所有修复完成后（自动 + 用户批准）：**
+   - 如果应用了任何修复：按名称提交修复的文件（`git add <fixed-files> && git commit -m "fix: pre-landing review fixes"`），然后**停止**并告诉用户再次运行 `/ship` 以重新测试。
+   - 如果没有应用修复（所有询问项被跳过，或没有发现问题）：继续到步骤 12。
 
-8. Output summary: `Pre-Landing Review: N issues — M auto-fixed, K asked (J fixed, L skipped)`
+8. 输出摘要：`Pre-Landing Review: N issues — M auto-fixed, K asked (J fixed, L skipped)`
 
-   If no issues found: `Pre-Landing Review: No issues found.`
+   如果没有发现问题：`Pre-Landing Review: No issues found.`
 
-9. Persist the review result to the review log:
+9. 将审查结果持久化到审查日志：
 ```bash
 ~/.claude/skills/gstack/bin/gstack-review-log '{"skill":"review","timestamp":"TIMESTAMP","status":"STATUS","issues_found":N,"critical":N,"informational":N,"quality_score":SCORE,"specialists":SPECIALISTS_JSON,"findings":FINDINGS_JSON,"commit":"'"$(git rev-parse --short HEAD)"'","via":"ship"}'
 ```
@@ -2121,63 +2109,63 @@ and N values from the summary counts above. The `via:"ship"` distinguishes from 
 - `specialists` = the per-specialist stats object compiled in Step 9.2. Each specialist that was considered gets an entry: `{"dispatched":true/false,"findings":N,"critical":N,"informational":N}` if dispatched, or `{"dispatched":false,"reason":"scope|gated"}` if skipped. Example: `{"testing":{"dispatched":true,"findings":2,"critical":0,"informational":2},"security":{"dispatched":false,"reason":"scope"}}`
 - `findings` = array of per-finding records. For each finding (from checklist pass and specialists), include: `{"fingerprint":"path:line:category","severity":"CRITICAL|INFORMATIONAL","action":"ACTION"}`. ACTION is `"auto-fixed"`, `"fixed"` (user approved), or `"skipped"` (user chose Skip).
 
-Save the review output — it goes into the PR body in Step 19.
+保存审查输出 — 它将在步骤 19 中进入 PR 正文。
 
 ---
 
-## Step 10: Address Greptile review comments (if PR exists)
+## 步骤 10：处理 Greptile 审查评论（如果 PR 存在）
 
-**Dispatch the fetch + classification as a subagent** using the Agent tool with `subagent_type: "general-purpose"`. The subagent pulls every Greptile comment, runs the escalation detection algorithm, and classifies each comment. Parent receives a structured list and handles user interaction + file edits.
+**将获取 + 分类作为子代理分派**，使用 Agent 工具，`subagent_type: "general-purpose"`。子代理拉取每个 Greptile 评论，运行升级检测算法，并对每条评论进行分类。父代理接收结构化列表并处理用户交互 + 文件编辑。
 
-**Subagent prompt:**
+**子代理提示：**
 
-> You are classifying Greptile review comments for a /ship workflow. Read `.claude/skills/review/greptile-triage.md` and follow the fetch, filter, classify, and **escalation detection** steps. Do NOT fix code, do NOT reply to comments, do NOT commit — report only.
+> 你正在为 /ship 工作流分类 Greptile 审查评论。读取 `.claude/skills/review/greptile-triage.md` 并遵循获取、过滤、分类和**升级检测**步骤。不要修复代码，不要回复评论，不要提交 — 仅报告。
 >
-> For each comment, assign: `classification` (`valid_actionable`, `already_fixed`, `false_positive`, `suppressed`), `escalation_tier` (1 or 2), the file:line or [top-level] tag, body summary, and permalink URL.
+> 对于每条评论，分配：`classification`（`valid_actionable`、`already_fixed`、`false_positive`、`suppressed`）、`escalation_tier`（1 或 2）、file:line 或 [top-level] 标签、正文摘要和永久链接 URL。
 >
-> If no PR exists, `gh` fails, the API errors, or there are zero comments, output: `{"total":0,"comments":[]}` and stop.
+> 如果 PR 不存在、`gh` 失败、API 错误或没有评论，输出：`{"total":0,"comments":[]}` 并停止。
 >
-> Otherwise, output a single JSON object on the LAST LINE of your response:
+> 否则，在响应的最后一行输出单个 JSON 对象：
 > `{"total":N,"comments":[{"classification":"...","escalation_tier":N,"ref":"file:line","summary":"...","permalink":"url"},...]}`
 
-**Parent processing:**
+**父代理处理：**
 
-Parse the LAST line as JSON.
+将最后一行解析为 JSON。
 
-If `total` is 0, skip this step silently. Continue to Step 12.
+如果 `total` 为 0，静默跳过此步骤。继续到步骤 12。
 
-Otherwise, print: `+ {total} Greptile comments ({valid_actionable} valid, {already_fixed} already fixed, {false_positive} FP)`.
+否则，打印：`+ {total} Greptile comments ({valid_actionable} valid, {already_fixed} already fixed, {false_positive} FP)`。
 
-For each comment in `comments`:
+对于 `comments` 中的每条评论：
 
-**VALID & ACTIONABLE:** Use AskUserQuestion with:
-- The comment (file:line or [top-level] + body summary + permalink URL)
-- `RECOMMENDATION: Choose A because [one-line reason]`
-- Options: A) Fix now, B) Acknowledge and ship anyway, C) It's a false positive
-- If user chooses A: apply the fix, commit the fixed files (`git add <fixed-files> && git commit -m "fix: address Greptile review — <brief description>"`), reply using the **Fix reply template** from greptile-triage.md (include inline diff + explanation), and save to both per-project and global greptile-history (type: fix).
-- If user chooses C: reply using the **False Positive reply template** from greptile-triage.md (include evidence + suggested re-rank), save to both per-project and global greptile-history (type: fp).
+**有效且可操作：** 使用 AskUserQuestion：
+- 评论（file:line 或 [top-level] + 正文摘要 + 永久链接 URL）
+- `建议：选择 A，因为 [一句话原因]`
+- 选项：A) 立即修复，B) 确认并仍然发布，C) 这是误报
+- 如果用户选择 A：应用修复，提交修复的文件（`git add <fixed-files> && git commit -m "fix: address Greptile review — <brief description>"`），使用 greptile-triage.md 中的**修复回复模板**回复（包含内联 diff + 解释），并保存到项目和全局 greptile-history（类型：fix）。
+- 如果用户选择 C：使用 greptile-triage.md 中的**误报回复模板**回复（包含证据 + 建议重新排名），保存到项目和全局 greptile-history（类型：fp）。
 
-**VALID BUT ALREADY FIXED:** Reply using the **Already Fixed reply template** from greptile-triage.md — no AskUserQuestion needed:
-- Include what was done and the fixing commit SHA
-- Save to both per-project and global greptile-history (type: already-fixed)
+**有效但已修复：** 使用 greptile-triage.md 中的**已修复回复模板**回复 — 不需要 AskUserQuestion：
+- 包含做了什么和修复提交 SHA
+- 保存到项目和全局 greptile-history（类型：already-fixed）
 
-**FALSE POSITIVE:** Use AskUserQuestion:
-- Show the comment and why you think it's wrong (file:line or [top-level] + body summary + permalink URL)
-- Options:
-  - A) Reply to Greptile explaining the false positive (recommended if clearly wrong)
-  - B) Fix it anyway (if trivial)
-  - C) Ignore silently
-- If user chooses A: reply using the **False Positive reply template** from greptile-triage.md (include evidence + suggested re-rank), save to both per-project and global greptile-history (type: fp)
+**误报：** 使用 AskUserQuestion：
+- 显示评论以及你认为它为什么是错误的（file:line 或 [top-level] + 正文摘要 + 永久链接 URL）
+- 选项：
+  - A) 回复 Greptile 解释误报（如果明显错误则推荐）
+  - B) 仍然修复（如果简单）
+  - C) 静默忽略
+- 如果用户选择 A：使用 greptile-triage.md 中的**误报回复模板**回复（包含证据 + 建议重新排名），保存到项目和全局 greptile-history（类型：fp）
 
-**SUPPRESSED:** Skip silently — these are known false positives from previous triage.
+**已抑制：** 静默跳过 — 这些是先前分类中已知的误报。
 
-**After all comments are resolved:** If any fixes were applied, the tests from Step 5 are now stale. **Re-run tests** (Step 5) before continuing to Step 12. If no fixes were applied, continue to Step 12.
+**所有评论解决后：** 如果应用了任何修复，步骤 5 的测试现在已过时。在继续到步骤 12 之前**重新运行测试**（步骤 5）。如果没有应用修复，继续到步骤 12。
 
 ---
 
-## Step 11: Adversarial review (always-on)
+## 步骤 11：对抗性审查（始终开启）
 
-Every diff gets adversarial review from both Claude and Codex. LOC is not a proxy for risk — a 5-line auth change can be critical.
+每个 diff 都会获得来自 Claude 和 Codex 的对抗性审查。代码行数不是风险的代理 — 5 行认证更改可能是关键的。
 
 **Detect diff size and tool availability:**
 
@@ -2198,22 +2186,22 @@ If `OLD_CFG` is `disabled`: skip Codex passes only. Claude adversarial subagent 
 
 ---
 
-### Claude adversarial subagent (always runs)
+### Claude 对抗性子代理（始终运行）
 
-Dispatch via the Agent tool. The subagent has fresh context — no checklist bias from the structured review. This genuine independence catches things the primary reviewer is blind to.
+通过 Agent 工具调度。子代理有新的上下文 — 没有结构化审查的检查清单偏差。这种真正的独立性捕获了主审查者看不到的东西。
 
-Subagent prompt:
+子代理提示：
 "Read the diff for this branch with `git diff origin/<base>`. Think like an attacker and a chaos engineer. Your job is to find ways this code will fail in production. Look for: edge cases, race conditions, security holes, resource leaks, failure modes, silent data corruption, logic errors that produce wrong results silently, error handling that swallows failures, and trust boundary violations. Be adversarial. Be thorough. No compliments — just the problems. For each finding, classify as FIXABLE (you know how to fix it) or INVESTIGATE (needs human judgment)."
 
-Present findings under an `ADVERSARIAL REVIEW (Claude subagent):` header. **FIXABLE findings** flow into the same Fix-First pipeline as the structured review. **INVESTIGATE findings** are presented as informational.
+在 `ADVERSARIAL REVIEW (Claude subagent):` 标题下呈现发现。**可修复发现**流入与结构化审查相同的修复优先管道。**需调查发现**作为信息性呈现。
 
-If the subagent fails or times out: "Claude adversarial subagent unavailable. Continuing."
+如果子代理失败或超时："Claude adversarial subagent unavailable. Continuing."
 
 ---
 
-### Codex adversarial challenge (always runs when available)
+### Codex 对抗性挑战（可用时始终运行）
 
-If Codex is available AND `OLD_CFG` is NOT `disabled`:
+如果 Codex 可用且 `OLD_CFG` 不是 `disabled`：
 
 ```bash
 TMPERR_ADV=$(mktemp /tmp/codex-adv-XXXXXXXX)
@@ -2226,22 +2214,22 @@ Set the Bash tool's `timeout` parameter to `300000` (5 minutes). Do NOT use the 
 cat "$TMPERR_ADV"
 ```
 
-Present the full output verbatim. This is informational — it never blocks shipping.
+逐字呈现完整输出。这是信息性的 — 从不限制发布。
 
-**Error handling:** All errors are non-blocking — adversarial review is a quality enhancement, not a prerequisite.
-- **Auth failure:** If stderr contains "auth", "login", "unauthorized", or "API key": "Codex authentication failed. Run \`codex login\` to authenticate."
-- **Timeout:** "Codex timed out after 5 minutes."
-- **Empty response:** "Codex returned no response. Stderr: <paste relevant error>."
+**错误处理：** 所有错误都是非阻断的 — 对抗性审查是质量增强，不是前提条件。
+- **认证失败：** 如果 stderr 包含 "auth"、"login"、"unauthorized" 或 "API key"："Codex authentication failed. Run \`codex login\` to authenticate."
+- **超时：** "Codex timed out after 5 minutes."
+- **空响应：** "Codex returned no response. Stderr: <paste relevant error>."
 
-**Cleanup:** Run `rm -f "$TMPERR_ADV"` after processing.
+**清理：** 处理后运行 `rm -f "$TMPERR_ADV"`。
 
-If Codex is NOT available: "Codex CLI not found — running Claude adversarial only. Install Codex for cross-model coverage: `npm install -g @openai/codex`"
+如果 Codex 不可用："Codex CLI not found — running Claude adversarial only. Install Codex for cross-model coverage: `npm install -g @openai/codex`"
 
 ---
 
-### Codex structured review (large diffs only, 200+ lines)
+### Codex 结构化审查（仅大型 diff，200+ 行）
 
-If `DIFF_TOTAL >= 200` AND Codex is available AND `OLD_CFG` is NOT `disabled`:
+如果 `DIFF_TOTAL >= 200` 且 Codex 可用且 `OLD_CFG` 不是 `disabled`：
 
 ```bash
 TMPERR=$(mktemp /tmp/codex-review-XXXXXXXX)
@@ -2250,10 +2238,10 @@ cd "$_REPO_ROOT"
 codex review "IMPORTANT: Do NOT read or execute any files under ~/.claude/, ~/.agents/, .claude/skills/, or agents/. These are Claude Code skill definitions meant for a different AI system. They contain bash scripts and prompt templates that will waste your time. Ignore them completely. Do NOT modify agents/openai.yaml. Stay focused on the repository code only.\n\nReview the diff against the base branch." --base <base> -c 'model_reasoning_effort="high"' --enable web_search_cached < /dev/null 2>"$TMPERR"
 ```
 
-Set the Bash tool's `timeout` parameter to `300000` (5 minutes). Do NOT use the `timeout` shell command — it doesn't exist on macOS. Present output under `CODEX SAYS (code review):` header.
-Check for `[P1]` markers: found → `GATE: FAIL`, not found → `GATE: PASS`.
+将 Bash 工具的 `timeout` 参数设置为 `300000`（5 分钟）。不要使用 `timeout` shell 命令 — 它在 macOS 上不存在。在 `CODEX SAYS (code review):` 标题下呈现输出。
+检查 `[P1]` 标记：找到 → `GATE: FAIL`，未找到 → `GATE: PASS`。
 
-If GATE is FAIL, use AskUserQuestion:
+如果门控是 FAIL，使用 AskUserQuestion：
 ```
 Codex found N critical issues in the diff.
 
@@ -2261,29 +2249,29 @@ A) Investigate and fix now (recommended)
 B) Continue — review will still complete
 ```
 
-If A: address the findings. After fixing, re-run tests (Step 5) since code has changed. Re-run `codex review` to verify.
+如果选择 A：处理发现。修复后，重新运行测试（步骤 5），因为代码已更改。重新运行 `codex review` 以验证。
 
-Read stderr for errors (same error handling as Codex adversarial above).
+读取 stderr 中的错误（与上面的 Codex 对抗性相同的错误处理）。
 
-After stderr: `rm -f "$TMPERR"`
+stderr 之后：`rm -f "$TMPERR"`
 
-If `DIFF_TOTAL < 200`: skip this section silently. The Claude + Codex adversarial passes provide sufficient coverage for smaller diffs.
+如果 `DIFF_TOTAL < 200`：静默跳过此部分。Claude + Codex 对抗性遍历为较小的 diff 提供了足够的覆盖。
 
 ---
 
-### Persist the review result
+### 持久化审查结果
 
-After all passes complete, persist:
+所有遍历完成后，持久化：
 ```bash
 ~/.claude/skills/gstack/bin/gstack-review-log '{"skill":"adversarial-review","timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'","status":"STATUS","source":"SOURCE","tier":"always","gate":"GATE","commit":"'"$(git rev-parse --short HEAD)"'"}'
 ```
-Substitute: STATUS = "clean" if no findings across ALL passes, "issues_found" if any pass found issues. SOURCE = "both" if Codex ran, "claude" if only Claude subagent ran. GATE = the Codex structured review gate result ("pass"/"fail"), "skipped" if diff < 200, or "informational" if Codex was unavailable. If all passes failed, do NOT persist.
+替换：STATUS = 如果所有遍历都没有发现则为 "clean"，如果任何遍历发现了问题则为 "issues_found"。SOURCE = 如果 Codex 运行了则为 "both"，如果只有 Claude 子代理运行则为 "claude"。GATE = Codex 结构化审查门控结果（"pass"/"fail"），如果 diff < 200 则为 "skipped"，如果 Codex 不可用则为 "informational"。如果所有遍历都失败，不要持久化。
 
 ---
 
-### Cross-model synthesis
+### 跨模型综合
 
-After all passes complete, synthesize findings across all sources:
+所有遍历完成后，综合所有来源的发现：
 
 ```
 ADVERSARIAL REVIEW SYNTHESIS (always-on, N lines):
@@ -2296,40 +2284,40 @@ ADVERSARIAL REVIEW SYNTHESIS (always-on, N lines):
 ════════════════════════════════════════════════════════════
 ```
 
-High-confidence findings (agreed on by multiple sources) should be prioritized for fixes.
+高置信度发现（多个来源一致同意）应优先修复。
 
 ---
 
-## Capture Learnings
+## 捕获学习
 
-If you discovered a non-obvious pattern, pitfall, or architectural insight during
-this session, log it for future sessions:
+如果你在此会话中发现了不明显的模式、陷阱或架构洞察，
+为未来会话记录它：
 
 ```bash
 ~/.claude/skills/gstack/bin/gstack-learnings-log '{"skill":"ship","type":"TYPE","key":"SHORT_KEY","insight":"DESCRIPTION","confidence":N,"source":"SOURCE","files":["path/to/relevant/file"]}'
 ```
 
-**Types:** `pattern` (reusable approach), `pitfall` (what NOT to do), `preference`
-(user stated), `architecture` (structural decision), `tool` (library/framework insight),
-`operational` (project environment/CLI/workflow knowledge).
+**类型：** `pattern`（可重用方法）、`pitfall`（不应该做什么）、`preference`
+（用户陈述）、`architecture`（结构性决策）、`tool`（库/框架洞察）、
+`operational`（项目环境/CLI/工作流知识）。
 
-**Sources:** `observed` (you found this in the code), `user-stated` (user told you),
-`inferred` (AI deduction), `cross-model` (both Claude and Codex agree).
+**来源：** `observed`（你在代码中发现了这个）、`user-stated`（用户告诉你的）、
+`inferred`（AI 推断）、`cross-model`（Claude 和 Codex 都同意）。
 
-**Confidence:** 1-10. Be honest. An observed pattern you verified in the code is 8-9.
-An inference you're not sure about is 4-5. A user preference they explicitly stated is 10.
+**置信度：** 1-10。诚实。你在代码中验证的观察模式是 8-9。
+你不确信的推断是 4-5。用户明确陈述的偏好是 10。
 
-**files:** Include the specific file paths this learning references. This enables
-staleness detection: if those files are later deleted, the learning can be flagged.
+**文件：** 包含此学习引用的特定文件路径。这使得
+过期检测成为可能：如果这些文件后来被删除，学习可以被标记。
 
-**Only log genuine discoveries.** Don't log obvious things. Don't log things the user
-already knows. A good test: would this insight save time in a future session? If yes, log it.
+**只记录真正的发现。** 不要记录明显的事情。不要记录用户
+已经知道的事情。一个好的测试：这个洞察会在未来的会话中节省时间吗？如果是，记录它。
 
 
 
-## Step 12: Version bump (auto-decide)
+## 步骤 12：版本升级（自动决定）
 
-**Idempotency check:** Before bumping, classify the state by comparing `VERSION` against the base branch AND against `package.json`'s `version` field. Four states: FRESH (do bump), ALREADY_BUMPED (skip bump), DRIFT_STALE_PKG (sync pkg only, no re-bump), DRIFT_UNEXPECTED (stop and ask).
+**幂等性检查：** 在升级之前，通过将 `VERSION` 与基础分支以及 `package.json` 的 `version` 字段进行比较来分类状态。四种状态：FRESH（执行升级）、ALREADY_BUMPED（跳过升级）、DRIFT_STALE_PKG（仅同步包，不重新升级）、DRIFT_UNEXPECTED（停止并询问）。
 
 ```bash
 BASE_VERSION=$(git show origin/<base>:VERSION 2>/dev/null | tr -d '\r\n[:space:]' || echo "0.0.0.0")
@@ -2374,26 +2362,26 @@ else
 fi
 ```
 
-Read the `STATE:` line and dispatch:
+读取 `STATE:` 行并调度：
 
-- **FRESH** → proceed with the bump action below (steps 1–4).
-- **ALREADY_BUMPED** → skip the bump by default, BUT check for queue drift first: call `bin/gstack-next-version` with the implied bump level (derived from `CURRENT_VERSION` vs `BASE_VERSION`), compare its `.version` against `CURRENT_VERSION`. If they differ (queue moved since last ship), use **AskUserQuestion**: "VERSION drift detected: you claim v<CURRENT> but next available is v<NEW> (queue moved). A) Rebump to v<NEW> and rewrite CHANGELOG header + PR title (recommended), B) Keep v<CURRENT> — will be rejected by CI version-gate until resolved." If A, treat this as FRESH with `NEW_VERSION=<new>` and run steps 1-4 (which will also trigger Step 13 CHANGELOG header rewrite and Step 19 PR title rewrite). If B, reuse `CURRENT_VERSION` and warn that CI will likely reject. If util is offline, warn and reuse `CURRENT_VERSION`.
-- **DRIFT_STALE_PKG** → a prior `/ship` bumped `VERSION` but failed to update `package.json`. Run the sync-only repair block below (after step 4). Do NOT re-bump. Reuse `CURRENT_VERSION` for CHANGELOG and PR body. (Queue check still runs in ALREADY_BUMPED terms after repair.)
-- **DRIFT_UNEXPECTED** → `/ship` has halted (exit 1). Resolve manually; /ship cannot tell which file is authoritative.
+- **FRESH** → 继续执行下面的升级操作（步骤 1-4）。
+- **ALREADY_BUMPED** → 默认跳过升级，但首先检查队列漂移：使用隐含的升级级别调用 `bin/gstack-next-version`（从 `CURRENT_VERSION` 与 `BASE_VERSION` 推导），将其 `.version` 与 `CURRENT_VERSION` 比较。如果不同（队列自上次发布以来移动了），使用 **AskUserQuestion**："VERSION drift detected: you claim v<CURRENT> but next available is v<NEW> (queue moved). A) Rebump to v<NEW> and rewrite CHANGELOG header + PR title (recommended), B) Keep v<CURRENT> — will be rejected by CI version-gate until resolved." 如果选择 A，将其视为 FRESH，`NEW_VERSION=<new>` 并运行步骤 1-4（这也将触发步骤 13 CHANGELOG 标题重写和步骤 19 PR 标题重写）。如果选择 B，重用 `CURRENT_VERSION` 并警告 CI 可能会拒绝。如果工具离线，警告并重用 `CURRENT_VERSION`。
+- **DRIFT_STALE_PKG** → 先前的 `/ship` 升级了 `VERSION` 但未能更新 `package.json`。运行下面的仅同步修复块（步骤 4 之后）。不要重新升级。重用 `CURRENT_VERSION` 用于 CHANGELOG 和 PR 正文。（修复后队列检查仍在 ALREADY_BUMPED 条件下运行。）
+- **DRIFT_UNEXPECTED** → `/ship` 已停止（exit 1）。手动解决；/ship 无法判断哪个文件是权威的。
 
-1. Read the current `VERSION` file (4-digit format: `MAJOR.MINOR.PATCH.MICRO`)
+1. 读取当前 `VERSION` 文件（4 位格式：`MAJOR.MINOR.PATCH.MICRO`）
 
-2. **Auto-decide the bump level based on the diff:**
-   - Count lines changed (`git diff origin/<base>...HEAD --stat | tail -1`)
-   - Check for feature signals: new route/page files (e.g. `app/*/page.tsx`, `pages/*.ts`), new DB migration/schema files, new test files alongside new source files, or branch name starting with `feat/`
-   - **MICRO** (4th digit): < 50 lines changed, trivial tweaks, typos, config
-   - **PATCH** (3rd digit): 50+ lines changed, no feature signals detected
-   - **MINOR** (2nd digit): **ASK the user** if ANY feature signal is detected, OR 500+ lines changed, OR new modules/packages added
-   - **MAJOR** (1st digit): **ASK the user** — only for milestones or breaking changes
+2. **根据 diff 自动决定升级级别：**
+   - 计算更改的行数（`git diff origin/<base>...HEAD --stat | tail -1`）
+   - 检查功能信号：新的路由/页面文件（例如 `app/*/page.tsx`、`pages/*.ts`）、新的数据库迁移/schema 文件、与新源文件一起的新测试文件，或以 `feat/` 开头的分支名称
+   - **MICRO**（第 4 位）：< 50 行更改、简单调整、拼写错误、配置
+   - **PATCH**（第 3 位）：50+ 行更改，未检测到功能信号
+   - **MINOR**（第 2 位）：**询问用户** 如果检测到任何功能信号，或 500+ 行更改，或添加了新模块/包
+   - **MAJOR**（第 1 位）：**询问用户** — 仅用于里程碑或破坏性更改
 
-   Save the chosen level as `BUMP_LEVEL` (one of `major`, `minor`, `patch`, `micro`). This is the user-intended level. The next step decides *placement* — the level stays the same even if queue-aware allocation has to advance past a claimed slot.
+   将选择的级别保存为 `BUMP_LEVEL`（`major`、`minor`、`patch`、`micro` 之一）。这是用户预期的级别。下一步决定*放置* — 即使队列感知分配必须跳过已声明的位置，级别也保持不变。
 
-3. **Queue-aware version pick (workspace-aware ship, v1.6.4.0+).** Call `bin/gstack-next-version` to see what's already claimed by open PRs + active sibling Conductor worktrees, then render the queue state to the user:
+3. **队列感知版本选择（工作区感知 ship，v1.6.4.0+）。** 调用 `bin/gstack-next-version` 查看已被打开的 PR + 活跃的兄弟 Conductor 工作树声明的内容，然后向用户呈现队列状态：
 
    ```bash
    QUEUE_JSON=$(bun run bin/gstack-next-version \
@@ -2407,8 +2395,8 @@ Read the `STATE:` line and dispatch:
    REASON=$(echo "$QUEUE_JSON" | jq -r '.reason // ""')
    ```
 
-   - If `OFFLINE=true` or the util fails (auth expired, no `gh`/`glab`, network): fall back to local `BUMP_LEVEL` arithmetic (bump `BASE_VERSION` at the chosen level). Print `⚠ workspace-aware ship offline — using local bump only`. Continue.
-   - If `CLAIMED_COUNT > 0`: render the queue table to the user so they can see landing order at a glance:
+   - 如果 `OFFLINE=true` 或工具失败（认证过期、没有 `gh`/`glab`、网络）：回退到本地 `BUMP_LEVEL` 算法（在选定级别升级 `BASE_VERSION`）。打印 `⚠ workspace-aware ship offline — using local bump only`。继续。
+   - 如果 `CLAIMED_COUNT > 0`：向用户呈现队列表，以便他们一目了然地看到着陆顺序：
      ```
      Queue on <base> (vBASE_VERSION):
        #<pr> <branch> → v<version>   [⚠ collision with #<other>]
@@ -2416,10 +2404,10 @@ Read the `STATE:` line and dispatch:
        <path> → v<version> (committed Nh ago)
      Your branch will claim: vNEW_VERSION  (<reason>)
      ```
-   - If `ACTIVE_SIBLING_COUNT > 0` and any active sibling's VERSION is `>= NEW_VERSION`, use **AskUserQuestion**: "Sibling workspace <path> has v<X> committed <N>h ago but hasn't PR'd yet. Wait for them to ship first, or advance past? A) Advance past (recommended for unrelated work), B) Abort /ship and sync up with sibling first."
-   - Validate `NEW_VERSION` matches `MAJOR.MINOR.PATCH.MICRO`. If util returns an empty or malformed version, fall back to local bump.
+   - 如果 `ACTIVE_SIBLING_COUNT > 0` 且任何活跃兄弟的 VERSION 是 `>= NEW_VERSION`，使用 **AskUserQuestion**："Sibling workspace <path> has v<X> committed <N>h ago but hasn't PR'd yet. Wait for them to ship first, or advance past? A) Advance past (recommended for unrelated work), B) Abort /ship and sync up with sibling first."
+   - 验证 `NEW_VERSION` 匹配 `MAJOR.MINOR.PATCH.MICRO`。如果工具返回空或格式错误的版本，回退到本地升级。
 
-4. **Validate** `NEW_VERSION` and write it to **both** `VERSION` and `package.json`. This block runs only when `STATE: FRESH`.
+4. **验证** `NEW_VERSION` 并将其写入 **`VERSION` 和 `package.json`**。此块仅在 `STATE: FRESH` 时运行。
 
 ```bash
 if ! printf '%s' "$NEW_VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
@@ -2445,7 +2433,7 @@ if [ -f package.json ]; then
 fi
 ```
 
-**DRIFT_STALE_PKG repair path** — runs when idempotency reports `STATE: DRIFT_STALE_PKG`. No re-bump; sync `package.json.version` to the current `VERSION` and continue. Reuse `CURRENT_VERSION` for CHANGELOG and PR body.
+**DRIFT_STALE_PKG 修复路径** — 当幂等性报告 `STATE: DRIFT_STALE_PKG` 时运行。不重新升级；将 `package.json.version` 同步到当前 `VERSION` 并继续。重用 `CURRENT_VERSION` 用于 CHANGELOG 和 PR 正文。
 
 ```bash
 REPAIR_VERSION=$(cat VERSION | tr -d '\r\n[:space:]')
@@ -2469,113 +2457,112 @@ echo "Drift repaired: package.json synced to $REPAIR_VERSION. No version bump pe
 
 ---
 
-## Step 13: CHANGELOG (auto-generate)
+## 步骤 13：CHANGELOG（自动生成）
 
-1. Read `CHANGELOG.md` header to know the format.
+1. 读取 `CHANGELOG.md` 头部以了解格式。
 
-2. **First, enumerate every commit on the branch:**
+2. **首先，枚举分支上的每个提交：**
    ```bash
    git log <base>..HEAD --oneline
    ```
-   Copy the full list. Count the commits. You will use this as a checklist.
+   复制完整列表。计算提交数。你将用此作为检查清单。
 
-3. **Read the full diff** to understand what each commit actually changed:
+3. **读取完整 diff** 以了解每个提交实际更改了什么：
    ```bash
    git diff <base>...HEAD
    ```
 
-4. **Group commits by theme** before writing anything. Common themes:
-   - New features / capabilities
-   - Performance improvements
-   - Bug fixes
-   - Dead code removal / cleanup
-   - Infrastructure / tooling / tests
-   - Refactoring
+4. **按主题分组提交** 在编写任何内容之前。常见主题：
+   - 新功能/能力
+   - 性能改进
+   - Bug 修复
+   - 死代码移除/清理
+   - 基础设施/工具/测试
+   - 重构
 
-5. **Write the CHANGELOG entry** covering ALL groups:
-   - If existing CHANGELOG entries on the branch already cover some commits, replace them with one unified entry for the new version
-   - Categorize changes into applicable sections:
-     - `### Added` — new features
-     - `### Changed` — changes to existing functionality
-     - `### Fixed` — bug fixes
-     - `### Removed` — removed features
-   - Write concise, descriptive bullet points
-   - Insert after the file header (line 5), dated today
-   - Format: `## [X.Y.Z.W] - YYYY-MM-DD`
-   - **Voice:** Lead with what the user can now **do** that they couldn't before. Use plain language, not implementation details. Never mention TODOS.md, internal tracking, or contributor-facing details.
+5. **编写 CHANGELOG 条目** 覆盖所有分组：
+   - 如果分支上的现有 CHANGELOG 条目已经覆盖了一些提交，用新版本的一个统一条目替换它们
+   - 将更改分类到适用的部分：
+     - `### Added` — 新功能
+     - `### Changed` — 对现有功能的更改
+     - `### Fixed` — Bug 修复
+     - `### Removed` — 移除的功能
+     - `### Removed` — 移除的功能
+   - 编写简洁、描述性的项目符号
+   - 在文件头（第 5 行）之后插入，日期为今天
+   - 格式：`## [X.Y.Z.W] - YYYY-MM-DD`
+   - **语气：** 以用户现在能**做**什么而以前不能为开头。使用通俗语言，而不是实现细节。永远不要提及 TODOS.md、内部跟踪或面向贡献者的细节。
 
-6. **Cross-check:** Compare your CHANGELOG entry against the commit list from step 2.
-   Every commit must map to at least one bullet point. If any commit is unrepresented,
-   add it now. If the branch has N commits spanning K themes, the CHANGELOG must
-   reflect all K themes.
+6. **交叉检查：** 将你的 CHANGELOG 条目与步骤 2 的提交列表进行比较。
+   每个提交必须映射到至少一个项目符号。如果任何提交未被表示，
+   立即添加它。如果分支有 N 个提交跨越 K 个主题，CHANGELOG 必须
+   反映所有 K 个主题。
 
-**Do NOT ask the user to describe changes.** Infer from the diff and commit history.
+**不要要求用户描述更改。** 从 diff 和提交历史推断。
 
 ---
 
-## Step 14: TODOS.md (auto-update)
+## 步骤 14：TODOS.md（自动更新）
 
-Cross-reference the project's TODOS.md against the changes being shipped. Mark completed items automatically; prompt only if the file is missing or disorganized.
+将项目的 TODOS.md 与正在发布的更改进行交叉引用。自动标记已完成的项；仅在文件缺失或结构混乱时提示。
 
-Read `.claude/skills/review/TODOS-format.md` for the canonical format reference.
+读取 `.claude/skills/review/TODOS-format.md` 获取规范格式参考。
 
-**1. Check if TODOS.md exists** in the repository root.
+**1. 检查仓库根目录是否存在 TODOS.md。**
 
-**If TODOS.md does not exist:** Use AskUserQuestion:
-- Message: "GStack recommends maintaining a TODOS.md organized by skill/component, then priority (P0 at top through P4, then Completed at bottom). See TODOS-format.md for the full format. Would you like to create one?"
-- Options: A) Create it now, B) Skip for now
-- If A: Create `TODOS.md` with a skeleton (# TODOS heading + ## Completed section). Continue to step 3.
-- If B: Skip the rest of Step 14. Continue to Step 15.
+**如果 TODOS.md 不存在：** 使用 AskUserQuestion：
+- 消息："GStack 建议维护一个按技能/组件组织，然后按优先级（P0 在顶部到 P4，然后是已完成部分）的 TODOS.md。参见 TODOS-format.md 了解完整格式。你想创建一个吗？"
+- 选项：A) 立即创建，B) 暂时跳过
+- 如果选择 A：创建一个带骨架的 `TODOS.md`（# TODOS 标题 + ## Completed 部分）。继续到步骤 3。
+- 如果选择 B：跳过步骤 14 的其余部分。继续到步骤 15。
 
-**2. Check structure and organization:**
+**2. 检查结构和组织：**
 
-Read TODOS.md and verify it follows the recommended structure:
-- Items grouped under `## <Skill/Component>` headings
-- Each item has `**Priority:**` field with P0-P4 value
-- A `## Completed` section at the bottom
+读取 TODOS.md 并验证它是否遵循推荐结构：
+- 项分组在 `## <Skill/Component>` 标题下
+- 每项有 `**Priority:**` 字段，值为 P0-P4
+- 底部有 `## Completed` 部分
 
-**If disorganized** (missing priority fields, no component groupings, no Completed section): Use AskUserQuestion:
-- Message: "TODOS.md doesn't follow the recommended structure (skill/component groupings, P0-P4 priority, Completed section). Would you like to reorganize it?"
-- Options: A) Reorganize now (recommended), B) Leave as-is
-- If A: Reorganize in-place following TODOS-format.md. Preserve all content — only restructure, never delete items.
-- If B: Continue to step 3 without restructuring.
+**如果结构混乱**（缺少优先级字段、无组件分组、无已完成部分）：使用 AskUserQuestion：
+- 消息："TODOS.md 不遵循推荐结构（技能/组件分组、P0-P4 优先级、已完成部分）。你想重组它吗？"
+- 选项：A) 立即重组（推荐），B) 保持原样
+- 如果选择 A：按照 TODOS-format.md 就地重组。保留所有内容 — 仅重组，永远不要删除项。
+- 如果选择 B：不重组继续到步骤 3。
 
-**3. Detect completed TODOs:**
+**3. 检测已完成的 TODO：**
 
-This step is fully automatic — no user interaction.
+此步骤完全自动 — 无需用户交互。
 
-Use the diff and commit history already gathered in earlier steps:
-- `git diff <base>...HEAD` (full diff against the base branch)
-- `git log <base>..HEAD --oneline` (all commits being shipped)
+使用先前步骤中已收集的 diff 和提交历史：
+- `git diff <base>...HEAD`（针对基础分支的完整 diff）
+- `git log <base>..HEAD --oneline`（所有正在发布的提交）
 
-For each TODO item, check if the changes in this PR complete it by:
-- Matching commit messages against the TODO title and description
-- Checking if files referenced in the TODO appear in the diff
-- Checking if the TODO's described work matches the functional changes
+对于每个 TODO 项，检查此 PR 中的更改是否完成了它：
+- 将提交消息与 TODO 标题和描述匹配
+- 检查 TODO 中引用的文件是否出现在 diff 中
+- 检查 TODO 描述的工作是否与功能更改匹配
 
-**Be conservative:** Only mark a TODO as completed if there is clear evidence in the diff. If uncertain, leave it alone.
+**保守：** 仅在 diff 中有明确证据时才将 TODO 标记为完成。如果不确定，保持原样。
 
-**4. Move completed items** to the `## Completed` section at the bottom. Append: `**Completed:** vX.Y.Z (YYYY-MM-DD)`
+**4. 将已完成的项移动**到底部的 `## Completed` 部分。追加：`**Completed:** vX.Y.Z (YYYY-MM-DD)`
 
-**5. Output summary:**
+**5. 输出摘要：**
 - `TODOS.md: N items marked complete (item1, item2, ...). M items remaining.`
-- Or: `TODOS.md: No completed items detected. M items remaining.`
-- Or: `TODOS.md: Created.` / `TODOS.md: Reorganized.`
+- 或：`TODOS.md: No completed items detected. M items remaining.`
+- 或：`TODOS.md: Created.` / `TODOS.md: Reorganized.`
 
-**6. Defensive:** If TODOS.md cannot be written (permission error, disk full), warn the user and continue. Never stop the ship workflow for a TODOS failure.
+**6. 防御性：** 如果 TODOS.md 无法写入（权限错误、磁盘已满），警告用户并继续。永远不要因为 TODOS 失败而停止 ship 工作流。
 
-Save this summary — it goes into the PR body in Step 19.
+保存此摘要 — 它将在步骤 19 中进入 PR 正文。
 
 ---
 
-## Step 15: Commit (bisectable chunks)
+## 步骤 15：提交（可二分的块）
 
-### Step 15.0: WIP Commit Squash (continuous checkpoint mode only)
+### 步骤 15.0：WIP 提交压缩（仅连续检查点模式）
 
-If `CHECKPOINT_MODE` is `"continuous"`, the branch likely contains `WIP:` commits
-from auto-checkpointing. These must be squashed INTO the corresponding logical
-commits before the bisectable-grouping logic in Step 15.1 runs. Non-WIP commits
-on the branch (earlier landed work) must be preserved.
+如果 `CHECKPOINT_MODE` 是 `"continuous"`，分支可能包含来自自动检查点的 `WIP:` 提交。
+在步骤 15.1 的可二分分组逻辑运行之前，这些必须压缩到相应的逻辑提交中。分支上的非 WIP 提交（先前着陆的工作）必须保留。
 
 **Detection:**
 ```bash
@@ -2585,7 +2572,7 @@ echo "WIP_COMMITS: $WIP_COUNT"
 
 If `WIP_COUNT` is 0: skip this sub-step entirely.
 
-If `WIP_COUNT` > 0, collect the WIP context first so it survives the squash:
+如果 `WIP_COUNT` > 0，首先收集 WIP 上下文以便在压缩后保留：
 
 ```bash
 # Export [gstack-context] blocks from all WIP commits on this branch.
@@ -2595,12 +2582,12 @@ git log <base>..HEAD --grep="^WIP:" --format="%H%n%B%n---END---" > \
   "$(git rev-parse --show-toplevel)/.gstack/wip-context-before-squash.md" 2>/dev/null || true
 ```
 
-**Non-destructive squash strategy:**
+**非破坏性压缩策略：**
 
-`git reset --soft <merge-base>` WOULD uncommit everything including non-WIP commits.
-DO NOT DO THAT. Instead, use `git rebase` scoped to filter WIP commits only.
+`git reset --soft <merge-base>` 会取消所有提交，包括非 WIP 提交。
+不要这样做。而是使用 `git rebase`，限定为仅过滤 WIP 提交。
 
-Option 1 (preferred, if there are non-WIP commits mixed in):
+选项 1（首选，如果有非 WIP 提交混入）：
 ```bash
 # Interactive rebase with automated WIP squashing.
 # Mark every WIP commit as 'fixup' (drop its message, fold changes into prior commit).
@@ -2614,7 +2601,7 @@ git rebase -i $(git merge-base HEAD origin/<base>) \
   }
 ```
 
-Option 2 (simpler, if the branch is ALL WIP commits so far — no landed work):
+选项 2（更简单，如果分支目前全是 WIP 提交 — 没有着陆的工作）：
 ```bash
 # Branch contains only WIP commits. Reset-soft is safe here because there's
 # nothing non-WIP to preserve. Verify first.
@@ -2625,42 +2612,38 @@ if [ "$NON_WIP" -eq 0 ]; then
 fi
 ```
 
-Decide at runtime which option applies. If unsure, prefer stopping and asking the
-user via AskUserQuestion rather than destroying non-WIP commits.
+在运行时决定适用哪个选项。如果不确定，倾向于停止并通过 AskUserQuestion 询问用户，而不是破坏非 WIP 提交。
 
-**Anti-footgun rules:**
-- NEVER blind `git reset --soft` if there are non-WIP commits. Codex flagged this
-  as destructive — it would uncommit real landed work and turn the push step into
-  a non-fast-forward push for anyone who already pushed.
-- Only proceed to Step 15.1 after WIP commits are successfully squashed/absorbed
-  or the branch has been verified to contain only WIP work.
+**防坑规则：**
+- 如果有非 WIP 提交，永远不要盲目 `git reset --soft`。Codex 将此标记为破坏性的 — 它会取消真正的已着陆工作的提交，并将推送步骤变成对已经推送的人的非快进推送。
+- 仅在 WIP 提交成功压缩/吸收或分支已被验证仅包含 WIP 工作后才继续到步骤 15.1。
 
-### Step 15.1: Bisectable Commits
+### 步骤 15.1：可二分的提交
 
-**Goal:** Create small, logical commits that work well with `git bisect` and help LLMs understand what changed.
+**目标：** 创建小型、逻辑的提交，与 `git bisect` 配合良好，并帮助 LLM 理解更改了什么。
 
-1. Analyze the diff and group changes into logical commits. Each commit should represent **one coherent change** — not one file, but one logical unit.
+1. 分析 diff 并将更改分组为逻辑提交。每个提交应代表**一个连贯的更改** — 不是一个文件，而是一个逻辑单元。
 
-2. **Commit ordering** (earlier commits first):
-   - **Infrastructure:** migrations, config changes, route additions
-   - **Models & services:** new models, services, concerns (with their tests)
-   - **Controllers & views:** controllers, views, JS/React components (with their tests)
-   - **VERSION + CHANGELOG + TODOS.md:** always in the final commit
+2. **提交顺序**（较早的提交优先）：
+   - **基础设施：** 迁移、配置更改、路由添加
+   - **模型和服务：** 新模型、服务、关注点（及其测试）
+   - **控制器和视图：** 控制器、视图、JS/React 组件（及其测试）
+   - **VERSION + CHANGELOG + TODOS.md：** 总是在最终提交中
 
-3. **Rules for splitting:**
-   - A model and its test file go in the same commit
-   - A service and its test file go in the same commit
-   - A controller, its views, and its test go in the same commit
-   - Migrations are their own commit (or grouped with the model they support)
-   - Config/route changes can group with the feature they enable
-   - If the total diff is small (< 50 lines across < 4 files), a single commit is fine
+3. **拆分规则：**
+   - 模型及其测试文件在同一个提交中
+   - 服务及其测试文件在同一个提交中
+   - 控制器、其视图及其测试在同一个提交中
+   - 迁移是单独的提交（或与它们支持的模型分组）
+   - 配置/路由更改可以与它们启用的功能分组
+   - 如果总 diff 很小（< 50 行，< 4 个文件），单个提交即可
 
-4. **Each commit must be independently valid** — no broken imports, no references to code that doesn't exist yet. Order commits so dependencies come first.
+4. **每个提交必须独立有效** — 没有损坏的导入，没有对尚不存在的代码的引用。按依赖关系顺序排列提交。
 
-5. Compose each commit message:
-   - First line: `<type>: <summary>` (type = feat/fix/chore/refactor/docs)
-   - Body: brief description of what this commit contains
-   - Only the **final commit** (VERSION + CHANGELOG) gets the version tag and co-author trailer:
+5. 组成每个提交消息：
+   - 第一行：`<type>: <summary>`（type = feat/fix/chore/refactor/docs）
+   - 正文：此提交包含内容的简要描述
+   - 仅**最终提交**（VERSION + CHANGELOG）获得版本标签和共同作者尾注：
 
 ```bash
 git commit -m "$(cat <<'EOF'
@@ -2673,31 +2656,31 @@ EOF
 
 ---
 
-## Step 16: Verification Gate
+## 步骤 16：验证门控
 
-**IRON LAW: NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE.**
+**铁律：没有新鲜验证证据就不能声称完成。**
 
-Before pushing, re-verify if code changed during Steps 4-6:
+在推送之前，重新验证步骤 4-6 期间代码是否更改：
 
-1. **Test verification:** If ANY code changed after Step 5's test run (fixes from review findings, CHANGELOG edits don't count), re-run the test suite. Paste fresh output. Stale output from Step 5 is NOT acceptable.
+1. **测试验证：** 如果步骤 5 测试运行后任何代码更改了（来自审查发现的修复，CHANGELOG 编辑不算），重新运行测试套件。粘贴新鲜输出。步骤 5 的过时输出不可接受。
 
-2. **Build verification:** If the project has a build step, run it. Paste output.
+2. **构建验证：** 如果项目有构建步骤，运行它。粘贴输出。
 
-3. **Rationalization prevention:**
-   - "Should work now" → RUN IT.
-   - "I'm confident" → Confidence is not evidence.
-   - "I already tested earlier" → Code changed since then. Test again.
-   - "It's a trivial change" → Trivial changes break production.
+3. **防止合理化：**
+   - "现在应该可以了" → 运行它。
+   - "我有信心" → 信心不是证据。
+   - "我之前已经测试过了" → 代码自那时起已更改。再次测试。
+   - "这是简单的更改" → 简单的更改也会破坏生产。
 
-**If tests fail here:** STOP. Do not push. Fix the issue and return to Step 5.
+**如果测试在这里失败：** 停止。不要推送。修复问题并返回步骤 5。
 
-Claiming work is complete without verification is dishonesty, not efficiency.
+没有验证就声称工作完成是不诚实，不是效率。
 
 ---
 
-## Step 17: Push
+## 步骤 17：推送
 
-**Idempotency check:** Check if the branch is already pushed and up to date.
+**幂等性检查：** 检查分支是否已推送且是最新的。
 
 ```bash
 git fetch origin <branch-name> 2>/dev/null
@@ -2707,46 +2690,46 @@ echo "LOCAL: $LOCAL  REMOTE: $REMOTE"
 [ "$LOCAL" = "$REMOTE" ] && echo "ALREADY_PUSHED" || echo "PUSH_NEEDED"
 ```
 
-If `ALREADY_PUSHED`, skip the push but continue to Step 18. Otherwise push with upstream tracking:
+如果 `ALREADY_PUSHED`，跳过推送但继续到步骤 18。否则使用上游跟踪推送：
 
 ```bash
 git push -u origin <branch-name>
 ```
 
-**You are NOT done.** The code is pushed but documentation sync and PR creation are mandatory final steps. Continue to Step 18.
+**你还没完成。** 代码已推送但文档同步和 PR 创建是强制性的最终步骤。继续到步骤 18。
 
 ---
 
-## Step 18: Documentation sync (via subagent, before PR creation)
+## 步骤 18：文档同步（通过子代理，在 PR 创建之前）
 
-**Dispatch /document-release as a subagent** using the Agent tool with `subagent_type: "general-purpose"`. The subagent gets a fresh context window — zero rot from the preceding 17 steps. It also runs the **full** `/document-release` workflow (with CHANGELOG clobber protection, doc exclusions, risky-change gates, named staging, race-safe PR body editing) rather than a weaker reimplementation.
+**将 /document-release 作为子代理分派**，使用 Agent 工具，`subagent_type: "general-purpose"`。子代理获得新的上下文窗口 — 前 17 步的零腐烂。它还运行**完整**的 `/document-release` 工作流（带有 CHANGELOG 覆盖保护、文档排除、风险更改门控、命名暂存、竞态安全 PR 正文编辑），而不是较弱的重新实现。
 
-**Sequencing:** This step runs AFTER Step 17 (Push) and BEFORE Step 19 (Create PR). The PR is created once from final HEAD with the `## Documentation` section baked into the initial body. No create-then-re-edit dance.
+**排序：** 此步骤在步骤 17（推送）之后和步骤 19（创建 PR）之前运行。PR 从最终 HEAD 创建一次，`## Documentation` 部分包含在初始正文中。没有创建然后重新编辑的过程。
 
-**Subagent prompt:**
+**子代理提示：**
 
-> You are executing the /document-release workflow after a code push. Read the full skill file `${HOME}/.claude/skills/gstack/document-release/SKILL.md` and execute its complete workflow end-to-end, including CHANGELOG clobber protection, doc exclusions, risky-change gates, and named staging. Do NOT attempt to edit the PR body — no PR exists yet. Branch: `<branch>`, base: `<base>`.
+> 你正在代码推送后执行 /document-release 工作流。读取完整技能文件 `${HOME}/.claude/skills/gstack/document-release/SKILL.md` 并端到端执行其完整工作流，包括 CHANGELOG 覆盖保护、文档排除、风险更改门控和命名暂存。不要尝试编辑 PR 正文 — PR 尚不存在。分支：`<branch>`，基础：`<base>`。
 >
-> After completing the workflow, output a single JSON object on the LAST LINE of your response (no other text after it):
+> 完成工作流后，在响应的最后一行输出单个 JSON 对象（之后没有其他文本）：
 > `{"files_updated":["README.md","CLAUDE.md",...],"commit_sha":"abc1234","pushed":true,"documentation_section":"<markdown block for PR body's ## Documentation section>"}`
 >
-> If no documentation files needed updating, output:
+> 如果不需要更新文档文件，输出：
 > `{"files_updated":[],"commit_sha":null,"pushed":false,"documentation_section":null}`
 
-**Parent processing:**
+**父代理处理：**
 
-1. Parse the LAST line of the subagent's output as JSON.
-2. Store `documentation_section` — Step 19 embeds it in the PR body (or omits the section if null).
-3. If `files_updated` is non-empty, print: `Documentation synced: {files_updated.length} files updated, committed as {commit_sha}`.
-4. If `files_updated` is empty, print: `Documentation is current — no updates needed.`
+1. 将子代理输出的最后一行解析为 JSON。
+2. 存储 `documentation_section` — 步骤 19 将其嵌入 PR 正文（如果为 null 则省略该部分）。
+3. 如果 `files_updated` 非空，打印：`Documentation synced: {files_updated.length} files updated, committed as {commit_sha}`。
+4. 如果 `files_updated` 为空，打印：`Documentation is current — no updates needed.`
 
-**If the subagent fails or returns invalid JSON:** Print a warning and proceed to Step 19 without a `## Documentation` section. Do not block /ship on subagent failure. The user can run `/document-release` manually after the PR lands.
+**如果子代理失败或返回无效 JSON：** 打印警告并继续到步骤 19，没有 `## Documentation` 部分。不要因子代理失败而阻断 /ship。用户可以在 PR 着陆后手动运行 `/document-release`。
 
 ---
 
-## Step 19: Create PR/MR
+## 步骤 19：创建 PR/MR
 
-**Idempotency check:** Check if a PR/MR already exists for this branch.
+**幂等性检查：** 检查此分支是否已存在 PR/MR。
 
 **If GitHub:**
 ```bash
@@ -2758,67 +2741,67 @@ gh pr view --json url,number,state -q 'if .state == "OPEN" then "PR #\(.number):
 glab mr view -F json 2>/dev/null | jq -r 'if .state == "opened" then "MR_EXISTS" else "NO_MR" end' 2>/dev/null || echo "NO_MR"
 ```
 
-If an **open** PR/MR already exists: **update** the PR body using `gh pr edit --body "..."` (GitHub) or `glab mr update -d "..."` (GitLab). Always regenerate the PR body from scratch using this run's fresh results (test output, coverage audit, review findings, adversarial review, TODOS summary, documentation_section from Step 18). Never reuse stale PR body content from a prior run.
+如果已存在**打开的** PR/MR：使用 `gh pr edit --body "..."`（GitHub）或 `glab mr update -d "..."`（GitLab）**更新** PR 正文。始终使用此运行的新鲜结果（测试输出、覆盖率审计、审查发现、对抗性审查、TODOS 摘要、步骤 18 的 documentation_section）从头重新生成 PR 正文。永远不要重用先前运行的过时 PR 正文内容。
 
-**Also update the PR title** if the version changed on rerun. PR titles use the workspace-aware format `v<NEW_VERSION> <type>: <summary>` — version ALWAYS first. If the current title's version prefix doesn't match `NEW_VERSION`, run `gh pr edit --title "v$NEW_VERSION <type>: <summary>"` (or the `glab mr update -t ...` equivalent). This keeps the title truthful when Step 12's queue-drift detection rebumps a stale version. If the title has no `v<X.Y.Z.W>` prefix (a custom title kept intentionally), leave the title alone — only rewrite titles that already follow the format.
+**如果版本在重运行时更改了，还要更新 PR 标题。** PR 标题使用工作区感知格式 `v<NEW_VERSION> <type>: <summary>` — 版本总是在前面。如果当前标题的版本前缀与 `NEW_VERSION` 不匹配，运行 `gh pr edit --title "v$NEW_VERSION <type>: <summary>"`（或 `glab mr update -t ...` 等效命令）。这在步骤 12 的队列漂移检测重新升级过时版本时保持标题真实。如果标题没有 `v<X.Y.Z.W>` 前缀（有意保留的自定义标题），不要修改标题 — 仅重写已遵循格式的标题。
 
-Print the existing URL and continue to Step 20.
+打印现有 URL 并继续到步骤 20。
 
-If no PR/MR exists: create a pull request (GitHub) or merge request (GitLab) using the platform detected in Step 0.
+如果不存在 PR/MR：使用步骤 0 检测到的平台创建拉取请求（GitHub）或合并请求（GitLab）。
 
-The PR/MR body should contain these sections:
+PR/MR 正文应包含以下部分：
 
 ```
 ## Summary
-<Summarize ALL changes being shipped. Run `git log <base>..HEAD --oneline` to enumerate
-every commit. Exclude the VERSION/CHANGELOG metadata commit (that's this PR's bookkeeping,
-not a substantive change). Group the remaining commits into logical sections (e.g.,
-"**Performance**", "**Dead Code Removal**", "**Infrastructure**"). Every substantive commit
-must appear in at least one section. If a commit's work isn't reflected in the summary,
-you missed it.>
+<总结所有正在发布的更改。运行 `git log <base>..HEAD --oneline` 枚举
+每个提交。排除 VERSION/CHANGELOG 元数据提交（那是此 PR 的记账，
+不是实质性的更改）。将剩余提交分组为逻辑部分（例如，
+"**Performance**", "**Dead Code Removal**", "**Infrastructure**"）。每个实质性提交
+必须出现在至少一个部分中。如果提交的工作未反映在摘要中，
+你遗漏了它。>
 
 ## Test Coverage
-<coverage diagram from Step 7, or "All new code paths have test coverage.">
-<If Step 7 ran: "Tests: {before} → {after} (+{delta} new)">
+<步骤 7 的覆盖率图表，或 "All new code paths have test coverage.">
+<如果步骤 7 运行了："Tests: {before} → {after} (+{delta} new)">
 
 ## Pre-Landing Review
-<findings from Step 9 code review, or "No issues found.">
+<步骤 9 代码审查的发现，或 "No issues found.">
 
 ## Design Review
-<If design review ran: "Design Review (lite): N findings — M auto-fixed, K skipped. AI Slop: clean/N issues.">
-<If no frontend files changed: "No frontend files changed — design review skipped.">
+<如果设计审查运行了："Design Review (lite): N findings — M auto-fixed, K skipped. AI Slop: clean/N issues.">
+<如果没有前端文件更改："No frontend files changed — design review skipped.">
 
 ## Eval Results
-<If evals ran: suite names, pass/fail counts, cost dashboard summary. If skipped: "No prompt-related files changed — evals skipped.">
+<如果评估运行了：套件名称、通过/失败计数、成本仪表板摘要。如果跳过："No prompt-related files changed — evals skipped.">
 
 ## Greptile Review
-<If Greptile comments were found: bullet list with [FIXED] / [FALSE POSITIVE] / [ALREADY FIXED] tag + one-line summary per comment>
-<If no Greptile comments found: "No Greptile comments.">
-<If no PR existed during Step 10: omit this section entirely>
+<如果找到了 Greptile 评论：带 [FIXED] / [FALSE POSITIVE] / [ALREADY FIXED] 标签的项目符号列表 + 每条评论的一行摘要>
+<如果未找到 Greptile 评论："No Greptile comments.">
+<如果步骤 10 期间不存在 PR：完全省略此部分>
 
 ## Scope Drift
-<If scope drift ran: "Scope Check: CLEAN" or list of drift/creep findings>
-<If no scope drift: omit this section>
+<如果范围漂移运行了："Scope Check: CLEAN" 或漂移/蔓延发现列表>
+<如果没有范围漂移：省略此部分>
 
 ## Plan Completion
-<If plan file found: completion checklist summary from Step 8>
-<If no plan file: "No plan file detected.">
-<If plan items deferred: list deferred items>
+<如果找到计划文件：步骤 8 的完成度检查清单摘要>
+<如果没有计划文件："No plan file detected.">
+<如果计划项被延迟：列出延迟的项>
 
 ## Verification Results
-<If verification ran: summary from Step 8.1 (N PASS, M FAIL, K SKIPPED)>
-<If skipped: reason (no plan, no server, no verification section)>
-<If not applicable: omit this section>
+<如果验证运行了：步骤 8.1 的摘要（N PASS、M FAIL、K SKIPPED）>
+<如果跳过：原因（无计划、无服务器、无验证部分）>
+<如果不适用：省略此部分>
 
 ## TODOS
-<If items marked complete: bullet list of completed items with version>
-<If no items completed: "No TODO items completed in this PR.">
-<If TODOS.md created or reorganized: note that>
-<If TODOS.md doesn't exist and user skipped: omit this section>
+<如果有项标记为完成：已完成项的项目符号列表，带版本>
+<如果没有项完成："No TODO items completed in this PR.">
+<如果 TODOS.md 已创建或重组：注明>
+<如果 TODOS.md 不存在且用户跳过：省略此部分>
 
 ## Documentation
-<Embed the `documentation_section` string returned by Step 18's subagent here, verbatim.>
-<If Step 18 returned `documentation_section: null` (no docs updated), omit this section entirely.>
+<在此逐字嵌入步骤 18 子代理返回的 `documentation_section` 字符串。>
+<如果步骤 18 返回 `documentation_section: null`（无文档更新），完全省略此部分。>
 
 ## Test plan
 - [x] All Rails tests pass (N runs, 0 failures)
@@ -2845,16 +2828,16 @@ EOF
 )"
 ```
 
-**If neither CLI is available:**
-Print the branch name, remote URL, and instruct the user to create the PR/MR manually via the web UI. Do not stop — the code is pushed and ready.
+**如果两个 CLI 都不可用：**
+打印分支名称、远程 URL，并指示用户通过 Web UI 手动创建 PR/MR。不要停止 — 代码已推送并就绪。
 
-**Output the PR/MR URL** — then proceed to Step 20.
+**输出 PR/MR URL** — 然后继续到步骤 20。
 
 ---
 
-## Step 20: Persist ship metrics
+## 步骤 20：持久化发布指标
 
-Log coverage and plan completion data so `/retro` can track trends:
+记录覆盖率和计划完成度数据，以便 `/retro` 可以跟踪趋势：
 
 ```bash
 eval "$(~/.claude/skills/gstack/bin/gstack-slug 2>/dev/null)" && mkdir -p ~/.gstack/projects/$SLUG
@@ -2866,29 +2849,29 @@ Append to `~/.gstack/projects/$SLUG/$BRANCH-reviews.jsonl`:
 echo '{"skill":"ship","timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'","coverage_pct":COVERAGE_PCT,"plan_items_total":PLAN_TOTAL,"plan_items_done":PLAN_DONE,"verification_result":"VERIFY_RESULT","version":"VERSION","branch":"BRANCH"}' >> ~/.gstack/projects/$SLUG/$BRANCH-reviews.jsonl
 ```
 
-Substitute from earlier steps:
-- **COVERAGE_PCT**: coverage percentage from Step 7 diagram (integer, or -1 if undetermined)
-- **PLAN_TOTAL**: total plan items extracted in Step 8 (0 if no plan file)
-- **PLAN_DONE**: count of DONE + CHANGED items from Step 8 (0 if no plan file)
-- **VERIFY_RESULT**: "pass", "fail", or "skipped" from Step 8.1
-- **VERSION**: from the VERSION file
-- **BRANCH**: current branch name
+从先前步骤替换：
+- **COVERAGE_PCT**：步骤 7 图表中的覆盖率百分比（整数，如果未确定则为 -1）
+- **PLAN_TOTAL**：步骤 8 中提取的计划项总数（如果没有计划文件则为 0）
+- **PLAN_DONE**：步骤 8 中已完成 + 已更改项的计数（如果没有计划文件则为 0）
+- **VERIFY_RESULT**：步骤 8.1 的 "pass"、"fail" 或 "skipped"
+- **VERSION**：来自 VERSION 文件
+- **BRANCH**：当前分支名称
 
-This step is automatic — never skip it, never ask for confirmation.
+此步骤是自动的 — 永远不要跳过它，永远不要询问确认。
 
 ---
 
-## Important Rules
+## 重要规则
 
-- **Never skip tests.** If tests fail, stop.
-- **Never skip the pre-landing review.** If checklist.md is unreadable, stop.
-- **Never force push.** Use regular `git push` only.
-- **Never ask for trivial confirmations** (e.g., "ready to push?", "create PR?"). DO stop for: version bumps (MINOR/MAJOR), pre-landing review findings (ASK items), and Codex structured review [P1] findings (large diffs only).
-- **Always use the 4-digit version format** from the VERSION file.
-- **Date format in CHANGELOG:** `YYYY-MM-DD`
-- **Split commits for bisectability** — each commit = one logical change.
-- **TODOS.md completion detection must be conservative.** Only mark items as completed when the diff clearly shows the work is done.
-- **Use Greptile reply templates from greptile-triage.md.** Every reply includes evidence (inline diff, code references, re-rank suggestion). Never post vague replies.
-- **Never push without fresh verification evidence.** If code changed after Step 5 tests, re-run before pushing.
-- **Step 7 generates coverage tests.** They must pass before committing. Never commit failing tests.
-- **The goal is: user says `/ship`, next thing they see is the review + PR URL + auto-synced docs.**
+- **永远不要跳过测试。** 如果测试失败，停止。
+- **永远不要跳过着陆前审查。** 如果 checklist.md 不可读，停止。
+- **永远不要强制推送。** 仅使用常规 `git push`。
+- **永远不要询问琐碎的确认**（例如，"ready to push?", "create PR?"）。确实要停止的情况：版本升级（MINOR/MAJOR）、着陆前审查发现（ASK 项）和 Codex 结构化审查 [P1] 发现（仅大型 diff）。
+- **始终使用 VERSION 文件中的 4 位版本格式。**
+- **CHANGELOG 中的日期格式：** `YYYY-MM-DD`
+- **为可二分性拆分提交** — 每个提交 = 一个逻辑更改。
+- **TODOS.md 完成检测必须保守。** 仅在 diff 清楚显示工作完成时才标记项为已完成。
+- **使用 greptile-triage.md 中的 Greptile 回复模板。** 每个回复都包含证据（内联 diff、代码引用、重新排名建议）。永远不要发布模糊的回复。
+- **永远不要在没有新鲜验证证据的情况下推送。** 如果步骤 5 测试后代码更改了，推送前重新运行。
+- **步骤 7 生成覆盖率测试。** 它们必须在提交前通过。永远不要提交失败的测试。
+- **目标是：用户输入 `/ship`，他们接下来看到的是审查 + PR URL + 自动同步的文档。**

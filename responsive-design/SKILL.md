@@ -1,77 +1,77 @@
 ---
 name: responsive-design
-description: Implement modern responsive layouts using container queries, fluid typography, CSS Grid, and mobile-first breakpoint strategies. Use when building adaptive interfaces, implementing fluid layouts, or creating component-level responsive behavior.
+description: 使用容器查询、流体排版、CSS Grid 和移动优先断点策略实现现代响应式布局。在构建自适应界面、实现流体布局或创建组件级响应行为时使用。
 ---
 
-# Responsive Design
+# 响应式设计
 
-Master modern responsive design techniques to create interfaces that adapt seamlessly across all screen sizes and device contexts.
+掌握现代响应式设计技术，创建在所有屏幕尺寸和设备上下文中无缝适配的界面。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Implementing mobile-first responsive layouts
-- Using container queries for component-based responsiveness
-- Creating fluid typography and spacing scales
-- Building complex layouts with CSS Grid and Flexbox
-- Designing breakpoint strategies for design systems
-- Implementing responsive images and media
-- Creating adaptive navigation patterns
-- Building responsive tables and data displays
+- 实现移动优先的响应式布局
+- 使用容器查询实现基于组件的响应式
+- 创建流体排版和间距比例
+- 使用 CSS Grid 和 Flexbox 构建复杂布局
+- 为设计系统设计断点策略
+- 实现响应式图片和媒体
+- 创建自适应导航模式
+- 构建响应式表格和数据展示
 
-## Core Capabilities
+## 核心能力
 
-### 1. Container Queries
+### 1. 容器查询
 
-- Component-level responsiveness independent of viewport
-- Container query units (cqi, cqw, cqh)
-- Style queries for conditional styling
-- Fallbacks for browser support
+- 独立于视口的组件级响应式
+- 容器查询单位（cqi、cqw、cqh）
+- 用于条件样式的样式查询
+- 浏览器支持的回退方案
 
-### 2. Fluid Typography & Spacing
+### 2. 流体排版和间距
 
-- CSS clamp() for fluid scaling
-- Viewport-relative units (vw, vh, dvh)
-- Fluid type scales with min/max bounds
-- Responsive spacing systems
+- CSS clamp() 用于流体缩放
+- 视口相对单位（vw、vh、dvh）
+- 带最小/最大边界的流体字体比例
+- 响应式间距系统
 
-### 3. Layout Patterns
+### 3. 布局模式
 
-- CSS Grid for 2D layouts
-- Flexbox for 1D distribution
-- Intrinsic layouts (content-based sizing)
-- Subgrid for nested grid alignment
+- CSS Grid 用于二维布局
+- Flexbox 用于一维分布
+- 内在布局（基于内容的尺寸）
+- Subgrid 用于嵌套网格对齐
 
-### 4. Breakpoint Strategy
+### 4. 断点策略
 
-- Mobile-first media queries
-- Content-based breakpoints
-- Design token integration
-- Feature queries (@supports)
+- 移动优先媒体查询
+- 基于内容的断点
+- 设计令牌集成
+- 特性查询（@supports）
 
-## Quick Reference
+## 快速参考
 
-### Modern Breakpoint Scale
+### 现代断点比例
 
 ```css
-/* Mobile-first breakpoints */
-/* Base: Mobile (< 640px) */
+/* 移动优先断点 */
+/* 基础：移动端（< 640px） */
 @media (min-width: 640px) {
-  /* sm: Landscape phones, small tablets */
+  /* sm：横屏手机、小平板 */
 }
 @media (min-width: 768px) {
-  /* md: Tablets */
+  /* md：平板 */
 }
 @media (min-width: 1024px) {
-  /* lg: Laptops, small desktops */
+  /* lg：笔记本、小桌面 */
 }
 @media (min-width: 1280px) {
-  /* xl: Desktops */
+  /* xl：桌面 */
 }
 @media (min-width: 1536px) {
-  /* 2xl: Large desktops */
+  /* 2xl：大桌面 */
 }
 
-/* Tailwind CSS equivalent */
+/* Tailwind CSS 等效 */
 /* sm:  @media (min-width: 640px) */
 /* md:  @media (min-width: 768px) */
 /* lg:  @media (min-width: 1024px) */
@@ -79,18 +79,18 @@ Master modern responsive design techniques to create interfaces that adapt seaml
 /* 2xl: @media (min-width: 1536px) */
 ```
 
-## Key Patterns
+## 关键模式
 
-### Pattern 1: Container Queries
+### 模式 1：容器查询
 
 ```css
-/* Define a containment context */
+/* 定义包含上下文 */
 .card-container {
   container-type: inline-size;
   container-name: card;
 }
 
-/* Query the container, not the viewport */
+/* 查询容器而非视口 */
 @container card (min-width: 400px) {
   .card {
     display: grid;
@@ -113,15 +113,15 @@ Master modern responsive design techniques to create interfaces that adapt seaml
   }
 }
 
-/* Container query units */
+/* 容器查询单位 */
 .card-title {
-  /* 5% of container width, clamped between 1rem and 2rem */
+  /* 容器宽度的 5%，限制在 1rem 和 2rem 之间 */
   font-size: clamp(1rem, 5cqi, 2rem);
 }
 ```
 
 ```tsx
-// React component with container queries
+// 使用容器查询的 React 组件
 function ResponsiveCard({ title, image, description }) {
   return (
     <div className="@container">
@@ -145,12 +145,12 @@ function ResponsiveCard({ title, image, description }) {
 }
 ```
 
-### Pattern 2: Fluid Typography
+### 模式 2：流体排版
 
 ```css
-/* Fluid type scale using clamp() */
+/* 使用 clamp() 的流体字体比例 */
 :root {
-  /* Min size, preferred (fluid), max size */
+  /* 最小尺寸、首选（流体）、最大尺寸 */
   --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
   --text-sm: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
   --text-base: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
@@ -161,7 +161,7 @@ function ResponsiveCard({ title, image, description }) {
   --text-4xl: clamp(2.25rem, 1.75rem + 2.5vw, 3.5rem);
 }
 
-/* Usage */
+/* 使用 */
 h1 {
   font-size: var(--text-4xl);
 }
@@ -175,7 +175,7 @@ p {
   font-size: var(--text-base);
 }
 
-/* Fluid spacing scale */
+/* 流体间距比例 */
 :root {
   --space-xs: clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem);
   --space-sm: clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem);
@@ -186,7 +186,7 @@ p {
 ```
 
 ```tsx
-// Utility function for fluid values
+// 流体值工具函数
 function fluidValue(
   minSize: number,
   maxSize: number,
@@ -199,7 +199,7 @@ function fluidValue(
   return `clamp(${minSize}rem, ${yAxisIntersection.toFixed(4)}rem + ${(slope * 100).toFixed(4)}vw, ${maxSize}rem)`;
 }
 
-// Generate fluid type scale
+// 生成流体字体比例
 const fluidTypeScale = {
   sm: fluidValue(0.875, 1),
   base: fluidValue(1, 1.125),
@@ -209,24 +209,24 @@ const fluidTypeScale = {
 };
 ```
 
-### Pattern 3: CSS Grid Responsive Layout
+### 模式 3：CSS Grid 响应式布局
 
 ```css
-/* Auto-fit grid - items wrap automatically */
+/* 自适应网格 - 项目自动换行 */
 .grid-auto {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
   gap: 1.5rem;
 }
 
-/* Auto-fill grid - maintains empty columns */
+/* 自动填充网格 - 保持空列 */
 .grid-auto-fill {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 1rem;
 }
 
-/* Responsive grid with named areas */
+/* 带命名区域的响应式网格 */
 .page-layout {
   display: grid;
   grid-template-areas:
@@ -272,7 +272,7 @@ const fluidTypeScale = {
 ```
 
 ```tsx
-// Responsive grid component
+// 响应式网格组件
 function ResponsiveGrid({ children, minItemWidth = "250px", gap = "1.5rem" }) {
   return (
     <div
@@ -287,7 +287,7 @@ function ResponsiveGrid({ children, minItemWidth = "250px", gap = "1.5rem" }) {
   );
 }
 
-// Usage with Tailwind
+// 使用 Tailwind 的用法
 function ProductGrid({ products }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
@@ -299,7 +299,7 @@ function ProductGrid({ products }) {
 }
 ```
 
-### Pattern 4: Responsive Navigation
+### 模式 4：响应式导航
 
 ```tsx
 function ResponsiveNav({ items }) {
@@ -307,27 +307,27 @@ function ResponsiveNav({ items }) {
 
   return (
     <nav className="relative">
-      {/* Mobile menu button */}
+      {/* 移动端菜单按钮 */}
       <button
         className="lg:hidden p-2"
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
         aria-controls="nav-menu"
       >
-        <span className="sr-only">Toggle navigation</span>
+        <span className="sr-only">切换导航</span>
         {isOpen ? <X /> : <Menu />}
       </button>
 
-      {/* Navigation links */}
+      {/* 导航链接 */}
       <ul
         id="nav-menu"
         className={cn(
-          // Base: hidden on mobile
+          // 基础：移动端隐藏
           "absolute top-full left-0 right-0 bg-background border-b",
           "flex flex-col",
-          // Mobile: slide down
+          // 移动端：滑下
           isOpen ? "flex" : "hidden",
-          // Desktop: always visible, horizontal
+          // 桌面端：始终可见，水平
           "lg:static lg:flex lg:flex-row lg:border-0 lg:bg-transparent",
         )}
       >
@@ -351,14 +351,14 @@ function ResponsiveNav({ items }) {
 }
 ```
 
-### Pattern 5: Responsive Images
+### 模式 5：响应式图片
 
 ```tsx
-// Responsive image with art direction
+// 带艺术方向的响应式图片
 function ResponsiveHero() {
   return (
     <picture>
-      {/* Art direction: different crops for different screens */}
+      {/* 艺术方向：不同屏幕使用不同裁剪 */}
       <source
         media="(min-width: 1024px)"
         srcSet="/hero-wide.webp"
@@ -371,7 +371,7 @@ function ResponsiveHero() {
       />
       <source srcSet="/hero-mobile.webp" type="image/webp" />
 
-      {/* Fallback */}
+      {/* 回退 */}
       <img
         src="/hero-mobile.jpg"
         alt="Hero image description"
@@ -383,7 +383,7 @@ function ResponsiveHero() {
   );
 }
 
-// Responsive image with srcset for resolution switching
+// 使用 srcset 进行分辨率切换的响应式图片
 function ProductImage({ product }) {
   return (
     <img
@@ -402,10 +402,10 @@ function ProductImage({ product }) {
 }
 ```
 
-### Pattern 6: Responsive Tables
+### 模式 6：响应式表格
 
 ```tsx
-// Responsive table with horizontal scroll
+// 带水平滚动的响应式表格
 function ResponsiveTable({ data, columns }) {
   return (
     <div className="w-full overflow-x-auto">
@@ -435,16 +435,16 @@ function ResponsiveTable({ data, columns }) {
   );
 }
 
-// Card-based table for mobile
+// 移动端卡片式表格
 function ResponsiveDataTable({ data, columns }) {
   return (
     <>
-      {/* Desktop table */}
+      {/* 桌面端表格 */}
       <table className="hidden md:table w-full">
-        {/* ... standard table */}
+        {/* ... 标准表格 */}
       </table>
 
-      {/* Mobile cards */}
+      {/* 移动端卡片 */}
       <div className="md:hidden space-y-4">
         {data.map((row, i) => (
           <div key={i} className="border rounded-lg p-4 space-y-2">
@@ -464,53 +464,53 @@ function ResponsiveDataTable({ data, columns }) {
 }
 ```
 
-## Viewport Units
+## 视口单位
 
 ```css
-/* Standard viewport units */
+/* 标准视口单位 */
 .full-height {
-  height: 100vh; /* May cause issues on mobile */
+  height: 100vh; /* 在移动端可能导致问题 */
 }
 
-/* Dynamic viewport units (recommended for mobile) */
+/* 动态视口单位（推荐用于移动端） */
 .full-height-dynamic {
-  height: 100dvh; /* Accounts for mobile browser UI */
+  height: 100dvh; /* 考虑移动端浏览器 UI */
 }
 
-/* Small viewport (minimum) */
+/* 小视口（最小） */
 .min-full-height {
   min-height: 100svh;
 }
 
-/* Large viewport (maximum) */
+/* 大视口（最大） */
 .max-full-height {
   max-height: 100lvh;
 }
 
-/* Viewport-relative font sizing */
+/* 视口相对字体大小 */
 .hero-title {
-  /* 5vw with min/max bounds */
+  /* 5vw，带最小/最大边界 */
   font-size: clamp(2rem, 5vw, 4rem);
 }
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Mobile-First**: Start with mobile styles, enhance for larger screens
-2. **Content Breakpoints**: Set breakpoints based on content, not devices
-3. **Fluid Over Fixed**: Use fluid values for typography and spacing
-4. **Container Queries**: Use for component-level responsiveness
-5. **Test Real Devices**: Simulators don't catch all issues
-6. **Performance**: Optimize images, lazy load off-screen content
-7. **Touch Targets**: Maintain 44x44px minimum on mobile
-8. **Logical Properties**: Use inline/block for internationalization
+1. **移动优先**：从移动端样式开始，为更大屏幕增强
+2. **内容断点**：基于内容而非设备设置断点
+3. **流体优于固定**：对排版和间距使用流体值
+4. **容器查询**：用于组件级响应式
+5. **测试真机**：模拟器无法捕获所有问题
+6. **性能**：优化图片，懒加载屏幕外内容
+7. **触摸目标**：移动端保持 44x44px 最小尺寸
+8. **逻辑属性**：使用 inline/block 以支持国际化
 
-## Common Issues
+## 常见问题
 
-- **Horizontal Overflow**: Content breaking out of viewport
-- **Fixed Widths**: Using px instead of relative units
-- **Viewport Height**: 100vh issues on mobile browsers
-- **Font Size**: Text too small on mobile
-- **Touch Targets**: Buttons too small to tap accurately
-- **Aspect Ratio**: Images squishing or stretching
-- **Z-Index Stacking**: Overlays breaking on different screens
+- **水平溢出**：内容超出视口
+- **固定宽度**：使用 px 而非相对单位
+- **视口高度**：移动端浏览器上的 100vh 问题
+- **字体大小**：移动端文字太小
+- **触摸目标**：按钮太小无法准确点击
+- **宽高比**：图片被挤压或拉伸
+- **Z-Index 堆叠**：覆盖层在不同屏幕上异常

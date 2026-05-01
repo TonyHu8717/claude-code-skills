@@ -3,10 +3,10 @@ name: review
 preamble-tier: 4
 version: 1.0.0
 description: |
-  Pre-landing PR review. Analyzes diff against the base branch for SQL safety, LLM trust
-  boundary violations, conditional side effects, and other structural issues. Use when
-  asked to "review this PR", "code review", "pre-landing review", or "check my diff".
-  Proactively suggest when the user is about to merge or land code changes. (gstack)
+  着陆前 PR 审查。分析相对于基础分支的 diff，检查 SQL 安全、LLM 信任
+  边界违规、条件副作用和其他结构性问题。当被要求"审查此 PR"、"代码审查"、
+  "着陆前审查"或"检查我的 diff"时使用。
+  当用户即将合并或着陆代码变更时主动建议。(gstack)
 allowed-tools:
   - Bash
   - Read
@@ -683,9 +683,9 @@ In plan mode before ExitPlanMode: if the plan file lacks `## GSTACK REVIEW REPOR
 
 PLAN MODE EXCEPTION — always allowed (it's the plan file).
 
-## Step 0: Detect platform and base branch
+## 步骤 0：检测平台和基础分支
 
-First, detect the git hosting platform from the remote URL:
+首先，从远程 URL 检测 git 托管平台：
 
 ```bash
 git remote get-url origin 2>/dev/null
@@ -698,8 +698,8 @@ git remote get-url origin 2>/dev/null
   - `glab auth status 2>/dev/null` succeeds → platform is **GitLab** (covers self-hosted)
   - Neither → **unknown** (use git-native commands only)
 
-Determine which branch this PR/MR targets, or the repo's default branch if no
-PR/MR exists. Use the result as "the base branch" in all subsequent steps.
+确定此 PR/MR 的目标分支，或如果不存在 PR/MR 则使用仓库的默认分支。
+在所有后续步骤中使用结果作为"基础分支"。
 
 **If GitHub:**
 1. `gh pr view --json baseRefName -q .baseRefName` — if succeeds, use it
@@ -709,54 +709,54 @@ PR/MR exists. Use the result as "the base branch" in all subsequent steps.
 1. `glab mr view -F json 2>/dev/null` and extract the `target_branch` field — if succeeds, use it
 2. `glab repo view -F json 2>/dev/null` and extract the `default_branch` field — if succeeds, use it
 
-**Git-native fallback (if unknown platform, or CLI commands fail):**
+**Git 原生回退（如果平台未知或 CLI 命令失败）：**
 1. `git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|refs/remotes/origin/||'`
 2. If that fails: `git rev-parse --verify origin/main 2>/dev/null` → use `main`
 3. If that fails: `git rev-parse --verify origin/master 2>/dev/null` → use `master`
 
-If all fail, fall back to `main`.
+如果都失败，回退到 `main`。
 
-Print the detected base branch name. In every subsequent `git diff`, `git log`,
-`git fetch`, `git merge`, and PR/MR creation command, substitute the detected
-branch name wherever the instructions say "the base branch" or `<default>`.
-
----
-
-# Pre-Landing PR Review
-
-You are running the `/review` workflow. Analyze the current branch's diff against the base branch for structural issues that tests don't catch.
+打印检测到的基础分支名称。在每个后续的 `git diff`、`git log`、
+`git fetch`、`git merge` 和 PR/MR 创建命令中，在指令说"基础分支"或 `<default>` 的地方
+替换检测到的分支名称。
 
 ---
 
-## Step 1: Check branch
+# 着陆前 PR 审查
 
-1. Run `git branch --show-current` to get the current branch.
-2. If on the base branch, output: **"Nothing to review — you're on the base branch or have no changes against it."** and stop.
-3. Run `git fetch origin <base> --quiet && git diff origin/<base> --stat` to check if there's a diff. If no diff, output the same message and stop.
+您正在运行 `/review` 工作流。分析当前分支相对于基础分支的 diff，检查测试无法捕获的结构性问题。
 
 ---
 
-## Step 1.5: Scope Drift Detection
+## 步骤 1：检查分支
 
-Before reviewing code quality, check: **did they build what was requested — nothing more, nothing less?**
+1. 运行 `git branch --show-current` 获取当前分支。
+2. 如果在基础分支上，输出：**"没有可审查的内容 — 您在基础分支上或没有针对它的变更。"** 然后停止。
+3. 运行 `git fetch origin <base> --quiet && git diff origin/<base> --stat` 检查是否有 diff。如果没有 diff，输出相同消息并停止。
 
-1. Read `TODOS.md` (if it exists). Read PR description (`gh pr view --json body --jq .body 2>/dev/null || true`).
-   Read commit messages (`git log origin/<base>..HEAD --oneline`).
-   **If no PR exists:** rely on commit messages and TODOS.md for stated intent — this is the common case since /review runs before /ship creates the PR.
-2. Identify the **stated intent** — what was this branch supposed to accomplish?
-3. Run `git diff origin/<base>...HEAD --stat` and compare the files changed against the stated intent.
+---
 
-4. Evaluate with skepticism (incorporating plan completion results if available from an earlier step or adjacent section):
+## 步骤 1.5：范围漂移检测
 
-   **SCOPE CREEP detection:**
-   - Files changed that are unrelated to the stated intent
-   - New features or refactors not mentioned in the plan
-   - "While I was in there..." changes that expand blast radius
+在审查代码质量之前，检查：**他们是否构建了所请求的内容 — 不多不少？**
 
-   **MISSING REQUIREMENTS detection:**
-   - Requirements from TODOS.md/PR description not addressed in the diff
-   - Test coverage gaps for stated requirements
-   - Partial implementations (started but not finished)
+1. 读取 `TODOS.md`（如果存在）。读取 PR 描述（`gh pr view --json body --jq .body 2>/dev/null || true`）。
+   读取提交消息（`git log origin/<base>..HEAD --oneline`）。
+   **如果不存在 PR：** 依赖提交消息和 TODOS.md 获取声明的意图 — 这是常见情况，因为 /review 在 /ship 创建 PR 之前运行。
+2. 识别**声明的意图** — 此分支应该完成什么？
+3. 运行 `git diff origin/<base>...HEAD --stat` 并将变更的文件与声明的意图进行比较。
+
+4. 以怀疑态度评估（结合计划完成结果，如果从早期步骤或相邻部分可用）：
+
+   **范围蔓延检测：**
+   - 变更的文件与声明的意图无关
+   - 计划中未提到的新功能或重构
+   - "既然我在那里..."的变更扩大了影响范围
+
+   **缺失需求检测：**
+   - TODOS.md/PR 描述中的需求未在 diff 中解决
+   - 声明需求的测试覆盖空白
+   - 部分实现（已开始但未完成）
 
 5. Output (before the main review begins):
    \`\`\`
@@ -767,15 +767,15 @@ Before reviewing code quality, check: **did they build what was requested — no
    [If missing: list each unaddressed requirement]
    \`\`\`
 
-6. This is **INFORMATIONAL** — does not block the review. Proceed to the next step.
+6. 这是**信息性的** — 不阻塞审查。继续下一步。
 
 ---
 
-### Plan File Discovery
+### 计划文件发现
 
-1. **Conversation context (primary):** Check if there is an active plan file in this conversation. The host agent's system messages include plan file paths when in plan mode. If found, use it directly — this is the most reliable signal.
+1. **对话上下文（主要）：** 检查此对话中是否有活跃的计划文件。主机代理的系统消息在计划模式下包含计划文件路径。如果找到，直接使用 — 这是最可靠的信号。
 
-2. **Content-based search (fallback):** If no plan file is referenced in conversation context, search by content:
+2. **基于内容的搜索（回退）：** 如果对话上下文中没有引用计划文件，按内容搜索：
 
 ```bash
 setopt +o nomatch 2>/dev/null || true  # zsh compat
@@ -795,15 +795,15 @@ done
 [ -n "$PLAN" ] && echo "PLAN_FILE: $PLAN" || echo "NO_PLAN_FILE"
 ```
 
-3. **Validation:** If a plan file was found via content-based search (not conversation context), read the first 20 lines and verify it is relevant to the current branch's work. If it appears to be from a different project or feature, treat as "no plan file found."
+3. **验证：** 如果通过基于内容的搜索找到计划文件（非对话上下文），读取前 20 行并验证它与当前分支的工作相关。如果它似乎来自不同的项目或功能，视为"未找到计划文件"。
 
-**Error handling:**
-- No plan file found → skip with "No plan file detected — skipping."
-- Plan file found but unreadable (permissions, encoding) → skip with "Plan file found but unreadable — skipping."
+**错误处理：**
+- 未找到计划文件 → 跳过并提示"未检测到计划文件 — 跳过。"
+- 找到计划文件但不可读（权限、编码） → 跳过并提示"找到计划文件但不可读 — 跳过。"
 
-### Actionable Item Extraction
+### 可操作项提取
 
-Read the plan file. Extract every actionable item — anything that describes work to be done. Look for:
+读取计划文件。提取每个可操作项 — 描述要完成的工作的任何内容。查找：
 
 - **Checkbox items:** `- [ ] ...` or `- [x] ...`
 - **Numbered steps** under implementation headings: "1. Create ...", "2. Add ...", "3. Modify ..."
@@ -812,63 +812,63 @@ Read the plan file. Extract every actionable item — anything that describes wo
 - **Test requirements:** "Test that X", "Add test for Y", "Verify Z"
 - **Data model changes:** "Add column X to table Y", "Create migration for Z"
 
-**Ignore:**
-- Context/Background sections (`## Context`, `## Background`, `## Problem`)
-- Questions and open items (marked with ?, "TBD", "TODO: decide")
-- Review report sections (`## GSTACK REVIEW REPORT`)
-- Explicitly deferred items ("Future:", "Out of scope:", "NOT in scope:", "P2:", "P3:", "P4:")
-- CEO Review Decisions sections (these record choices, not work items)
+**忽略：**
+- 上下文/背景部分（`## Context`、`## Background`、`## Problem`）
+- 问题和未决项（标记为 ?、"TBD"、"TODO: decide"）
+- 审查报告部分（`## GSTACK REVIEW REPORT`）
+- 明确延迟的项（"Future:"、"Out of scope:"、"NOT in scope:"、"P2:"、"P3:"、"P4:"）
+- CEO 审查决策部分（这些记录选择，不是工作项）
 
-**Cap:** Extract at most 50 items. If the plan has more, note: "Showing top 50 of N plan items — full list in plan file."
+**上限：** 最多提取 50 项。如果计划有更多，注明："显示 N 个计划项中的前 50 个 — 完整列表在计划文件中。"
 
-**No items found:** If the plan contains no extractable actionable items, skip with: "Plan file contains no actionable items — skipping completion audit."
+**未找到项：** 如果计划不包含可提取的可操作项，跳过并提示："计划文件不包含可操作项 — 跳过完成审计。"
 
-For each item, note:
-- The item text (verbatim or concise summary)
-- Its category: CODE | TEST | MIGRATION | CONFIG | DOCS
+对于每个项，记录：
+- 项文本（逐字或简洁摘要）
+- 其类别：CODE | TEST | MIGRATION | CONFIG | DOCS
 
-### Cross-Reference Against Diff
+### 与 Diff 交叉引用
 
-Run `git diff origin/<base>...HEAD` and `git log origin/<base>..HEAD --oneline` to understand what was implemented.
+运行 `git diff origin/<base>...HEAD` 和 `git log origin/<base>..HEAD --oneline` 了解实现了什么。
 
-For each extracted plan item, check the diff and classify:
+对于每个提取的计划项，检查 diff 并分类：
 
-- **DONE** — Clear evidence in the diff that this item was implemented. Cite the specific file(s) changed.
-- **PARTIAL** — Some work toward this item exists in the diff but it's incomplete (e.g., model created but controller missing, function exists but edge cases not handled).
-- **NOT DONE** — No evidence in the diff that this item was addressed.
-- **CHANGED** — The item was implemented using a different approach than the plan described, but the same goal is achieved. Note the difference.
+- **DONE** — diff 中有明确证据表明此项已实现。引用变更的具体文件。
+- **PARTIAL** — diff 中存在此项的一些工作但不完整（例如模型已创建但控制器缺失，函数存在但边界情况未处理）。
+- **NOT DONE** — diff 中无证据表明此项已解决。
+- **CHANGED** — 使用与计划描述不同的方法实现了此项，但达到了相同目标。记录差异。
 
-**Be conservative with DONE** — require clear evidence in the diff. A file being touched is not enough; the specific functionality described must be present.
-**Be generous with CHANGED** — if the goal is met by different means, that counts as addressed.
+**对 DONE 保守** — 要求 diff 中有明确证据。仅触及文件不够；必须存在描述的具体功能。
+**对 CHANGED 慷慨** — 如果通过不同方式达到目标，算作已解决。
 
-### Output Format
+### 输出格式
 
 ```
-PLAN COMPLETION AUDIT
+计划完成审计
 ═══════════════════════════════
-Plan: {plan file path}
+计划：{plan file path}
 
-## Implementation Items
+## 实现项
   [DONE]      Create UserService — src/services/user_service.rb (+142 lines)
   [PARTIAL]   Add validation — model validates but missing controller checks
   [NOT DONE]  Add caching layer — no cache-related changes in diff
   [CHANGED]   "Redis queue" → implemented with Sidekiq instead
 
-## Test Items
+## 测试项
   [DONE]      Unit tests for UserService — test/services/user_service_test.rb
   [NOT DONE]  E2E test for signup flow
 
-## Migration Items
+## 迁移项
   [DONE]      Create users table — db/migrate/20240315_create_users.rb
 
 ─────────────────────────────────
-COMPLETION: 4/7 DONE, 1 PARTIAL, 1 NOT DONE, 1 CHANGED
+完成度：4/7 DONE, 1 PARTIAL, 1 NOT DONE, 1 CHANGED
 ─────────────────────────────────
 ```
 
-### Fallback Intent Sources (when no plan file found)
+### 回退意图来源（未找到计划文件时）
 
-When no plan file is detected, use these secondary intent sources:
+当未检测到计划文件时，使用这些次要意图来源：
 
 1. **Commit messages:** Run `git log origin/<base>..HEAD --oneline`. Use judgment to extract real intent:
    - Commits with actionable verbs ("add", "implement", "fix", "create", "remove", "update") are intent signals
@@ -877,20 +877,20 @@ When no plan file is detected, use these secondary intent sources:
 2. **TODOS.md:** If it exists, check for items related to this branch or recent dates
 3. **PR description:** Run `gh pr view --json body -q .body 2>/dev/null` for intent context
 
-**With fallback sources:** Apply the same Cross-Reference classification (DONE/PARTIAL/NOT DONE/CHANGED) using best-effort matching. Note that fallback-sourced items are lower confidence than plan-file items.
+**使用回退来源：** 使用相同的交叉引用分类（DONE/PARTIAL/NOT DONE/CHANGED）进行最佳匹配。注意回退来源的项比计划文件项置信度更低。
 
-### Investigation Depth
+### 调查深度
 
-For each PARTIAL or NOT DONE item, investigate WHY:
+对于每个 PARTIAL 或 NOT DONE 项，调查原因：
 
 1. Check `git log origin/<base>..HEAD --oneline` for commits that suggest the work was started, attempted, or reverted
 2. Read the relevant code to understand what was built instead
-3. Determine the likely reason from this list:
-   - **Scope cut** — evidence of intentional removal (revert commit, removed TODO)
-   - **Context exhaustion** — work started but stopped mid-way (partial implementation, no follow-up commits)
-   - **Misunderstood requirement** — something was built but it doesn't match what the plan described
-   - **Blocked by dependency** — plan item depends on something that isn't available
-   - **Genuinely forgotten** — no evidence of any attempt
+3. 从此列表确定可能原因：
+   - **范围削减** — 有意移除的证据（revert 提交、移除的 TODO）
+   - **上下文耗尽** — 工作已开始但中途停止（部分实现，无后续提交）
+   - **误解需求** — 构建了某些东西但与计划描述的不匹配
+   - **被依赖阻塞** — 计划项依赖于不可用的东西
+   - **真正遗忘** — 无任何尝试的证据
 
 Output for each discrepancy:
 ```
@@ -899,9 +899,9 @@ INVESTIGATION: {likely reason with evidence from git log / code}
 IMPACT: {HIGH|MEDIUM|LOW} — {what breaks or degrades if this stays undelivered}
 ```
 
-### Learnings Logging (plan-file discrepancies only)
+### 学习日志（仅限计划文件差异）
 
-**Only for discrepancies sourced from plan files** (not commit messages or TODOS.md), log a learning so future sessions know this pattern occurred:
+**仅针对源自计划文件的差异**（非提交消息或 TODOS.md），记录学习以便未来会话知道此模式发生过：
 
 ```bash
 ~/.claude/skills/gstack/bin/gstack-learnings-log '{
@@ -916,11 +916,11 @@ IMPACT: {HIGH|MEDIUM|LOW} — {what breaks or degrades if this stays undelivered
 
 Replace KEBAB_SUMMARY with a kebab-case summary of the gap, and fill in the actual values.
 
-**Do NOT log learnings from commit-message-derived or TODOS.md-derived discrepancies.** These are informational in the review output but too noisy for durable memory.
+**不要记录来自提交消息或 TODOS.md 差异的学习。** 这些在审查输出中是信息性的，但对持久记忆来说太嘈杂。
 
-### Integration with Scope Drift Detection
+### 与范围漂移检测的集成
 
-The plan completion results augment the existing Scope Drift Detection. If a plan file is found:
+计划完成结果增强了现有的范围漂移检测。如果找到计划文件：
 
 - **NOT DONE items** become additional evidence for **MISSING REQUIREMENTS** in the scope drift report.
 - **Items in the diff that don't match any plan item** become evidence for **SCOPE CREEP** detection.
@@ -928,9 +928,9 @@ The plan completion results augment the existing Scope Drift Detection. If a pla
   - Show the investigation findings
   - Options: A) Stop and implement missing items, B) Ship anyway + create P1 TODOs, C) Intentionally dropped
 
-This is **INFORMATIONAL** unless HIGH-impact discrepancies are found (then it gates via AskUserQuestion).
+这是**信息性的**，除非发现高影响差异（然后通过 AskUserQuestion 门控）。
 
-Update the scope drift output to include plan file context:
+更新范围漂移输出以包含计划文件上下文：
 
 ```
 Scope Check: [CLEAN / DRIFT DETECTED / REQUIREMENTS MISSING]
@@ -942,29 +942,29 @@ Plan items: N DONE, M PARTIAL, K NOT DONE
 [If scope creep: list each out-of-scope change not in the plan]
 ```
 
-**No plan file found:** Use commit messages and TODOS.md as fallback sources (see above). If no intent sources at all, skip with: "No intent sources detected — skipping completion audit."
+**未找到计划文件：** 使用提交消息和 TODOS.md 作为回退来源（见上文）。如果完全没有意图来源，跳过并提示："未检测到意图来源 — 跳过完成审计。"
 
-## Step 2: Read the checklist
+## 步骤 2：读取检查清单
 
-Read `.claude/skills/review/checklist.md`.
+读取 `.claude/skills/review/checklist.md`。
 
-**If the file cannot be read, STOP and report the error.** Do not proceed without the checklist.
-
----
-
-## Step 2.5: Check for Greptile review comments
-
-Read `.claude/skills/review/greptile-triage.md` and follow the fetch, filter, classify, and **escalation detection** steps.
-
-**If no PR exists, `gh` fails, API returns an error, or there are zero Greptile comments:** Skip this step silently. Greptile integration is additive — the review works without it.
-
-**If Greptile comments are found:** Store the classifications (VALID & ACTIONABLE, VALID BUT ALREADY FIXED, FALSE POSITIVE, SUPPRESSED) — you will need them in Step 5.
+**如果文件无法读取，STOP 并报告错误。** 没有检查清单不要继续。
 
 ---
 
-## Step 3: Get the diff
+## 步骤 2.5：检查 Greptile 审查评论
 
-Fetch the latest base branch to avoid false positives from stale local state:
+读取 `.claude/skills/review/greptile-triage.md` 并遵循获取、过滤、分类和**升级检测**步骤。
+
+**如果不存在 PR、`gh` 失败、API 返回错误或没有 Greptile 评论：** 静默跳过此步骤。Greptile 集成是附加的 — 没有它审查也能工作。
+
+**如果找到 Greptile 评论：** 存储分类（VALID & ACTIONABLE、VALID BUT ALREADY FIXED、FALSE POSITIVE、SUPPRESSED）— 您将在步骤 5 中需要它们。
+
+---
+
+## 步骤 3：获取 diff
+
+获取最新的基础分支以避免过时本地状态的误报：
 
 ```bash
 git fetch origin <base> --quiet
@@ -972,9 +972,9 @@ git fetch origin <base> --quiet
 
 Run `git diff origin/<base>` to get the full diff. This includes both committed and uncommitted changes against the latest base branch.
 
-## Step 3.4: Workspace-aware queue status (advisory)
+## 步骤 3.4：工作区感知队列状态（建议性）
 
-Check whether this PR's claimed VERSION still points at a free slot in the queue. Advisory only — never blocks review; just informs the reviewer about landing-order risk.
+检查此 PR 声称的 VERSION 是否仍指向队列中的空闲槽位。仅建议性 — 绝不阻塞审查；仅告知审查者着陆顺序风险。
 
 ```bash
 BRANCH_VERSION=$(git show HEAD:VERSION 2>/dev/null | tr -d '\r\n[:space:]' || echo "")
@@ -994,24 +994,22 @@ OFFLINE=$(echo "$QUEUE_JSON" | jq -r '.offline // false')
 
 ---
 
-## Step 3.5: Slop scan (advisory)
+## 步骤 3.5：Slop 扫描（建议性）
 
-Run a slop scan on changed files to catch AI code quality issues (empty catches,
-redundant `return await`, overcomplicated abstractions):
+对变更文件运行 slop 扫描以捕获 AI 代码质量问题（空 catch、
+冗余的 `return await`、过度复杂的抽象）：
 
 ```bash
 bun run slop:diff origin/<base> 2>/dev/null || true
 ```
 
-If findings are reported, include them in the review output as an informational
-diagnostic. Slop findings are advisory, never blocking. If slop:diff is not
-available (e.g., slop-scan not installed), skip this step silently.
+如果报告了发现，将它们作为信息性诊断包含在审查输出中。Slop 发现是建议性的，绝不阻塞。如果 slop:diff 不可用（例如未安装 slop-scan），静默跳过此步骤。
 
 ---
 
-## Prior Learnings
+## 先前学习
 
-Search for relevant learnings from previous sessions:
+搜索先前会话中的相关学习：
 
 ```bash
 _CROSS_PROJ=$(~/.claude/skills/gstack/bin/gstack-config get cross_project_learnings 2>/dev/null || echo "unset")
@@ -1039,35 +1037,33 @@ If B: run `~/.claude/skills/gstack/bin/gstack-config set cross_project_learnings
 
 Then re-run the search with the appropriate flag.
 
-If learnings are found, incorporate them into your analysis. When a review finding
-matches a past learning, display:
+如果找到学习，将它们纳入您的分析。当审查发现匹配过去的学习时，显示：
 
-**"Prior learning applied: [key] (confidence N/10, from [date])"**
+**"应用了先前学习：[key]（置信度 N/10，来自 [date]）"**
 
-This makes the compounding visible. The user should see that gstack is getting
-smarter on their codebase over time.
+这使复利效应可见。用户应该看到 gstack 随着时间在他们的代码库上变得更聪明。
 
-## Step 4: Critical pass (core review)
+## 步骤 4：关键检查（核心审查）
 
-Apply the CRITICAL categories from the checklist against the diff:
-SQL & Data Safety, Race Conditions & Concurrency, LLM Output Trust Boundary, Shell Injection, Enum & Value Completeness.
+对 diff 应用检查清单中的 CRITICAL 类别：
+SQL 和数据安全、竞态条件和并发、LLM 输出信任边界、Shell 注入、枚举和值完整性。
 
-Also apply the remaining INFORMATIONAL categories that are still in the checklist (Async/Sync Mixing, Column/Field Name Safety, LLM Prompt Issues, Type Coercion, View/Frontend, Time Window Safety, Completeness Gaps, Distribution & CI/CD).
+还应用检查清单中剩余的 INFORMATIONAL 类别（异步/同步混合、列/字段名安全、LLM 提示问题、类型强制、视图/前端、时间窗口安全、完整性空白、分发和 CI/CD）。
 
-**Enum & Value Completeness requires reading code OUTSIDE the diff.** When the diff introduces a new enum value, status, tier, or type constant, use Grep to find all files that reference sibling values, then Read those files to check if the new value is handled. This is the one category where within-diff review is insufficient.
+**枚举和值完整性需要读取 diff 外部的代码。** 当 diff 引入新的枚举值、状态、层级或类型常量时，使用 Grep 查找所有引用同级值的文件，然后读取这些文件检查新值是否被处理。这是 diff 内审查不足的唯一类别。
 
-**Search-before-recommending:** When recommending a fix pattern (especially for concurrency, caching, auth, or framework-specific behavior):
-- Verify the pattern is current best practice for the framework version in use
-- Check if a built-in solution exists in newer versions before recommending a workaround
-- Verify API signatures against current docs (APIs change between versions)
+**推荐前搜索：** 推荐修复模式时（特别是并发、缓存、认证或框架特定行为）：
+- 验证该模式是当前使用框架版本的最佳实践
+- 在推荐变通方案之前检查新版本中是否存在内置解决方案
+- 根据当前文档验证 API 签名（API 在版本间会变化）
 
-Takes seconds, prevents recommending outdated patterns. If WebSearch is unavailable, note it and proceed with in-distribution knowledge.
+只需几秒，防止推荐过时模式。如果 WebSearch 不可用，注明并使用分布内知识继续。
 
-Follow the output format specified in the checklist. Respect the suppressions — do NOT flag items listed in the "DO NOT flag" section.
+遵循检查清单中指定的输出格式。尊重抑制 — 不要标记"不要标记"部分中列出的项。
 
-## Confidence Calibration
+## 置信度校准
 
-Every finding MUST include a confidence score (1-10):
+每个发现必须包含置信度分数（1-10）：
 
 | Score | Meaning | Display rule |
 |-------|---------|-------------|
@@ -1085,16 +1081,13 @@ Example:
 \`[P1] (confidence: 9/10) app/models/user.rb:42 — SQL injection via string interpolation in where clause\`
 \`[P2] (confidence: 5/10) app/controllers/api/v1/users_controller.rb:18 — Possible N+1 query, verify with production logs\`
 
-**Calibration learning:** If you report a finding with confidence < 7 and the user
-confirms it IS a real issue, that is a calibration event. Your initial confidence was
-too low. Log the corrected pattern as a learning so future reviews catch it with
-higher confidence.
+**校准学习：** 如果您报告了置信度 < 7 的发现且用户确认它是真实问题，这是一个校准事件。您的初始置信度太低。将更正后的模式记录为学习，以便未来审查以更高置信度捕获它。
 
 ---
 
-## Step 4.5: Review Army — Specialist Dispatch
+## 步骤 4.5：审查军团 — 专家调度
 
-### Detect stack and scope
+### 检测技术栈和范围
 
 ```bash
 source <(~/.claude/skills/gstack/bin/gstack-diff-scope <base> 2>/dev/null) || true
@@ -1120,49 +1113,49 @@ TEST_FW=""
 echo "TEST_FW: ${TEST_FW:-unknown}"
 ```
 
-### Read specialist hit rates (adaptive gating)
+### 读取专家命中率（自适应门控）
 
 ```bash
 ~/.claude/skills/gstack/bin/gstack-specialist-stats 2>/dev/null || true
 ```
 
-### Select specialists
+### 选择专家
 
-Based on the scope signals above, select which specialists to dispatch.
+根据上述范围信号，选择要调度的专家。
 
-**Always-on (dispatch on every review with 50+ changed lines):**
-1. **Testing** — read `~/.claude/skills/gstack/review/specialists/testing.md`
-2. **Maintainability** — read `~/.claude/skills/gstack/review/specialists/maintainability.md`
+**始终开启（每次审查 50+ 变更行时调度）：**
+1. **测试** — 读取 `~/.claude/skills/gstack/review/specialists/testing.md`
+2. **可维护性** — 读取 `~/.claude/skills/gstack/review/specialists/maintainability.md`
 
-**If DIFF_LINES < 50:** Skip all specialists. Print: "Small diff ($DIFF_LINES lines) — specialists skipped." Continue to Step 5.
+**如果 DIFF_LINES < 50：** 跳过所有专家。打印："小 diff（$DIFF_LINES 行）— 专家已跳过。"继续步骤 5。
 
-**Conditional (dispatch if the matching scope signal is true):**
+**条件性（如果匹配的范围信号为 true 则调度）：**
 3. **Security** — if SCOPE_AUTH=true, OR if SCOPE_BACKEND=true AND DIFF_LINES > 100. Read `~/.claude/skills/gstack/review/specialists/security.md`
 4. **Performance** — if SCOPE_BACKEND=true OR SCOPE_FRONTEND=true. Read `~/.claude/skills/gstack/review/specialists/performance.md`
 5. **Data Migration** — if SCOPE_MIGRATIONS=true. Read `~/.claude/skills/gstack/review/specialists/data-migration.md`
 6. **API Contract** — if SCOPE_API=true. Read `~/.claude/skills/gstack/review/specialists/api-contract.md`
 7. **Design** — if SCOPE_FRONTEND=true. Use the existing design review checklist at `~/.claude/skills/gstack/review/design-checklist.md`
 
-### Adaptive gating
+### 自适应门控
 
-After scope-based selection, apply adaptive gating based on specialist hit rates:
+基于范围选择后，根据专家命中率应用自适应门控：
 
-For each conditional specialist that passed scope gating, check the `gstack-specialist-stats` output above:
-- If tagged `[GATE_CANDIDATE]` (0 findings in 10+ dispatches): skip it. Print: "[specialist] auto-gated (0 findings in N reviews)."
-- If tagged `[NEVER_GATE]`: always dispatch regardless of hit rate. Security and data-migration are insurance policy specialists — they should run even when silent.
+对于通过范围门控的每个条件专家，检查上面的 `gstack-specialist-stats` 输出：
+- 如果标记为 `[GATE_CANDIDATE]`（10+ 次调度中 0 个发现）：跳过它。打印："[specialist] 自动门控（N 次审查中 0 个发现）。"
+- 如果标记为 `[NEVER_GATE]`：无论命中率如何始终调度。安全和数据迁移是保险策略专家 — 即使沉默也应运行。
 
-**Force flags:** If the user's prompt includes `--security`, `--performance`, `--testing`, `--maintainability`, `--data-migration`, `--api-contract`, `--design`, or `--all-specialists`, force-include that specialist regardless of gating.
+**强制标志：** 如果用户提示包含 `--security`、`--performance`、`--testing`、`--maintainability`、`--data-migration`、`--api-contract`、`--design` 或 `--all-specialists`，无论门控如何强制包含该专家。
 
-Note which specialists were selected, gated, and skipped. Print the selection:
-"Dispatching N specialists: [names]. Skipped: [names] (scope not detected). Gated: [names] (0 findings in N+ reviews)."
+记录哪些专家被选择、门控和跳过。打印选择：
+"调度 N 个专家：[names]。跳过：[names]（未检测到范围）。门控：[names]（N+ 次审查中 0 个发现）。"
 
 ---
 
-### Dispatch specialists in parallel
+### 并行调度专家
 
-For each selected specialist, launch an independent subagent via the Agent tool.
-**Launch ALL selected specialists in a single message** (multiple Agent tool calls)
-so they run in parallel. Each subagent has fresh context — no prior review bias.
+对于每个选定的专家，通过 Agent 工具启动独立的子代理。
+**在单条消息中启动所有选定的专家**（多个 Agent 工具调用）
+以便它们并行运行。每个子代理有全新的上下文 — 无先前审查偏差。
 
 **Each specialist subagent prompt:**
 
@@ -1202,24 +1195,24 @@ Past learnings: {learnings or 'none'}
 CHECKLIST:
 {checklist content}"
 
-**Subagent configuration:**
-- Use `subagent_type: "general-purpose"`
-- Do NOT use `run_in_background` — all specialists must complete before merge
-- If any specialist subagent fails or times out, log the failure and continue with results from successful specialists. Specialists are additive — partial results are better than no results.
+**子代理配置：**
+- 使用 `subagent_type: "general-purpose"`
+- 不要使用 `run_in_background` — 所有专家必须在合并前完成
+- 如果任何专家子代理失败或超时，记录失败并继续使用成功专家的结果。专家是附加的 — 部分结果优于无结果。
 
 ---
 
-### Step 4.6: Collect and merge findings
+### 步骤 4.6：收集和合并发现
 
-After all specialist subagents complete, collect their outputs.
+所有专家子代理完成后，收集它们的输出。
 
-**Parse findings:**
-For each specialist's output:
-1. If output is "NO FINDINGS" — skip, this specialist found nothing
-2. Otherwise, parse each line as a JSON object. Skip lines that are not valid JSON.
-3. Collect all parsed findings into a single list, tagged with their specialist name.
+**解析发现：**
+对于每个专家的输出：
+1. 如果输出是 "NO FINDINGS" — 跳过，此专家未发现任何内容
+2. 否则，将每行解析为 JSON 对象。跳过非有效 JSON 的行。
+3. 将所有解析的发现收集到单个列表中，标记其专家名称。
 
-**Fingerprint and deduplicate:**
+**指纹和去重：**
 For each finding, compute its fingerprint:
 - If `fingerprint` field is present, use it
 - Otherwise: `{path}:{line}:{category}` (if line is present) or `{path}:{category}`
@@ -1230,35 +1223,35 @@ Group findings by fingerprint. For findings sharing the same fingerprint:
 - Boost confidence by +1 (cap at 10)
 - Note the confirming specialists in the output
 
-**Apply confidence gates:**
-- Confidence 7+: show normally in the findings output
-- Confidence 5-6: show with caveat "Medium confidence — verify this is actually an issue"
-- Confidence 3-4: move to appendix (suppress from main findings)
-- Confidence 1-2: suppress entirely
+**应用置信度门控：**
+- 置信度 7+：在发现输出中正常显示
+- 置信度 5-6：带警告显示"中等置信度 — 验证这是否确实是问题"
+- 置信度 3-4：移到附录（从主发现中抑制）
+- 置信度 1-2：完全抑制
 
-**Compute PR Quality Score:**
-After merging, compute the quality score:
+**计算 PR 质量分数：**
+合并后，计算质量分数：
 `quality_score = max(0, 10 - (critical_count * 2 + informational_count * 0.5))`
-Cap at 10. Log this in the review result at the end.
+上限为 10。在最终审查结果中记录。
 
-**Output merged findings:**
-Present the merged findings in the same format as the current review:
+**输出合并发现：**
+以与当前审查相同的格式呈现合并发现：
 
 ```
-SPECIALIST REVIEW: N findings (X critical, Y informational) from Z specialists
+专家审查：N 个发现（X 个关键，Y 个信息性）来自 Z 个专家
 
 [For each finding, in order: CRITICAL first, then INFORMATIONAL, sorted by confidence descending]
 [SEVERITY] (confidence: N/10, specialist: name) path:line — summary
   Fix: recommended fix
   [If MULTI-SPECIALIST CONFIRMED: show confirmation note]
 
-PR Quality Score: X/10
+PR 质量分数：X/10
 ```
 
-These findings flow into Step 5 Fix-First alongside the CRITICAL pass findings from Step 4.
-The Fix-First heuristic applies identically — specialist findings follow the same AUTO-FIX vs ASK classification.
+这些发现与步骤 4 的 CRITICAL 检查发现一起流入步骤 5 Fix-First。
+Fix-First 启发式同样适用 — 专家发现遵循相同的 AUTO-FIX vs ASK 分类。
 
-**Compile per-specialist stats:**
+**编译每个专家的统计：**
 After merging findings, compile a `specialists` object for the review-log entry in Step 5.8.
 For each specialist (testing, maintainability, security, performance, data-migration, api-contract, design, red-team):
 - If dispatched: `{"dispatched": true, "findings": N, "critical": N, "informational": N}`
@@ -1266,14 +1259,14 @@ For each specialist (testing, maintainability, security, performance, data-migra
 - If skipped by gating: `{"dispatched": false, "reason": "gated"}`
 - If not applicable (e.g., red-team not activated): omit from the object
 
-Include the Design specialist even though it uses `design-checklist.md` instead of the specialist schema files.
-Remember these stats — you will need them for the review-log entry in Step 5.8.
+即使设计专家使用 `design-checklist.md` 而不是专家 schema 文件，也要包含它。
+记住这些统计 — 您将在步骤 5.8 的审查日志条目中需要它们。
 
 ---
 
-### Red Team dispatch (conditional)
+### 红队调度（条件性）
 
-**Activation:** Only if DIFF_LINES > 200 OR any specialist produced a CRITICAL finding.
+**激活：** 仅当 DIFF_LINES > 200 或任何专家产生 CRITICAL 发现时。
 
 If activated, dispatch one more subagent via the Agent tool (foreground, not background).
 
@@ -1289,21 +1282,20 @@ Output findings as JSON objects (same schema as the specialists). Focus on cross
 concerns, integration boundary issues, and failure modes that specialist checklists
 don't cover."
 
-If the Red Team finds additional issues, merge them into the findings list before
-Step 5 Fix-First. Red Team findings are tagged with `"specialist":"red-team"`.
+如果红队发现额外问题，在步骤 5 Fix-First 之前将它们合并到发现列表中。红队发现标记为 `"specialist":"red-team"`。
 
-If the Red Team returns NO FINDINGS, note: "Red Team review: no additional issues found."
-If the Red Team subagent fails or times out, skip silently and continue.
+如果红队返回 NO FINDINGS，注明："红队审查：未发现额外问题。"
+如果红队子代理失败或超时，静默跳过并继续。
 
 ---
 
-## Step 5: Fix-First Review
+## 步骤 5：Fix-First 审查
 
-**Every finding gets action — not just critical ones.**
+**每个发现都得到处理 — 不仅仅是关键的。**
 
-### Step 5.0: Cross-review finding dedup
+### 步骤 5.0：跨审查发现去重
 
-Before classifying findings, check if any were previously skipped by the user in a prior review on this branch.
+在分类发现之前，检查是否有在此分支的先前审查中被用户跳过的。
 
 ```bash
 ~/.claude/skills/gstack/bin/gstack-review-read
@@ -1329,13 +1321,13 @@ If both conditions are true: suppress the finding. It was intentionally skipped 
 
 Print: "Suppressed N findings from prior reviews (previously skipped by user)"
 
-**Only suppress `skipped` findings — never `fixed` or `auto-fixed`** (those might regress and should be re-checked).
+**仅抑制 `skipped` 发现 — 绝不抑制 `fixed` 或 `auto-fixed`**（那些可能回归，应重新检查）。
 
-If no prior reviews exist or none have a `findings` array, skip this step silently.
+如果不存在先前审查或没有 `findings` 数组，静默跳过此步骤。
 
-Output a summary header: `Pre-Landing Review: N issues (X critical, Y informational)`
+输出摘要头：`着陆前审查：N 个问题（X 个关键，Y 个信息性）`
 
-### Step 5a: Classify each finding
+### 步骤 5a：分类每个发现
 
 For each finding, classify as AUTO-FIX or ASK per the Fix-First Heuristic in
 checklist.md. Critical findings lean toward ASK; informational findings lean
@@ -1349,12 +1341,12 @@ the finding's `path` using project conventions (`spec/` for RSpec, `__tests__/` 
 Jest/Vitest, `test_` prefix for pytest, `_test.go` suffix for Go). If the test file
 already exists, append the new test. Output: `[FIXED + TEST] [file:line] Problem -> fix + test at [test_path]`
 
-### Step 5b: Auto-fix all AUTO-FIX items
+### 步骤 5b：自动修复所有 AUTO-FIX 项
 
-Apply each fix directly. For each one, output a one-line summary:
-`[AUTO-FIXED] [file:line] Problem → what you did`
+直接应用每个修复。对每个修复，输出一行摘要：
+`[AUTO-FIXED] [file:line] 问题 → 您做了什么`
 
-### Step 5c: Batch-ask about ASK items
+### 步骤 5c：批量询问 ASK 项
 
 If there are ASK items remaining, present them in ONE AskUserQuestion:
 
@@ -1379,13 +1371,13 @@ RECOMMENDATION: Fix both — #1 is a real race condition, #2 prevents silent dat
 
 If 3 or fewer ASK items, you may use individual AskUserQuestion calls instead of batching.
 
-### Step 5d: Apply user-approved fixes
+### 步骤 5d：应用用户批准的修复
 
-Apply fixes for items where the user chose "Fix." Output what was fixed.
+应用用户选择"修复"的项的修复。输出修复了什么。
 
-If no ASK items exist (everything was AUTO-FIX), skip the question entirely.
+如果没有 ASK 项（所有都是 AUTO-FIX），完全跳过问题。
 
-### Verification of claims
+### 声明验证
 
 Before producing the final review output:
 - If you claim "this pattern is safe" → cite the specific line proving safety
@@ -1395,9 +1387,9 @@ Before producing the final review output:
 
 **Rationalization prevention:** "This looks fine" is not a finding. Either cite evidence it IS fine, or flag it as unverified.
 
-### Greptile comment resolution
+### Greptile 评论解决
 
-After outputting your own findings, if Greptile comments were classified in Step 2.5:
+输出自己的发现后，如果在步骤 2.5 中分类了 Greptile 评论：
 
 **Include a Greptile summary in your output header:** `+ N Greptile comments (X valid, Y fixed, Z FP)`
 
@@ -1423,9 +1415,9 @@ Before replying to any comment, run the **Escalation Detection** algorithm from 
 
 ---
 
-## Step 5.5: TODOS cross-reference
+## 步骤 5.5：TODOS 交叉引用
 
-Read `TODOS.md` in the repository root (if it exists). Cross-reference the PR against open TODOs:
+读取仓库根目录中的 `TODOS.md`（如果存在）。将 PR 与开放的 TODO 交叉引用：
 
 - **Does this PR close any open TODOs?** If yes, note which items in your output: "This PR addresses TODO: <title>"
 - **Does this PR create work that should become a TODO?** If yes, flag it as an informational finding.
@@ -1435,25 +1427,25 @@ If TODOS.md doesn't exist, skip this step silently.
 
 ---
 
-## Step 5.6: Documentation staleness check
+## 步骤 5.6：文档过时检查
 
-Cross-reference the diff against documentation files. For each `.md` file in the repo root (README.md, ARCHITECTURE.md, CONTRIBUTING.md, CLAUDE.md, etc.):
+将 diff 与文档文件交叉引用。对于仓库根目录中的每个 `.md` 文件（README.md、ARCHITECTURE.md、CONTRIBUTING.md、CLAUDE.md 等）：
 
 1. Check if code changes in the diff affect features, components, or workflows described in that doc file.
 2. If the doc file was NOT updated in this branch but the code it describes WAS changed, flag it as an INFORMATIONAL finding:
    "Documentation may be stale: [file] describes [feature/component] but code changed in this branch. Consider running `/document-release`."
 
-This is informational only — never critical. The fix action is `/document-release`.
+这仅是信息性的 — 绝不是关键的。修复操作是 `/document-release`。
 
-If no documentation files exist, skip this step silently.
+如果不存在文档文件，静默跳过此步骤。
 
 ---
 
-## Step 5.7: Adversarial review (always-on)
+## 步骤 5.7：对抗性审查（始终开启）
 
-Every diff gets adversarial review from both Claude and Codex. LOC is not a proxy for risk — a 5-line auth change can be critical.
+每个 diff 都会获得来自 Claude 和 Codex 的对抗性审查。LOC 不是风险的代理指标 — 5 行认证变更可能是关键的。
 
-**Detect diff size and tool availability:**
+**检测 diff 大小和工具可用性：**
 
 ```bash
 DIFF_INS=$(git diff origin/<base> --stat | tail -1 | grep -oE '[0-9]+ insertion' | grep -oE '[0-9]+' || echo "0")
@@ -1466,26 +1458,26 @@ echo "DIFF_SIZE: $DIFF_TOTAL"
 echo "OLD_CFG: ${OLD_CFG:-not_set}"
 ```
 
-If `OLD_CFG` is `disabled`: skip Codex passes only. Claude adversarial subagent still runs (it's free and fast). Jump to the "Claude adversarial subagent" section.
+如果 `OLD_CFG` 为 `disabled`：仅跳过 Codex 检查。Claude 对抗性子代理仍然运行（免费且快速）。跳转到"Claude 对抗性子代理"部分。
 
-**User override:** If the user explicitly requested "full review", "structured review", or "P1 gate", also run the Codex structured review regardless of diff size.
+**用户覆盖：** 如果用户明确请求"完整审查"、"结构化审查"或"P1 门控"，无论 diff 大小也运行 Codex 结构化审查。
 
 ---
 
-### Claude adversarial subagent (always runs)
+### Claude 对抗性子代理（始终运行）
 
-Dispatch via the Agent tool. The subagent has fresh context — no checklist bias from the structured review. This genuine independence catches things the primary reviewer is blind to.
+通过 Agent 工具调度。子代理有全新的上下文 — 无结构化审查的检查清单偏差。这种真正的独立性捕获了主审查者看不到的东西。
 
 Subagent prompt:
 "Read the diff for this branch with `git diff origin/<base>`. Think like an attacker and a chaos engineer. Your job is to find ways this code will fail in production. Look for: edge cases, race conditions, security holes, resource leaks, failure modes, silent data corruption, logic errors that produce wrong results silently, error handling that swallows failures, and trust boundary violations. Be adversarial. Be thorough. No compliments — just the problems. For each finding, classify as FIXABLE (you know how to fix it) or INVESTIGATE (needs human judgment)."
 
-Present findings under an `ADVERSARIAL REVIEW (Claude subagent):` header. **FIXABLE findings** flow into the same Fix-First pipeline as the structured review. **INVESTIGATE findings** are presented as informational.
+在 `对抗性审查（Claude 子代理）：` 标题下呈现发现。**FIXABLE 发现**流入与结构化审查相同的 Fix-First 管道。**INVESTIGATE 发现**作为信息性呈现。
 
-If the subagent fails or times out: "Claude adversarial subagent unavailable. Continuing."
+如果子代理失败或超时："Claude 对抗性子代理不可用。继续。"
 
 ---
 
-### Codex adversarial challenge (always runs when available)
+### Codex 对抗性挑战（可用时始终运行）
 
 If Codex is available AND `OLD_CFG` is NOT `disabled`:
 
@@ -1500,9 +1492,9 @@ Set the Bash tool's `timeout` parameter to `300000` (5 minutes). Do NOT use the 
 cat "$TMPERR_ADV"
 ```
 
-Present the full output verbatim. This is informational — it never blocks shipping.
+逐字呈现完整输出。这是信息性的 — 绝不阻塞发布。
 
-**Error handling:** All errors are non-blocking — adversarial review is a quality enhancement, not a prerequisite.
+**错误处理：** 所有错误都是非阻塞的 — 对抗性审查是质量增强，不是先决条件。
 - **Auth failure:** If stderr contains "auth", "login", "unauthorized", or "API key": "Codex authentication failed. Run \`codex login\` to authenticate."
 - **Timeout:** "Codex timed out after 5 minutes."
 - **Empty response:** "Codex returned no response. Stderr: <paste relevant error>."
@@ -1513,7 +1505,7 @@ If Codex is NOT available: "Codex CLI not found — running Claude adversarial o
 
 ---
 
-### Codex structured review (large diffs only, 200+ lines)
+### Codex 结构化审查（仅大 diff，200+ 行）
 
 If `DIFF_TOTAL >= 200` AND Codex is available AND `OLD_CFG` is NOT `disabled`:
 
@@ -1545,9 +1537,9 @@ If `DIFF_TOTAL < 200`: skip this section silently. The Claude + Codex adversaria
 
 ---
 
-### Persist the review result
+### 持久化审查结果
 
-After all passes complete, persist:
+所有检查完成后，持久化：
 ```bash
 ~/.claude/skills/gstack/bin/gstack-review-log '{"skill":"adversarial-review","timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'","status":"STATUS","source":"SOURCE","tier":"always","gate":"GATE","commit":"'"$(git rev-parse --short HEAD)"'"}'
 ```
@@ -1555,29 +1547,29 @@ Substitute: STATUS = "clean" if no findings across ALL passes, "issues_found" if
 
 ---
 
-### Cross-model synthesis
+### 跨模型综合
 
-After all passes complete, synthesize findings across all sources:
+所有检查完成后，综合所有来源的发现：
 
 ```
 ADVERSARIAL REVIEW SYNTHESIS (always-on, N lines):
 ════════════════════════════════════════════════════════════
-  High confidence (found by multiple sources): [findings agreed on by >1 pass]
-  Unique to Claude structured review: [from earlier step]
-  Unique to Claude adversarial: [from subagent]
-  Unique to Codex: [from codex adversarial or code review, if ran]
-  Models used: Claude structured ✓  Claude adversarial ✓/✗  Codex ✓/✗
+  高置信度（多个来源发现）：[>1 次检查同意的发现]
+  Claude 结构化审查独有：[来自早期步骤]
+  Claude 对抗性独有：[来自子代理]
+  Codex 独有：[来自 codex 对抗性或代码审查，如果运行了]
+  使用的模型：Claude 结构化 ✓  Claude 对抗性 ✓/✗  Codex ✓/✗
 ════════════════════════════════════════════════════════════
 ```
 
-High-confidence findings (agreed on by multiple sources) should be prioritized for fixes.
+高置信度发现（多个来源同意的）应优先修复。
 
 ---
 
-## Step 5.8: Persist Eng Review result
+## 步骤 5.8：持久化工程审查结果
 
-After all review passes complete, persist the final `/review` outcome so `/ship` can
-recognize that Eng Review was run on this branch.
+所有审查检查完成后，持久化最终 `/review` 结果，以便 `/ship` 可以
+识别工程审查已在此分支上运行。
 
 Run:
 
@@ -1596,10 +1588,9 @@ Substitute:
 - `findings` = array of per-finding records from Step 5. For each finding (from critical pass and specialists), include: `{"fingerprint":"path:line:category","severity":"CRITICAL|INFORMATIONAL","action":"ACTION"}`. ACTION is `"auto-fixed"` (Step 5b), `"fixed"` (user approved in Step 5d), or `"skipped"` (user chose Skip in Step 5c). Suppressed findings from Step 5.0 are NOT included (they were already recorded in a prior review entry).
 - `COMMIT` = output of `git rev-parse --short HEAD`
 
-## Capture Learnings
+## 捕获学习
 
-If you discovered a non-obvious pattern, pitfall, or architectural insight during
-this session, log it for future sessions:
+如果在此会话中发现了不明显的模式、陷阱或架构洞察，记录下来供未来会话使用：
 
 ```bash
 ~/.claude/skills/gstack/bin/gstack-learnings-log '{"skill":"review","type":"TYPE","key":"SHORT_KEY","insight":"DESCRIPTION","confidence":N,"source":"SOURCE","files":["path/to/relevant/file"]}'
@@ -1621,12 +1612,12 @@ staleness detection: if those files are later deleted, the learning can be flagg
 **Only log genuine discoveries.** Don't log obvious things. Don't log things the user
 already knows. A good test: would this insight save time in a future session? If yes, log it.
 
-If the review exits early before a real review completes (for example, no diff against the base branch), do **not** write this entry.
+如果审查在真正完成之前提前退出（例如，相对于基础分支没有 diff），**不要**写入此条目。
 
-## Important Rules
+## 重要规则
 
-- **Read the FULL diff before commenting.** Do not flag issues already addressed in the diff.
-- **Fix-first, not read-only.** AUTO-FIX items are applied directly. ASK items are only applied after user approval. Never commit, push, or create PRs — that's /ship's job.
-- **Be terse.** One line problem, one line fix. No preamble.
-- **Only flag real problems.** Skip anything that's fine.
-- **Use Greptile reply templates from greptile-triage.md.** Every reply includes evidence. Never post vague replies.
+- **评论前读取完整 diff。** 不要标记 diff 中已解决的问题。
+- **修复优先，非只读。** AUTO-FIX 项直接应用。ASK 项仅在用户批准后应用。绝不提交、推送或创建 PR — 那是 /ship 的工作。
+- **简洁。** 一行问题，一行修复。无前言。
+- **只标记真正的问题。** 跳过任何正常的。
+- **使用 greptile-triage.md 中的 Greptile 回复模板。** 每个回复都包含证据。绝不发布模糊回复。

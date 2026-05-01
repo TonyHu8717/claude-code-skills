@@ -1,76 +1,76 @@
 ---
 name: fastapi-templates
-description: Create production-ready FastAPI projects with async patterns, dependency injection, and comprehensive error handling. Use when building new FastAPI applications or setting up backend API projects.
+description: 创建生产就绪的 FastAPI 项目，包含异步模式、依赖注入和全面的错误处理。在构建新的 FastAPI 项目或设置后端 API 项目时使用。
 ---
 
-# FastAPI Project Templates
+# FastAPI 项目模板
 
-Production-ready FastAPI project structures with async patterns, dependency injection, middleware, and best practices for building high-performance APIs.
+生产就绪的 FastAPI 项目结构，包含异步模式、依赖注入、中间件和构建高性能 API 的最佳实践。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Starting new FastAPI projects from scratch
-- Implementing async REST APIs with Python
-- Building high-performance web services and microservices
-- Creating async applications with PostgreSQL, MongoDB
-- Setting up API projects with proper structure and testing
+- 从零开始启动新的 FastAPI 项目
+- 使用 Python 实现异步 REST API
+- 构建高性能 Web 服务和微服务
+- 使用 PostgreSQL、MongoDB 创建异步应用程序
+- 设置具有适当结构和测试的 API 项目
 
-## Core Concepts
+## 核心概念
 
-### 1. Project Structure
+### 1. 项目结构
 
-**Recommended Layout:**
+**推荐布局：**
 
 ```
 app/
-├── api/                    # API routes
+├── api/                    # API 路由
 │   ├── v1/
 │   │   ├── endpoints/
 │   │   │   ├── users.py
 │   │   │   ├── auth.py
 │   │   │   └── items.py
 │   │   └── router.py
-│   └── dependencies.py     # Shared dependencies
-├── core/                   # Core configuration
+│   └── dependencies.py     # 共享依赖
+├── core/                   # 核心配置
 │   ├── config.py
 │   ├── security.py
 │   └── database.py
-├── models/                 # Database models
+├── models/                 # 数据库模型
 │   ├── user.py
 │   └── item.py
-├── schemas/                # Pydantic schemas
+├── schemas/                # Pydantic 模式
 │   ├── user.py
 │   └── item.py
-├── services/               # Business logic
+├── services/               # 业务逻辑
 │   ├── user_service.py
 │   └── auth_service.py
-├── repositories/           # Data access
+├── repositories/           # 数据访问
 │   ├── user_repository.py
 │   └── item_repository.py
-└── main.py                 # Application entry
+└── main.py                 # 应用入口
 ```
 
-### 2. Dependency Injection
+### 2. 依赖注入
 
-FastAPI's built-in DI system using `Depends`:
+FastAPI 内置的 DI 系统使用 `Depends`：
 
-- Database session management
-- Authentication/authorization
-- Shared business logic
-- Configuration injection
+- 数据库会话管理
+- 认证/授权
+- 共享业务逻辑
+- 配置注入
 
-### 3. Async Patterns
+### 3. 异步模式
 
-Proper async/await usage:
+正确的 async/await 用法：
 
-- Async route handlers
-- Async database operations
-- Async background tasks
-- Async middleware
+- 异步路由处理器
+- 异步数据库操作
+- 异步后台任务
+- 异步中间件
 
-## Implementation Patterns
+## 实现模式
 
-### Pattern 1: Complete FastAPI Application
+### 模式 1：完整的 FastAPI 应用
 
 ```python
 # main.py
@@ -80,11 +80,11 @@ from contextlib import asynccontextmanager
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Application lifespan events."""
-    # Startup
+    """应用生命周期事件。"""
+    # 启动
     await database.connect()
     yield
-    # Shutdown
+    # 关闭
     await database.disconnect()
 
 app = FastAPI(
@@ -93,7 +93,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS middleware
+# CORS 中间件
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -102,7 +102,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
+# 包含路由
 from app.api.v1.router import api_router
 app.include_router(api_router, prefix="/api/v1")
 
@@ -111,7 +111,7 @@ from pydantic_settings import BaseSettings
 from functools import lru_cache
 
 class Settings(BaseSettings):
-    """Application settings."""
+    """应用设置。"""
     DATABASE_URL: str
     SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
@@ -147,7 +147,7 @@ AsyncSessionLocal = sessionmaker(
 Base = declarative_base()
 
 async def get_db() -> AsyncSession:
-    """Dependency for database session."""
+    """数据库会话依赖。"""
     async with AsyncSessionLocal() as session:
         try:
             yield session
@@ -159,7 +159,7 @@ async def get_db() -> AsyncSession:
             await session.close()
 ```
 
-### Pattern 2: CRUD Repository Pattern
+### 模式 2：CRUD 仓库模式
 
 ```python
 # repositories/base_repository.py
@@ -173,13 +173,13 @@ CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
-    """Base repository for CRUD operations."""
+    """CRUD 操作的基础仓库。"""
 
     def __init__(self, model: Type[ModelType]):
         self.model = model
 
     async def get(self, db: AsyncSession, id: int) -> Optional[ModelType]:
-        """Get by ID."""
+        """按 ID 获取。"""
         result = await db.execute(
             select(self.model).where(self.model.id == id)
         )
@@ -191,7 +191,7 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         skip: int = 0,
         limit: int = 100
     ) -> List[ModelType]:
-        """Get multiple records."""
+        """获取多条记录。"""
         result = await db.execute(
             select(self.model).offset(skip).limit(limit)
         )
@@ -202,7 +202,7 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db: AsyncSession,
         obj_in: CreateSchemaType
     ) -> ModelType:
-        """Create new record."""
+        """创建新记录。"""
         db_obj = self.model(**obj_in.dict())
         db.add(db_obj)
         await db.flush()
@@ -215,7 +215,7 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db_obj: ModelType,
         obj_in: UpdateSchemaType
     ) -> ModelType:
-        """Update record."""
+        """更新记录。"""
         update_data = obj_in.dict(exclude_unset=True)
         for field, value in update_data.items():
             setattr(db_obj, field, value)
@@ -224,7 +224,7 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return db_obj
 
     async def delete(self, db: AsyncSession, id: int) -> bool:
-        """Delete record."""
+        """删除记录。"""
         obj = await self.get(db, id)
         if obj:
             await db.delete(obj)
@@ -237,24 +237,24 @@ from app.models.user import User
 from app.schemas.user import UserCreate, UserUpdate
 
 class UserRepository(BaseRepository[User, UserCreate, UserUpdate]):
-    """User-specific repository."""
+    """用户特定仓库。"""
 
     async def get_by_email(self, db: AsyncSession, email: str) -> Optional[User]:
-        """Get user by email."""
+        """按邮箱获取用户。"""
         result = await db.execute(
             select(User).where(User.email == email)
         )
         return result.scalars().first()
 
     async def is_active(self, db: AsyncSession, user_id: int) -> bool:
-        """Check if user is active."""
+        """检查用户是否活跃。"""
         user = await self.get(db, user_id)
         return user.is_active if user else False
 
 user_repository = UserRepository(User)
 ```
 
-### Pattern 3: Service Layer
+### 模式 3：服务层
 
 ```python
 # services/user_service.py
@@ -265,7 +265,7 @@ from app.schemas.user import UserCreate, UserUpdate, User
 from app.core.security import get_password_hash, verify_password
 
 class UserService:
-    """Business logic for users."""
+    """用户的业务逻辑。"""
 
     def __init__(self):
         self.repository = user_repository
@@ -275,17 +275,17 @@ class UserService:
         db: AsyncSession,
         user_in: UserCreate
     ) -> User:
-        """Create new user with hashed password."""
-        # Check if email exists
+        """创建带哈希密码的新用户。"""
+        # 检查邮箱是否存在
         existing = await self.repository.get_by_email(db, user_in.email)
         if existing:
             raise ValueError("Email already registered")
 
-        # Hash password
+        # 哈希密码
         user_in_dict = user_in.dict()
         user_in_dict["hashed_password"] = get_password_hash(user_in_dict.pop("password"))
 
-        # Create user
+        # 创建用户
         user = await self.repository.create(db, UserCreate(**user_in_dict))
         return user
 
@@ -295,7 +295,7 @@ class UserService:
         email: str,
         password: str
     ) -> Optional[User]:
-        """Authenticate user."""
+        """认证用户。"""
         user = await self.repository.get_by_email(db, email)
         if not user:
             return None
@@ -309,7 +309,7 @@ class UserService:
         user_id: int,
         user_in: UserUpdate
     ) -> Optional[User]:
-        """Update user."""
+        """更新用户。"""
         user = await self.repository.get(db, user_id)
         if not user:
             return None
@@ -326,7 +326,7 @@ class UserService:
 user_service = UserService()
 ```
 
-### Pattern 4: API Endpoints with Dependencies
+### 模式 4：带依赖的 API 端点
 
 ```python
 # api/v1/endpoints/users.py
@@ -346,7 +346,7 @@ async def create_user(
     user_in: UserCreate,
     db: AsyncSession = Depends(get_db)
 ):
-    """Create new user."""
+    """创建新用户。"""
     try:
         user = await user_service.create_user(db, user_in)
         return user
@@ -357,7 +357,7 @@ async def create_user(
 async def read_current_user(
     current_user: User = Depends(get_current_user)
 ):
-    """Get current user."""
+    """获取当前用户。"""
     return current_user
 
 @router.get("/{user_id}", response_model=User)
@@ -366,7 +366,7 @@ async def read_user(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Get user by ID."""
+    """按 ID 获取用户。"""
     user = await user_service.repository.get(db, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -379,7 +379,7 @@ async def update_user(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Update user."""
+    """更新用户。"""
     if current_user.id != user_id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
@@ -394,7 +394,7 @@ async def delete_user(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Delete user."""
+    """删除用户。"""
     if current_user.id != user_id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
@@ -403,7 +403,7 @@ async def delete_user(
         raise HTTPException(status_code=404, detail="User not found")
 ```
 
-### Pattern 5: Authentication & Authorization
+### 模式 5：认证与授权
 
 ```python
 # core/security.py
@@ -419,7 +419,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ALGORITHM = "HS256"
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
-    """Create JWT access token."""
+    """创建 JWT 访问令牌。"""
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -430,11 +430,11 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify password against hash."""
+    """验证密码与哈希。"""
     return pwd_context.verify(plain_password, hashed_password)
 
 def get_password_hash(password: str) -> str:
-    """Hash password."""
+    """哈希密码。"""
     return pwd_context.hash(password)
 
 # api/dependencies.py
@@ -454,7 +454,7 @@ async def get_current_user(
     db: AsyncSession = Depends(get_db),
     token: str = Depends(oauth2_scheme)
 ):
-    """Get current authenticated user."""
+    """获取当前已认证用户。"""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -476,7 +476,7 @@ async def get_current_user(
     return user
 ```
 
-## Testing
+## 测试
 
 ```python
 # tests/conftest.py

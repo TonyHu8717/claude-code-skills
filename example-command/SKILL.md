@@ -1,37 +1,37 @@
 ---
 name: example-command
-description: An example user-invoked skill that demonstrates frontmatter options and the skills/<name>/SKILL.md layout
+description: 一个示例用户调用技能，演示 frontmatter 选项和 skills/<name>/SKILL.md 布局
 argument-hint: <required-arg> [optional-arg]
 allowed-tools: [Read, Glob, Grep, Bash]
 ---
 
-# Example Command (Skill Format)
+# 示例命令（技能格式）
 
-This demonstrates the `skills/<name>/SKILL.md` layout for user-invoked slash commands. It is functionally identical to the legacy `commands/example-command.md` format — both are loaded the same way; only the file layout differs.
+此技能演示了用户调用的斜杠命令的 `skills/<name>/SKILL.md` 布局。它在功能上与旧版 `commands/example-command.md` 格式完全相同 - 两者加载方式相同；只是文件布局不同。
 
-## Arguments
+## 参数
 
-The user invoked this with: $ARGUMENTS
+用户使用以下参数调用：$ARGUMENTS
 
-## Instructions
+## 指令
 
-When this skill is invoked:
+当此技能被调用时：
 
-1. Parse the arguments provided by the user
-2. Perform the requested action using allowed tools
-3. Report results back to the user
+1. 解析用户提供的参数
+2. 使用允许的工具执行请求的操作
+3. 将结果报告给用户
 
-## Frontmatter Options Reference
+## Frontmatter 选项参考
 
-Skills in this layout support these frontmatter fields:
+此布局中的技能支持以下 frontmatter 字段：
 
-- **name**: Skill identifier (matches directory name)
-- **description**: Short description shown in /help
-- **argument-hint**: Hints for command arguments shown to user
-- **allowed-tools**: Pre-approved tools for this skill (reduces permission prompts)
-- **model**: Override the model (e.g., "haiku", "sonnet", "opus")
+- **name**：技能标识符（与目录名称匹配）
+- **description**：在 /help 中显示的简短描述
+- **argument-hint**：向用户显示的命令参数提示
+- **allowed-tools**：此技能的预批准工具（减少权限提示）
+- **model**：覆盖模型（例如 "haiku"、"sonnet"、"opus"）
 
-## Example Usage
+## 使用示例
 
 ```
 /example-command my-argument

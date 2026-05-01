@@ -1,53 +1,53 @@
 ---
 name: service-mesh-observability
-description: Implement comprehensive observability for service meshes including distributed tracing, metrics, and visualization. Use when setting up mesh monitoring, debugging latency issues, or implementing SLOs for service communication.
+description: 为服务网格实现全面的可观测性，包括分布式跟踪、指标和可视化。在设置网格监控、调试延迟问题或实现服务通信的 SLO 时使用。
 ---
 
-# Service Mesh Observability
+# 服务网格可观测性
 
-Complete guide to observability patterns for Istio, Linkerd, and service mesh deployments.
+Istio、Linkerd 和服务网格部署的可观测性模式完整指南。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Setting up distributed tracing across services
-- Implementing service mesh metrics and dashboards
-- Debugging latency and error issues
-- Defining SLOs for service communication
-- Visualizing service dependencies
-- Troubleshooting mesh connectivity
+- 跨服务设置分布式跟踪
+- 实现服务网格指标和仪表板
+- 调试延迟和错误问题
+- 定义服务通信的 SLO
+- 可视化服务依赖关系
+- 排查网格连接问题
 
-## Core Concepts
+## 核心概念
 
-### 1. Three Pillars of Observability
+### 1. 可观测性三大支柱
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                  Observability                       │
+│                  可观测性                             │
 ├─────────────────┬─────────────────┬─────────────────┤
-│     Metrics     │     Traces      │      Logs       │
+│     指标        │     跟踪        │      日志       │
 │                 │                 │                 │
-│ • Request rate  │ • Span context  │ • Access logs   │
-│ • Error rate    │ • Latency       │ • Error details │
-│ • Latency P50   │ • Dependencies  │ • Debug info    │
-│ • Saturation    │ • Bottlenecks   │ • Audit trail   │
+│ • 请求速率      │ • 跨度上下文    │ • 访问日志      │
+│ • 错误率        │ • 延迟          │ • 错误详情      │
+│ • 延迟 P50      │ • 依赖关系      │ • 调试信息      │
+│ • 饱和度        │ • 瓶颈          │ • 审计跟踪      │
 └─────────────────┴─────────────────┴─────────────────┘
 ```
 
-### 2. Golden Signals for Mesh
+### 2. 网格黄金信号
 
-| Signal         | Description               | Alert Threshold   |
-| -------------- | ------------------------- | ----------------- |
-| **Latency**    | Request duration P50, P99 | P99 > 500ms       |
-| **Traffic**    | Requests per second       | Anomaly detection |
-| **Errors**     | 5xx error rate            | > 1%              |
-| **Saturation** | Resource utilization      | > 80%             |
+| 信号         | 描述                  | 告警阈值          |
+| ------------ | --------------------- | ----------------- |
+| **延迟**     | 请求持续时间 P50、P99 | P99 > 500ms       |
+| **流量**     | 每秒请求数            | 异常检测          |
+| **错误**     | 5xx 错误率            | > 1%              |
+| **饱和度**   | 资源利用率            | > 80%             |
 
-## Templates
+## 模板
 
-### Template 1: Istio with Prometheus & Grafana
+### 模板 1：Istio 与 Prometheus 和 Grafana
 
 ```yaml
-# Install Prometheus
+# 安装 Prometheus
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -69,7 +69,7 @@ data:
             action: keep
             regex: istio-telemetry
 ---
-# ServiceMonitor for Prometheus Operator
+# Prometheus Operator 的 ServiceMonitor
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -84,34 +84,34 @@ spec:
       interval: 15s
 ```
 
-### Template 2: Key Istio Metrics Queries
+### 模板 2：关键 Istio 指标查询
 
 ```promql
-# Request rate by service
+# 按服务的请求速率
 sum(rate(istio_requests_total{reporter="destination"}[5m])) by (destination_service_name)
 
-# Error rate (5xx)
+# 错误率（5xx）
 sum(rate(istio_requests_total{reporter="destination", response_code=~"5.."}[5m]))
   / sum(rate(istio_requests_total{reporter="destination"}[5m])) * 100
 
-# P99 latency
+# P99 延迟
 histogram_quantile(0.99,
   sum(rate(istio_request_duration_milliseconds_bucket{reporter="destination"}[5m]))
   by (le, destination_service_name))
 
-# TCP connections
+# TCP 连接
 sum(istio_tcp_connections_opened_total{reporter="destination"}) by (destination_service_name)
 
-# Request size
+# 请求大小
 histogram_quantile(0.99,
   sum(rate(istio_request_bytes_bucket{reporter="destination"}[5m]))
   by (le, destination_service_name))
 ```
 
-### Template 3: Jaeger Distributed Tracing
+### 模板 3：Jaeger 分布式跟踪
 
 ```yaml
-# Jaeger installation for Istio
+# Istio 的 Jaeger 安装
 apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
 spec:
@@ -119,11 +119,11 @@ spec:
     enableTracing: true
     defaultConfig:
       tracing:
-        sampling: 100.0 # 100% in dev, lower in prod
+        sampling: 100.0 # 开发环境 100%，生产环境降低
         zipkin:
           address: jaeger-collector.istio-system:9411
 ---
-# Jaeger deployment
+# Jaeger 部署
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -155,38 +155,38 @@ spec:
               value: ":9411"
 ```
 
-### Template 4: Linkerd Viz Dashboard
+### 模板 4：Linkerd Viz 仪表板
 
 ```bash
-# Install Linkerd viz extension
+# 安装 Linkerd viz 扩展
 linkerd viz install | kubectl apply -f -
 
-# Access dashboard
+# 访问仪表板
 linkerd viz dashboard
 
-# CLI commands for observability
-# Top requests
+# 可观测性 CLI 命令
+# 顶部请求
 linkerd viz top deploy/my-app
 
-# Per-route metrics
+# 按路由指标
 linkerd viz routes deploy/my-app --to deploy/backend
 
-# Live traffic inspection
+# 实时流量检查
 linkerd viz tap deploy/my-app --to deploy/backend
 
-# Service edges (dependencies)
+# 服务边缘（依赖关系）
 linkerd viz edges deployment -n my-namespace
 ```
 
-### Template 5: Grafana Dashboard JSON
+### 模板 5：Grafana 仪表板 JSON
 
 ```json
 {
   "dashboard": {
-    "title": "Service Mesh Overview",
+    "title": "服务网格概览",
     "panels": [
       {
-        "title": "Request Rate",
+        "title": "请求速率",
         "type": "graph",
         "targets": [
           {
@@ -196,7 +196,7 @@ linkerd viz edges deployment -n my-namespace
         ]
       },
       {
-        "title": "Error Rate",
+        "title": "错误率",
         "type": "gauge",
         "targets": [
           {
@@ -216,7 +216,7 @@ linkerd viz edges deployment -n my-namespace
         }
       },
       {
-        "title": "P99 Latency",
+        "title": "P99 延迟",
         "type": "graph",
         "targets": [
           {
@@ -226,7 +226,7 @@ linkerd viz edges deployment -n my-namespace
         ]
       },
       {
-        "title": "Service Topology",
+        "title": "服务拓扑",
         "type": "nodeGraph",
         "targets": [
           {
@@ -239,10 +239,10 @@ linkerd viz edges deployment -n my-namespace
 }
 ```
 
-### Template 6: Kiali Service Mesh Visualization
+### 模板 6：Kiali 服务网格可视化
 
 ```yaml
-# Kiali installation
+# Kiali 安装
 apiVersion: kiali.io/v1alpha1
 kind: Kiali
 metadata:
@@ -250,7 +250,7 @@ metadata:
   namespace: istio-system
 spec:
   auth:
-    strategy: anonymous # or openid, token
+    strategy: anonymous # 或 openid、token
   deployment:
     accessible_namespaces:
       - "**"
@@ -263,10 +263,10 @@ spec:
       url: http://grafana.istio-system:3000
 ```
 
-### Template 7: OpenTelemetry Integration
+### 模板 7：OpenTelemetry 集成
 
 ```yaml
-# OpenTelemetry Collector for mesh
+# 网格的 OpenTelemetry Collector
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -306,7 +306,7 @@ data:
           processors: [batch]
           exporters: [prometheus]
 ---
-# Istio Telemetry v2 with OTel
+# 使用 OTel 的 Istio Telemetry v2
 apiVersion: telemetry.istio.io/v1alpha1
 kind: Telemetry
 metadata:
@@ -319,7 +319,7 @@ spec:
       randomSamplingPercentage: 10
 ```
 
-## Alerting Rules
+## 告警规则
 
 ```yaml
 apiVersion: monitoring.coreos.com/v1
@@ -339,7 +339,7 @@ spec:
           labels:
             severity: critical
           annotations:
-            summary: "High error rate for {{ $labels.destination_service_name }}"
+            summary: "{{ $labels.destination_service_name }} 错误率高"
 
         - alert: HighLatency
           expr: |
@@ -349,7 +349,7 @@ spec:
           labels:
             severity: warning
           annotations:
-            summary: "High P99 latency for {{ $labels.destination_service_name }}"
+            summary: "{{ $labels.destination_service_name }} P99 延迟高"
 
         - alert: MeshCertExpiring
           expr: |
@@ -357,22 +357,22 @@ spec:
           labels:
             severity: warning
           annotations:
-            summary: "Mesh certificate expiring in less than 7 days"
+            summary: "网格证书将在 7 天内过期"
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该做的
 
-- **Sample appropriately** - 100% in dev, 1-10% in prod
-- **Use trace context** - Propagate headers consistently
-- **Set up alerts** - For golden signals
-- **Correlate metrics/traces** - Use exemplars
-- **Retain strategically** - Hot/cold storage tiers
+- **适当采样** - 开发环境 100%，生产环境 1-10%
+- **使用跟踪上下文** - 一致地传播头部
+- **设置告警** - 针对黄金信号
+- **关联指标/跟踪** - 使用示例
+- **策略性保留** - 热/冷存储分层
 
-### Don'ts
+### 不应该做的
 
-- **Don't over-sample** - Storage costs add up
-- **Don't ignore cardinality** - Limit label values
-- **Don't skip dashboards** - Visualize dependencies
-- **Don't forget costs** - Monitor observability costs
+- **不要过度采样** - 存储成本会累积
+- **不要忽视基数** - 限制标签值
+- **不要跳过仪表板** - 可视化依赖关系
+- **不要忘记成本** - 监控可观测性成本

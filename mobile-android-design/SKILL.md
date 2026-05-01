@@ -1,79 +1,79 @@
 ---
 name: mobile-android-design
-description: Master Material Design 3 and Jetpack Compose patterns for building native Android apps. Use when designing Android interfaces, implementing Compose UI, or following Google's Material Design guidelines.
+description: 掌握 Material Design 3 和 Jetpack Compose 模式，用于构建原生 Android 应用。当设计 Android 界面、实现 Compose UI 或遵循 Google 的 Material Design 指南时使用。
 ---
 
-# Android Mobile Design
+# Android 移动设计
 
-Master Material Design 3 (Material You) and Jetpack Compose to build modern, adaptive Android applications that integrate seamlessly with the Android ecosystem.
+掌握 Material Design 3（Material You）和 Jetpack Compose，构建与 Android 生态系统无缝集成的现代自适应应用。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Designing Android app interfaces following Material Design 3
-- Building Jetpack Compose UI and layouts
-- Implementing Android navigation patterns (Navigation Compose)
-- Creating adaptive layouts for phones, tablets, and foldables
-- Using Material 3 theming with dynamic colors
-- Building accessible Android interfaces
-- Implementing Android-specific gestures and interactions
-- Designing for different screen configurations
+- 遵循 Material Design 3 设计 Android 应用界面
+- 构建 Jetpack Compose UI 和布局
+- 实现 Android 导航模式（Navigation Compose）
+- 为手机、平板和折叠屏创建自适应布局
+- 使用 Material 3 主题和动态颜色
+- 构建无障碍 Android 界面
+- 实现 Android 特定的手势和交互
+- 为不同屏幕配置进行设计
 
-## Core Concepts
+## 核心概念
 
-### 1. Material Design 3 Principles
+### 1. Material Design 3 原则
 
-**Personalization**: Dynamic color adapts UI to user's wallpaper
-**Accessibility**: Tonal palettes ensure sufficient color contrast
-**Large Screens**: Responsive layouts for tablets and foldables
+**个性化**：动态颜色使 UI 适配用户壁纸
+**无障碍**：色调调色板确保足够的颜色对比度
+**大屏幕**：为平板和折叠屏提供响应式布局
 
-**Material Components:**
+**Material 组件：**
 
-- Cards, Buttons, FABs, Chips
-- Navigation (rail, drawer, bottom nav)
-- Text fields, Dialogs, Sheets
-- Lists, Menus, Progress indicators
+- 卡片、按钮、FAB、Chip
+- 导航（导航栏、抽屉、底部导航）
+- 文本字段、对话框、底部表单
+- 列表、菜单、进度指示器
 
-### 2. Jetpack Compose Layout System
+### 2. Jetpack Compose 布局系统
 
-**Column and Row:**
+**Column 和 Row：**
 
 ```kotlin
-// Vertical arrangement with alignment
+// 带对齐的垂直排列
 Column(
     modifier = Modifier.padding(16.dp),
     verticalArrangement = Arrangement.spacedBy(12.dp),
     horizontalAlignment = Alignment.Start
 ) {
     Text(
-        text = "Title",
+        text = "标题",
         style = MaterialTheme.typography.headlineSmall
     )
     Text(
-        text = "Subtitle",
+        text = "副标题",
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
 }
 
-// Horizontal arrangement with weight
+// 带权重的水平排列
 Row(
     modifier = Modifier.fillMaxWidth(),
     horizontalArrangement = Arrangement.SpaceBetween,
     verticalAlignment = Alignment.CenterVertically
 ) {
     Icon(Icons.Default.Star, contentDescription = null)
-    Text("Featured")
+    Text("精选")
     Spacer(modifier = Modifier.weight(1f))
     TextButton(onClick = {}) {
-        Text("View All")
+        Text("查看全部")
     }
 }
 ```
 
-**Lazy Lists and Grids:**
+**懒加载列表和网格：**
 
 ```kotlin
-// Lazy column with sticky headers
+// 带粘性头部的懒加载列
 LazyColumn {
     items.groupBy { it.category }.forEach { (category, categoryItems) ->
         stickyHeader {
@@ -92,7 +92,7 @@ LazyColumn {
     }
 }
 
-// Adaptive grid
+// 自适应网格
 LazyVerticalGrid(
     columns = GridCells.Adaptive(minSize = 150.dp),
     contentPadding = PaddingValues(16.dp),
@@ -105,9 +105,9 @@ LazyVerticalGrid(
 }
 ```
 
-### 3. Navigation Patterns
+### 3. 导航模式
 
-**Bottom Navigation:**
+**底部导航：**
 
 ```kotlin
 @Composable
@@ -154,7 +154,7 @@ fun MainScreen() {
 }
 ```
 
-**Navigation Drawer:**
+**导航抽屉：**
 
 ```kotlin
 @Composable
@@ -168,7 +168,7 @@ fun DrawerNavigation() {
             ModalDrawerSheet {
                 Spacer(Modifier.height(12.dp))
                 Text(
-                    "App Name",
+                    "应用名称",
                     modifier = Modifier.padding(16.dp),
                     style = MaterialTheme.typography.titleLarge
                 )
@@ -176,13 +176,13 @@ fun DrawerNavigation() {
 
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Home, null) },
-                    label = { Text("Home") },
+                    label = { Text("首页") },
                     selected = true,
                     onClick = { scope.launch { drawerState.close() } }
                 )
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Settings, null) },
-                    label = { Text("Settings") },
+                    label = { Text("设置") },
                     selected = false,
                     onClick = { }
                 )
@@ -192,10 +192,10 @@ fun DrawerNavigation() {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Home") },
+                    title = { Text("首页") },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu")
+                            Icon(Icons.Default.Menu, contentDescription = "菜单")
                         }
                     }
                 )
@@ -207,12 +207,12 @@ fun DrawerNavigation() {
 }
 ```
 
-### 4. Material 3 Theming
+### 4. Material 3 主题
 
-**Color Scheme:**
+**颜色方案：**
 
 ```kotlin
-// Dynamic color (Android 12+)
+// 动态颜色（Android 12+）
 val dynamicColorScheme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
     val context = LocalContext.current
     if (darkTheme) dynamicDarkColorScheme(context)
@@ -221,7 +221,7 @@ val dynamicColorScheme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
     if (darkTheme) DarkColorScheme else LightColorScheme
 }
 
-// Custom color scheme
+// 自定义颜色方案
 private val LightColorScheme = lightColorScheme(
     primary = Color(0xFF6750A4),
     onPrimary = Color.White,
@@ -236,7 +236,7 @@ private val LightColorScheme = lightColorScheme(
 )
 ```
 
-**Typography:**
+**排版：**
 
 ```kotlin
 val AppTypography = Typography(
@@ -273,9 +273,9 @@ val AppTypography = Typography(
 )
 ```
 
-### 5. Component Examples
+### 5. 组件示例
 
-**Cards:**
+**卡片：**
 
 ```kotlin
 @Composable
@@ -319,29 +319,29 @@ fun FeatureCard(
 }
 ```
 
-**Buttons:**
+**按钮：**
 
 ```kotlin
-// Filled button (primary action)
+// 填充按钮（主要操作）
 Button(onClick = { }) {
-    Text("Continue")
+    Text("继续")
 }
 
-// Filled tonal button (secondary action)
+// 填充色调按钮（次要操作）
 FilledTonalButton(onClick = { }) {
     Icon(Icons.Default.Add, null)
     Spacer(Modifier.width(8.dp))
-    Text("Add Item")
+    Text("添加项目")
 }
 
-// Outlined button
+// 轮廓按钮
 OutlinedButton(onClick = { }) {
-    Text("Cancel")
+    Text("取消")
 }
 
-// Text button
+// 文本按钮
 TextButton(onClick = { }) {
-    Text("Learn More")
+    Text("了解更多")
 }
 
 // FAB
@@ -350,11 +350,11 @@ FloatingActionButton(
     containerColor = MaterialTheme.colorScheme.primaryContainer,
     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
 ) {
-    Icon(Icons.Default.Add, contentDescription = "Add")
+    Icon(Icons.Default.Add, contentDescription = "添加")
 }
 ```
 
-## Quick Start Component
+## 快速开始组件
 
 ```kotlin
 @Composable
@@ -412,22 +412,22 @@ fun ItemListCard(
 }
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Use Material Theme**: Access colors via `MaterialTheme.colorScheme` for automatic dark mode support
-2. **Support Dynamic Color**: Enable dynamic color on Android 12+ for personalization
-3. **Adaptive Layouts**: Use `WindowSizeClass` for responsive designs
-4. **Content Descriptions**: Add `contentDescription` to all interactive elements
-5. **Touch Targets**: Minimum 48dp touch targets for accessibility
-6. **State Hoisting**: Hoist state to make components reusable and testable
-7. **Remember Properly**: Use `remember` and `rememberSaveable` appropriately
-8. **Preview Annotations**: Add `@Preview` with different configurations
+1. **使用 Material 主题**：通过 `MaterialTheme.colorScheme` 访问颜色，自动支持深色模式
+2. **支持动态颜色**：在 Android 12+ 上启用动态颜色以实现个性化
+3. **自适应布局**：使用 `WindowSizeClass` 实现响应式设计
+4. **内容描述**：为所有交互元素添加 `contentDescription`
+5. **触摸目标**：无障碍要求最小 48dp 触摸目标
+6. **状态提升**：提升状态以使组件可复用和可测试
+7. **正确使用 remember**：适当使用 `remember` 和 `rememberSaveable`
+8. **预览注解**：添加不同配置的 `@Preview`
 
-## Common Issues
+## 常见问题
 
-- **Recomposition Issues**: Avoid passing unstable lambdas; use `remember`
-- **State Loss**: Use `rememberSaveable` for configuration changes
-- **Performance**: Use `LazyColumn` instead of `Column` for long lists
-- **Theme Leaks**: Ensure `MaterialTheme` wraps all composables
-- **Navigation Crashes**: Handle back press and deep links properly
-- **Memory Leaks**: Cancel coroutines in `DisposableEffect`
+- **重组问题**：避免传递不稳定的 lambda；使用 `remember`
+- **状态丢失**：对配置更改使用 `rememberSaveable`
+- **性能**：长列表使用 `LazyColumn` 而非 `Column`
+- **主题泄漏**：确保 `MaterialTheme` 包装所有 composable
+- **导航崩溃**：正确处理返回键和深层链接
+- **内存泄漏**：在 `DisposableEffect` 中取消协程

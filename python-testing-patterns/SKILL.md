@@ -1,53 +1,53 @@
 ---
 name: python-testing-patterns
-description: Implement comprehensive testing strategies with pytest, fixtures, mocking, and test-driven development. Use when writing Python tests, setting up test suites, or implementing testing best practices.
+description: 使用 pytest、fixtures、模拟和测试驱动开发实现全面的测试策略。在编写 Python 测试、设置测试套件或实现测试最佳实践时使用。
 ---
 
-# Python Testing Patterns
+# Python 测试模式
 
-Comprehensive guide to implementing robust testing strategies in Python using pytest, fixtures, mocking, parameterization, and test-driven development practices.
+使用 pytest、fixtures、模拟、参数化和测试驱动开发实践在 Python 中实现健壮测试策略的综合指南。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Writing unit tests for Python code
-- Setting up test suites and test infrastructure
-- Implementing test-driven development (TDD)
-- Creating integration tests for APIs and services
-- Mocking external dependencies and services
-- Testing async code and concurrent operations
-- Setting up continuous testing in CI/CD
-- Implementing property-based testing
-- Testing database operations
-- Debugging failing tests
+- 为 Python 代码编写单元测试
+- 设置测试套件和测试基础设施
+- 实现测试驱动开发（TDD）
+- 为 API 和服务创建集成测试
+- 模拟外部依赖和服务
+- 测试异步代码和并发操作
+- 在 CI/CD 中设置持续测试
+- 实现基于属性的测试
+- 测试数据库操作
+- 调试失败的测试
 
-## Core Concepts
+## 核心概念
 
-### 1. Test Types
+### 1. 测试类型
 
-- **Unit Tests**: Test individual functions/classes in isolation
-- **Integration Tests**: Test interaction between components
-- **Functional Tests**: Test complete features end-to-end
-- **Performance Tests**: Measure speed and resource usage
+- **单元测试**：隔离测试单个函数/类
+- **集成测试**：测试组件之间的交互
+- **功能测试**：端到端测试完整功能
+- **性能测试**：测量速度和资源使用
 
-### 2. Test Structure (AAA Pattern)
+### 2. 测试结构（AAA 模式）
 
-- **Arrange**: Set up test data and preconditions
-- **Act**: Execute the code under test
-- **Assert**: Verify the results
+- **准备（Arrange）**：设置测试数据和前置条件
+- **执行（Act）**：执行被测试的代码
+- **断言（Assert）**：验证结果
 
-### 3. Test Coverage
+### 3. 测试覆盖
 
-- Measure what code is exercised by tests
-- Identify untested code paths
-- Aim for meaningful coverage, not just high percentages
+- 测量代码被测试执行的程度
+- 识别未测试的代码路径
+- 追求有意义的覆盖，而不仅仅是高百分比
 
-### 4. Test Isolation
+### 4. 测试隔离
 
-- Tests should be independent
-- No shared state between tests
-- Each test should clean up after itself
+- 测试应该是独立的
+- 测试之间没有共享状态
+- 每个测试应该自行清理
 
-## Quick Start
+## 快速开始
 
 ```python
 # test_example.py
@@ -66,9 +66,9 @@ def test_add_negative():
 # Run with: pytest test_example.py
 ```
 
-## Fundamental Patterns
+## 基础模式
 
-### Pattern 1: Basic pytest Tests
+### 模式 1：基本 pytest 测试
 
 ```python
 # test_calculator.py
@@ -128,7 +128,7 @@ def test_division_by_zero():
         calc.divide(5, 0)
 ```
 
-### Pattern 2: Fixtures for Setup and Teardown
+### 模式 2：用于设置和拆卸的 Fixtures
 
 ```python
 # test_database.py
@@ -204,7 +204,7 @@ def test_api_client(api_client):
     assert api_client["config"]["debug"] is True
 ```
 
-### Pattern 3: Parameterized Tests
+### 模式 3：参数化测试
 
 ```python
 # test_validation.py
@@ -253,7 +253,7 @@ def test_is_positive(value, expected):
     assert (value > 0) == expected
 ```
 
-### Pattern 4: Mocking with unittest.mock
+### 模式 4：使用 unittest.mock 进行模拟
 
 ```python
 # test_api_client.py
@@ -325,7 +325,7 @@ def test_create_user(mock_post):
     assert call_args.kwargs["json"] == user_data
 ```
 
-### Pattern 5: Testing Exceptions
+### 模式 5：测试异常
 
 ```python
 # test_exceptions.py
@@ -366,13 +366,13 @@ def test_exception_info():
     assert "invalid literal" in str(exc_info.value)
 ```
 
-For advanced patterns including async testing, monkeypatching, temporary files, conftest setup, property-based testing, database testing, CI/CD integration, and configuration files, see [references/advanced-patterns.md](references/advanced-patterns.md)
+有关高级模式，包括异步测试、monkeypatching、临时文件、conftest 设置、基于属性的测试、数据库测试、CI/CD 集成和配置文件，请参阅 [references/advanced-patterns.md](references/advanced-patterns.md)
 
-## Test Design Principles
+## 测试设计原则
 
-### One Behavior Per Test
+### 每个测试一个行为
 
-Each test should verify exactly one behavior. This makes failures easy to diagnose and tests easy to maintain.
+每个测试应该只验证一个行为。这使失败易于诊断，测试易于维护。
 
 ```python
 # BAD - testing multiple behaviors
@@ -398,9 +398,9 @@ def test_update_user_changes_name():
     assert updated.name == "New"
 ```
 
-### Test Error Paths
+### 测试错误路径
 
-Always test failure cases, not just happy paths.
+始终测试失败情况，而不仅仅是正常路径。
 
 ```python
 def test_get_user_raises_not_found():
@@ -414,9 +414,9 @@ def test_create_user_rejects_invalid_email():
         service.create_user({"email": "not-an-email"})
 ```
 
-## Testing Best Practices
+## 测试最佳实践
 
-### Test Organization
+### 测试组织
 
 ```python
 # tests/
@@ -432,9 +432,9 @@ def test_create_user_rejects_invalid_email():
 #     test_workflows.py
 ```
 
-### Test Naming Convention
+### 测试命名规范
 
-A common pattern: `test_<unit>_<scenario>_<expected_outcome>`. Adapt to your team's preferences.
+常见模式：`test_<单元>_<场景>_<预期结果>`。根据团队偏好调整。
 
 ```python
 # Pattern: test_<unit>_<scenario>_<expected>
@@ -471,9 +471,9 @@ def test_function():  # Doesn't explain what's tested
     pass
 ```
 
-### Testing Retry Behavior
+### 测试重试行为
 
-Verify that retry logic works correctly using mock side effects.
+使用模拟副作用验证重试逻辑是否正确工作。
 
 ```python
 from unittest.mock import Mock
@@ -520,9 +520,9 @@ def test_does_not_retry_on_permanent_error():
     assert client.request.call_count == 1
 ```
 
-### Mocking Time with Freezegun
+### 使用 Freezegun 模拟时间
 
-Use freezegun to control time in tests for predictable time-dependent behavior.
+使用 freezegun 在测试中控制时间，以获得可预测的时间相关行为。
 
 ```python
 from freezegun import freeze_time
@@ -557,7 +557,7 @@ def test_with_time_travel():
         assert item.age_days == 14
 ```
 
-### Test Markers
+### 测试标记
 
 ```python
 # test_markers.py
@@ -600,7 +600,7 @@ def test_known_bug():
 # pytest -m integration   # Run integration tests
 ```
 
-### Coverage Reporting
+### 覆盖率报告
 
 ```bash
 # Install coverage
@@ -619,4 +619,4 @@ pytest --cov=myapp --cov-fail-under=80 tests/
 pytest --cov=myapp --cov-report=term-missing tests/
 ```
 
-For advanced patterns (async testing, monkeypatching, property-based testing, database testing, CI/CD integration, and configuration), see [references/advanced-patterns.md](references/advanced-patterns.md)
+有关高级模式（异步测试、monkeypatching、基于属性的测试、数据库测试、CI/CD 集成和配置），请参阅 [references/advanced-patterns.md](references/advanced-patterns.md)

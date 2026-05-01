@@ -1,79 +1,79 @@
 ---
 name: monorepo-management
-description: Master monorepo management with Turborepo, Nx, and pnpm workspaces to build efficient, scalable multi-package repositories with optimized builds and dependency management. Use when setting up monorepos, optimizing builds, or managing shared dependencies.
+description: 掌握使用 Turborepo、Nx 和 pnpm 工作区进行 monorepo 管理，构建高效的、可扩展的多包仓库，实现优化的构建和依赖管理。在设置 monorepo、优化构建或管理共享依赖时使用。
 ---
 
-# Monorepo Management
+# Monorepo 管理
 
-Build efficient, scalable monorepos that enable code sharing, consistent tooling, and atomic changes across multiple packages and applications.
+构建高效的、可扩展的 monorepo，实现跨多个包和应用的代码共享、一致的工具和原子化更改。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Setting up new monorepo projects
-- Migrating from multi-repo to monorepo
-- Optimizing build and test performance
-- Managing shared dependencies
-- Implementing code sharing strategies
-- Setting up CI/CD for monorepos
-- Versioning and publishing packages
-- Debugging monorepo-specific issues
+- 设置新的 monorepo 项目
+- 从多仓库迁移到 monorepo
+- 优化构建和测试性能
+- 管理共享依赖
+- 实现代码共享策略
+- 为 monorepo 设置 CI/CD
+- 版本控制和发布包
+- 调试 monorepo 特定问题
 
-## Core Concepts
+## 核心概念
 
-### 1. Why Monorepos?
+### 1. 为什么使用 Monorepo？
 
-**Advantages:**
+**优势：**
 
-- Shared code and dependencies
-- Atomic commits across projects
-- Consistent tooling and standards
-- Easier refactoring
-- Simplified dependency management
-- Better code visibility
+- 共享代码和依赖
+- 跨项目的原子提交
+- 一致的工具和标准
+- 更容易的重构
+- 简化的依赖管理
+- 更好的代码可见性
 
-**Challenges:**
+**挑战：**
 
-- Build performance at scale
-- CI/CD complexity
-- Access control
-- Large Git repository
+- 大规模构建性能
+- CI/CD 复杂性
+- 访问控制
+- 大型 Git 仓库
 
-### 2. Monorepo Tools
+### 2. Monorepo 工具
 
-**Package Managers:**
+**包管理器：**
 
-- pnpm workspaces (recommended)
-- npm workspaces
-- Yarn workspaces
+- pnpm 工作区（推荐）
+- npm 工作区
+- Yarn 工作区
 
-**Build Systems:**
+**构建系统：**
 
-- Turborepo (recommended for most)
-- Nx (feature-rich, complex)
-- Lerna (older, maintenance mode)
+- Turborepo（大多数情况推荐）
+- Nx（功能丰富，较复杂）
+- Lerna（较旧，维护模式）
 
-## Turborepo Setup
+## Turborepo 设置
 
-### Initial Setup
+### 初始设置
 
 ```bash
-# Create new monorepo
+# 创建新的 monorepo
 npx create-turbo@latest my-monorepo
 cd my-monorepo
 
-# Structure:
+# 结构：
 # apps/
-#   web/          - Next.js app
-#   docs/         - Documentation site
+#   web/          - Next.js 应用
+#   docs/         - 文档站点
 # packages/
-#   ui/           - Shared UI components
-#   config/       - Shared configurations
-#   tsconfig/     - Shared TypeScript configs
-# turbo.json      - Turborepo configuration
-# package.json    - Root package.json
+#   ui/           - 共享 UI 组件
+#   config/       - 共享配置
+#   tsconfig/     - 共享 TypeScript 配置
+# turbo.json      - Turborepo 配置
+# package.json    - 根 package.json
 ```
 
-### Configuration
+### 配置
 
 ```json
 // turbo.json
@@ -105,7 +105,7 @@ cd my-monorepo
 ```
 
 ```json
-// package.json (root)
+// package.json（根目录）
 {
   "name": "my-monorepo",
   "private": true,
@@ -127,7 +127,7 @@ cd my-monorepo
 }
 ```
 
-### Package Structure
+### 包结构
 
 ```json
 // packages/ui/package.json
@@ -164,9 +164,9 @@ cd my-monorepo
 }
 ```
 
-## pnpm Workspaces
+## pnpm 工作区
 
-### Setup
+### 设置
 
 ```yaml
 # pnpm-workspace.yaml
@@ -178,74 +178,74 @@ packages:
 
 ```json
 // .npmrc
-# Hoist shared dependencies
+# 提升共享依赖
 shamefully-hoist=true
 
-# Strict peer dependencies
+# 严格对等依赖
 auto-install-peers=true
 strict-peer-dependencies=true
 
-# Performance
+# 性能
 store-dir=~/.pnpm-store
 ```
 
-### Dependency Management
+### 依赖管理
 
 ```bash
-# Install dependency in specific package
+# 在特定包中安装依赖
 pnpm add react --filter @repo/ui
 pnpm add -D typescript --filter @repo/ui
 
-# Install workspace dependency
+# 安装工作区依赖
 pnpm add @repo/ui --filter web
 
-# Install in all packages
+# 在所有包中安装
 pnpm add -D eslint -w
 
-# Update all dependencies
+# 更新所有依赖
 pnpm update -r
 
-# Remove dependency
+# 移除依赖
 pnpm remove react --filter @repo/ui
 ```
 
-### Scripts
+### 脚本
 
 ```bash
-# Run script in specific package
+# 在特定包中运行脚本
 pnpm --filter web dev
 pnpm --filter @repo/ui build
 
-# Run in all packages
+# 在所有包中运行
 pnpm -r build
 pnpm -r test
 
-# Run in parallel
+# 并行运行
 pnpm -r --parallel dev
 
-# Filter by pattern
+# 按模式过滤
 pnpm --filter "@repo/*" build
-pnpm --filter "...web" build  # Build web and dependencies
+pnpm --filter "...web" build  # 构建 web 及其依赖
 ```
 
 ## Nx Monorepo
 
-### Setup
+### 设置
 
 ```bash
-# Create Nx monorepo
+# 创建 Nx monorepo
 npx create-nx-workspace@latest my-org
 
-# Generate applications
+# 生成应用
 nx generate @nx/react:app my-app
 nx generate @nx/next:app my-next-app
 
-# Generate libraries
+# 生成库
 nx generate @nx/react:lib ui-components
 nx generate @nx/js:lib utils
 ```
 
-### Configuration
+### 配置
 
 ```json
 // nx.json
@@ -279,28 +279,28 @@ nx generate @nx/js:lib utils
 }
 ```
 
-### Running Tasks
+### 运行任务
 
 ```bash
-# Run task for specific project
+# 为特定项目运行任务
 nx build my-app
 nx test ui-components
 nx lint utils
 
-# Run for affected projects
+# 为受影响的项目运行
 nx affected:build
 nx affected:test --base=main
 
-# Visualize dependencies
+# 可视化依赖
 nx graph
 
-# Run in parallel
+# 并行运行
 nx run-many --target=build --all --parallel=3
 ```
 
-## Shared Configurations
+## 共享配置
 
-### TypeScript Configuration
+### TypeScript 配置
 
 ```json
 // packages/tsconfig/base.json
@@ -341,7 +341,7 @@ nx run-many --target=build --all --parallel=3
 }
 ```
 
-### ESLint Configuration
+### ESLint 配置
 
 ```javascript
 // packages/config/eslint-preset.js
@@ -377,14 +377,14 @@ module.exports = {
 module.exports = {
   extends: ["@repo/config/eslint-preset"],
   rules: {
-    // App-specific rules
+    // 应用特定规则
   },
 };
 ```
 
-## Code Sharing Patterns
+## 代码共享模式
 
-### Pattern 1: Shared UI Components
+### 模式 1：共享 UI 组件
 
 ```typescript
 // packages/ui/src/button.tsx
@@ -419,7 +419,7 @@ export function App() {
 }
 ```
 
-### Pattern 2: Shared Utilities
+### 模式 2：共享工具
 
 ```typescript
 // packages/utils/src/string.ts
@@ -436,11 +436,11 @@ export * from "./string";
 export * from "./array";
 export * from "./date";
 
-// Usage in apps
+// 在应用中使用
 import { capitalize, truncate } from "@repo/utils";
 ```
 
-### Pattern 3: Shared Types
+### 模式 3：共享类型
 
 ```typescript
 // packages/types/src/user.ts
@@ -457,30 +457,30 @@ export interface CreateUserInput {
   password: string;
 }
 
-// Used in both frontend and backend
+// 在前端和后端中使用
 import type { User, CreateUserInput } from "@repo/types";
 ```
 
-## Build Optimization
+## 构建优化
 
-### Turborepo Caching
+### Turborepo 缓存
 
 ```json
 // turbo.json
 {
   "pipeline": {
     "build": {
-      // Build depends on dependencies being built first
+      // 构建依赖于依赖项先被构建
       "dependsOn": ["^build"],
 
-      // Cache these outputs
+      // 缓存这些输出
       "outputs": ["dist/**", ".next/**"],
 
-      // Cache based on these inputs (default: all files)
+      // 基于这些输入进行缓存（默认：所有文件）
       "inputs": ["src/**/*.tsx", "src/**/*.ts", "package.json"]
     },
     "test": {
-      // Run tests in parallel, don't depend on build
+      // 并行运行测试，不依赖构建
       "cache": true,
       "outputs": ["coverage/**"]
     }
@@ -488,14 +488,14 @@ import type { User, CreateUserInput } from "@repo/types";
 }
 ```
 
-### Remote Caching
+### 远程缓存
 
 ```bash
-# Turborepo Remote Cache (Vercel)
+# Turborepo 远程缓存（Vercel）
 npx turbo login
 npx turbo link
 
-# Custom remote cache
+# 自定义远程缓存
 # turbo.json
 {
   "remoteCache": {
@@ -505,7 +505,7 @@ npx turbo link
 }
 ```
 
-## CI/CD for Monorepos
+## Monorepo 的 CI/CD
 
 ### GitHub Actions
 
@@ -526,7 +526,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # For Nx affected commands
+          fetch-depth: 0 # 用于 Nx affected 命令
 
       - uses: pnpm/action-setup@v2
         with:
@@ -537,74 +537,74 @@ jobs:
           node-version: 18
           cache: "pnpm"
 
-      - name: Install dependencies
+      - name: 安装依赖
         run: pnpm install --frozen-lockfile
 
-      - name: Build
+      - name: 构建
         run: pnpm turbo run build
 
-      - name: Test
+      - name: 测试
         run: pnpm turbo run test
 
       - name: Lint
         run: pnpm turbo run lint
 
-      - name: Type check
+      - name: 类型检查
         run: pnpm turbo run type-check
 ```
 
-### Deploy Affected Only
+### 仅部署受影响的
 
 ```yaml
-# Deploy only changed apps
-- name: Deploy affected apps
+# 仅部署更改的应用
+- name: 部署受影响的应用
   run: |
     if pnpm nx affected:apps --base=origin/main --head=HEAD | grep -q "web"; then
-      echo "Deploying web app"
+      echo "部署 web 应用"
       pnpm --filter web deploy
     fi
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Consistent Versioning**: Lock dependency versions across workspace
-2. **Shared Configs**: Centralize ESLint, TypeScript, Prettier configs
-3. **Dependency Graph**: Keep it acyclic, avoid circular dependencies
-4. **Cache Effectively**: Configure inputs/outputs correctly
-5. **Type Safety**: Share types between frontend/backend
-6. **Testing Strategy**: Unit tests in packages, E2E in apps
-7. **Documentation**: README in each package
-8. **Release Strategy**: Use changesets for versioning
+1. **一致的版本控制**：锁定工作区中的依赖版本
+2. **共享配置**：集中 ESLint、TypeScript、Prettier 配置
+3. **依赖图**：保持无环，避免循环依赖
+4. **有效缓存**：正确配置输入/输出
+5. **类型安全**：在前端/后端之间共享类型
+6. **测试策略**：包中做单元测试，应用中做 E2E 测试
+7. **文档**：每个包中放 README
+8. **发布策略**：使用 changesets 进行版本控制
 
-## Common Pitfalls
+## 常见陷阱
 
-- **Circular Dependencies**: A depends on B, B depends on A
-- **Phantom Dependencies**: Using deps not in package.json
-- **Incorrect Cache Inputs**: Missing files in Turborepo inputs
-- **Over-Sharing**: Sharing code that should be separate
-- **Under-Sharing**: Duplicating code across packages
-- **Large Monorepos**: Without proper tooling, builds slow down
+- **循环依赖**：A 依赖 B，B 依赖 A
+- **幽灵依赖**：使用 package.json 中未声明的依赖
+- **错误的缓存输入**：Turborepo 输入中遗漏文件
+- **过度共享**：共享应该分开的代码
+- **共享不足**：跨包重复代码
+- **大型 monorepo**：没有适当的工具，构建会变慢
 
-## Publishing Packages
+## 发布包
 
 ```bash
-# Using Changesets
+# 使用 Changesets
 pnpm add -Dw @changesets/cli
 pnpm changeset init
 
-# Create changeset
+# 创建 changeset
 pnpm changeset
 
-# Version packages
+# 版本化包
 pnpm changeset version
 
-# Publish
+# 发布
 pnpm changeset publish
 ```
 
 ```yaml
 # .github/workflows/release.yml
-- name: Create Release Pull Request or Publish
+- name: 创建发布 PR 或发布
   uses: changesets/action@v1
   with:
     publish: pnpm release

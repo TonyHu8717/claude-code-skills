@@ -1,72 +1,72 @@
 ---
 name: memory-safety-patterns
-description: Implement memory-safe programming with RAII, ownership, smart pointers, and resource management across Rust, C++, and C. Use when writing safe systems code, managing resources, or preventing memory bugs.
+description: 跨 Rust、C++ 和 C 实现内存安全编程，涵盖 RAII、所有权、智能指针和资源管理。当编写安全的系统代码、管理资源或防止内存 bug 时使用。
 ---
 
-# Memory Safety Patterns
+# 内存安全模式
 
-Cross-language patterns for memory-safe programming including RAII, ownership, smart pointers, and resource management.
+跨语言的内存安全编程模式，包括 RAII、所有权、智能指针和资源管理。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Writing memory-safe systems code
-- Managing resources (files, sockets, memory)
-- Preventing use-after-free and leaks
-- Implementing RAII patterns
-- Choosing between languages for safety
-- Debugging memory issues
+- 编写内存安全的系统代码
+- 管理资源（文件、套接字、内存）
+- 防止释放后使用和泄漏
+- 实现 RAII 模式
+- 在安全性方面选择语言
+- 调试内存问题
 
-## Core Concepts
+## 核心概念
 
-### 1. Memory Bug Categories
+### 1. 内存 Bug 分类
 
-| Bug Type             | Description                      | Prevention        |
-| -------------------- | -------------------------------- | ----------------- |
-| **Use-after-free**   | Access freed memory              | Ownership, RAII   |
-| **Double-free**      | Free same memory twice           | Smart pointers    |
-| **Memory leak**      | Never free memory                | RAII, GC          |
-| **Buffer overflow**  | Write past buffer end            | Bounds checking   |
-| **Dangling pointer** | Pointer to freed memory          | Lifetime tracking |
-| **Data race**        | Concurrent unsynchronized access | Ownership, Sync   |
+| Bug 类型           | 描述                      | 预防措施            |
+| ------------------ | ------------------------- | ------------------- |
+| **释放后使用**     | 访问已释放的内存          | 所有权、RAII        |
+| **双重释放**       | 同一内存释放两次          | 智能指针            |
+| **内存泄漏**       | 从未释放内存              | RAII、GC            |
+| **缓冲区溢出**     | 写入超过缓冲区末尾        | 边界检查            |
+| **悬空指针**       | 指向已释放内存的指针      | 生命周期跟踪        |
+| **数据竞争**       | 并发非同步访问            | 所有权、同步        |
 
-### 2. Safety Spectrum
+### 2. 安全性谱系
 
 ```
-Manual (C) → Smart Pointers (C++) → Ownership (Rust) → GC (Go, Java)
-Less safe                                              More safe
-More control                                           Less control
+手动 (C) → 智能指针 (C++) → 所有权 (Rust) → GC (Go, Java)
+较不安全                                              较安全
+更多控制                                              较少控制
 ```
 
-## Patterns by Language
+## 按语言分类的模式
 
-### Pattern 1: RAII in C++
+### 模式 1：C++ 中的 RAII
 
 ```cpp
-// RAII: Resource Acquisition Is Initialization
-// Resource lifetime tied to object lifetime
+// RAII：资源获取即初始化
+// 资源生命周期绑定到对象生命周期
 
 #include <memory>
 #include <fstream>
 #include <mutex>
 
-// File handle with RAII
+// 使用 RAII 的文件句柄
 class FileHandle {
 public:
     explicit FileHandle(const std::string& path)
         : file_(path) {
         if (!file_.is_open()) {
-            throw std::runtime_error("Failed to open file");
+            throw std::runtime_error("打开文件失败");
         }
     }
 
-    // Destructor automatically closes file
-    ~FileHandle() = default; // fstream closes in its destructor
+    // 析构函数自动关闭文件
+    ~FileHandle() = default; // fstream 在其析构函数中关闭
 
-    // Delete copy (prevent double-close)
+    // 删除拷贝（防止双重关闭）
     FileHandle(const FileHandle&) = delete;
     FileHandle& operator=(const FileHandle&) = delete;
 
-    // Allow move
+    // 允许移动
     FileHandle(FileHandle&&) = default;
     FileHandle& operator=(FileHandle&&) = default;
 
@@ -78,11 +78,11 @@ private:
     std::fstream file_;
 };
 
-// Lock guard (RAII for mutexes)
+// 锁守卫（互斥锁的 RAII）
 class Database {
 public:
     void update(const std::string& key, const std::string& value) {
-        std::lock_guard<std::mutex> lock(mutex_); // Released on scope exit
+        std::lock_guard<std::mutex> lock(mutex_); // 作用域退出时释放
         data_[key] = value;
     }
 
@@ -97,7 +97,7 @@ private:
     std::map<std::string, std::string> data_;
 };
 
-// Transaction with rollback (RAII)
+// 带回滚的事务（RAII）
 template<typename T>
 class Transaction {
 public:
@@ -106,7 +106,7 @@ public:
 
     ~Transaction() {
         if (!committed_) {
-            target_ = backup_; // Rollback
+            target_ = backup_; // 回滚
         }
     }
 
@@ -121,12 +121,12 @@ private:
 };
 ```
 
-### Pattern 2: Smart Pointers in C++
+### 模式 2：C++ 中的智能指针
 
 ```cpp
 #include <memory>
 
-// unique_ptr: Single ownership
+// unique_ptr：单一所有权
 class Engine {
 public:
     void start() { /* ... */ }
@@ -140,7 +140,7 @@ public:
         engine_->start();
     }
 
-    // Transfer ownership
+    // 转移所有权
     std::unique_ptr<Engine> extractEngine() {
         return std::move(engine_);
     }
@@ -149,13 +149,13 @@ private:
     std::unique_ptr<Engine> engine_;
 };
 
-// shared_ptr: Shared ownership
+// shared_ptr：共享所有权
 class Node {
 public:
     std::string data;
     std::shared_ptr<Node> next;
 
-    // Use weak_ptr to break cycles
+    // 使用 weak_ptr 打破循环
     std::weak_ptr<Node> parent;
 };
 
@@ -164,15 +164,15 @@ void sharedPtrExample() {
     auto node2 = std::make_shared<Node>();
 
     node1->next = node2;
-    node2->parent = node1; // Weak reference prevents cycle
+    node2->parent = node1; // 弱引用防止循环
 
-    // Access weak_ptr
+    // 访问 weak_ptr
     if (auto parent = node2->parent.lock()) {
-        // parent is valid shared_ptr
+        // parent 是有效的 shared_ptr
     }
 }
 
-// Custom deleter for resources
+// 资源自定义删除器
 class Socket {
 public:
     static void close(int* fd) {
@@ -191,58 +191,58 @@ auto createSocket() {
     );
 }
 
-// make_unique/make_shared best practices
+// make_unique/make_shared 最佳实践
 void bestPractices() {
-    // Good: Exception safe, single allocation
+    // 好：异常安全，单次分配
     auto ptr = std::make_shared<Widget>();
 
-    // Bad: Two allocations, not exception safe
+    // 不好：两次分配，非异常安全
     std::shared_ptr<Widget> ptr2(new Widget());
 
-    // For arrays
+    // 数组
     auto arr = std::make_unique<int[]>(10);
 }
 ```
 
-### Pattern 3: Ownership in Rust
+### 模式 3：Rust 中的所有权
 
 ```rust
-// Move semantics (default)
+// 移动语义（默认）
 fn move_example() {
     let s1 = String::from("hello");
-    let s2 = s1; // s1 is MOVED, no longer valid
+    let s2 = s1; // s1 被移动，不再有效
 
-    // println!("{}", s1); // Compile error!
+    // println!("{}", s1); // 编译错误！
     println!("{}", s2);
 }
 
-// Borrowing (references)
+// 借用（引用）
 fn borrow_example() {
     let s = String::from("hello");
 
-    // Immutable borrow (multiple allowed)
+    // 不可变借用（允许多个）
     let len = calculate_length(&s);
-    println!("{} has length {}", s, len);
+    println!("{} 的长度为 {}", s, len);
 
-    // Mutable borrow (only one allowed)
+    // 可变借用（仅允许一个）
     let mut s = String::from("hello");
     change(&mut s);
 }
 
 fn calculate_length(s: &String) -> usize {
     s.len()
-} // s goes out of scope, but doesn't drop since borrowed
+} // s 超出作用域，但因为是借用所以不会被丢弃
 
 fn change(s: &mut String) {
     s.push_str(", world");
 }
 
-// Lifetimes: Compiler tracks reference validity
+// 生命周期：编译器跟踪引用有效性
 fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
     if x.len() > y.len() { x } else { y }
 }
 
-// Struct with references needs lifetime annotation
+// 带引用的结构体需要生命周期标注
 struct ImportantExcerpt<'a> {
     part: &'a str,
 }
@@ -252,20 +252,20 @@ impl<'a> ImportantExcerpt<'a> {
         3
     }
 
-    // Lifetime elision: compiler infers 'a for &self
+    // 生命周期省略：编译器为 &self 推断 'a
     fn announce_and_return_part(&self, announcement: &str) -> &str {
-        println!("Attention: {}", announcement);
+        println!("注意：{}", announcement);
         self.part
     }
 }
 
-// Interior mutability
+// 内部可变性
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
 struct Stats {
-    count: Cell<i32>,           // Copy types
-    data: RefCell<Vec<String>>, // Non-Copy types
+    count: Cell<i32>,           // Copy 类型
+    data: RefCell<Vec<String>>, // 非 Copy 类型
 }
 
 impl Stats {
@@ -278,15 +278,15 @@ impl Stats {
     }
 }
 
-// Rc for shared ownership (single-threaded)
+// Rc 用于共享所有权（单线程）
 fn rc_example() {
     let data = Rc::new(vec![1, 2, 3]);
-    let data2 = Rc::clone(&data); // Increment reference count
+    let data2 = Rc::clone(&data); // 增加引用计数
 
-    println!("Count: {}", Rc::strong_count(&data)); // 2
+    println!("计数：{}", Rc::strong_count(&data)); // 2
 }
 
-// Arc for shared ownership (thread-safe)
+// Arc 用于共享所有权（线程安全）
 use std::sync::Arc;
 use std::thread;
 
@@ -308,15 +308,15 @@ fn arc_example() {
 }
 ```
 
-### Pattern 4: Safe Resource Management in C
+### 模式 4：C 中的安全资源管理
 
 ```c
-// C doesn't have RAII, but we can use patterns
+// C 没有 RAII，但我们可以使用模式
 
 #include <stdlib.h>
 #include <stdio.h>
 
-// Pattern: goto cleanup
+// 模式：goto 清理
 int process_file(const char* path) {
     FILE* file = NULL;
     char* buffer = NULL;
@@ -332,7 +332,7 @@ int process_file(const char* path) {
         goto cleanup;
     }
 
-    // Process file...
+    // 处理文件...
     result = 0;
 
 cleanup:
@@ -341,14 +341,14 @@ cleanup:
     return result;
 }
 
-// Pattern: Opaque pointer with create/destroy
+// 模式：不透明指针配合 create/destroy
 typedef struct Context Context;
 
 Context* context_create(void);
 void context_destroy(Context* ctx);
 int context_process(Context* ctx, const char* data);
 
-// Implementation
+// 实现
 struct Context {
     int* data;
     size_t size;
@@ -383,7 +383,7 @@ void context_destroy(Context* ctx) {
     }
 }
 
-// Pattern: Cleanup attribute (GCC/Clang extension)
+// 模式：清理属性（GCC/Clang 扩展）
 #define AUTO_FREE __attribute__((cleanup(auto_free_func)))
 
 void auto_free_func(void** ptr) {
@@ -392,14 +392,14 @@ void auto_free_func(void** ptr) {
 
 void auto_free_example(void) {
     AUTO_FREE char* buffer = malloc(1024);
-    // buffer automatically freed at end of scope
+    // buffer 在作用域末尾自动释放
 }
 ```
 
-### Pattern 5: Bounds Checking
+### 模式 5：边界检查
 
 ```cpp
-// C++: Use containers instead of raw arrays
+// C++：使用容器替代原始数组
 #include <vector>
 #include <array>
 #include <span>
@@ -407,65 +407,65 @@ void auto_free_example(void) {
 void safe_array_access() {
     std::vector<int> vec = {1, 2, 3, 4, 5};
 
-    // Safe: throws std::out_of_range
+    // 安全：抛出 std::out_of_range
     try {
         int val = vec.at(10);
     } catch (const std::out_of_range& e) {
-        // Handle error
+        // 处理错误
     }
 
-    // Unsafe but faster (no bounds check)
+    // 不安全但更快（无边界检查）
     int val = vec[2];
 
-    // Modern C++20: std::span for array views
+    // 现代 C++20：std::span 用于数组视图
     std::span<int> view(vec);
-    // Iterators are bounds-safe
+    // 迭代器是边界安全的
     for (int& x : view) {
         x *= 2;
     }
 }
 
-// Fixed-size arrays
+// 固定大小数组
 void fixed_array() {
     std::array<int, 5> arr = {1, 2, 3, 4, 5};
 
-    // Compile-time size known
+    // 编译期已知大小
     static_assert(arr.size() == 5);
 
-    // Safe access
+    // 安全访问
     int val = arr.at(2);
 }
 ```
 
 ```rust
-// Rust: Bounds checking by default
+// Rust：默认边界检查
 
 fn rust_bounds_checking() {
     let vec = vec![1, 2, 3, 4, 5];
 
-    // Runtime bounds check (panics if out of bounds)
+    // 运行时边界检查（越界时 panic）
     let val = vec[2];
 
-    // Explicit option (no panic)
+    // 显式选项（不 panic）
     match vec.get(10) {
-        Some(val) => println!("Got {}", val),
-        None => println!("Index out of bounds"),
+        Some(val) => println!("获取到 {}", val),
+        None => println!("索引越界"),
     }
 
-    // Iterators (no bounds checking needed)
+    // 迭代器（无需边界检查）
     for val in &vec {
         println!("{}", val);
     }
 
-    // Slices are bounds-checked
+    // 切片经过边界检查
     let slice = &vec[1..3]; // [2, 3]
 }
 ```
 
-### Pattern 6: Preventing Data Races
+### 模式 6：防止数据竞争
 
 ```cpp
-// C++: Thread-safe shared state
+// C++：线程安全的共享状态
 #include <mutex>
 #include <shared_mutex>
 #include <atomic>
@@ -473,7 +473,7 @@ fn rust_bounds_checking() {
 class ThreadSafeCounter {
 public:
     void increment() {
-        // Atomic operations
+        // 原子操作
         count_.fetch_add(1, std::memory_order_relaxed);
     }
 
@@ -508,13 +508,13 @@ private:
 ```
 
 ```rust
-// Rust: Data race prevention at compile time
+// Rust：编译期数据竞争预防
 
 use std::sync::{Arc, Mutex, RwLock};
 use std::sync::atomic::{AtomicI32, Ordering};
 use std::thread;
 
-// Atomic for simple types
+// 原子类型用于简单类型
 fn atomic_example() {
     let counter = Arc::new(AtomicI32::new(0));
 
@@ -531,10 +531,10 @@ fn atomic_example() {
         handle.join().unwrap();
     }
 
-    println!("Counter: {}", counter.load(Ordering::SeqCst));
+    println!("计数器：{}", counter.load(Ordering::SeqCst));
 }
 
-// Mutex for complex types
+// 互斥锁用于复杂类型
 fn mutex_example() {
     let data = Arc::new(Mutex::new(vec![]));
 
@@ -553,46 +553,46 @@ fn mutex_example() {
     }
 }
 
-// RwLock for read-heavy workloads
+// RwLock 用于读多写少的工作负载
 fn rwlock_example() {
     let data = Arc::new(RwLock::new(HashMap::new()));
 
-    // Multiple readers OK
+    // 多个读者可以同时读
     let read_guard = data.read().unwrap();
 
-    // Writer blocks readers
+    // 写者会阻塞读者
     let write_guard = data.write().unwrap();
 }
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该做的
 
-- **Prefer RAII** - Tie resource lifetime to scope
-- **Use smart pointers** - Avoid raw pointers in C++
-- **Understand ownership** - Know who owns what
-- **Check bounds** - Use safe access methods
-- **Use tools** - AddressSanitizer, Valgrind, Miri
+- **优先使用 RAII** — 将资源生命周期绑定到作用域
+- **使用智能指针** — 在 C++ 中避免原始指针
+- **理解所有权** — 知道谁拥有什么
+- **检查边界** — 使用安全的访问方法
+- **使用工具** — AddressSanitizer、Valgrind、Miri
 
-### Don'ts
+### 不应该做的
 
-- **Don't use raw pointers** - Unless interfacing with C
-- **Don't return local references** - Dangling pointer
-- **Don't ignore compiler warnings** - They catch bugs
-- **Don't use `unsafe` carelessly** - In Rust, minimize it
-- **Don't assume thread safety** - Be explicit
+- **不要使用原始指针** — 除非与 C 接口
+- **不要返回局部引用** — 悬空指针
+- **不要忽略编译器警告** — 它们能捕获 bug
+- **不要随意使用 `unsafe`** — 在 Rust 中最小化使用
+- **不要假设线程安全** — 显式声明
 
-## Debugging Tools
+## 调试工具
 
 ```bash
-# AddressSanitizer (Clang/GCC)
+# AddressSanitizer（Clang/GCC）
 clang++ -fsanitize=address -g source.cpp
 
 # Valgrind
 valgrind --leak-check=full ./program
 
-# Rust Miri (undefined behavior detector)
+# Rust Miri（未定义行为检测器）
 cargo +nightly miri run
 
 # ThreadSanitizer

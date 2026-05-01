@@ -1,40 +1,40 @@
 ---
 name: sql-optimization-patterns
-description: Master SQL query optimization, indexing strategies, and EXPLAIN analysis to dramatically improve database performance and eliminate slow queries. Use when debugging slow queries, designing database schemas, or optimizing application performance.
+description: 掌握 SQL 查询优化、索引策略和 EXPLAIN 分析，大幅提升数据库性能并消除慢查询。用于调试慢查询、设计数据库架构或优化应用性能时。
 ---
 
-# SQL Optimization Patterns
+# SQL 优化模式
 
-Transform slow database queries into lightning-fast operations through systematic optimization, proper indexing, and query plan analysis.
+通过系统化优化、合理索引和查询计划分析，将慢数据库查询转变为闪电般快速的操作。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Debugging slow-running queries
-- Designing performant database schemas
-- Optimizing application response times
-- Reducing database load and costs
-- Improving scalability for growing datasets
-- Analyzing EXPLAIN query plans
-- Implementing efficient indexes
-- Resolving N+1 query problems
+- 调试运行缓慢的查询
+- 设计高性能数据库架构
+- 优化应用响应时间
+- 降低数据库负载和成本
+- 提升不断增长数据集的可扩展性
+- 分析 EXPLAIN 查询计划
+- 实现高效索引
+- 解决 N+1 查询问题
 
-## Core Concepts
+## 核心概念
 
-### 1. Query Execution Plans (EXPLAIN)
+### 1. 查询执行计划 (EXPLAIN)
 
-Understanding EXPLAIN output is fundamental to optimization.
+理解 EXPLAIN 输出是优化的基础。
 
-**PostgreSQL EXPLAIN:**
+**PostgreSQL EXPLAIN：**
 
 ```sql
--- Basic explain
+-- 基本 explain
 EXPLAIN SELECT * FROM users WHERE email = 'user@example.com';
 
--- With actual execution stats
+-- 包含实际执行统计
 EXPLAIN ANALYZE
 SELECT * FROM users WHERE email = 'user@example.com';
 
--- Verbose output with more details
+-- 详细输出，包含更多信息
 EXPLAIN (ANALYZE, BUFFERS, VERBOSE)
 SELECT u.*, o.order_total
 FROM users u
@@ -42,121 +42,121 @@ JOIN orders o ON u.id = o.user_id
 WHERE u.created_at > NOW() - INTERVAL '30 days';
 ```
 
-**Key Metrics to Watch:**
+**关键指标：**
 
-- **Seq Scan**: Full table scan (usually slow for large tables)
-- **Index Scan**: Using index (good)
-- **Index Only Scan**: Using index without touching table (best)
-- **Nested Loop**: Join method (okay for small datasets)
-- **Hash Join**: Join method (good for larger datasets)
-- **Merge Join**: Join method (good for sorted data)
-- **Cost**: Estimated query cost (lower is better)
-- **Rows**: Estimated rows returned
-- **Actual Time**: Real execution time
+- **Seq Scan**：全表扫描（大表通常很慢）
+- **Index Scan**：使用索引（良好）
+- **Index Only Scan**：使用索引且不访问表（最佳）
+- **Nested Loop**：连接方法（小数据集尚可）
+- **Hash Join**：连接方法（较大数据集效果好）
+- **Merge Join**：连接方法（排序数据效果好）
+- **Cost**：估计查询成本（越低越好）
+- **Rows**：估计返回行数
+- **Actual Time**：实际执行时间
 
-### 2. Index Strategies
+### 2. 索引策略
 
-Indexes are the most powerful optimization tool.
+索引是最强大的优化工具。
 
-**Index Types:**
+**索引类型：**
 
-- **B-Tree**: Default, good for equality and range queries
-- **Hash**: Only for equality (=) comparisons
-- **GIN**: Full-text search, array queries, JSONB
-- **GiST**: Geometric data, full-text search
-- **BRIN**: Block Range INdex for very large tables with correlation
+- **B-Tree**：默认，适用于等值和范围查询
+- **Hash**：仅用于等值 (=) 比较
+- **GIN**：全文搜索、数组查询、JSONB
+- **GiST**：几何数据、全文搜索
+- **BRIN**：块范围索引，适用于具有相关性的超大表
 
 ```sql
--- Standard B-Tree index
+-- 标准 B-Tree 索引
 CREATE INDEX idx_users_email ON users(email);
 
--- Composite index (order matters!)
+-- 复合索引（顺序很重要！）
 CREATE INDEX idx_orders_user_status ON orders(user_id, status);
 
--- Partial index (index subset of rows)
+-- 部分索引（索引行的子集）
 CREATE INDEX idx_active_users ON users(email)
 WHERE status = 'active';
 
--- Expression index
+-- 表达式索引
 CREATE INDEX idx_users_lower_email ON users(LOWER(email));
 
--- Covering index (include additional columns)
+-- 覆盖索引（包含额外列）
 CREATE INDEX idx_users_email_covering ON users(email)
 INCLUDE (name, created_at);
 
--- Full-text search index
+-- 全文搜索索引
 CREATE INDEX idx_posts_search ON posts
 USING GIN(to_tsvector('english', title || ' ' || body));
 
--- JSONB index
+-- JSONB 索引
 CREATE INDEX idx_metadata ON events USING GIN(metadata);
 ```
 
-### 3. Query Optimization Patterns
+### 3. 查询优化模式
 
-**Avoid SELECT \*:**
+**避免 SELECT \*：**
 
 ```sql
--- Bad: Fetches unnecessary columns
+-- 差：获取不必要的列
 SELECT * FROM users WHERE id = 123;
 
--- Good: Fetch only what you need
+-- 好：只获取需要的列
 SELECT id, email, name FROM users WHERE id = 123;
 ```
 
-**Use WHERE Clause Efficiently:**
+**高效使用 WHERE 子句：**
 
 ```sql
--- Bad: Function prevents index usage
+-- 差：函数阻止索引使用
 SELECT * FROM users WHERE LOWER(email) = 'user@example.com';
 
--- Good: Create functional index or use exact match
+-- 好：创建函数索引或使用精确匹配
 CREATE INDEX idx_users_email_lower ON users(LOWER(email));
--- Then:
+-- 然后：
 SELECT * FROM users WHERE LOWER(email) = 'user@example.com';
 
--- Or store normalized data
+-- 或存储标准化数据
 SELECT * FROM users WHERE email = 'user@example.com';
 ```
 
-**Optimize JOINs:**
+**优化 JOIN：**
 
 ```sql
--- Bad: Cartesian product then filter
+-- 差：笛卡尔积然后过滤
 SELECT u.name, o.total
 FROM users u, orders o
 WHERE u.id = o.user_id AND u.created_at > '2024-01-01';
 
--- Good: Filter before join
+-- 好：连接前过滤
 SELECT u.name, o.total
 FROM users u
 JOIN orders o ON u.id = o.user_id
 WHERE u.created_at > '2024-01-01';
 
--- Better: Filter both tables
+-- 更好：过滤两个表
 SELECT u.name, o.total
 FROM (SELECT * FROM users WHERE created_at > '2024-01-01') u
 JOIN orders o ON u.id = o.user_id;
 ```
 
-## Optimization Patterns
+## 优化模式
 
-### Pattern 1: Eliminate N+1 Queries
+### 模式 1：消除 N+1 查询
 
-**Problem: N+1 Query Anti-Pattern**
+**问题：N+1 查询反模式**
 
 ```python
-# Bad: Executes N+1 queries
+# 差：执行 N+1 次查询
 users = db.query("SELECT * FROM users LIMIT 10")
 for user in users:
     orders = db.query("SELECT * FROM orders WHERE user_id = ?", user.id)
-    # Process orders
+    # 处理订单
 ```
 
-**Solution: Use JOINs or Batch Loading**
+**解决方案：使用 JOIN 或批量加载**
 
 ```sql
--- Solution 1: JOIN
+-- 解决方案 1：JOIN
 SELECT
     u.id, u.name,
     o.id as order_id, o.total
@@ -164,14 +164,14 @@ FROM users u
 LEFT JOIN orders o ON u.id = o.user_id
 WHERE u.id IN (1, 2, 3, 4, 5);
 
--- Solution 2: Batch query
+-- 解决方案 2：批量查询
 SELECT * FROM orders
 WHERE user_id IN (1, 2, 3, 4, 5);
 ```
 
 ```python
-# Good: Single query with JOIN or batch load
-# Using JOIN
+# 好：使用 JOIN 或批量加载的单次查询
+# 使用 JOIN
 results = db.query("""
     SELECT u.id, u.name, o.id as order_id, o.total
     FROM users u
@@ -179,109 +179,109 @@ results = db.query("""
     WHERE u.id IN (1, 2, 3, 4, 5)
 """)
 
-# Or batch load
+# 或批量加载
 users = db.query("SELECT * FROM users LIMIT 10")
 user_ids = [u.id for u in users]
 orders = db.query(
     "SELECT * FROM orders WHERE user_id IN (?)",
     user_ids
 )
-# Group orders by user_id
+# 按 user_id 分组订单
 orders_by_user = {}
 for order in orders:
     orders_by_user.setdefault(order.user_id, []).append(order)
 ```
 
-### Pattern 2: Optimize Pagination
+### 模式 2：优化分页
 
-**Bad: OFFSET on Large Tables**
+**差：大表使用 OFFSET**
 
 ```sql
--- Slow for large offsets
+-- 大偏移量时很慢
 SELECT * FROM users
 ORDER BY created_at DESC
-LIMIT 20 OFFSET 100000;  -- Very slow!
+LIMIT 20 OFFSET 100000;  -- 非常慢！
 ```
 
-**Good: Cursor-Based Pagination**
+**好：基于游标的分页**
 
 ```sql
--- Much faster: Use cursor (last seen ID)
+-- 快得多：使用游标（最后看到的 ID）
 SELECT * FROM users
-WHERE created_at < '2024-01-15 10:30:00'  -- Last cursor
+WHERE created_at < '2024-01-15 10:30:00'  -- 最后游标
 ORDER BY created_at DESC
 LIMIT 20;
 
--- With composite sorting
+-- 带复合排序
 SELECT * FROM users
 WHERE (created_at, id) < ('2024-01-15 10:30:00', 12345)
 ORDER BY created_at DESC, id DESC
 LIMIT 20;
 
--- Requires index
+-- 需要索引
 CREATE INDEX idx_users_cursor ON users(created_at DESC, id DESC);
 ```
 
-### Pattern 3: Aggregate Efficiently
+### 模式 3：高效聚合
 
-**Optimize COUNT Queries:**
+**优化 COUNT 查询：**
 
 ```sql
--- Bad: Counts all rows
-SELECT COUNT(*) FROM orders;  -- Slow on large tables
+-- 差：计算所有行
+SELECT COUNT(*) FROM orders;  -- 大表上很慢
 
--- Good: Use estimates for approximate counts
+-- 好：使用估计值进行近似计数
 SELECT reltuples::bigint AS estimate
 FROM pg_class
 WHERE relname = 'orders';
 
--- Good: Filter before counting
+-- 好：先过滤再计数
 SELECT COUNT(*) FROM orders
 WHERE created_at > NOW() - INTERVAL '7 days';
 
--- Better: Use index-only scan
+-- 更好：使用仅索引扫描
 CREATE INDEX idx_orders_created ON orders(created_at);
 SELECT COUNT(*) FROM orders
 WHERE created_at > NOW() - INTERVAL '7 days';
 ```
 
-**Optimize GROUP BY:**
+**优化 GROUP BY：**
 
 ```sql
--- Bad: Group by then filter
+-- 差：先分组再过滤
 SELECT user_id, COUNT(*) as order_count
 FROM orders
 GROUP BY user_id
 HAVING COUNT(*) > 10;
 
--- Better: Filter first, then group (if possible)
+-- 更好：先过滤再分组（如果可能）
 SELECT user_id, COUNT(*) as order_count
 FROM orders
 WHERE status = 'completed'
 GROUP BY user_id
 HAVING COUNT(*) > 10;
 
--- Best: Use covering index
+-- 最好：使用覆盖索引
 CREATE INDEX idx_orders_user_status ON orders(user_id, status);
 ```
 
-### Pattern 4: Subquery Optimization
+### 模式 4：子查询优化
 
-**Transform Correlated Subqueries:**
+**转换关联子查询：**
 
 ```sql
--- Bad: Correlated subquery (runs for each row)
+-- 差：关联子查询（每行执行一次）
 SELECT u.name, u.email,
     (SELECT COUNT(*) FROM orders o WHERE o.user_id = u.id) as order_count
 FROM users u;
 
--- Good: JOIN with aggregation
+-- 好：JOIN 加聚合
 SELECT u.name, u.email, COUNT(o.id) as order_count
 FROM users u
 LEFT JOIN orders o ON o.user_id = u.id
 GROUP BY u.id, u.name, u.email;
 
--- Better: Use window functions
+-- 更好：使用窗口函数
 SELECT DISTINCT ON (u.id)
     u.name, u.email,
     COUNT(o.id) OVER (PARTITION BY u.id) as order_count
@@ -289,10 +289,10 @@ FROM users u
 LEFT JOIN orders o ON o.user_id = u.id;
 ```
 
-**Use CTEs for Clarity:**
+**使用 CTE 提高清晰度：**
 
 ```sql
--- Using Common Table Expressions
+-- 使用公共表表达式
 WITH recent_users AS (
     SELECT id, name, email
     FROM users
@@ -309,40 +309,40 @@ FROM recent_users ru
 LEFT JOIN user_order_counts uoc ON ru.id = uoc.user_id;
 ```
 
-### Pattern 5: Batch Operations
+### 模式 5：批量操作
 
-**Batch INSERT:**
+**批量 INSERT：**
 
 ```sql
--- Bad: Multiple individual inserts
+-- 差：多次单独插入
 INSERT INTO users (name, email) VALUES ('Alice', 'alice@example.com');
 INSERT INTO users (name, email) VALUES ('Bob', 'bob@example.com');
 INSERT INTO users (name, email) VALUES ('Carol', 'carol@example.com');
 
--- Good: Batch insert
+-- 好：批量插入
 INSERT INTO users (name, email) VALUES
     ('Alice', 'alice@example.com'),
     ('Bob', 'bob@example.com'),
     ('Carol', 'carol@example.com');
 
--- Better: Use COPY for bulk inserts (PostgreSQL)
+-- 更好：使用 COPY 进行大批量插入（PostgreSQL）
 COPY users (name, email) FROM '/tmp/users.csv' CSV HEADER;
 ```
 
-**Batch UPDATE:**
+**批量 UPDATE：**
 
 ```sql
--- Bad: Update in loop
+-- 差：循环中更新
 UPDATE users SET status = 'active' WHERE id = 1;
 UPDATE users SET status = 'active' WHERE id = 2;
--- ... repeat for many IDs
+-- ... 对多个 ID 重复
 
--- Good: Single UPDATE with IN clause
+-- 好：使用 IN 子句的单次 UPDATE
 UPDATE users
 SET status = 'active'
 WHERE id IN (1, 2, 3, 4, 5, ...);
 
--- Better: Use temporary table for large batches
+-- 更好：大批量使用临时表
 CREATE TEMP TABLE temp_user_updates (id INT, new_status VARCHAR);
 INSERT INTO temp_user_updates VALUES (1, 'active'), (2, 'active'), ...;
 
@@ -352,14 +352,14 @@ FROM temp_user_updates t
 WHERE u.id = t.id;
 ```
 
-## Advanced Techniques
+## 高级技术
 
-### Materialized Views
+### 物化视图
 
-Pre-compute expensive queries.
+预计算昂贵的查询。
 
 ```sql
--- Create materialized view
+-- 创建物化视图
 CREATE MATERIALIZED VIEW user_order_summary AS
 SELECT
     u.id,
@@ -371,27 +371,27 @@ FROM users u
 LEFT JOIN orders o ON u.id = o.user_id
 GROUP BY u.id, u.name;
 
--- Add index to materialized view
+-- 为物化视图添加索引
 CREATE INDEX idx_user_summary_spent ON user_order_summary(total_spent DESC);
 
--- Refresh materialized view
+-- 刷新物化视图
 REFRESH MATERIALIZED VIEW user_order_summary;
 
--- Concurrent refresh (PostgreSQL)
+-- 并发刷新（PostgreSQL）
 REFRESH MATERIALIZED VIEW CONCURRENTLY user_order_summary;
 
--- Query materialized view (very fast)
+-- 查询物化视图（非常快）
 SELECT * FROM user_order_summary
 WHERE total_spent > 1000
 ORDER BY total_spent DESC;
 ```
 
-### Partitioning
+### 分区
 
-Split large tables for better performance.
+拆分大表以获得更好性能。
 
 ```sql
--- Range partitioning by date (PostgreSQL)
+-- 按日期范围分区（PostgreSQL）
 CREATE TABLE orders (
     id SERIAL,
     user_id INT,
@@ -399,80 +399,80 @@ CREATE TABLE orders (
     created_at TIMESTAMP
 ) PARTITION BY RANGE (created_at);
 
--- Create partitions
+-- 创建分区
 CREATE TABLE orders_2024_q1 PARTITION OF orders
     FOR VALUES FROM ('2024-01-01') TO ('2024-04-01');
 
 CREATE TABLE orders_2024_q2 PARTITION OF orders
     FOR VALUES FROM ('2024-04-01') TO ('2024-07-01');
 
--- Queries automatically use appropriate partition
+-- 查询自动使用适当分区
 SELECT * FROM orders
 WHERE created_at BETWEEN '2024-02-01' AND '2024-02-28';
--- Only scans orders_2024_q1 partition
+-- 仅扫描 orders_2024_q1 分区
 ```
 
-### Query Hints and Optimization
+### 查询提示与优化
 
 ```sql
--- Force index usage (MySQL)
+-- 强制使用索引（MySQL）
 SELECT * FROM users
 USE INDEX (idx_users_email)
 WHERE email = 'user@example.com';
 
--- Parallel query (PostgreSQL)
+-- 并行查询（PostgreSQL）
 SET max_parallel_workers_per_gather = 4;
 SELECT * FROM large_table WHERE condition;
 
--- Join hints (PostgreSQL)
-SET enable_nestloop = OFF;  -- Force hash or merge join
+-- 连接提示（PostgreSQL）
+SET enable_nestloop = OFF;  -- 强制使用哈希或合并连接
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Index Selectively**: Too many indexes slow down writes
-2. **Monitor Query Performance**: Use slow query logs
-3. **Keep Statistics Updated**: Run ANALYZE regularly
-4. **Use Appropriate Data Types**: Smaller types = better performance
-5. **Normalize Thoughtfully**: Balance normalization vs performance
-6. **Cache Frequently Accessed Data**: Use application-level caching
-7. **Connection Pooling**: Reuse database connections
-8. **Regular Maintenance**: VACUUM, ANALYZE, rebuild indexes
+1. **选择性索引**：过多索引会减慢写入速度
+2. **监控查询性能**：使用慢查询日志
+3. **保持统计信息更新**：定期运行 ANALYZE
+4. **使用适当的数据类型**：更小的类型 = 更好的性能
+5. **合理规范化**：平衡规范化与性能
+6. **缓存频繁访问的数据**：使用应用级缓存
+7. **连接池**：重用数据库连接
+8. **定期维护**：VACUUM、ANALYZE、重建索引
 
 ```sql
--- Update statistics
+-- 更新统计信息
 ANALYZE users;
 ANALYZE VERBOSE orders;
 
--- Vacuum (PostgreSQL)
+-- 清理（PostgreSQL）
 VACUUM ANALYZE users;
-VACUUM FULL users;  -- Reclaim space (locks table)
+VACUUM FULL users;  -- 回收空间（锁定表）
 
--- Reindex
+-- 重建索引
 REINDEX INDEX idx_users_email;
 REINDEX TABLE users;
 ```
 
-## Common Pitfalls
+## 常见陷阱
 
-- **Over-Indexing**: Each index slows down INSERT/UPDATE/DELETE
-- **Unused Indexes**: Waste space and slow writes
-- **Missing Indexes**: Slow queries, full table scans
-- **Implicit Type Conversion**: Prevents index usage
-- **OR Conditions**: Can't use indexes efficiently
-- **LIKE with Leading Wildcard**: `LIKE '%abc'` can't use index
-- **Function in WHERE**: Prevents index usage unless functional index exists
+- **过度索引**：每个索引都会减慢 INSERT/UPDATE/DELETE
+- **未使用的索引**：浪费空间并减慢写入
+- **缺失索引**：慢查询、全表扫描
+- **隐式类型转换**：阻止索引使用
+- **OR 条件**：无法高效使用索引
+- **前导通配符 LIKE**：`LIKE '%abc'` 无法使用索引
+- **WHERE 中的函数**：除非存在函数索引，否则阻止索引使用
 
-## Monitoring Queries
+## 监控查询
 
 ```sql
--- Find slow queries (PostgreSQL)
+-- 查找慢查询（PostgreSQL）
 SELECT query, calls, total_time, mean_time
 FROM pg_stat_statements
 ORDER BY mean_time DESC
 LIMIT 10;
 
--- Find missing indexes (PostgreSQL)
+-- 查找缺失索引（PostgreSQL）
 SELECT
     schemaname,
     tablename,
@@ -485,7 +485,7 @@ WHERE seq_scan > 0
 ORDER BY seq_tup_read DESC
 LIMIT 10;
 
--- Find unused indexes (PostgreSQL)
+-- 查找未使用的索引（PostgreSQL）
 SELECT
     schemaname,
     tablename,

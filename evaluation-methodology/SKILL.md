@@ -1,80 +1,71 @@
 ---
 name: evaluation-methodology
-description: "PluginEval quality methodology — dimensions, rubrics, statistical methods, and scoring formulas. Use this skill when understanding how plugin quality is measured, when interpreting a low score on a specific dimension, when deciding how to improve a skill's triggering accuracy or orchestration fitness, when calibrating scoring thresholds for your marketplace, or when explaining quality badges to external partners like Neon."
+description: "PluginEval 质量方法论 — 维度、评分标准、统计方法和评分公式。在理解插件质量如何衡量、解释特定维度的低分、决定如何提高技能的触发准确性或编排适配度、为您的市场校准评分阈值、或向 Neon 等外部合作伙伴解释质量徽章时使用此技能。"
 ---
 
-# Evaluation Methodology
+# 评估方法论
 
-This document is the authoritative reference for how PluginEval measures plugin and skill quality.
-It covers the three evaluation layers, all ten scoring dimensions, the composite formula, badge
-thresholds, anti-pattern flags, Elo ranking, and actionable improvement tips.
+本文档是 PluginEval 如何衡量插件和技能质量的权威参考。
+涵盖三个评估层、所有十个评分维度、组合公式、徽章阈值、反模式标志、Elo 排名和可操作的改进提示。
 
-Related: [Full rubric anchors](references/rubrics.md)
+相关：[完整评分标准锚点](references/rubrics.md)
 
 ---
 
-## The Three Evaluation Layers
+## 三个评估层
 
-PluginEval stacks three complementary layers. Each layer produces a score between 0.0 and 1.0 for
-each applicable dimension, and later layers override or blend with earlier ones according to
-per-dimension blend weights.
+PluginEval 堆叠三个互补层。每层对每个适用维度产生 0.0 到 1.0 之间的分数，后续层根据每维度的混合权重覆盖或与早期层混合。
 
-### Layer 1 — Static Analysis
+### 层 1 — 静态分析
 
-**Speed:** < 2 seconds. No LLM calls. Deterministic.
+**速度：** < 2 秒。无 LLM 调用。确定性。
 
-The static analyzer (`layers/static.py`) runs six sub-checks directly against the parsed SKILL.md:
+静态分析器（`layers/static.py`）对解析后的 SKILL.md 直接运行六个子检查：
 
-| Sub-check | What it measures |
+| 子检查 | 测量内容 |
 |---|---|
-| `frontmatter_quality` | Name presence, description length, trigger-phrase quality |
-| `orchestration_wiring` | Output/input documentation, code block count, orchestrator anti-pattern |
-| `progressive_disclosure` | Line count vs. sweet-spot (200–600 lines), references/ and assets/ bonuses |
-| `structural_completeness` | Heading density, code blocks, examples section, troubleshooting section |
-| `token_efficiency` | MUST/NEVER/ALWAYS density, duplicate-line repetition ratio |
-| `ecosystem_coherence` | Cross-references to other skills/agents, "related"/"see also" mentions |
+| `frontmatter_quality` | 名称存在、描述长度、触发短语质量 |
+| `orchestration_wiring` | 输出/输入文档、代码块数量、编排器反模式 |
+| `progressive_disclosure` | 行数 vs 最佳范围（200-600 行）、references/ 和 assets/ 奖励 |
+| `structural_completeness` | 标题密度、代码块、示例部分、故障排除部分 |
+| `token_efficiency` | MUST/NEVER/ALWAYS 密度、重复行重复率 |
+| `ecosystem_coherence` | 对其他技能/代理的交叉引用、"related"/"see also" 提及 |
 
-These six sub-checks feed directly into six of the ten final dimensions (via `STATIC_TO_DIMENSION`
-mapping). The remaining four dimensions — `output_quality`, `scope_calibration`,
-`robustness`, and part of `triggering_accuracy` — receive no static contribution and rely
-entirely on Layer 2 and/or Layer 3.
+这六个子检查直接馈入最终十个维度中的六个（通过 `STATIC_TO_DIMENSION` 映射）。其余四个维度 — `output_quality`、`scope_calibration`、`robustness` 和 `triggering_accuracy` 的部分 — 没有静态贡献，完全依赖层 2 和/或层 3。
 
-**Anti-pattern penalty** is applied multiplicatively to the Layer 1 score:
+**反模式惩罚**以乘法方式应用于层 1 分数：
 
 ```
 penalty = max(0.5, 1.0 − 0.05 × anti_pattern_count)
 ```
 
-Each additional detected anti-pattern reduces the score by 5%, flooring at 50%.
+每个额外检测到的反模式使分数降低 5%，最低降至 50%。
 
-### Layer 2 — LLM Judge
+### 层 2 — LLM 评审
 
-**Speed:** 30–90 seconds. One or more LLM calls (Sonnet by default). Non-deterministic.
+**速度：** 30-90 秒。一次或多次 LLM 调用（默认 Sonnet）。非确定性。
 
-The `eval-judge` agent reads the SKILL.md and any `references/` files, then scores four
-dimensions using anchored rubrics (see [references/rubrics.md](references/rubrics.md)):
+`eval-judge` 代理读取 SKILL.md 和任何 `references/` 文件，然后使用锚定评分标准（见 [references/rubrics.md](references/rubrics.md)）对四个维度评分：
 
-1. **Triggering accuracy** — F1 score derived from 10 mental test prompts
-2. **Orchestration fitness** — Worker purity assessment (0–1 rubric)
-3. **Output quality** — Simulates 3 realistic tasks; assesses instruction quality
-4. **Scope calibration** — Judges depth and breadth relative to the skill's category
+1. **触发准确性** — 从 10 个心理测试提示派生的 F1 分数
+2. **编排适配度** — Worker 纯度评估（0-1 评分标准）
+3. **输出质量** — 模拟 3 个真实任务；评估指令质量
+4. **范围校准** — 判断相对于技能类别的深度和广度
 
-The judge returns a structured JSON object (no markdown fences) that the eval engine merges
-into the composite. When `judges > 1`, scores are averaged and Cohen's kappa is reported as
-an inter-judge agreement metric.
+评审返回结构化 JSON 对象（无 markdown 围栏），评估引擎将其合并到组合中。当 `judges > 1` 时，分数取平均值，并报告 Cohen's kappa 作为评审间一致性指标。
 
-### Layer 3 — Monte Carlo Simulation
+### 层 3 — 蒙特卡洛模拟
 
-**Speed:** 5–20 minutes. N=50 simulated Agent SDK invocations (default). Statistical.
+**速度：** 5-20 分钟。N=50 次模拟 Agent SDK 调用（默认）。统计性。
 
-Monte Carlo runs `N` real prompts through the skill and records:
+蒙特卡洛通过技能运行 `N` 个真实提示并记录：
 
-- **Activation rate** — Fraction of prompts that triggered the skill
-- **Output consistency** — Coefficient of variation (CV) across quality scores
-- **Failure rate** — Error/crash fraction with Clopper-Pearson exact CIs
-- **Token efficiency** — Median token count, IQR, outlier count
+- **激活率** — 触发技能的提示比例
+- **输出一致性** — 质量分数的变异系数（CV）
+- **失败率** — 带 Clopper-Pearson 精确置信区间的错误/崩溃比例
+- **令牌效率** — 中位令牌数、IQR、异常值数量
 
-The Layer 3 composite formula:
+层 3 组合公式：
 
 ```
 mc_score = 0.40 × activation_rate
@@ -83,39 +74,38 @@ mc_score = 0.40 × activation_rate
          + 0.10 × efficiency_norm
 ```
 
-where `efficiency_norm = max(0, 1 − median_tokens / 8000)`.
+其中 `efficiency_norm = max(0, 1 − median_tokens / 8000)`。
 
 ---
 
-## Composite Scoring Formula
+## 组合评分公式
 
-The final score is a weighted blend across all three layers for each dimension, then summed:
+最终分数是每维度跨所有三层的加权混合，然后求和：
 
 ```
 composite = Σ(dimension_weight × blended_dimension_score) × 100 × anti_pattern_penalty
 ```
 
-### Dimension Weights
+### 维度权重
 
-| Dimension | Weight | Why it matters |
+| 维度 | 权重 | 重要性 |
 |---|---|---|
-| `triggering_accuracy` | 0.25 | A skill that never fires — or fires incorrectly — has no value |
-| `orchestration_fitness` | 0.20 | Skills must be pure workers; supervisor logic belongs in agents |
-| `output_quality` | 0.15 | Correct, complete output is the primary deliverable |
-| `scope_calibration` | 0.12 | Neither a stub nor a bloated monster |
-| `progressive_disclosure` | 0.10 | SKILL.md is lean; detail lives in references/ |
-| `token_efficiency` | 0.06 | Minimal context waste per invocation |
-| `robustness` | 0.05 | Handles edge cases without crashing |
-| `structural_completeness` | 0.03 | Correct sections in the right order |
-| `code_template_quality` | 0.02 | Working, copy-paste-ready examples |
-| `ecosystem_coherence` | 0.02 | Cross-references; no duplication with siblings |
+| `triggering_accuracy` | 0.25 | 从不触发或错误触发的技能没有价值 |
+| `orchestration_fitness` | 0.20 | 技能必须是纯 worker；监督逻辑属于代理 |
+| `output_quality` | 0.15 | 正确、完整的输出是主要交付物 |
+| `scope_calibration` | 0.12 | 既不是存根也不是臃肿的怪物 |
+| `progressive_disclosure` | 0.10 | SKILL.md 精简；详细内容在 references/ 中 |
+| `token_efficiency` | 0.06 | 每次调用的最小上下文浪费 |
+| `robustness` | 0.05 | 处理边缘情况而不崩溃 |
+| `structural_completeness` | 0.03 | 正确的部分按正确顺序排列 |
+| `code_template_quality` | 0.02 | 可工作、可复制粘贴的示例 |
+| `ecosystem_coherence` | 0.02 | 交叉引用；与兄弟技能无重复 |
 
-### Layer Blend Weights
+### 层混合权重
 
-Each dimension draws from different layers at different ratios. With all three layers active
-(`--depth deep` or `certify`):
+每维度从不同层以不同比例提取。当所有三层都激活时（`--depth deep` 或 `certify`）：
 
-| Dimension | Static | Judge | Monte Carlo |
+| 维度 | 静态 | 评审 | 蒙特卡洛 |
 |---|---|---|---|
 | `triggering_accuracy` | 0.15 | 0.25 | 0.60 |
 | `orchestration_fitness` | 0.10 | 0.70 | 0.20 |
@@ -128,12 +118,11 @@ Each dimension draws from different layers at different ratios. With all three l
 | `code_template_quality` | 0.30 | 0.70 | 0.00 |
 | `ecosystem_coherence` | 0.85 | 0.15 | 0.00 |
 
-At `--depth standard` (static + judge only), blends are renormalized to drop the Monte Carlo
-column. At `--depth quick` (static only), all weight falls on Layer 1.
+在 `--depth standard`（仅静态 + 评审）时，混合权重重新标准化以去除蒙特卡洛列。在 `--depth quick`（仅静态）时，所有权重落在层 1 上。
 
-### Blended Score Calculation
+### 混合分数计算
 
-For a given depth, the blended score for dimension `d` is:
+对于给定深度，维度 `d` 的混合分数为：
 
 ```
 blended[d] = Σ( layer_weight[d][layer] × layer_score[d][layer] )
@@ -141,154 +130,133 @@ blended[d] = Σ( layer_weight[d][layer] × layer_score[d][layer] )
              Σ( layer_weight[d][layer] for available layers )
 ```
 
-This normalization ensures that skipping Monte Carlo at standard depth doesn't artificially
-deflate scores.
+此标准化确保在标准深度跳过蒙特卡洛不会人为降低分数。
 
 ---
 
-## Interpreting Dimension Scores
+## 解释维度分数
 
-Each dimension score is a float in `[0.0, 1.0]`. The CLI converts it to a letter grade:
+每个维度分数是 `[0.0, 1.0]` 中的浮点数。CLI 将其转换为字母等级：
 
-| Grade | Score range | Meaning |
+| 等级 | 分数范围 | 含义 |
 |---|---|---|
-| A | 0.90 – 1.00 | Excellent — no meaningful improvement needed |
-| B | 0.80 – 0.89 | Good — minor gaps only |
-| C | 0.70 – 0.79 | Adequate — one or two clear improvement areas |
-| D | 0.60 – 0.69 | Marginal — needs targeted work |
-| F | < 0.60 | Failing — significant remediation required |
+| A | 0.90 – 1.00 | 优秀 — 无需实质性改进 |
+| B | 0.80 – 0.89 | 良好 — 仅有轻微差距 |
+| C | 0.70 – 0.79 | 足够 — 一两个明确改进领域 |
+| D | 0.60 – 0.69 | 勉强 — 需要有针对性的工作 |
+| F | < 0.60 | 不及格 — 需要重大补救 |
 
-When reading a report, focus first on the lowest-graded dimension that has the highest weight.
-A D in `triggering_accuracy` (weight 0.25) costs far more than a D in `ecosystem_coherence`
-(weight 0.02).
+阅读报告时，首先关注权重最高的最低等级维度。`triggering_accuracy`（权重 0.25）的 D 比 `ecosystem_coherence`（权重 0.02）的 D 代价大得多。
 
-**Confidence intervals** appear in the report when Layer 2 or Layer 3 ran. Narrow CIs (± < 5
-points) indicate stable scores. Wide CIs suggest inconsistency — often caused by an ambiguous
-description or instructions that work for some prompt styles but not others.
+当层 2 或层 3 运行时，报告中会出现**置信区间**。窄置信区间（± < 5 分）表示分数稳定。宽置信区间表示不一致 — 通常由模糊描述或对某些提示风格有效但对其他风格无效的指令引起。
 
 ---
 
-## Quality Badges
+## 质量徽章
 
-Badges require both a composite score threshold AND an Elo threshold (when Elo is available).
-The `Badge.from_scores()` logic checks composite first, then Elo if provided:
+徽章需要组合分数阈值和 Elo 阈值（当 Elo 可用时）。`Badge.from_scores()` 逻辑首先检查组合分数，然后在提供时检查 Elo：
 
-| Badge | Composite | Elo | Meaning |
+| 徽章 | 组合分数 | Elo | 含义 |
 |---|---|---|---|
-| Platinum ★★★★★ | ≥ 90 | ≥ 1600 | Reference quality — suitable for gold corpus |
-| Gold ★★★★ | ≥ 80 | ≥ 1500 | Production ready |
-| Silver ★★★ | ≥ 70 | ≥ 1400 | Functional, has improvement opportunities |
-| Bronze ★★ | ≥ 60 | ≥ 1300 | Minimum viable — not yet recommended for users |
-| — | < 60 | any | Does not meet minimum bar |
+| 白金 ★★★★★ | ≥ 90 | ≥ 1600 | 参考质量 — 适合金标准语料库 |
+| 金 ★★★★ | ≥ 80 | ≥ 1500 | 生产就绪 |
+| 银 ★★★ | ≥ 70 | ≥ 1400 | 功能性，有改进机会 |
+| 铜 ★★ | ≥ 60 | ≥ 1300 | 最低可行 — 尚不推荐给用户 |
+| — | < 60 | 任何 | 未达到最低标准 |
 
-The Elo threshold is skipped when Elo has not been computed (i.e., at quick or standard depth
-without `certify`). A skill can earn a badge on composite score alone in those cases.
-
----
-
-## Anti-Pattern Flags
-
-The static analyzer detects five anti-patterns. Each carries a severity multiplier that feeds
-into the penalty formula.
-
-### OVER_CONSTRAINED
-
-**Trigger:** More than 15 occurrences of MUST, ALWAYS, or NEVER in the SKILL.md.
-
-**Problem:** Overly prescriptive instructions reduce model flexibility, increase token overhead,
-and signal that the author is trying to micromanage every output rather than providing
-principled guidance.
-
-**Fix:** Audit every MUST/ALWAYS/NEVER. Replace directive language with explanatory framing
-where possible. Reserve hard constraints for genuine safety or correctness requirements. Target
-fewer than 10 such directives per 100 lines.
-
-### EMPTY_DESCRIPTION
-
-**Trigger:** The frontmatter `description` field is fewer than 20 characters after stripping.
-
-**Problem:** Without a meaningful description, the Claude Code plugin system cannot determine
-when to invoke the skill. The skill becomes invisible to autonomous invocation.
-
-**Fix:** Write a description of at least 60–120 characters that includes:
-- A "Use this skill when..." or "Use when..." trigger clause
-- Two or more concrete contexts separated by commas or "or"
-
-### MISSING_TRIGGER
-
-**Trigger:** The description does not contain "use when", "use this skill when",
-"use proactively", or "trigger when" (case-insensitive).
-
-**Problem:** Even a long description is useless for autonomous invocation if it doesn't
-include a clear trigger signal. The system's routing model needs an explicit cue.
-
-**Fix:** Prepend "Use this skill when..." to the description, followed by specific scenarios.
-Example: "Use this skill when measuring plugin quality, interpreting score reports, or
-explaining badge thresholds to a team."
-
-### BLOATED_SKILL
-
-**Trigger:** SKILL.md exceeds 800 lines AND the skill has no `references/` directory.
-
-**Problem:** A monolithic SKILL.md forces the entire document into context on every invocation,
-wasting tokens on content only needed in edge cases.
-
-**Fix:** Create a `references/` directory and move supporting material there:
-- Detailed rubrics → `references/rubrics.md`
-- Extended examples → `references/examples.md`
-- Configuration reference → `references/config.md`
-
-The SKILL.md should link to these files with `[text](references/filename.md)` so the model
-can fetch them on demand.
-
-### ORPHAN_REFERENCE
-
-**Trigger:** SKILL.md contains a markdown link `[text](references/filename)` where
-`filename` does not exist in the `references/` directory.
-
-**Problem:** Dead links waste tokens on context that will never resolve and confuse the model.
-
-**Fix:** Either create the missing reference file or remove the dead link.
-
-### DEAD_CROSS_REF
-
-**Trigger:** SKILL.md references another skill or agent by relative path and that path
-cannot be resolved from the skills/ directory.
-
-**Problem:** Broken ecosystem links undermine the plugin's coherence score and may cause
-the model to attempt navigation to non-existent files.
-
-**Fix:** Verify the referenced skill exists. Update the path or remove the reference.
+当 Elo 尚未计算时（即在 quick 或 standard 深度且未使用 `certify` 时），跳过 Elo 阈值。在这些情况下，技能可以仅凭组合分数获得徽章。
 
 ---
 
-## Elo Ranking
+## 反模式标志
 
-PluginEval uses an Elo/Bradley-Terry rating system to rank a skill against the gold corpus.
+静态分析器检测五种反模式。每种都带有严重性乘数，用于惩罚公式。
 
-**Starting rating:** 1500 (the corpus median by convention).
+### 过度约束（OVER_CONSTRAINED）
 
-**K-factor:** 32 (standard for moderate-stakes ratings).
+**触发条件：** SKILL.md 中 MUST、ALWAYS 或 NEVER 出现超过 15 次。
 
-**Expected score formula** (standard Elo):
+**问题：** 过于规范的指令减少模型灵活性，增加令牌开销，并表明作者试图微管理每个输出而不是提供原则性指导。
+
+**修复：** 审计每个 MUST/ALWAYS/NEVER。尽可能用解释性框架替代指令性语言。仅为真正的安全或正确性要求保留硬约束。目标每 100 行少于 10 个此类指令。
+
+### 空描述（EMPTY_DESCRIPTION）
+
+**触发条件：** 前置元数据 `description` 字段去除空白后少于 20 个字符。
+
+**问题：** 没有意义的描述，Claude Code 插件系统无法确定何时调用该技能。该技能对自动调用不可见。
+
+**修复：** 编写至少 60-120 个字符的描述，包括：
+- "Use this skill when..." 或 "Use when..." 触发子句
+- 两个或更多用逗号或 "or" 分隔的具体上下文
+
+### 缺少触发器（MISSING_TRIGGER）
+
+**触发条件：** 描述不包含 "use when"、"use this skill when"、"use proactively" 或 "trigger when"（不区分大小写）。
+
+**问题：** 即使是长描述，如果不包含明确的触发信号，对自动调用也无用。系统的路由模型需要明确的提示。
+
+**修复：** 在描述前加上 "Use this skill when..."，后跟具体场景。
+示例："Use this skill when measuring plugin quality, interpreting score reports, or explaining badge thresholds to a team."
+
+### 臃肿技能（BLOATED_SKILL）
+
+**触发条件：** SKILL.md 超过 800 行且技能没有 `references/` 目录。
+
+**问题：** 单体 SKILL.md 在每次调用时强制将整个文档加载到上下文中，浪费令牌在仅在边缘情况下需要的内容上。
+
+**修复：** 创建 `references/` 目录并将支持材料移到那里：
+- 详细评分标准 -> `references/rubrics.md`
+- 扩展示例 -> `references/examples.md`
+- 配置参考 -> `references/config.md`
+
+SKILL.md 应使用 `[text](references/filename.md)` 链接到这些文件，以便模型可以按需获取。
+
+### 孤立引用（ORPHAN_REFERENCE）
+
+**触发条件：** SKILL.md 包含 markdown 链接 `[text](references/filename)`，其中 `filename` 在 `references/` 目录中不存在。
+
+**问题：** 死链接浪费令牌在永远不会解析的上下文中，并使模型困惑。
+
+**修复：** 创建缺失的引用文件或删除死链接。
+
+### 断裂交叉引用（DEAD_CROSS_REF）
+
+**触发条件：** SKILL.md 通过相对路径引用另一个技能或代理，且该路径无法从 skills/ 目录解析。
+
+**问题：** 断裂的生态系统链接削弱插件的连贯性分数，并可能导致模型尝试导航到不存在的文件。
+
+**修复：** 验证引用的技能存在。更新路径或删除引用。
+
+---
+
+## Elo 排名
+
+PluginEval 使用 Elo/Bradley-Terry 评级系统将技能与金标准语料库进行排名。
+
+**起始评级：** 1500（按惯例为语料库中位数）。
+
+**K 因子：** 32（中等风险评级的标准值）。
+
+**期望分数公式**（标准 Elo）：
 
 ```
 E(A vs B) = 1 / (1 + 10^((B_rating − A_rating) / 400))
 ```
 
-**Rating update after each matchup:**
+**每次对战后的评级更新：**
 
 ```
 new_rating = old_rating + 32 × (actual_score − expected_score)
 ```
 
-where `actual_score` is 1.0 for a win, 0.5 for a draw, 0.0 for a loss.
+其中 `actual_score` 胜为 1.0，平为 0.5，负为 0.0。
 
-**Confidence intervals** are computed via 500-sample bootstrap, reported as 95% CI.
-**Corpus percentile** reflects pairwise win rate against the gold corpus.
-**Position bias check:** Pairs are evaluated in both orders; disagreements are flagged.
+**置信区间**通过 500 样本自助法计算，报告为 95% 置信区间。
+**语料库百分位数**反映与金标准语料库的成对胜率。
+**位置偏差检查：** 成对以两种顺序评估；不一致被标记。
 
-The `plugin-eval init` command builds the corpus index from a plugins directory:
+`plugin-eval init` 命令从插件目录构建语料库索引：
 
 ```bash
 plugin-eval init ./plugins --corpus-dir ~/.plugineval/corpus
@@ -296,72 +264,70 @@ plugin-eval init ./plugins --corpus-dir ~/.plugineval/corpus
 
 ---
 
-## CLI Reference
+## CLI 参考
 
-### Score a skill (quick static analysis only)
+### 对技能评分（仅快速静态分析）
 
 ```bash
 plugin-eval score ./path/to/skill --depth quick
 ```
 
-Returns Layer 1 results in < 2 seconds. Useful for fast feedback during authoring.
+在 < 2 秒内返回层 1 结果。适用于编写时的快速反馈。
 
-### Score with LLM judge (default)
+### 使用 LLM 评审评分（默认）
 
 ```bash
 plugin-eval score ./path/to/skill
 ```
 
-Runs static + LLM judge (standard depth). Takes 30–90 seconds.
+运行静态 + LLM 评审（标准深度）。需要 30-90 秒。
 
-### Score with full output as JSON
+### 以 JSON 格式输出完整评分
 
 ```bash
 plugin-eval score ./path/to/skill --output json
 ```
 
-Emits structured JSON including `composite.score`, `composite.dimensions`, and
-`layers[0].anti_patterns`. Suitable for CI integration:
+发出结构化 JSON，包括 `composite.score`、`composite.dimensions` 和 `layers[0].anti_patterns`。适合 CI 集成：
 
 ```bash
 plugin-eval score ./path/to/skill --depth quick --output json --threshold 70
-# exits with code 1 if score < 70
+# 如果分数 < 70 则以代码 1 退出
 ```
 
-### Full certification (all three layers + Elo)
+### 完整认证（所有三层 + Elo）
 
 ```bash
 plugin-eval certify ./path/to/skill
 ```
 
-Runs static + LLM judge + Monte Carlo (50 simulations) + Elo ranking. Takes 15–20 minutes.
-Assigns a quality badge. Use before publishing a skill to the marketplace.
+运行静态 + LLM 评审 + 蒙特卡洛（50 次模拟）+ Elo 排名。需要 15-20 分钟。
+分配质量徽章。在将技能发布到市场之前使用。
 
-### Head-to-head comparison
+### 正面对比
 
 ```bash
 plugin-eval compare ./skill-a ./skill-b
 ```
 
-Evaluates both skills at quick depth and prints a dimension-by-dimension comparison table.
-Useful for deciding between two implementations or measuring improvement before/after a
-rewrite.
+以快速深度评估两个技能并打印逐维度比较表。
+适用于在两个实现之间选择或衡量重写前后的改进。
 
-### Initialize corpus for Elo
+### 初始化 Elo 语料库
 
 ```bash
 plugin-eval init ./plugins
 ```
 
-Builds the local corpus index at `~/.plugineval/corpus`. Required before Elo ranking works.
+在 `~/.plugineval/corpus` 构建本地语料库索引。Elo 排名工作前必需。
 
-### Scripting the Composite Formula
+### 组合公式的脚本化
 
-Reproduce the composite score offline (pre-commit hook, CI gate):
+离线复现组合分数（pre-commit hook、CI 门控）：
 
 ```python
 def composite_score(dimension_scores: dict, anti_pattern_count: int = 0) -> float:
-    """Replicate the PluginEval composite formula."""
+    """复现 PluginEval 组合公式。"""
     WEIGHTS = {
         "triggering_accuracy":    0.25,
         "orchestration_fitness":  0.20,
@@ -378,19 +344,19 @@ def composite_score(dimension_scores: dict, anti_pattern_count: int = 0) -> floa
     penalty = max(0.5, 1.0 - 0.05 * anti_pattern_count)
     return round(raw * 100 * penalty, 2)
 
-# Example: a skill with a weak triggering score
+# 示例：触发分数较弱的技能
 scores = {
-    "triggering_accuracy":    0.65,  # D — needs description work
+    "triggering_accuracy":    0.65,  # D — 需要改进描述
     "orchestration_fitness":  0.85,
     "output_quality":         0.80,
-    # … fill in remaining 7 dimensions …
+    # … 填写剩余 7 个维度 …
 }
 # composite_score(scores, anti_pattern_count=1) → ~76.5
 ```
 
-### JSON Output Format
+### JSON 输出格式
 
-Top-level shape of `--output json`:
+`--output json` 的顶层结构：
 
 ```json
 {
@@ -406,7 +372,7 @@ Top-level shape of `--output json`:
 }
 ```
 
-Parse `composite.score` in CI to gate deployments:
+在 CI 中解析 `composite.score` 以设置部署门控：
 
 ```bash
 score=$(plugin-eval score ./my-skill --output json | python3 -c "import sys,json; print(json.load(sys.stdin)['composite']['score'])")
@@ -418,133 +384,113 @@ fi
 
 ---
 
-## Tips for Improving a Skill's Score
+## 提高技能分数的提示
 
-Work through dimensions in weight order. The largest gains come from fixing the top-weighted
-dimensions first.
+按权重顺序处理维度。最大的收益来自首先修复最高权重的维度。
 
-### Which Dimension to Improve First
+### 先改进哪个维度
 
-Use this table when a score report shows multiple D/F grades and you need to prioritize effort.
+当分数报告显示多个 D/F 等级且需要优先安排工作时使用此表。
 
-| Dimension | Weight | Typical fix effort | Score impact / hour | Fix first if… |
+| 维度 | 权重 | 典型修复工作量 | 每小时分数影响 | 先修复如果… |
 |---|---|---|---|---|
-| `triggering_accuracy` | 0.25 | Low — description rewrite | High | Score < 70 overall |
-| `orchestration_fitness` | 0.20 | Medium — restructure sections | High | Skill mixes worker + supervisor logic |
-| `output_quality` | 0.15 | Medium — add examples | Medium | Judge score < 0.70 |
-| `scope_calibration` | 0.12 | Low — move content to references/ | Medium | File is < 100 or > 800 lines |
-| `progressive_disclosure` | 0.10 | Low — create references/ dir | Medium | No references/ directory exists |
-| `token_efficiency` | 0.06 | Low — reduce MUST/ALWAYS/NEVER | Low | Anti-pattern count ≥ 3 |
-| `robustness` | 0.05 | Low — add Troubleshooting section | Low | No edge-case handling documented |
-| `structural_completeness` | 0.03 | Very low — add headings/code blocks | Low | Fewer than 4 H2 headings |
-| `code_template_quality` | 0.02 | Very low — add language tags | Very low | Code blocks missing language tags |
-| `ecosystem_coherence` | 0.02 | Very low — add Related section | Very low | No cross-references at all |
+| `triggering_accuracy` | 0.25 | 低 — 描述重写 | 高 | 总分 < 70 |
+| `orchestration_fitness` | 0.20 | 中 — 重组部分 | 高 | 技能混合了 worker + 监督逻辑 |
+| `output_quality` | 0.15 | 中 — 添加示例 | 中 | 评审分数 < 0.70 |
+| `scope_calibration` | 0.12 | 低 — 将内容移至 references/ | 中 | 文件 < 100 或 > 800 行 |
+| `progressive_disclosure` | 0.10 | 低 — 创建 references/ 目录 | 中 | 不存在 references/ 目录 |
+| `token_efficiency` | 0.06 | 低 — 减少 MUST/ALWAYS/NEVER | 低 | 反模式计数 ≥ 3 |
+| `robustness` | 0.05 | 低 — 添加故障排除部分 | 低 | 未记录边缘情况处理 |
+| `structural_completeness` | 0.03 | 非常低 — 添加标题/代码块 | 低 | 少于 4 个 H2 标题 |
+| `code_template_quality` | 0.02 | 非常低 — 添加语言标签 | 非常低 | 代码块缺少语言标签 |
+| `ecosystem_coherence` | 0.02 | 非常低 — 添加相关部分 | 非常低 | 完全没有交叉引用 |
 
-**Rule of thumb:** Fix `triggering_accuracy` before anything else — at weight 0.25 it delivers
-more composite-score gain per hour than all low-weight dimensions combined.
+**经验法则：** 先修复 `triggering_accuracy` — 以 0.25 的权重，它每小时带来的组合分数增益比所有低权重维度加起来还多。
 
-### Triggering Accuracy (weight 0.25)
+### 触发准确性（权重 0.25）
 
-- Include "Use this skill when..." followed by 3–4 comma-separated specific contexts.
-- Add "proactively" if the skill should auto-activate without an explicit user request.
-- Mental test: write 5 prompts that should trigger it and 5 that should not — does
-  your description discriminate? If not, add or tighten the context phrases.
+- 包含 "Use this skill when..." 后跟 3-4 个逗号分隔的具体上下文。
+- 如果技能应在没有明确用户请求时自动激活，添加 "proactively"。
+- 心理测试：编写 5 个应该触发它的提示和 5 个不应该的 — 您的描述是否能区分？如果不能，添加或收紧上下文短语。
 
-### Orchestration Fitness (weight 0.20)
+### 编排适配度（权重 0.20）
 
-- Document what the skill *receives* and what it *returns* — not what it orchestrates.
-- Avoid "orchestrate", "coordinate", "dispatch", "manage workflow" in SKILL.md.
-- Include an "Output format" section and 2+ code blocks showing concrete worker behavior.
+- 记录技能*接收*什么和*返回*什么 — 而非它编排什么。
+- 在 SKILL.md 中避免 "orchestrate"、"coordinate"、"dispatch"、"manage workflow"。
+- 包含 "Output format" 部分和 2+ 个展示具体 worker 行为的代码块。
 
-### Output Quality (weight 0.15)
+### 输出质量（权重 0.15）
 
-- Give specific, actionable instructions — not just goals.
-- Cover at least one edge case explicitly (empty input, malformed data, etc.).
-- Include an examples section showing representative inputs and expected outputs.
-- The more concrete the instructions, the higher the judge will score this dimension.
+- 给出具体、可操作的指令 — 而非仅仅是目标。
+- 明确覆盖至少一个边缘情况（空输入、格式错误数据等）。
+- 包含展示代表性输入和预期输出的示例部分。
+- 指令越具体，评审在此维度的评分越高。
 
-### Scope Calibration (weight 0.12)
+### 范围校准（权重 0.12）
 
-- Target 200–600 lines. Below 100 is a stub; above 800 without `references/` is bloat.
-- Move background reading, extended examples, and reference tables to `references/`.
-- Very narrow skills should be merged with a sibling; very broad ones should be split.
+- 目标 200-600 行。低于 100 是存根；超过 800 且无 `references/` 是臃肿。
+- 将背景阅读、扩展示例和参考表移至 `references/`。
+- 非常窄的技能应与兄弟技能合并；非常广的应拆分。
 
-### Progressive Disclosure (weight 0.10)
+### 渐进式披露（权重 0.10）
 
-- Add a `references/` directory (earns 0.15–0.25 bonus) and keep SKILL.md focused on
-  the execution path. An `assets/` directory adds a further bonus.
+- 添加 `references/` 目录（获得 0.15-0.25 奖励）并将 SKILL.md 聚焦于执行路径。`assets/` 目录增加额外奖励。
 
-### Token Efficiency (weight 0.06)
+### 令牌效率（权重 0.06）
 
-- Audit MUST/ALWAYS/NEVER count. Target < 1 per 10 lines.
-- Consolidate near-duplicate bullet points and repeated-structure tables.
+- 审计 MUST/ALWAYS/NEVER 数量。目标每 10 行 < 1 个。
+- 合并近似重复的项目符号和重复结构的表。
 
-### Robustness (weight 0.05)
+### 健壮性（权重 0.05）
 
-- Add a "Troubleshooting" or "Edge Cases" section covering at least 3 failure modes.
-- State what the skill returns when it cannot complete its task.
+- 添加覆盖至少 3 种故障模式的 "Troubleshooting" 或 "Edge Cases" 部分。
+- 说明技能无法完成任务时返回什么。
 
-### Structural Completeness (weight 0.03)
+### 结构完整性（权重 0.03）
 
-- Ensure at least 4 H2/H3 headings, 3 code blocks, an Examples section, and a Troubleshooting section.
+- 确保至少 4 个 H2/H3 标题、3 个代码块、一个示例部分和一个故障排除部分。
 
-### Code Template Quality (weight 0.02)
+### 代码模板质量（权重 0.02）
 
-- All code blocks must be syntactically valid and copy-paste ready with language tags.
+- 所有代码块必须语法有效且可复制粘贴，带有语言标签。
 
-### Ecosystem Coherence (weight 0.02)
+### 生态系统连贯性（权重 0.02）
 
-- Add a "## Related" section listing sibling skills or agents with relative paths.
-- Avoid duplicating content that already exists in another skill — link to it instead.
+- 添加列出兄弟技能或代理（带相对路径）的 "## Related" 部分。
+- 避免复制已存在于另一个技能中的内容 — 改为链接到它。
 
 ---
 
-## Troubleshooting
+## 故障排除
 
-### "Score is much lower than expected after adding content"
+### "添加内容后分数大幅低于预期"
 
-The anti-pattern penalty compounds. Run with `--output json` and inspect
-`layers[0].anti_patterns`. If you have 5+ anti-patterns, the multiplier can reduce your
-score to 75% of its raw value regardless of how good the content is. Fix the flags first.
+反模式惩罚是复合的。使用 `--output json` 运行并检查 `layers[0].anti_patterns`。如果有 5+ 个反模式，乘数可以将分数降低到原始值的 75%，无论内容有多好。先修复标志。
 
-### "triggering_accuracy is low despite a detailed description"
+### "尽管描述详细，triggering_accuracy 仍然很低"
 
-The `_description_pushiness` scorer looks for specific syntactic patterns, not just length.
-Verify your description contains the phrase "Use this skill when" or "Use when" (exact
-phrasing matters — it's a regex match). Also check that you have multiple use cases separated
-by commas or "or" to earn the specificity bonus.
+`_description_pushiness` 评分器寻找特定的语法模式，而非仅仅是长度。
+验证您的描述包含短语 "Use this skill when" 或 "Use when"（精确措辞很重要 — 这是正则匹配）。还要检查您是否有多个用逗号或 "or" 分隔的用例以获得特异性奖励。
 
-### "LLM judge scores vary significantly between runs"
+### "LLM 评审分数在不同运行间差异显著"
 
-This is expected for ambiguous skills. The judge generates 10 mental test prompts
-non-deterministically. Improve score stability by tightening the description and adding
-concrete examples. When `judges > 1`, averaged scores will be more stable. Use
-`--depth deep` with `certify` which runs Monte Carlo to get statistically-bounded scores.
+这对模糊技能是预期的。评审以非确定性方式生成 10 个心理测试提示。通过收紧描述和添加具体示例来提高分数稳定性。当 `judges > 1` 时，平均分数会更稳定。使用 `--depth deep` 配合 `certify` 运行蒙特卡洛以获得统计约束的分数。
 
-### "progressive_disclosure score is low even though the file is the right length"
+### "文件长度正确但 progressive_disclosure 分数很低"
 
-Check whether the file is in the 200–600 line sweet spot. Files shorter than 100 lines
-score only 0.20 on this sub-check. Also confirm that `references/` files are not empty —
-the scorer checks for non-empty reference files, not just the directory.
+检查文件是否在 200-600 行的最佳范围内。短于 100 行的文件在此子检查上仅得 0.20 分。还要确认 `references/` 文件不是空的 — 评分器检查非空的引用文件，而非仅仅是目录。
 
-### "compare shows my rewrite scores lower than the original"
+### "compare 显示我的重写分数低于原始版本"
 
-Quick depth (`--depth quick`) only runs static analysis. If the rewrite moved content to
-`references/` and shortened SKILL.md significantly, static scores for structural completeness
-may drop even though overall quality improved. Run `--depth standard` for a fairer comparison
-that includes the LLM judge's assessment of content quality.
+快速深度（`--depth quick`）仅运行静态分析。如果重写将内容移至 `references/` 并显著缩短 SKILL.md，结构完整性的静态分数可能会下降，即使整体质量有所提高。运行 `--depth standard` 以获得更公平的比较，包括 LLM 评审对内容质量的评估。
 
 ---
 
-## References
+## 参考
 
-- [Full Rubric Anchors — all 4 judge dimensions](references/rubrics.md)
+- [完整评分标准锚点 — 所有 4 个评审维度](references/rubrics.md)
 
-### Related Agents
+### 相关代理
 
-- **eval-judge** (`../../agents/eval-judge.md`) — the LLM judge that scores Layer 2 dimensions
-  (`triggering_accuracy`, `orchestration_fitness`, `output_quality`, `scope_calibration`).
-  Invoke directly when you need to re-run only the judge layer or inspect its reasoning.
-- **eval-orchestrator** (`../../agents/eval-orchestrator.md`) — the top-level orchestrator that
-  sequences all three layers, merges results, assigns badges, and writes the final report.
-  Invoke when running a full certification pass or comparing two skills head-to-head.
+- **eval-judge**（`../../agents/eval-judge.md`）— 评分层 2 维度（`triggering_accuracy`、`orchestration_fitness`、`output_quality`、`scope_calibration`）的 LLM 评审。当您需要仅重新运行评审层或检查其推理时直接调用。
+- **eval-orchestrator**（`../../agents/eval-orchestrator.md`）— 顶层编排器，排序所有三层、合并结果、分配徽章并编写最终报告。在运行完整认证或正面对比两个技能时调用。

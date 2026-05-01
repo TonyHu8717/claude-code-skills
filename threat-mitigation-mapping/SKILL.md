@@ -1,67 +1,67 @@
 ---
 name: threat-mitigation-mapping
-description: Map identified threats to appropriate security controls and mitigations. Use when prioritizing security investments, creating remediation plans, or validating control effectiveness.
+description: 将已识别的威胁映射到适当的安全控制和缓解措施。适用于优先安排安全投资、创建修复计划或验证控制有效性。
 ---
 
-# Threat Mitigation Mapping
+# 威胁缓解映射
 
-Connect threats to controls for effective security planning.
+将威胁与控制连接起来，实现有效的安全规划。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Prioritizing security investments
-- Creating remediation roadmaps
-- Validating control coverage
-- Designing defense-in-depth
-- Security architecture review
-- Risk treatment planning
+- 优先安排安全投资
+- 创建修复路线图
+- 验证控制覆盖范围
+- 设计纵深防御
+- 安全架构审查
+- 风险处置规划
 
-## Core Concepts
+## 核心概念
 
-### 1. Control Categories
+### 1. 控制类别
 
 ```
-Preventive ────► Stop attacks before they occur
-   │              (Firewall, Input validation)
+预防性 ────► 在攻击发生前阻止
+   │              （防火墙、输入验证）
    │
-Detective ─────► Identify attacks in progress
-   │              (IDS, Log monitoring)
+检测性 ────► 识别正在进行的攻击
+   │              （IDS、日志监控）
    │
-Corrective ────► Respond and recover from attacks
-                  (Incident response, Backup restore)
+纠正性 ────► 响应攻击并恢复
+                  （事件响应、备份恢复）
 ```
 
-### 2. Control Layers
+### 2. 控制层
 
-| Layer           | Examples                             |
-| --------------- | ------------------------------------ |
-| **Network**     | Firewall, WAF, DDoS protection       |
-| **Application** | Input validation, authentication     |
-| **Data**        | Encryption, access controls          |
-| **Endpoint**    | EDR, patch management                |
-| **Process**     | Security training, incident response |
+| 层级          | 示例                                 |
+| ------------- | ------------------------------------ |
+| **网络**      | 防火墙、WAF、DDoS 防护               |
+| **应用**      | 输入验证、认证                       |
+| **数据**      | 加密、访问控制                       |
+| **端点**      | EDR、补丁管理                        |
+| **流程**      | 安全培训、事件响应                   |
 
-### 3. Defense in Depth
+### 3. 纵深防御
 
 ```
                     ┌──────────────────────┐
-                    │      Perimeter       │ ← Firewall, WAF
+                    │       边界           │ ← 防火墙、WAF
                     │   ┌──────────────┐   │
-                    │   │   Network    │   │ ← Segmentation, IDS
+                    │   │    网络      │   │ ← 分段、IDS
                     │   │  ┌────────┐  │   │
-                    │   │  │  Host  │  │   │ ← EDR, Hardening
+                    │   │  │  主机  │  │   │ ← EDR、加固
                     │   │  │ ┌────┐ │  │   │
-                    │   │  │ │App │ │  │   │ ← Auth, Validation
-                    │   │  │ │Data│ │  │   │ ← Encryption
+                    │   │  │ │应用│ │  │   │ ← 认证、验证
+                    │   │  │ │数据│ │  │   │ ← 加密
                     │   │  │ └────┘ │  │   │
                     │   │  └────────┘  │   │
                     │   └──────────────┘   │
                     └──────────────────────┘
 ```
 
-## Templates
+## 模板
 
-### Template 1: Mitigation Model
+### 模板 1：缓解模型
 
 ```python
 from dataclasses import dataclass, field
@@ -107,7 +107,7 @@ class SecurityControl:
     control_type: ControlType
     layer: ControlLayer
     effectiveness: Effectiveness
-    implementation_cost: str  # Low, Medium, High
+    implementation_cost: str  # 低、中、高
     maintenance_cost: str
     status: ImplementationStatus = ImplementationStatus.NOT_IMPLEMENTED
     mitigates_threats: List[str] = field(default_factory=list)
@@ -116,7 +116,7 @@ class SecurityControl:
     compliance_refs: List[str] = field(default_factory=list)
 
     def coverage_score(self) -> float:
-        """Calculate coverage score based on status and effectiveness."""
+        """根据状态和有效性计算覆盖分数。"""
         status_multiplier = {
             ImplementationStatus.NOT_IMPLEMENTED: 0.0,
             ImplementationStatus.PARTIAL: 0.5,
@@ -130,9 +130,9 @@ class SecurityControl:
 class Threat:
     id: str
     name: str
-    category: str  # STRIDE category
+    category: str  # STRIDE 类别
     description: str
-    impact: str  # Critical, High, Medium, Low
+    impact: str  # 严重、高、中、低
     likelihood: str
     risk_score: float
 
@@ -145,7 +145,7 @@ class MitigationMapping:
     notes: str = ""
 
     def calculate_coverage(self) -> float:
-        """Calculate how well controls cover the threat."""
+        """计算控制对威胁的覆盖程度。"""
         if not self.controls:
             return 0.0
 
@@ -155,12 +155,12 @@ class MitigationMapping:
         return (total_score / max_possible) * 100 if max_possible > 0 else 0
 
     def has_defense_in_depth(self) -> bool:
-        """Check if multiple layers are covered."""
+        """检查是否覆盖了多个层级。"""
         layers = set(c.layer for c in self.controls if c.status != ImplementationStatus.NOT_IMPLEMENTED)
         return len(layers) >= 2
 
     def has_control_diversity(self) -> bool:
-        """Check if multiple control types are present."""
+        """检查是否存在多种控制类型。"""
         types = set(c.control_type for c in self.controls if c.status != ImplementationStatus.NOT_IMPLEMENTED)
         return len(types) >= 2
 
@@ -173,19 +173,19 @@ class MitigationPlan:
     mappings: List[MitigationMapping] = field(default_factory=list)
 
     def get_unmapped_threats(self) -> List[Threat]:
-        """Find threats without mitigations."""
+        """查找没有缓解措施的威胁。"""
         mapped_ids = {m.threat.id for m in self.mappings}
         return [t for t in self.threats if t.id not in mapped_ids]
 
     def get_control_coverage(self) -> Dict[str, float]:
-        """Get coverage percentage for each threat."""
+        """获取每个威胁的覆盖百分比。"""
         return {
             m.threat.id: m.calculate_coverage()
             for m in self.mappings
         }
 
     def get_gaps(self) -> List[Dict]:
-        """Identify mitigation gaps."""
+        """识别缓解缺口。"""
         gaps = []
         for mapping in self.mappings:
             coverage = mapping.calculate_coverage()
@@ -194,40 +194,40 @@ class MitigationPlan:
                     "threat": mapping.threat.id,
                     "threat_name": mapping.threat.name,
                     "coverage": coverage,
-                    "issue": "Insufficient control coverage",
-                    "recommendation": "Add more controls or improve existing ones"
+                    "issue": "控制覆盖不足",
+                    "recommendation": "添加更多控制或改进现有控制"
                 })
             if not mapping.has_defense_in_depth():
                 gaps.append({
                     "threat": mapping.threat.id,
                     "threat_name": mapping.threat.name,
                     "coverage": coverage,
-                    "issue": "No defense in depth",
-                    "recommendation": "Add controls at different layers"
+                    "issue": "无纵深防御",
+                    "recommendation": "在不同层级添加控制"
                 })
             if not mapping.has_control_diversity():
                 gaps.append({
                     "threat": mapping.threat.id,
                     "threat_name": mapping.threat.name,
                     "coverage": coverage,
-                    "issue": "No control diversity",
-                    "recommendation": "Add detective/corrective controls"
+                    "issue": "无控制多样性",
+                    "recommendation": "添加检测/纠正控制"
                 })
         return gaps
 ```
 
-### Template 2: Control Library
+### 模板 2：控制库
 
 ```python
 class ControlLibrary:
-    """Library of standard security controls."""
+    """标准安全控制库。"""
 
     STANDARD_CONTROLS = {
-        # Authentication Controls
+        # 认证控制
         "AUTH-001": SecurityControl(
             id="AUTH-001",
-            name="Multi-Factor Authentication",
-            description="Require MFA for all user authentication",
+            name="多因素认证",
+            description="要求所有用户认证使用 MFA",
             control_type=ControlType.PREVENTIVE,
             layer=ControlLayer.APPLICATION,
             effectiveness=Effectiveness.HIGH,
@@ -239,8 +239,8 @@ class ControlLibrary:
         ),
         "AUTH-002": SecurityControl(
             id="AUTH-002",
-            name="Account Lockout Policy",
-            description="Lock accounts after failed authentication attempts",
+            name="账户锁定策略",
+            description="认证失败后锁定账户",
             control_type=ControlType.PREVENTIVE,
             layer=ControlLayer.APPLICATION,
             effectiveness=Effectiveness.MEDIUM,
@@ -251,11 +251,11 @@ class ControlLibrary:
             compliance_refs=["PCI-DSS 8.1.6"]
         ),
 
-        # Input Validation Controls
+        # 输入验证控制
         "VAL-001": SecurityControl(
             id="VAL-001",
-            name="Input Validation Framework",
-            description="Validate and sanitize all user input",
+            name="输入验证框架",
+            description="验证和清理所有用户输入",
             control_type=ControlType.PREVENTIVE,
             layer=ControlLayer.APPLICATION,
             effectiveness=Effectiveness.HIGH,
@@ -267,8 +267,8 @@ class ControlLibrary:
         ),
         "VAL-002": SecurityControl(
             id="VAL-002",
-            name="Web Application Firewall",
-            description="Deploy WAF to filter malicious requests",
+            name="Web 应用防火墙",
+            description="部署 WAF 过滤恶意请求",
             control_type=ControlType.PREVENTIVE,
             layer=ControlLayer.NETWORK,
             effectiveness=Effectiveness.MEDIUM,
@@ -279,11 +279,11 @@ class ControlLibrary:
             compliance_refs=["PCI-DSS 6.6"]
         ),
 
-        # Encryption Controls
+        # 加密控制
         "ENC-001": SecurityControl(
             id="ENC-001",
-            name="Data Encryption at Rest",
-            description="Encrypt sensitive data in storage",
+            name="静态数据加密",
+            description="加密存储中的敏感数据",
             control_type=ControlType.PREVENTIVE,
             layer=ControlLayer.DATA,
             effectiveness=Effectiveness.HIGH,
@@ -295,8 +295,8 @@ class ControlLibrary:
         ),
         "ENC-002": SecurityControl(
             id="ENC-002",
-            name="TLS Encryption",
-            description="Encrypt data in transit using TLS 1.3",
+            name="TLS 加密",
+            description="使用 TLS 1.3 加密传输数据",
             control_type=ControlType.PREVENTIVE,
             layer=ControlLayer.NETWORK,
             effectiveness=Effectiveness.HIGH,
@@ -307,11 +307,11 @@ class ControlLibrary:
             compliance_refs=["PCI-DSS 4.1", "HIPAA"]
         ),
 
-        # Logging Controls
+        # 日志控制
         "LOG-001": SecurityControl(
             id="LOG-001",
-            name="Security Event Logging",
-            description="Log all security-relevant events",
+            name="安全事件日志",
+            description="记录所有安全相关事件",
             control_type=ControlType.DETECTIVE,
             layer=ControlLayer.APPLICATION,
             effectiveness=Effectiveness.MEDIUM,
@@ -323,8 +323,8 @@ class ControlLibrary:
         ),
         "LOG-002": SecurityControl(
             id="LOG-002",
-            name="Log Integrity Protection",
-            description="Protect logs from tampering",
+            name="日志完整性保护",
+            description="保护日志免受篡改",
             control_type=ControlType.PREVENTIVE,
             layer=ControlLayer.DATA,
             effectiveness=Effectiveness.MEDIUM,
@@ -335,11 +335,11 @@ class ControlLibrary:
             compliance_refs=["PCI-DSS 10.5"]
         ),
 
-        # Access Control
+        # 访问控制
         "ACC-001": SecurityControl(
             id="ACC-001",
-            name="Role-Based Access Control",
-            description="Implement RBAC for authorization",
+            name="基于角色的访问控制",
+            description="实施 RBAC 进行授权",
             control_type=ControlType.PREVENTIVE,
             layer=ControlLayer.APPLICATION,
             effectiveness=Effectiveness.HIGH,
@@ -350,11 +350,11 @@ class ControlLibrary:
             compliance_refs=["PCI-DSS 7.1", "SOC2"]
         ),
 
-        # Availability Controls
+        # 可用性控制
         "AVL-001": SecurityControl(
             id="AVL-001",
-            name="Rate Limiting",
-            description="Limit request rates to prevent abuse",
+            name="速率限制",
+            description="限制请求速率以防止滥用",
             control_type=ControlType.PREVENTIVE,
             layer=ControlLayer.APPLICATION,
             effectiveness=Effectiveness.MEDIUM,
@@ -366,8 +366,8 @@ class ControlLibrary:
         ),
         "AVL-002": SecurityControl(
             id="AVL-002",
-            name="DDoS Protection",
-            description="Deploy DDoS mitigation services",
+            name="DDoS 防护",
+            description="部署 DDoS 缓解服务",
             control_type=ControlType.PREVENTIVE,
             layer=ControlLayer.NETWORK,
             effectiveness=Effectiveness.HIGH,
@@ -380,18 +380,18 @@ class ControlLibrary:
     }
 
     def get_controls_for_threat(self, threat_category: str) -> List[SecurityControl]:
-        """Get all controls that mitigate a threat category."""
+        """获取缓解特定威胁类别的所有控制。"""
         return [
             c for c in self.STANDARD_CONTROLS.values()
             if threat_category in c.mitigates_threats
         ]
 
     def get_controls_by_layer(self, layer: ControlLayer) -> List[SecurityControl]:
-        """Get controls for a specific layer."""
+        """获取特定层级的控制。"""
         return [c for c in self.STANDARD_CONTROLS.values() if c.layer == layer]
 
     def get_control(self, control_id: str) -> Optional[SecurityControl]:
-        """Get a specific control by ID."""
+        """按 ID 获取特定控制。"""
         return self.STANDARD_CONTROLS.get(control_id)
 
     def recommend_controls(
@@ -399,23 +399,23 @@ class ControlLibrary:
         threat: Threat,
         existing_controls: List[str]
     ) -> List[SecurityControl]:
-        """Recommend additional controls for a threat."""
+        """为威胁推荐额外控制。"""
         available = self.get_controls_for_threat(threat.category)
         return [c for c in available if c.id not in existing_controls]
 ```
 
-### Template 3: Mitigation Analysis
+### 模板 3：缓解分析
 
 ```python
 class MitigationAnalyzer:
-    """Analyze and optimize mitigation strategies."""
+    """分析和优化缓解策略。"""
 
     def __init__(self, plan: MitigationPlan, library: ControlLibrary):
         self.plan = plan
         self.library = library
 
     def calculate_overall_risk_reduction(self) -> float:
-        """Calculate overall risk reduction percentage."""
+        """计算总体风险降低百分比。"""
         if not self.plan.mappings:
             return 0.0
 
@@ -423,7 +423,7 @@ class MitigationAnalyzer:
         total_weight = 0
 
         for mapping in self.plan.mappings:
-            # Weight by threat risk score
+            # 按威胁风险分数加权
             weight = mapping.threat.risk_score
             coverage = mapping.calculate_coverage()
             weighted_coverage += weight * coverage
@@ -432,7 +432,7 @@ class MitigationAnalyzer:
         return weighted_coverage / total_weight if total_weight > 0 else 0
 
     def get_critical_gaps(self) -> List[Dict]:
-        """Find critical gaps that need immediate attention."""
+        """查找需要立即关注的关键缺口。"""
         gaps = self.plan.get_gaps()
         critical_threats = {t.id for t in self.plan.threats if t.impact == "Critical"}
 
@@ -443,13 +443,13 @@ class MitigationAnalyzer:
         budget: float,
         cost_map: Dict[str, float]
     ) -> List[SecurityControl]:
-        """Select controls that maximize risk reduction within budget."""
-        # Simple greedy approach - can be replaced with optimization algorithm
+        """在预算内选择最大化风险降低的控制。"""
+        # 简单贪心方法 - 可替换为优化算法
         recommended = []
         remaining_budget = budget
         unmapped = self.plan.get_unmapped_threats()
 
-        # Sort controls by effectiveness/cost ratio
+        # 按有效性/成本比排序控制
         all_controls = list(self.library.STANDARD_CONTROLS.values())
         controls_with_value = []
 
@@ -457,7 +457,7 @@ class MitigationAnalyzer:
             if control.status == ImplementationStatus.NOT_IMPLEMENTED:
                 cost = cost_map.get(control.id, float('inf'))
                 if cost <= remaining_budget:
-                    # Calculate value as threats covered * effectiveness / cost
+                    # 计算价值 = 覆盖威胁数 * 有效性 / 成本
                     threats_covered = len([
                         t for t in unmapped
                         if t.category in control.mitigates_threats
@@ -466,7 +466,7 @@ class MitigationAnalyzer:
                         value = (threats_covered * control.effectiveness.value) / cost
                         controls_with_value.append((control, value, cost))
 
-        # Sort by value (higher is better)
+        # 按价值排序（越高越好）
         controls_with_value.sort(key=lambda x: x[1], reverse=True)
 
         for control, value, cost in controls_with_value:
@@ -477,11 +477,11 @@ class MitigationAnalyzer:
         return recommended
 
     def generate_roadmap(self) -> List[Dict]:
-        """Generate implementation roadmap by priority."""
+        """按优先级生成实施路线图。"""
         roadmap = []
         gaps = self.plan.get_gaps()
 
-        # Phase 1: Critical threats with low coverage
+        # 阶段 1：覆盖低的严重威胁
         phase1 = []
         for gap in gaps:
             mapping = next(
@@ -502,9 +502,9 @@ class MitigationAnalyzer:
                     if c.status == ImplementationStatus.NOT_IMPLEMENTED
                 ])
 
-        roadmap.extend(phase1[:5])  # Top 5 for phase 1
+        roadmap.extend(phase1[:5])  # 阶段 1 前 5 个
 
-        # Phase 2: High impact threats
+        # 阶段 2：高影响威胁
         phase2 = []
         for gap in gaps:
             mapping = next(
@@ -525,12 +525,12 @@ class MitigationAnalyzer:
                     if c.status == ImplementationStatus.NOT_IMPLEMENTED
                 ])
 
-        roadmap.extend(phase2[:5])  # Top 5 for phase 2
+        roadmap.extend(phase2[:5])  # 阶段 2 前 5 个
 
         return roadmap
 
     def defense_in_depth_analysis(self) -> Dict[str, List[str]]:
-        """Analyze defense in depth coverage."""
+        """分析纵深防御覆盖。"""
         layer_coverage = {layer.value: [] for layer in ControlLayer}
 
         for mapping in self.plan.mappings:
@@ -541,32 +541,32 @@ class MitigationAnalyzer:
         return layer_coverage
 
     def generate_report(self) -> str:
-        """Generate comprehensive mitigation report."""
+        """生成全面的缓解报告。"""
         risk_reduction = self.calculate_overall_risk_reduction()
         gaps = self.plan.get_gaps()
         critical_gaps = self.get_critical_gaps()
         layer_coverage = self.defense_in_depth_analysis()
 
         report = f"""
-# Threat Mitigation Report
+# 威胁缓解报告
 
-## Executive Summary
-- **Overall Risk Reduction:** {risk_reduction:.1f}%
-- **Total Threats:** {len(self.plan.threats)}
-- **Total Controls:** {len(self.plan.controls)}
-- **Identified Gaps:** {len(gaps)}
-- **Critical Gaps:** {len(critical_gaps)}
+## 执行摘要
+- **总体风险降低：** {risk_reduction:.1f}%
+- **总威胁数：** {len(self.plan.threats)}
+- **总控制数：** {len(self.plan.controls)}
+- **已识别缺口：** {len(gaps)}
+- **关键缺口：** {len(critical_gaps)}
 
-## Defense in Depth Coverage
+## 纵深防御覆盖
 {self._format_layer_coverage(layer_coverage)}
 
-## Critical Gaps Requiring Immediate Action
+## 需要立即行动的关键缺口
 {self._format_gaps(critical_gaps)}
 
-## Recommendations
+## 建议
 {self._format_recommendations()}
 
-## Implementation Roadmap
+## 实施路线图
 {self._format_roadmap()}
 """
         return report
@@ -575,17 +575,17 @@ class MitigationAnalyzer:
         lines = []
         for layer, controls in coverage.items():
             status = "✓" if controls else "✗"
-            lines.append(f"- {layer}: {status} ({len(controls)} controls)")
+            lines.append(f"- {layer}: {status} ({len(controls)} 个控制)")
         return "\n".join(lines)
 
     def _format_gaps(self, gaps: List[Dict]) -> str:
         if not gaps:
-            return "No critical gaps identified."
+            return "未识别到关键缺口。"
         lines = []
         for gap in gaps:
             lines.append(f"- **{gap['threat_name']}**: {gap['issue']}")
-            lines.append(f"  - Coverage: {gap['coverage']:.1f}%")
-            lines.append(f"  - Recommendation: {gap['recommendation']}")
+            lines.append(f"  - 覆盖率: {gap['coverage']:.1f}%")
+            lines.append(f"  - 建议: {gap['recommendation']}")
         return "\n".join(lines)
 
     def _format_recommendations(self) -> str:
@@ -594,31 +594,31 @@ class MitigationAnalyzer:
 
         for layer, controls in layer_coverage.items():
             if not controls:
-                recommendations.append(f"- Add {layer} layer controls")
+                recommendations.append(f"- 添加 {layer} 层控制")
 
         gaps = self.plan.get_gaps()
-        if any(g["issue"] == "No control diversity" for g in gaps):
-            recommendations.append("- Add more detective and corrective controls")
+        if any(g["issue"] == "无控制多样性" for g in gaps):
+            recommendations.append("- 添加更多检测和纠正控制")
 
-        return "\n".join(recommendations) if recommendations else "Current coverage is adequate."
+        return "\n".join(recommendations) if recommendations else "当前覆盖已足够。"
 
     def _format_roadmap(self) -> str:
         roadmap = self.generate_roadmap()
         if not roadmap:
-            return "No additional controls recommended at this time."
+            return "当前不需要额外控制。"
 
         lines = []
         current_phase = 0
         for item in roadmap:
             if item["phase"] != current_phase:
                 current_phase = item["phase"]
-                lines.append(f"\n### Phase {current_phase}")
-            lines.append(f"- [{item['priority']}] {item['control_name']} (for {item['threat']})")
+                lines.append(f"\n### 阶段 {current_phase}")
+            lines.append(f"- [{item['priority']}] {item['control_name']} (用于 {item['threat']})")
 
         return "\n".join(lines)
 ```
 
-### Template 4: Control Effectiveness Testing
+### 模板 4：控制有效性测试
 
 ```python
 from dataclasses import dataclass
@@ -635,7 +635,7 @@ class ControlTest:
 
 
 class ControlTester:
-    """Test control effectiveness."""
+    """测试控制有效性。"""
 
     def __init__(self):
         self.tests: List[ControlTest] = []
@@ -645,7 +645,7 @@ class ControlTester:
         self.tests.append(test)
 
     async def run_tests(self) -> List[Dict]:
-        """Run all control tests."""
+        """运行所有控制测试。"""
         self.results = []
 
         for test in self.tests:
@@ -675,7 +675,7 @@ class ControlTester:
         return self.results
 
     def get_effectiveness_score(self, control_id: str) -> float:
-        """Calculate effectiveness score for a control."""
+        """计算控制的有效性分数。"""
         control_results = [r for r in self.results if r["control_id"] == control_id]
         if not control_results:
             return 0.0
@@ -684,25 +684,25 @@ class ControlTester:
         return (passed / len(control_results)) * 100
 
     def generate_test_report(self) -> str:
-        """Generate test results report."""
+        """生成测试结果报告。"""
         if not self.results:
-            return "No tests have been run."
+            return "尚未运行任何测试。"
 
         total = len(self.results)
         passed = sum(1 for r in self.results if r["passed"])
 
         report = f"""
-# Control Effectiveness Test Report
+# 控制有效性测试报告
 
-## Summary
-- **Total Tests:** {total}
-- **Passed:** {passed}
-- **Failed:** {total - passed}
-- **Pass Rate:** {(passed/total)*100:.1f}%
+## 摘要
+- **总测试数：** {total}
+- **通过：** {passed}
+- **失败：** {total - passed}
+- **通过率：** {(passed/total)*100:.1f}%
 
-## Results by Control
+## 按控制分组结果
 """
-        # Group by control
+        # 按控制分组
         controls = {}
         for result in self.results:
             cid = result["control_id"]
@@ -712,30 +712,30 @@ class ControlTester:
 
         for control_id, results in controls.items():
             score = self.get_effectiveness_score(control_id)
-            report += f"\n### {control_id} (Effectiveness: {score:.1f}%)\n"
+            report += f"\n### {control_id} (有效性: {score:.1f}%)\n"
             for r in results:
                 status = "✓" if r["passed"] else "✗"
                 report += f"- {status} {r['test_name']}\n"
                 if r["error"]:
-                    report += f"  - Error: {r['error']}\n"
+                    report += f"  - 错误: {r['error']}\n"
 
         return report
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该做的
 
-- **Map all threats** - No threat should be unmapped
-- **Layer controls** - Defense in depth is essential
-- **Mix control types** - Preventive, detective, corrective
-- **Track effectiveness** - Measure and improve
-- **Review regularly** - Controls degrade over time
+- **映射所有威胁** — 不应有未映射的威胁
+- **分层控制** — 纵深防御至关重要
+- **混合控制类型** — 预防性、检测性、纠正性
+- **跟踪有效性** — 测量并改进
+- **定期审查** — 控制会随时间退化
 
-### Don'ts
+### 不应该做的
 
-- **Don't rely on single controls** - Single points of failure
-- **Don't ignore cost** - ROI matters
-- **Don't skip testing** - Untested controls may fail
-- **Don't set and forget** - Continuous improvement
-- **Don't ignore people/process** - Technology alone isn't enough
+- **不要依赖单一控制** — 单点故障
+- **不要忽视成本** — 投资回报率很重要
+- **不要跳过测试** — 未测试的控制可能失效
+- **不要设置后遗忘** — 持续改进
+- **不要忽视人/流程** — 仅靠技术不够

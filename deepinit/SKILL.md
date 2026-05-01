@@ -1,39 +1,39 @@
 ---
 name: deepinit
-description: Deep codebase initialization with hierarchical AGENTS.md documentation
+description: 使用分层 AGENTS.md 文档进行深度代码库初始化
 level: 4
 ---
 
-# Deep Init Skill
+# 深度初始化技能
 
-Creates comprehensive, hierarchical AGENTS.md documentation across the entire codebase.
+在整个代码库中创建全面的分层 AGENTS.md 文档。
 
-## Core Concept
+## 核心概念
 
-AGENTS.md files serve as **AI-readable documentation** that helps agents understand:
-- What each directory contains
-- How components relate to each other
-- Special instructions for working in that area
-- Dependencies and relationships
+AGENTS.md 文件作为**AI 可读文档**，帮助代理理解：
+- 每个目录包含什么
+- 组件如何相互关联
+- 在该区域工作的特殊说明
+- 依赖和关系
 
-## Hierarchical Tagging System
+## 分层标记系统
 
-Every AGENTS.md (except root) includes a parent reference tag:
+每个 AGENTS.md（根目录除外）都包含父引用标签：
 
 ```markdown
 <!-- Parent: ../AGENTS.md -->
 ```
 
-This creates a navigable hierarchy:
+这创建了一个可导航的层次结构：
 ```
-/AGENTS.md                          ← Root (no parent tag)
+/AGENTS.md                          ← 根（无父标签）
 ├── src/AGENTS.md                   ← <!-- Parent: ../AGENTS.md -->
 │   ├── src/components/AGENTS.md    ← <!-- Parent: ../AGENTS.md -->
 │   └── src/utils/AGENTS.md         ← <!-- Parent: ../AGENTS.md -->
 └── docs/AGENTS.md                  ← <!-- Parent: ../AGENTS.md -->
 ```
 
-## AGENTS.md Template
+## AGENTS.md 模板
 
 ```markdown
 <!-- Parent: {relative_path_to_parent}/AGENTS.md -->
@@ -42,56 +42,56 @@ This creates a navigable hierarchy:
 # {Directory Name}
 
 ## Purpose
-{One-paragraph description of what this directory contains and its role}
+{此目录包含内容及其角色的段落描述}
 
 ## Key Files
-{List each significant file with a one-line description}
+{列出每个重要文件及其一行描述}
 
 | File | Description |
 |------|-------------|
-| `file.ts` | Brief description of purpose |
+| `file.ts` | 用途简述 |
 
 ## Subdirectories
-{List each subdirectory with brief purpose}
+{列出每个子目录及其简要用途}
 
 | Directory | Purpose |
 |-----------|---------|
-| `subdir/` | What it contains (see `subdir/AGENTS.md`) |
+| `subdir/` | 包含内容（参见 `subdir/AGENTS.md`） |
 
 ## For AI Agents
 
 ### Working In This Directory
-{Special instructions for AI agents modifying files here}
+{AI 代理在此目录修改文件的特殊说明}
 
 ### Testing Requirements
-{How to test changes in this directory}
+{如何测试此目录中的更改}
 
 ### Common Patterns
-{Code patterns or conventions used here}
+{此处使用的代码模式或约定}
 
 ## Dependencies
 
 ### Internal
-{References to other parts of the codebase this depends on}
+{此依赖的代码库其他部分引用}
 
 ### External
-{Key external packages/libraries used}
+{使用的关键外部包/库}
 
 <!-- MANUAL: Any manually added notes below this line are preserved on regeneration -->
 ```
 
-## Execution Workflow
+## 执行工作流程
 
-### Step 1: Map Directory Structure
+### 步骤 1：映射目录结构
 
 ```
 Task(subagent_type="explore", model="haiku",
   prompt="List all directories recursively. Exclude: node_modules, .git, dist, build, __pycache__, .venv, coverage, .next, .nuxt")
 ```
 
-### Step 2: Create Work Plan
+### 步骤 2：创建工作计划
 
-Generate todo items for each directory, organized by depth level:
+为每个目录生成待办事项，按深度级别组织：
 
 ```
 Level 0: / (root)
@@ -100,159 +100,159 @@ Level 2: /src/components, /src/utils, /docs/api
 ...
 ```
 
-### Step 3: Generate Level by Level
+### 步骤 3：逐级生成
 
-**IMPORTANT**: Generate parent levels before child levels to ensure parent references are valid.
+**重要**：在子级之前生成父级，以确保父引用有效。
 
-For each directory:
-1. Read all files in the directory
-2. Analyze purpose and relationships
-3. Generate AGENTS.md content
-4. Write file with proper parent reference
+对于每个目录：
+1. 读取目录中的所有文件
+2. 分析用途和关系
+3. 生成 AGENTS.md 内容
+4. 写入带有正确父引用的文件
 
-### Step 4: Compare and Update (if exists)
+### 步骤 4：比较和更新（如果已存在）
 
-When AGENTS.md already exists:
+当 AGENTS.md 已存在时：
 
-1. **Read existing content**
-2. **Identify sections**:
-   - Auto-generated sections (can be updated)
-   - Manual sections (`<!-- MANUAL -->` preserved)
-3. **Compare**:
-   - New files added?
-   - Files removed?
-   - Structure changed?
-4. **Merge**:
-   - Update auto-generated content
-   - Preserve manual annotations
-   - Update timestamp
+1. **读取现有内容**
+2. **识别部分**：
+   - 自动生成的部分（可更新）
+   - 手动部分（`<!-- MANUAL -->` 保留）
+3. **比较**：
+   - 添加了新文件？
+   - 移除了文件？
+   - 结构改变了？
+4. **合并**：
+   - 更新自动生成的内容
+   - 保留手动注释
+   - 更新时间戳
 
-### Step 5: Validate Hierarchy
+### 步骤 5：验证层次结构
 
-After generation, run validation checks:
+生成后，运行验证检查：
 
-| Check | How to Verify | Corrective Action |
-|-------|--------------|-------------------|
-| Parent references resolve | Read each AGENTS.md, check `<!-- Parent: -->` path exists | Fix path or remove orphan |
-| No orphaned AGENTS.md | Compare AGENTS.md locations to directory structure | Delete orphaned files |
-| Completeness | List all directories, check for AGENTS.md | Generate missing files |
-| Timestamps current | Check `<!-- Generated: -->` dates | Regenerate outdated files |
+| 检查项 | 验证方法 | 纠正措施 |
+|--------|----------|----------|
+| 父引用可解析 | 读取每个 AGENTS.md，检查 `<!-- Parent: -->` 路径存在 | 修复路径或移除孤立项 |
+| 无孤立 AGENTS.md | 比较 AGENTS.md 位置与目录结构 | 删除孤立文件 |
+| 完整性 | 列出所有目录，检查是否有 AGENTS.md | 生成缺失文件 |
+| 时间戳最新 | 检查 `<!-- Generated: -->` 日期 | 重新生成过时文件 |
 
-Validation script pattern:
+验证脚本模式：
 ```bash
-# Find all AGENTS.md files
+# 查找所有 AGENTS.md 文件
 find . -name "AGENTS.md" -type f
 
-# Check parent references
+# 检查父引用
 grep -r "<!-- Parent:" --include="AGENTS.md" .
 ```
 
-## Smart Delegation
+## 智能委派
 
-| Task | Agent |
-|------|-------|
-| Directory mapping | `explore` |
-| File analysis | `architect` |
-| Content generation | `writer` |
-| AGENTS.md writes | `writer` |
+| 任务 | 代理 |
+|------|------|
+| 目录映射 | `explore` |
+| 文件分析 | `architect` |
+| 内容生成 | `writer` |
+| AGENTS.md 写入 | `writer` |
 
-## Empty Directory Handling
+## 空目录处理
 
-When encountering empty or near-empty directories:
+遇到空目录或近乎空的目录时：
 
-| Condition | Action |
-|-----------|--------|
-| No files, no subdirectories | **Skip** - do not create AGENTS.md |
-| No files, has subdirectories | Create minimal AGENTS.md with subdirectory listing only |
-| Has only generated files (*.min.js, *.map) | Skip or minimal AGENTS.md |
-| Has only config files | Create AGENTS.md describing configuration purpose |
+| 条件 | 操作 |
+|------|------|
+| 无文件，无子目录 | **跳过** — 不创建 AGENTS.md |
+| 无文件，有子目录 | 创建仅包含子目录列表的最小 AGENTS.md |
+| 仅有生成文件（*.min.js、*.map） | 跳过或最小 AGENTS.md |
+| 仅有配置文件 | 创建描述配置用途的 AGENTS.md |
 
-Example minimal AGENTS.md for directory-only containers:
+目录容器的最小 AGENTS.md 示例：
 ```markdown
 <!-- Parent: ../AGENTS.md -->
 # {Directory Name}
 
 ## Purpose
-Container directory for organizing related modules.
+用于组织相关模块的容器目录。
 
 ## Subdirectories
 | Directory | Purpose |
 |-----------|---------|
-| `subdir/` | Description (see `subdir/AGENTS.md`) |
+| `subdir/` | 描述（参见 `subdir/AGENTS.md`） |
 ```
 
-## Parallelization Rules
+## 并行化规则
 
-1. **Same-level directories**: Process in parallel
-2. **Different levels**: Sequential (parent first)
-3. **Large directories**: Spawn dedicated agent per directory
-4. **Small directories**: Batch multiple into one agent
+1. **同级目录**：并行处理
+2. **不同级别**：顺序处理（父级优先）
+3. **大型目录**：为每个目录生成专用代理
+4. **小型目录**：将多个批处理到一个代理中
 
-## Quality Standards
+## 质量标准
 
-### Must Include
-- [ ] Accurate file descriptions
-- [ ] Correct parent references
-- [ ] Subdirectory links
-- [ ] AI agent instructions
+### 必须包含
+- [ ] 准确的文件描述
+- [ ] 正确的父引用
+- [ ] 子目录链接
+- [ ] AI 代理指令
 
-### Must Avoid
-- [ ] Generic boilerplate
-- [ ] Incorrect file names
-- [ ] Broken parent references
-- [ ] Missing important files
+### 必须避免
+- [ ] 通用模板
+- [ ] 不正确的文件名
+- [ ] 损坏的父引用
+- [ ] 遗漏重要文件
 
-## Example Output
+## 示例输出
 
-### Root AGENTS.md
+### 根 AGENTS.md
 ```markdown
 <!-- Generated: 2024-01-15 | Updated: 2024-01-15 -->
 
 # my-project
 
 ## Purpose
-A web application for managing user tasks with real-time collaboration features.
+用于管理用户任务的 Web 应用，具有实时协作功能。
 
 ## Key Files
 | File | Description |
 |------|-------------|
-| `package.json` | Project dependencies and scripts |
-| `tsconfig.json` | TypeScript configuration |
-| `.env.example` | Environment variable template |
+| `package.json` | 项目依赖和脚本 |
+| `tsconfig.json` | TypeScript 配置 |
+| `.env.example` | 环境变量模板 |
 
 ## Subdirectories
 | Directory | Purpose |
 |-----------|---------|
-| `src/` | Application source code (see `src/AGENTS.md`) |
-| `docs/` | Documentation (see `docs/AGENTS.md`) |
-| `tests/` | Test suites (see `tests/AGENTS.md`) |
+| `src/` | 应用源代码（参见 `src/AGENTS.md`） |
+| `docs/` | 文档（参见 `docs/AGENTS.md`） |
+| `tests/` | 测试套件（参见 `tests/AGENTS.md`） |
 
 ## For AI Agents
 
 ### Working In This Directory
-- Always install dependencies after modifying the project manifest
-- Use TypeScript strict mode
-- Follow ESLint rules
+- 修改项目清单后始终安装依赖
+- 使用 TypeScript 严格模式
+- 遵循 ESLint 规则
 
 ### Testing Requirements
-- Run tests before committing
-- Ensure >80% coverage
+- 提交前运行测试
+- 确保 >80% 覆盖率
 
 ### Common Patterns
-- Use barrel exports (index.ts)
-- Prefer functional components
+- 使用桶导出 (index.ts)
+- 优先使用函数组件
 
 ## Dependencies
 
 ### External
-- React 18.x - UI framework
-- TypeScript 5.x - Type safety
-- Vite - Build tool
+- React 18.x - UI 框架
+- TypeScript 5.x - 类型安全
+- Vite - 构建工具
 
 <!-- MANUAL: Custom project notes can be added below -->
 ```
 
-### Nested AGENTS.md
+### 嵌套 AGENTS.md
 ```markdown
 <!-- Parent: ../AGENTS.md -->
 <!-- Generated: 2024-01-15 | Updated: 2024-01-15 -->
@@ -260,62 +260,62 @@ A web application for managing user tasks with real-time collaboration features.
 # components
 
 ## Purpose
-Reusable React components organized by feature and complexity.
+按功能和复杂度组织的可复用 React 组件。
 
 ## Key Files
 | File | Description |
 |------|-------------|
-| `index.ts` | Barrel export for all components |
-| `Button.tsx` | Primary button component |
-| `Modal.tsx` | Modal dialog component |
+| `index.ts` | 所有组件的桶导出 |
+| `Button.tsx` | 主按钮组件 |
+| `Modal.tsx` | 模态对话框组件 |
 
 ## Subdirectories
 | Directory | Purpose |
 |-----------|---------|
-| `forms/` | Form-related components (see `forms/AGENTS.md`) |
-| `layout/` | Layout components (see `layout/AGENTS.md`) |
+| `forms/` | 表单相关组件（参见 `forms/AGENTS.md`） |
+| `layout/` | 布局组件（参见 `layout/AGENTS.md`） |
 
 ## For AI Agents
 
 ### Working In This Directory
-- Each component has its own file
-- Use CSS modules for styling
-- Export via index.ts
+- 每个组件有自己的文件
+- 使用 CSS 模块进行样式设置
+- 通过 index.ts 导出
 
 ### Testing Requirements
-- Unit tests in `__tests__/` subdirectory
-- Use React Testing Library
+- `__tests__/` 子目录中的单元测试
+- 使用 React Testing Library
 
 ### Common Patterns
-- Props interfaces defined above component
-- Use forwardRef for DOM-exposing components
+- Props 接口定义在组件上方
+- 对暴露 DOM 的组件使用 forwardRef
 
 ## Dependencies
 
 ### Internal
-- `src/hooks/` - Custom hooks used by components
-- `src/utils/` - Utility functions
+- `src/hooks/` - 组件使用的自定义钩子
+- `src/utils/` - 工具函数
 
 ### External
-- `clsx` - Conditional class names
-- `lucide-react` - Icons
+- `clsx` - 条件类名
+- `lucide-react` - 图标
 
 <!-- MANUAL: -->
 ```
 
-## Triggering Update Mode
+## 触发更新模式
 
-When running on an existing codebase with AGENTS.md files:
+在已有 AGENTS.md 文件的现有代码库上运行时：
 
-1. Detect existing files first
-2. Read and parse existing content
-3. Analyze current directory state
-4. Generate diff between existing and current
-5. Apply updates while preserving manual sections
+1. 首先检测现有文件
+2. 读取并解析现有内容
+3. 分析当前目录状态
+4. 生成现有与当前之间的差异
+5. 应用更新同时保留手动部分
 
-## Performance Considerations
+## 性能考虑
 
-- **Cache directory listings** - Don't re-scan same directories
-- **Batch small directories** - Process multiple at once
-- **Skip unchanged** - If directory hasn't changed, skip regeneration
-- **Parallel writes** - Multiple agents writing different files simultaneously
+- **缓存目录列表** — 不要重新扫描相同目录
+- **批处理小型目录** — 一次处理多个
+- **跳过未更改的** — 如果目录未更改，跳过重新生成
+- **并行写入** — 多个代理同时写入不同文件

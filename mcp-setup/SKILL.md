@@ -1,215 +1,215 @@
 ---
 name: mcp-setup
-description: Configure popular MCP servers for enhanced agent capabilities
+description: 配置常用的 MCP 服务器以增强代理能力
 level: 2
 ---
 
-# MCP Setup
+# MCP 设置
 
-Configure Model Context Protocol (MCP) servers to extend Claude Code's capabilities with external tools like web search, file system access, and GitHub integration.
+配置模型上下文协议（MCP）服务器，通过外部工具（如网页搜索、文件系统访问和 GitHub 集成）扩展 Claude Code 的能力。
 
-## Overview
+## 概述
 
-MCP servers provide additional tools that Claude Code agents can use. This skill helps you configure popular MCP servers using the `claude mcp add` command-line interface.
+MCP 服务器提供 Claude Code 代理可以使用的额外工具。此技能帮助你使用 `claude mcp add` 命令行界面配置常用的 MCP 服务器。
 
-## Step 1: Choose a Setup Path
+## 步骤 1：选择设置路径
 
-Use **AskUserQuestion** with **one question at a time** and **no more than 3 options per question**. Recent Claude Code builds reject larger option payloads as invalid tool parameters, so keep the MCP selection flow staged.
+使用 **AskUserQuestion**，**一次一个问题**，**每个问题不超过 3 个选项**。最近的 Claude Code 构建版本会拒绝较大的选项负载作为无效工具参数，因此保持 MCP 选择流程分阶段进行。
 
-### Step 1.1: First menu
+### 步骤 1.1：第一个菜单
 
-**Question:** "What kind of MCP setup would you like?"
+**问题：** "你想要哪种 MCP 设置？"
 
-**Options:**
-1. **Recommended starter setup** - Fast path for the most common OMC MCP additions
-2. **Individual popular server** - Pick one built-in server from a short follow-up menu
-3. **Custom server** - Add your own stdio or HTTP MCP server
+**选项：**
+1. **推荐入门设置** - 最常见 OMC MCP 附加组件的快速路径
+2. **单个常用服务器** - 从简短的后续菜单中选择一个内置服务器
+3. **自定义服务器** - 添加你自己的 stdio 或 HTTP MCP 服务器
 
-### Step 1.2: If the user chooses "Recommended starter setup"
+### 步骤 1.2：如果用户选择"推荐入门设置"
 
-Ask a follow-up **AskUserQuestion**:
+询问后续 **AskUserQuestion**：
 
-**Question:** "Which recommended MCP bundle should I configure?"
+**问题：** "我应该配置哪个推荐的 MCP 包？"
 
-**Options:**
-1. **Context7 only (Recommended)** - Zero-config docs/context server
-2. **Context7 + Exa** - Docs/context plus enhanced web search
-3. **Full recommended bundle** - Context7, Exa, Filesystem, and GitHub
+**选项：**
+1. **仅 Context7（推荐）** - 零配置文档/上下文服务器
+2. **Context7 + Exa** - 文档/上下文加增强网页搜索
+3. **完整推荐包** - Context7、Exa、Filesystem 和 GitHub
 
-Map that choice to the server list you will configure.
+将该选择映射到你将配置的服务器列表。
 
-### Step 1.3: If the user chooses "Individual popular server"
+### 步骤 1.3：如果用户选择"单个常用服务器"
 
-Ask a follow-up **AskUserQuestion**:
+询问后续 **AskUserQuestion**：
 
-**Question:** "Which server should I configure first?"
+**问题：** "我应该先配置哪个服务器？"
 
-**Options:**
-1. **Context7 (Recommended)** - Documentation and code context from popular libraries
-2. **Exa Web Search** - Enhanced web search (replaces built-in websearch)
-3. **More server choices** - Filesystem, GitHub, or the full recommended bundle
+**选项：**
+1. **Context7（推荐）** - 来自流行库的文档和代码上下文
+2. **Exa 网页搜索** - 增强网页搜索（替代内置 websearch）
+3. **更多服务器选择** - Filesystem、GitHub 或完整推荐包
 
-If the user chooses **More server choices**, ask one more **AskUserQuestion**:
+如果用户选择**更多服务器选择**，再询问一个 **AskUserQuestion**：
 
-**Question:** "Which additional MCP option do you want?"
+**问题：** "你想要哪个额外的 MCP 选项？"
 
-**Options:**
-1. **Filesystem (Recommended)** - Extended file system access with additional capabilities
-2. **GitHub** - GitHub API integration for issues, PRs, and repository management
-3. **Full recommended bundle** - Configure Context7, Exa, Filesystem, and GitHub together
+**选项：**
+1. **Filesystem（推荐）** - 具有额外能力的扩展文件系统访问
+2. **GitHub** - 用于 issues、PRs 和仓库管理的 GitHub API 集成
+3. **完整推荐包** - 同时配置 Context7、Exa、Filesystem 和 GitHub
 
-### Step 1.4: If the user chooses "Custom server"
+### 步骤 1.4：如果用户选择"自定义服务器"
 
-Skip directly to the **Custom MCP Server** section below.
+直接跳转到下方的**自定义 MCP 服务器**部分。
 
-## Step 2: Gather Required Information
+## 步骤 2：收集所需信息
 
-### For Context7:
-No API key required. Ready to use immediately.
+### 对于 Context7：
+无需 API 密钥。可立即使用。
 
-### For Exa Web Search:
-Ask for API key:
+### 对于 Exa 网页搜索：
+询问 API 密钥：
 ```
-Do you have an Exa API key?
-- Get one at: https://exa.ai
-- Enter your API key, or type 'skip' to configure later
-```
-
-### For Filesystem:
-Ask for allowed directories:
-```
-Which directories should the filesystem MCP have access to?
-Default: Current working directory
-Enter comma-separated paths, or press Enter for default
+你有 Exa API 密钥吗？
+- 在此获取：https://exa.ai
+- 输入你的 API 密钥，或输入 'skip' 稍后配置
 ```
 
-### For GitHub:
-Ask for token:
+### 对于 Filesystem：
+询问允许的目录：
 ```
-Do you have a GitHub Personal Access Token?
-- Create one at: https://github.com/settings/tokens
-- Recommended scopes: repo, read:org
-- Enter your token, or type 'skip' to configure later
+Filesystem MCP 应该访问哪些目录？
+默认：当前工作目录
+输入逗号分隔的路径，或按 Enter 使用默认值
 ```
 
-## Step 3: Add MCP Servers Using CLI
+### 对于 GitHub：
+询问 token：
+```
+你有 GitHub 个人访问令牌吗？
+- 在此创建：https://github.com/settings/tokens
+- 推荐权限：repo、read:org
+- 输入你的令牌，或输入 'skip' 稍后配置
+```
 
-Use the `claude mcp add` command to configure each MCP server. The CLI automatically handles settings.json updates and merging.
+## 步骤 3：使用 CLI 添加 MCP 服务器
 
-### Context7 Configuration:
+使用 `claude mcp add` 命令配置每个 MCP 服务器。CLI 自动处理 settings.json 更新和合并。
+
+### Context7 配置：
 ```bash
 claude mcp add context7 -- npx -y @upstash/context7-mcp
 ```
 
-### Exa Web Search Configuration:
+### Exa 网页搜索配置：
 ```bash
 claude mcp add -e EXA_API_KEY=<user-provided-key> exa -- npx -y exa-mcp-server
 ```
 
-### Filesystem Configuration:
+### Filesystem 配置：
 ```bash
 claude mcp add filesystem -- npx -y @modelcontextprotocol/server-filesystem <allowed-directories>
 ```
 
-### GitHub Configuration:
+### GitHub 配置：
 
-**Option 1: Docker (local)**
+**选项 1：Docker（本地）**
 ```bash
 claude mcp add -e GITHUB_PERSONAL_ACCESS_TOKEN=<user-provided-token> github -- docker run -i --rm -e GITHUB_PERSONAL_ACCESS_TOKEN ghcr.io/github/github-mcp-server
 ```
 
-**Option 2: HTTP (remote)**
+**选项 2：HTTP（远程）**
 ```bash
 claude mcp add --transport http github https://api.githubcopilot.com/mcp/
 ```
 
-> Note: Docker option requires Docker installed. HTTP option is simpler but may have different capabilities.
+> 注意：Docker 选项需要安装 Docker。HTTP 选项更简单但可能有不同的能力。
 
-## Step 4: Verify Installation
+## 步骤 4：验证安装
 
-After configuration, verify the MCP servers are properly set up:
+配置后，验证 MCP 服务器是否正确设置：
 
 ```bash
-# List configured MCP servers
+# 列出已配置的 MCP 服务器
 claude mcp list
 ```
 
-This will display all configured MCP servers and their status.
+这将显示所有已配置的 MCP 服务器及其状态。
 
-## Step 5: Show Completion Message
+## 步骤 5：显示完成消息
 
 ```
-MCP Server Configuration Complete!
+MCP 服务器配置完成！
 
-CONFIGURED SERVERS:
-[List the servers that were configured]
+已配置的服务器：
+[列出已配置的服务器]
 
-NEXT STEPS:
-1. Restart Claude Code for changes to take effect
-2. The configured MCP tools will be available to all agents
-3. Run `claude mcp list` to verify configuration
+后续步骤：
+1. 重启 Claude Code 使更改生效
+2. 配置的 MCP 工具将对所有代理可用
+3. 运行 `claude mcp list` 验证配置
 
-USAGE TIPS:
-- Context7: Ask about library documentation (e.g., "How do I use React hooks?")
-- Exa: Use for web searches (e.g., "Search the web for latest TypeScript features")
-- Filesystem: Extended file operations beyond the working directory
-- GitHub: Interact with GitHub repos, issues, and PRs
+使用提示：
+- Context7：询问库文档（例如，"如何使用 React hooks？"）
+- Exa：用于网页搜索（例如，"搜索最新的 TypeScript 特性"）
+- Filesystem：超越工作目录的扩展文件操作
+- GitHub：与 GitHub 仓库、issues 和 PRs 交互
 
-TROUBLESHOOTING:
-- If MCP servers don't appear, run `claude mcp list` to check status
-- Ensure you have Node.js 18+ installed for npx-based servers
-- For GitHub Docker option, ensure Docker is installed and running
-- Run /oh-my-claudecode:omc-doctor to diagnose issues
+故障排除：
+- 如果 MCP 服务器未出现，运行 `claude mcp list` 检查状态
+- 确保已安装 Node.js 18+ 以使用基于 npx 的服务器
+- 对于 GitHub Docker 选项，确保 Docker 已安装并运行
+- 运行 /oh-my-claudecode:omc-doctor 诊断问题
 
-MANAGING MCP SERVERS:
-- Add more servers: /oh-my-claudecode:mcp-setup or `claude mcp add ...`
-- List servers: `claude mcp list`
-- Remove a server: `claude mcp remove <server-name>`
+管理 MCP 服务器：
+- 添加更多服务器：/oh-my-claudecode:mcp-setup 或 `claude mcp add ...`
+- 列出服务器：`claude mcp list`
+- 移除服务器：`claude mcp remove <server-name>`
 ```
 
-## Custom MCP Server
+## 自定义 MCP 服务器
 
-If user selects "Custom":
+如果用户选择"自定义"：
 
-Ask for:
-1. Server name (identifier)
-2. Transport type: `stdio` (default) or `http`
-3. For stdio: Command and arguments (e.g., `npx my-mcp-server`)
-4. For http: URL (e.g., `https://example.com/mcp`)
-5. Environment variables (optional, key=value pairs)
-6. HTTP headers (optional, for http transport only)
+询问：
+1. 服务器名称（标识符）
+2. 传输类型：`stdio`（默认）或 `http`
+3. 对于 stdio：命令和参数（例如，`npx my-mcp-server`）
+4. 对于 http：URL（例如，`https://example.com/mcp`）
+5. 环境变量（可选，key=value 对）
+6. HTTP 头部（可选，仅用于 http 传输）
 
-Then construct and run the appropriate `claude mcp add` command:
+然后构造并运行适当的 `claude mcp add` 命令：
 
-**For stdio servers:**
+**对于 stdio 服务器：**
 ```bash
-# Without environment variables
+# 不带环境变量
 claude mcp add <server-name> -- <command> [args...]
 
-# With environment variables
+# 带环境变量
 claude mcp add -e KEY1=value1 -e KEY2=value2 <server-name> -- <command> [args...]
 ```
 
-**For HTTP servers:**
+**对于 HTTP 服务器：**
 ```bash
-# Basic HTTP server
+# 基本 HTTP 服务器
 claude mcp add --transport http <server-name> <url>
 
-# HTTP server with headers
+# 带头部的 HTTP 服务器
 claude mcp add --transport http --header "Authorization: Bearer <token>" <server-name> <url>
 ```
 
-### Company-context convention
+### 公司上下文约定
 
-If the custom server is meant to provide organization-specific reference material to OMC workflows, prefer a single tool named `get_company_context` that returns markdown via `{ context: string }`.
+如果自定义服务器旨在为 OMC 工作流提供组织特定的参考材料，优先使用名为 `get_company_context` 的单个工具，通过 `{ context: string }` 返回 Markdown。
 
-Example local registration:
+本地注册示例：
 
 ```bash
 claude mcp add company-context -- node examples/vendor-mcp-server/server.mjs
 ```
 
-Then point OMC at the full tool name in `.claude/omc.jsonc` or `~/.config/claude-omc/config.jsonc`:
+然后在 `.claude/omc.jsonc` 或 `~/.config/claude-omc/config.jsonc` 中将 OMC 指向完整工具名称：
 
 ```jsonc
 {
@@ -220,26 +220,26 @@ Then point OMC at the full tool name in `.claude/omc.jsonc` or `~/.config/claude
 }
 ```
 
-This remains advisory prompt context, not runtime enforcement.
+这仍然是建议性提示上下文，而非运行时强制执行。
 
-## Common Issues
+## 常见问题
 
-### MCP Server Not Loading
-- Ensure Node.js 18+ is installed
-- Check that npx is available in PATH
-- Run `claude mcp list` to verify server status
-- Check server logs for errors
+### MCP 服务器未加载
+- 确保已安装 Node.js 18+
+- 检查 npx 是否在 PATH 中可用
+- 运行 `claude mcp list` 验证服务器状态
+- 检查服务器日志中的错误
 
-### API Key Issues
-- Exa: Verify key at https://dashboard.exa.ai
-- GitHub: Ensure token has required scopes (repo, read:org)
-- Re-run `claude mcp add` with correct credentials if needed
+### API 密钥问题
+- Exa：在 https://dashboard.exa.ai 验证密钥
+- GitHub：确保令牌具有所需权限（repo、read:org）
+- 如有需要，使用正确凭据重新运行 `claude mcp add`
 
-### Agents Still Using Built-in Tools
-- Restart Claude Code after configuration
-- The built-in websearch will be deprioritized when exa is configured
-- Run `claude mcp list` to confirm servers are active
+### 代理仍使用内置工具
+- 配置后重启 Claude Code
+- 配置 exa 后，内置 websearch 将被降低优先级
+- 运行 `claude mcp list` 确认服务器处于活动状态
 
-### Removing or Updating a Server
-- Remove: `claude mcp remove <server-name>`
-- Update: Remove the old server, then add it again with new configuration
+### 移除或更新服务器
+- 移除：`claude mcp remove <server-name>`
+- 更新：移除旧服务器，然后使用新配置重新添加

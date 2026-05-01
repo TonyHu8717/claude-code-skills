@@ -1,118 +1,118 @@
 ---
 name: lark-event
 version: 1.0.0
-description: "Lark/Feishu real-time event listening / subscribing / consuming: stream events as NDJSON via `lark-cli event consume <EventKey>` (covers IM message receive, reactions, chat member changes, etc.). Use for Lark bots, real-time message processing, long-running subscribers, streaming webhook/push handlers. Supports `--max-events` / `--timeout` bounded runs and a stderr ready-marker contract — designed for AI agents running as subprocesses."
+description: "飞书/Lark 实时事件监听/订阅/消费：通过 `lark-cli event consume <EventKey>` 以 NDJSON 格式流式接收事件（涵盖即时通讯消息接收、表情回复、群成员变更等）。适用于飞书机器人、实时消息处理、长期运行的订阅者、流式 webhook/push 处理器。支持 `--max-events` / `--timeout` 有界运行和 stderr 就绪标记协议——专为以子进程方式运行的 AI agent 设计。"
 metadata:
   requires:
     bins: ["lark-cli"]
   cliHelp: "lark-cli event --help"
 ---
 
-# Lark Events
+# 飞书事件
 
-> **Prerequisite:** Read [`../lark-shared/SKILL.md`](../lark-shared/SKILL.md) first for authentication, `--as user/bot` switching, `Permission denied` handling, and safety rules.
+> **前置条件：** 先阅读 [`../lark-shared/SKILL.md`](../lark-shared/SKILL.md) 了解认证、`--as user/bot` 身份切换、`Permission denied` 错误处理和安全规则。
 
-## Core commands
+## 核心命令
 
-| Command | Purpose |
+| 命令 | 用途 |
 |------|------|
-| `lark-cli event list [--json]` | List all subscribable EventKeys |
-| `lark-cli event schema <EventKey> [--json]` | Show an EventKey's params and output schema |
-| `lark-cli event consume <EventKey> [flags]` | Blocking consume; events → stdout NDJSON |
-| `lark-cli event status [--json] [--fail-on-orphan]` | Inspect the local bus daemon status |
-| `lark-cli event stop [--all] [--force]` | Stop the bus daemon |
+| `lark-cli event list [--json]` | 列出所有可订阅的 EventKey |
+| `lark-cli event schema <EventKey> [--json]` | 显示 EventKey 的参数和输出 schema |
+| `lark-cli event consume <EventKey> [flags]` | 阻塞式消费；事件输出到 stdout NDJSON |
+| `lark-cli event status [--json] [--fail-on-orphan]` | 查看本地总线守护进程状态 |
+| `lark-cli event stop [--all] [--force]` | 停止总线守护进程 |
 
 
-## Common flags
+## 通用标志
 
-| Flag | Description |
+| 标志 | 说明 |
 |---|---|
-| `--param key=value` / `-p` | Business params (repeatable; comma-separated for multi-value). Unknown keys fail with valid names listed inline |
-| `--jq <expr>` | jq expression to filter / transform each event; empty output skips the event |
-| `--max-events N` | Exit after N events. Default 0 = unlimited |
-| `--timeout D` | Exit after duration D (e.g. `30s`, `2m`). Default 0 = no timeout. Whichever of `--max-events` / `--timeout` fires first wins |
-| `--output-dir <dir>` | Write each event as a file (relative paths only; prevents traversal) |
-| `--quiet` | Suppress stderr diagnostics. **AI should not use this** — it silences the ready marker |
-| `--as user\|bot\|auto` | Identity for the session (see lark-shared) |
+| `--param key=value` / `-p` | 业务参数（可重复；多值用逗号分隔）。未知 key 会报错并列出有效名称 |
+| `--jq <expr>` | jq 表达式，用于过滤/转换每个事件；输出为空则跳过该事件 |
+| `--max-events N` | 收到 N 个事件后退出。默认 0 = 无限制 |
+| `--timeout D` | 经过时长 D 后退出（如 `30s`、`2m`）。默认 0 = 无超时。`--max-events` / `--timeout` 哪个先触发就以哪个为准 |
+| `--output-dir <dir>` | 将每个事件写入文件（仅限相对路径；防止路径遍历） |
+| `--quiet` | 禁止 stderr 诊断输出。**AI 不应使用此选项**——它会静默掉就绪标记 |
+| `--as user\|bot\|auto` | 会话身份（见 lark-shared） |
 
 
-## Examples
+## 示例
 
 ```bash
-# Default: stream every event for the key (no filter, no projection)
+# 默认：流式接收该 key 的所有事件（无过滤、无投影）
 lark-cli event consume im.message.receive_v1 --as bot
 
-# Grab one sample event to inspect payload shape
+# 获取一个样本事件以检查 payload 结构
 lark-cli event consume im.message.receive_v1 --max-events 1 --timeout 30s --as bot
 
-# Run for 10 minutes then auto-exit
+# 运行 10 分钟后自动退出
 lark-cli event consume im.message.receive_v1 --timeout 10m --as bot
 
-# Consume multiple EventKeys concurrently (one shape per process, no dispatcher)
+# 并发消费多个 EventKey（每个进程一个 shape，无 dispatcher）
 lark-cli event consume im.message.receive_v1          --as bot > receive.ndjson &
 lark-cli event consume im.message.reaction.created_v1 --as bot > reaction.ndjson &
 wait
 
 ```
 
-## Call flow
+## 调用流程
 
-1. `lark-cli event list --json` → pick a legal key
-2. `lark-cli event schema <key> --json` → read `resolved_output_schema` + `jq_root_path` to determine field paths
-3. `lark-cli event consume <key> [--jq '<expr>']` → consume
+1. `lark-cli event list --json` → 选取一个合法的 key
+2. `lark-cli event schema <key> --json` → 读取 `resolved_output_schema` + `jq_root_path` 以确定字段路径
+3. `lark-cli event consume <key> [--jq '<expr>']` → 消费
 
-## Subprocess contract
+## 子进程协议
 
-### Ready marker
+### 就绪标记
 
-`event consume`'s stderr emits a fixed line `[event] ready event_key=<key>`. **Parent processes should block on stderr until this line appears, then start reading stdout.** Do not fall back to `sleep`.
+`event consume` 的 stderr 会输出一行固定的 `[event] ready event_key=<key>`。**父进程应在 stderr 上阻塞直到此行出现，然后再开始读取 stdout。** 不要回退到使用 `sleep`。
 
-### stdin EOF = graceful exit
+### stdin EOF = 优雅退出
 
-`event consume` treats stdin close as a shutdown signal (wired for AI subprocess callers). `< /dev/null` / `nohup` / systemd's default `StandardInput=null` will cause an immediate graceful exit (stderr `reason: signal`). To keep running:
+`event consume` 将 stdin 关闭视为关闭信号（为 AI 子进程调用者设计）。`< /dev/null` / `nohup` / systemd 默认的 `StandardInput=null` 会触发立即优雅退出（stderr 输出 `reason: signal`）。要保持运行：
 
-- Feed stdin a source that never EOFs: `< <(tail -f /dev/null)`
-- Or run bounded: `--max-events N` / `--timeout D`
+- 给 stdin 提供一个永不 EOF 的来源：`< <(tail -f /dev/null)`
+- 或者使用有界运行：`--max-events N` / `--timeout D`
 
-### Exit codes & reason
+### 退出码与原因
 
-On exit, the last stderr line is `[event] exited — received N event(s) in Xs (reason: ...)`.
+退出时，stderr 最后一行是 `[event] exited — received N event(s) in Xs (reason: ...)`。
 
-| exit code | reason | Trigger |
+| 退出码 | 原因 | 触发条件 |
 |---|---|---|
-| 0 | `reason: limit` | `--max-events` reached |
-| 0 | `reason: timeout` | `--timeout` reached |
+| 0 | `reason: limit` | 达到 `--max-events` |
+| 0 | `reason: timeout` | 达到 `--timeout` |
 | 0 | `reason: signal` | Ctrl+C / SIGTERM / stdin EOF |
-| non-0 | `Error: ...` (no `exited` line) | Startup / runtime failure (permissions, network, params, config) |
+| 非 0 | `Error: ...`（无 `exited` 行） | 启动/运行时失败（权限、网络、参数、配置） |
 
-Orchestrators should treat `reason: limit/timeout/signal` (all exit 0) as "business completion" and non-zero as "failure".
+编排器应将 `reason: limit/timeout/signal`（全部退出码 0）视为"业务完成"，非零视为"失败"。
 
-### Never `kill -9`
+### 禁止 `kill -9`
 
-**Avoid `kill -9` on consume processes**: for EventKeys with a **PreConsume hook** (those that register server-side subscriptions via OAPI), `kill -9` skips the OAPI unsubscribe and leaks server-side subscriptions (symptoms: "subscription already exists" on restart, duplicate event delivery). Prefer SIGTERM or closing stdin.
+**避免对 consume 进程使用 `kill -9`**：对于带有 **PreConsume 钩子** 的 EventKey（那些通过 OAPI 注册服务端订阅的），`kill -9` 会跳过 OAPI 取消订阅并泄露服务端订阅（症状：重启时提示"subscription already exists"、事件重复投递）。优先使用 SIGTERM 或关闭 stdin。
 
-### One consume, one EventKey (multi-key = multi-shell)
+### 一次消费一个 EventKey（多 key = 多 shell）
 
-The command takes exactly one positional argument; `k1,k2` and wildcards are unsupported. Listening to N keys means N subprocesses — this is **intentional**:
+该命令只接受一个位置参数；不支持 `k1,k2` 和通配符。监听 N 个 key 意味着 N 个子进程——这是**有意为之**的：
 
-- One shape per process stdout; no dispatcher logic required in the AI
-- Fault isolation (one key failing doesn't affect others)
-- Independent `--as` / `--jq` / `--max-events` / `--timeout` per key
+- 每个进程 stdout 只有一种 shape；AI 无需 dispatcher 逻辑
+- 故障隔离（一个 key 失败不影响其他 key）
+- 每个 key 可独立配置 `--as` / `--jq` / `--max-events` / `--timeout`
 
-All N consumers share a single bus daemon (UDS local IPC), so the overhead is small
+所有 N 个消费者共享一个总线守护进程（UDS 本地 IPC），因此开销很小
 
-## Writing jq via schema
+## 通过 schema 编写 jq
 
-`event schema <key> --json` is the source of truth for writing `--jq`. Four things to look at:
+`event schema <key> --json` 是编写 `--jq` 的权威来源。需要关注四个方面：
 
-**(1) Where fields start** — see `jq_root_path`
+**(1) 字段起始位置** — 查看 `jq_root_path`
 
-- Value `"."` → fields are at the top level, write `.chat_id`
-- Value `".event"` → fields are inside a V2 envelope, write `.event.chat_id`
+- 值为 `"."` → 字段在顶层，写 `.chat_id`
+- 值为 `".event"` → 字段在 V2 信封内，写 `.event.chat_id`
 
-**(2) Field list and types** — see `resolved_output_schema.properties.<name>`
+**(2) 字段列表和类型** — 查看 `resolved_output_schema.properties.<name>`
 
-Each field carries `type` / `description`, and some also have `format`. Snippet (from `event schema im.message.receive_v1 --json`):
+每个字段携带 `type` / `description`，部分还有 `format`。片段（来自 `event schema im.message.receive_v1 --json`）：
 
 ```json
 {
@@ -122,24 +122,24 @@ Each field carries `type` / `description`, and some also have `format`. Snippet 
 }
 ```
 
-**(3) Field semantics** — see the `format` tag
+**(3) 字段语义** — 查看 `format` 标签
 
-Lark-defined semantic tags (**not** JSON Schema's standard `format`). Common values: `open_id` / `chat_id` / `message_id` / `timestamp_ms` / `email`. Purpose: distinguish "same string type, different meanings" fields so you can reverse-lookup via API or convert formats.
+飞书自定义的语义标签（**不是** JSON Schema 标准的 `format`）。常见值：`open_id` / `chat_id` / `message_id` / `timestamp_ms` / `email`。用途：区分"相同字符串类型、不同含义"的字段，以便通过 API 反查或转换格式。
 
-**(4) Decoded state** — read the field's `description`
+**(4) 解码状态** — 读取字段的 `description`
 
-`event consume` runs Process hooks that may pre-decode some payload fields (flattening V2 envelopes, rendering `.content` to plain text, etc.) — behavior differs from raw OAPI. **Always read the field's `description` before writing jq**, especially for generic field names like `content` / `data` / `body` / `payload`.
+`event consume` 运行的 Process 钩子可能预先解码了部分 payload 字段（展平 V2 信封、将 `.content` 渲染为纯文本等）——行为与原始 OAPI 不同。**编写 jq 前务必读取字段的 `description`**，特别是 `content` / `data` / `body` / `payload` 等通用字段名。
 
-**Why it matters**: blindly applying `fromjson` to an already-decoded text field makes jq error on every event and silently drop it — the consumer looks alive but emits nothing, with only a single `WARN` line buried on stderr. (This is the general behavior: any jq runtime error skips the event with a one-line WARN; the loop does not abort.)
+**为什么重要**：对已解码的文本字段盲目应用 `fromjson` 会导致 jq 在每个事件上报错并静默丢弃——消费者看起来在运行但不输出任何内容，只在 stderr 上有一行 `WARN`。（这是一般行为：任何 jq 运行时错误都会跳过该事件并输出一行 WARN；循环不会中止。）
 
-**Don't shortcut the schema**: when projecting `event schema --json` with jq, do not strip `.description` from `properties` — that's the field that tells you whether a field is already decoded. Dump the full property objects, not just keys.
+**不要跳过 schema**：用 jq 投影 `event schema --json` 时，不要从 `properties` 中剥离 `.description`——这是告诉你字段是否已解码的字段。输出完整的属性对象，而不仅仅是 key。
 
 ---
 
-**Aside**: `--param`'s valid parameters also live in the schema — the `params` section lists `name` / `type` / `required` / `enum` / `default` / `description`; **section missing = this key accepts no `--param`**.
+**附注**：`--param` 的有效参数也在 schema 中——`params` 部分列出了 `name` / `type` / `required` / `enum` / `default` / `description`；**如果该部分缺失，则此 key 不接受 `--param`**。
 
-## Topic index
+## 主题索引
 
-| Topic | Reference | Coverage |
+| 主题 | 参考文档 | 覆盖范围 |
 |---|---|---|
-| IM | [`references/lark-event-im.md`](references/lark-event-im.md) | Catalog of 11 IM EventKeys + shape notes (flat vs V2 envelope) + `im.message.receive_v1` field gotchas (`sender_id` is open_id only; `.content` is plain text except for `interactive` cards) + common jq recipes (filter by chat_type / message_type / sender) |
+| 即时通讯 | [`references/lark-event-im.md`](references/lark-event-im.md) | 11 个 IM EventKey 目录 + shape 说明（扁平 vs V2 信封）+ `im.message.receive_v1` 字段注意事项（`sender_id` 仅限 open_id；`.content` 为纯文本，`interactive` 卡片除外）+ 常用 jq 配方（按 chat_type / message_type / sender 过滤） |

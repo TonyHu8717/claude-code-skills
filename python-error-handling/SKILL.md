@@ -1,40 +1,40 @@
 ---
 name: python-error-handling
-description: Python error handling patterns including input validation, exception hierarchies, and partial failure handling. Use when implementing validation logic, designing exception strategies, handling batch processing failures, or building robust APIs.
+description: Python 错误处理模式，包括输入验证、异常层次结构和部分失败处理。在实现验证逻辑、设计异常策略、处理批量处理失败或构建健壮的 API 时使用。
 ---
 
-# Python Error Handling
+# Python 错误处理
 
-Build robust Python applications with proper input validation, meaningful exceptions, and graceful failure handling. Good error handling makes debugging easier and systems more reliable.
+通过适当的输入验证、有意义的异常和优雅的失败处理来构建健壮的 Python 应用程序。良好的错误处理使调试更容易，系统更可靠。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Validating user input and API parameters
-- Designing exception hierarchies for applications
-- Handling partial failures in batch operations
-- Converting external data to domain types
-- Building user-friendly error messages
-- Implementing fail-fast validation patterns
+- 验证用户输入和 API 参数
+- 为应用程序设计异常层次结构
+- 处理批量操作中的部分失败
+- 将外部数据转换为域类型
+- 构建用户友好的错误消息
+- 实现快速失败验证模式
 
-## Core Concepts
+## 核心概念
 
-### 1. Fail Fast
+### 1. 快速失败
 
-Validate inputs early, before expensive operations. Report all validation errors at once when possible.
+尽早验证输入，在昂贵的操作之前。尽可能一次性报告所有验证错误。
 
-### 2. Meaningful Exceptions
+### 2. 有意义的异常
 
-Use appropriate exception types with context. Messages should explain what failed, why, and how to fix it.
+使用带有上下文的适当异常类型。消息应解释什么失败了、为什么以及如何修复。
 
-### 3. Partial Failures
+### 3. 部分失败
 
-In batch operations, don't let one failure abort everything. Track successes and failures separately.
+在批量操作中，不要让一个失败中止所有操作。分别跟踪成功和失败。
 
-### 4. Preserve Context
+### 4. 保留上下文
 
-Chain exceptions to maintain the full error trail for debugging.
+链接异常以维护完整的错误跟踪路径用于调试。
 
-## Quick Start
+## 快速开始
 
 ```python
 def fetch_page(url: str, page_size: int) -> Page:
@@ -45,11 +45,11 @@ def fetch_page(url: str, page_size: int) -> Page:
     # Now safe to proceed...
 ```
 
-## Fundamental Patterns
+## 基础模式
 
-### Pattern 1: Early Input Validation
+### 模式 1：早期输入验证
 
-Validate all inputs at API boundaries before any processing begins.
+在任何处理开始之前，在 API 边界验证所有输入。
 
 ```python
 def process_order(
@@ -75,9 +75,9 @@ def process_order(
     return _process_validated_order(order_id, quantity, discount_percent)
 ```
 
-### Pattern 2: Convert to Domain Types Early
+### 模式 2：尽早转换为域类型
 
-Parse strings and external data into typed domain objects at system boundaries.
+在系统边界将字符串和外部数据解析为类型化的域对象。
 
 ```python
 from enum import Enum
@@ -115,9 +115,9 @@ def export_data(data: list[dict], format_str: str) -> bytes:
     ...
 ```
 
-### Pattern 3: Pydantic for Complex Validation
+### 模式 3：使用 Pydantic 进行复杂验证
 
-Use Pydantic models for structured input validation with automatic error messages.
+使用 Pydantic 模型进行结构化输入验证，自动提供错误消息。
 
 ```python
 from pydantic import BaseModel, Field, field_validator
@@ -153,19 +153,19 @@ except ValidationError as e:
     print(e.errors())
 ```
 
-### Pattern 4: Map Errors to Standard Exceptions
+### 模式 4：映射到标准异常
 
-Use Python's built-in exception types appropriately, adding context as needed.
+适当使用 Python 的内置异常类型，根据需要添加上下文。
 
-| Failure Type | Exception | Example |
+| 失败类型 | 异常 | 示例 |
 |--------------|-----------|---------|
-| Invalid input | `ValueError` | Bad parameter values |
-| Wrong type | `TypeError` | Expected string, got int |
-| Missing item | `KeyError` | Dict key not found |
-| Operational failure | `RuntimeError` | Service unavailable |
-| Timeout | `TimeoutError` | Operation took too long |
-| File not found | `FileNotFoundError` | Path doesn't exist |
-| Permission denied | `PermissionError` | Access forbidden |
+| 无效输入 | `ValueError` | 错误的参数值 |
+| 类型错误 | `TypeError` | 期望字符串，得到 int |
+| 缺少项 | `KeyError` | 字典键未找到 |
+| 操作失败 | `RuntimeError` | 服务不可用 |
+| 超时 | `TimeoutError` | 操作时间过长 |
+| 文件未找到 | `FileNotFoundError` | 路径不存在 |
+| 权限拒绝 | `PermissionError` | 访问被禁止 |
 
 ```python
 # Good: Specific exception with context
@@ -175,11 +175,11 @@ raise ValueError(f"'page_size' must be 1-100, got {page_size}")
 raise Exception("Invalid parameter")
 ```
 
-## Advanced Patterns
+## 高级模式
 
-### Pattern 5: Custom Exceptions with Context
+### 模式 5：带上下文的自定义异常
 
-Create domain-specific exceptions that carry structured information.
+创建携带结构化信息的域特定异常。
 
 ```python
 class ApiError(Exception):
@@ -223,9 +223,9 @@ def handle_response(response: Response) -> dict:
             raise ApiError(f"Server error: {response.text}", code)
 ```
 
-### Pattern 6: Exception Chaining
+### 模式 6：异常链接
 
-Preserve the original exception when re-raising to maintain the debug trail.
+在重新引发时保留原始异常以维护调试路径。
 
 ```python
 import httpx
@@ -251,9 +251,9 @@ def upload_file(path: str) -> str:
         raise ServiceError(f"Upload failed: network error") from e
 ```
 
-### Pattern 7: Batch Processing with Partial Failures
+### 模式 7：带部分失败的批量处理
 
-Never let one bad item abort an entire batch. Track results per item.
+永远不要让一个坏项中止整个批量。逐项跟踪结果。
 
 ```python
 from dataclasses import dataclass
@@ -307,9 +307,9 @@ if not result.all_succeeded:
     )
 ```
 
-### Pattern 8: Progress Reporting for Long Operations
+### 模式 8：长时间操作的进度报告
 
-Provide visibility into batch progress without coupling business logic to UI.
+提供批量进度的可见性，而不将业务逻辑耦合到 UI。
 
 ```python
 from collections.abc import Callable
@@ -345,15 +345,15 @@ def process_large_batch(
     return BatchResult(succeeded=succeeded, failed=failed)
 ```
 
-## Best Practices Summary
+## 最佳实践总结
 
-1. **Validate early** - Check inputs before expensive operations
-2. **Use specific exceptions** - `ValueError`, `TypeError`, not generic `Exception`
-3. **Include context** - Messages should explain what, why, and how to fix
-4. **Convert types at boundaries** - Parse strings to enums/domain types early
-5. **Chain exceptions** - Use `raise ... from e` to preserve debug info
-6. **Handle partial failures** - Don't abort batches on single item errors
-7. **Use Pydantic** - For complex input validation with structured errors
-8. **Document failure modes** - Docstrings should list possible exceptions
-9. **Log with context** - Include IDs, counts, and other debugging info
-10. **Test error paths** - Verify exceptions are raised correctly
+1. **尽早验证** - 在昂贵操作之前检查输入
+2. **使用特定异常** - `ValueError`、`TypeError`，而不是通用 `Exception`
+3. **包含上下文** - 消息应解释什么、为什么以及如何修复
+4. **在边界转换类型** - 尽早将字符串解析为枚举/域类型
+5. **链接异常** - 使用 `raise ... from e` 保留调试信息
+6. **处理部分失败** - 不要因单个项错误而中止批量
+7. **使用 Pydantic** - 用于带结构化错误的复杂输入验证
+8. **记录失败模式** - 文档字符串应列出可能的异常
+9. **带上下文记录** - 包含 ID、计数和其他调试信息
+10. **测试错误路径** - 验证异常是否正确引发

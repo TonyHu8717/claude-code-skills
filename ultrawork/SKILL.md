@@ -1,142 +1,142 @@
 ---
 name: ultrawork
-description: Parallel execution engine for high-throughput task completion
+description: 用于高吞吐量任务完成的并行执行引擎
 argument-hint: "<task description with parallel work items>"
 level: 4
 ---
 
 <Purpose>
-Ultrawork is a parallel execution engine and execution protocol for independent work. It emphasizes intent grounding, parallel context gathering, dependency-aware task graphs for non-trivial work, and concise evidence-backed execution summaries. It is a component, not a standalone persistence mode -- it provides parallelism and routing guidance, but not persistence, verification loops, or long-lived state management.
+Ultrawork 是一个并行执行引擎和独立工作的执行协议。它强调意图锚定、并行上下文收集、非平凡工作的依赖感知任务图，以及简洁的、有证据支持的执行摘要。它是一个组件，不是独立的持久化模式——它提供并行性和路由指导，但不提供持久化、验证循环或长期状态管理。
 </Purpose>
 
 <Use_When>
-- Multiple independent tasks can run simultaneously
-- User says "ulw", "ultrawork", or wants parallel execution
-- You need to delegate work to multiple agents at once
-- Task benefits from concurrent execution but the user will manage completion themselves
+- 多个独立任务可以同时运行
+- 用户说 "ulw"、"ultrawork" 或想要并行执行
+- 你需要将工作委托给多个代理
+- 任务受益于并发执行，但用户会自行管理完成
 </Use_When>
 
 <Do_Not_Use_When>
-- Task requires guaranteed completion with verification -- use `ralph` instead (ralph includes ultrawork)
-- Task requires a full autonomous pipeline -- use `autopilot` instead (autopilot includes ralph which includes ultrawork)
-- There is only one sequential task with no parallelism opportunity -- delegate directly to an executor agent
-- User needs session persistence for resume -- use `ralph` which adds persistence on top of ultrawork
+- 任务需要带验证的保证完成——使用 `ralph` 代替（ralph 包含 ultrawork）
+- 任务需要完整的自主管道——使用 `autopilot` 代替（autopilot 包含 ralph，ralph 包含 ultrawork）
+- 只有一个顺序任务，没有并行机会——直接委托给执行器代理
+- 用户需要会话持久化以恢复——使用 `ralph`，它在 ultrawork 之上添加持久化
 </Do_Not_Use_When>
 
 <Why_This_Exists>
-Sequential task execution wastes time when tasks are independent. Ultrawork enables firing multiple agents simultaneously and routing each to the right model tier, reducing total execution time while controlling token costs. It is designed as a composable component that ralph and autopilot layer on top of.
+当任务独立时，顺序执行浪费时间。Ultrawork 能够同时启动多个代理并将每个代理路由到正确的模型层级，在控制 token 成本的同时减少总执行时间。它被设计为 ralph 和 autopilot 在其上层叠加的可组合组件。
 </Why_This_Exists>
 
 <Execution_Policy>
-- Fire all independent agent calls simultaneously -- never serialize independent work
-- Always pass the `model` parameter explicitly when delegating
-- Read `docs/shared/agent-tiers.md` before first delegation for agent selection guidance
-- Use `run_in_background: true` for operations over ~30 seconds (installs, builds, tests)
-- Run quick commands (git status, file reads, simple checks) in the foreground
-- Resolve intent and uncertainty before implementation; explore first, ask only when still blocked
-- For non-trivial tasks, produce a dependency-aware plan with parallel waves before execution
-- Keep delegated-task reports concise: short summary, files touched, verification status, blockers
-- Manual QA is required for implemented behavior, not just diagnostics
+- 同时启动所有独立的代理调用——永远不要序列化独立工作
+- 委托时始终显式传递 `model` 参数
+- 首次委托前阅读 `docs/shared/agent-tiers.md` 以获取代理选择指导
+- 对超过约 30 秒的操作使用 `run_in_background: true`（安装、构建、测试）
+- 在前台运行快速命令（git status、文件读取、简单检查）
+- 在实现前解决意图和不确定性；先探索，只在仍被阻塞时才提问
+- 对非平凡任务，在执行前生成带并行波次的依赖感知计划
+- 保持委托任务报告简洁：简短摘要、涉及的文件、验证状态、阻塞因素
+- 已实现的行为需要手动 QA，而不仅仅是诊断
 </Execution_Policy>
 
 <Steps>
-1. **Read agent reference**: Load `docs/shared/agent-tiers.md` for tier selection
-2. **Ground intent first**: Confirm whether the request is implementation, investigation, evaluation, or research; do not code before that is clear
-3. **Gather context in parallel**:
-   - direct tools for quick reads/searches
-   - exploration/docs agents for broad context
-4. **Classify tasks by independence**: Identify which tasks can run in parallel vs which have dependencies
-5. **Create a task graph for non-trivial work**:
-   - Parallel Execution Waves
-   - Dependency Matrix
-   - acceptance criteria and verification steps per task
-6. **Route to correct tiers**:
-   - Simple lookups/definitions: LOW tier (Haiku)
-   - Standard implementation: MEDIUM tier (Sonnet)
-   - Complex analysis/refactoring: HIGH tier (Opus)
-7. **Fire independent tasks simultaneously**: Launch all parallel-safe tasks at once
-8. **Run dependent tasks sequentially**: Wait for prerequisites before launching dependent work
-9. **Background long operations**: Builds, installs, and test suites use `run_in_background: true`
-10. **Verify when all tasks complete** (lightweight):
-   - Build/typecheck passes
-   - Affected tests pass
-   - Manual QA completed for implemented behavior
-   - No new errors introduced
+1. **读取代理参考**：加载 `docs/shared/agent-tiers.md` 以选择层级
+2. **先锚定意图**：确认请求是实现、调查、评估还是研究；在明确之前不要编码
+3. **并行收集上下文**：
+   - 直接工具用于快速读取/搜索
+   - 探索/文档代理用于广泛上下文
+4. **按独立性分类任务**：识别哪些任务可以并行运行，哪些有依赖
+5. **为非平凡工作创建任务图**：
+   - 并行执行波次
+   - 依赖矩阵
+   - 每个任务的验收标准和验证步骤
+6. **路由到正确层级**：
+   - 简单查找/定义：LOW 层级（Haiku）
+   - 标准实现：MEDIUM 层级（Sonnet）
+   - 复杂分析/重构：HIGH 层级（Opus）
+7. **同时启动独立任务**：一次启动所有并行安全的任务
+8. **顺序运行依赖任务**：等待前置条件完成后再启动依赖工作
+9. **后台长时间运行操作**：构建、安装和测试套件使用 `run_in_background: true`
+10. **所有任务完成后验证**（轻量级）：
+    - 构建/类型检查通过
+    - 受影响的测试通过
+    - 已实现行为的手动 QA 完成
+    - 未引入新错误
 </Steps>
 
 <Tool_Usage>
-- Use `Task(subagent_type="oh-my-claudecode:executor", model="haiku", ...)` for simple changes
-- Use `Task(subagent_type="oh-my-claudecode:executor", model="sonnet", ...)` for standard work
-- Use `Task(subagent_type="oh-my-claudecode:executor", model="opus", ...)` for complex work
-- Use `run_in_background: true` for package installs, builds, and test suites
-- Use foreground execution for quick status checks and file operations
+- 使用 `Task(subagent_type="oh-my-claudecode:executor", model="haiku", ...)` 处理简单更改
+- 使用 `Task(subagent_type="oh-my-claudecode:executor", model="sonnet", ...)` 处理标准工作
+- 使用 `Task(subagent_type="oh-my-claudecode:executor", model="opus", ...)` 处理复杂工作
+- 对包安装、构建和测试套件使用 `run_in_background: true`
+- 对快速状态检查和文件操作使用前台执行
 </Tool_Usage>
 
 <Examples>
 <Good>
-Three independent tasks fired simultaneously:
+三个独立任务同时启动：
 ```
 Task(subagent_type="oh-my-claudecode:executor", model="haiku", prompt="Add missing type export for Config interface")
 Task(subagent_type="oh-my-claudecode:executor", model="sonnet", prompt="Implement the /api/users endpoint with validation")
 Task(subagent_type="oh-my-claudecode:executor", model="sonnet", prompt="Add integration tests for the auth middleware")
 ```
-Why good: Independent tasks at appropriate tiers, all fired at once.
+为什么好：独立任务在适当层级，全部同时启动。
 </Good>
 
 <Good>
-Correct use of background execution:
+正确使用后台执行：
 ```
 Task(subagent_type="oh-my-claudecode:executor", model="sonnet", prompt="npm install && npm run build", run_in_background=true)
 Task(subagent_type="oh-my-claudecode:executor", model="haiku", prompt="Update the README with new API endpoints")
 ```
-Why good: Long build runs in background while short task runs in foreground.
+为什么好：长时间构建在后台运行，短任务在前台运行。
 </Good>
 
 <Bad>
-Sequential execution of independent work:
+独立工作的顺序执行：
 ```
-result1 = Task(executor, "Add type export")  # wait...
-result2 = Task(executor, "Implement endpoint")     # wait...
-result3 = Task(executor, "Add tests")              # wait...
+result1 = Task(executor, "Add type export")  # 等待...
+result2 = Task(executor, "Implement endpoint")     # 等待...
+result3 = Task(executor, "Add tests")              # 等待...
 ```
-Why bad: These tasks are independent. Running them sequentially wastes time.
+为什么差：这些任务是独立的。顺序运行浪费时间。
 </Bad>
 
 <Bad>
-Wrong tier selection:
+错误的层级选择：
 ```
 Task(subagent_type="oh-my-claudecode:executor", model="opus", prompt="Add a missing semicolon")
 ```
-Why bad: Opus is expensive overkill for a trivial fix. Use executor with Haiku instead.
+为什么差：对于简单修复，Opus 是昂贵的浪费。改用 Haiku 的 executor。
 </Bad>
 </Examples>
 
 <Escalation_And_Stop_Conditions>
-- When ultrawork is invoked directly (not via ralph), apply lightweight verification only -- build passes, tests pass, no new errors
-- For full persistence and comprehensive architect verification, recommend switching to `ralph` mode
-- If a task fails repeatedly across retries, report the issue rather than retrying indefinitely
-- Escalate to the user when tasks have unclear dependencies or conflicting requirements
+- 当 ultrawork 直接调用（非通过 ralph）时，仅应用轻量级验证——构建通过、测试通过、无新错误
+- 要获得完整持久化和全面的架构师验证，建议切换到 `ralph` 模式
+- 如果任务在重试中反复失败，报告问题而非无限重试
+- 当任务有不明确的依赖或冲突的需求时，上报给用户
 </Escalation_And_Stop_Conditions>
 
 <Final_Checklist>
-- [ ] All parallel tasks completed
-- [ ] Build/typecheck passes
-- [ ] Affected tests pass
-- [ ] No new errors introduced
+- [ ] 所有并行任务已完成
+- [ ] 构建/类型检查通过
+- [ ] 受影响的测试通过
+- [ ] 未引入新错误
 </Final_Checklist>
 
 <Advanced>
-## Relationship to Other Modes
+## 与其他模式的关系
 
 ```
-ralph (persistence wrapper)
- \-- includes: ultrawork (this skill)
-     \-- provides: parallel execution only
+ralph（持久化包装器）
+ \-- 包含：ultrawork（此技能）
+     \-- 提供：仅并行执行
 
-autopilot (autonomous execution)
- \-- includes: ralph
-     \-- includes: ultrawork (this skill)
+autopilot（自主执行）
+ \-- 包含：ralph
+     \-- 包含：ultrawork（此技能）
 ```
 
-Ultrawork is the parallelism layer. Ralph adds persistence and verification. Autopilot adds the full lifecycle pipeline.
+Ultrawork 是并行层。Ralph 添加持久化和验证。Autopilot 添加完整的生命周期管道。
 </Advanced>

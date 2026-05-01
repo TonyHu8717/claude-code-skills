@@ -1,40 +1,40 @@
 ---
 name: python-project-structure
-description: Python project organization, module architecture, and public API design. Use when setting up new projects, organizing modules, defining public interfaces with __all__, or planning directory layouts.
+description: Python 项目组织、模块架构和公共 API 设计。在设置新项目、组织模块、使用 __all__ 定义公共接口或规划目录布局时使用。
 ---
 
-# Python Project Structure & Module Architecture
+# Python 项目结构与模块架构
 
-Design well-organized Python projects with clear module boundaries, explicit public interfaces, and maintainable directory structures. Good organization makes code discoverable and changes predictable.
+设计组织良好的 Python 项目，具有清晰的模块边界、显式的公共接口和可维护的目录结构。良好的组织使代码可发现，变更可预测。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Starting a new Python project from scratch
-- Reorganizing an existing codebase for clarity
-- Defining module public APIs with `__all__`
-- Deciding between flat and nested directory structures
-- Determining test file placement strategies
-- Creating reusable library packages
+- 从头开始新的 Python 项目
+- 重组现有代码库以提高清晰度
+- 使用 `__all__` 定义模块公共 API
+- 在扁平和嵌套目录结构之间选择
+- 确定测试文件放置策略
+- 创建可复用的库包
 
-## Core Concepts
+## 核心概念
 
-### 1. Module Cohesion
+### 1. 模块内聚性
 
-Group related code that changes together. A module should have a single, clear purpose.
+将一起变更的相关代码分组。模块应该有单一、清晰的目的。
 
-### 2. Explicit Interfaces
+### 2. 显式接口
 
-Define what's public with `__all__`. Everything not listed is an internal implementation detail.
+使用 `__all__` 定义公共内容。未列出的都是内部实现细节。
 
-### 3. Flat Hierarchies
+### 3. 扁平层次结构
 
-Prefer shallow directory structures. Add depth only for genuine sub-domains.
+优先使用浅目录结构。仅在真正的子域需要时才增加深度。
 
-### 4. Consistent Conventions
+### 4. 一致的规范
 
-Apply naming and organization patterns uniformly across the project.
+在整个项目中统一应用命名和组织模式。
 
-## Quick Start
+## 快速开始
 
 ```
 myproject/
@@ -49,15 +49,15 @@ myproject/
 └── README.md
 ```
 
-## Fundamental Patterns
+## 基础模式
 
-### Pattern 1: One Concept Per File
+### 模式 1：每个文件一个概念
 
-Each file should focus on a single concept or closely related set of functions. Consider splitting when a file:
+每个文件应专注于单一概念或紧密相关的函数集。在以下情况下考虑拆分文件：
 
-- Handles multiple unrelated responsibilities
-- Grows beyond 300-500 lines (varies by complexity)
-- Contains classes that change for different reasons
+- 处理多个不相关的职责
+- 超过 300-500 行（因复杂性而异）
+- 包含因不同原因而变更的类
 
 ```python
 # Good: Focused files
@@ -69,9 +69,9 @@ Each file should focus on a single concept or closely related set of functions. 
 # user.py - Contains service, repository, models, utilities...
 ```
 
-### Pattern 2: Explicit Public APIs with `__all__`
+### 模式 2：使用 `__all__` 的显式公共 API
 
-Define the public interface for every module. Unlisted members are internal implementation details.
+为每个模块定义公共接口。未列出的成员是内部实现细节。
 
 ```python
 # mypackage/services/__init__.py
@@ -90,9 +90,9 @@ __all__ = [
 # from .internal_helpers import _validate_input  # Not exported
 ```
 
-### Pattern 3: Flat Directory Structure
+### 模式 3：扁平目录结构
 
-Prefer minimal nesting. Deep hierarchies make imports verbose and navigation difficult.
+优先使用最小嵌套。深层层次结构使导入冗长，导航困难。
 
 ```
 # Preferred: Flat structure
@@ -113,13 +113,13 @@ project/
 project/core/internal/services/impl/user/
 ```
 
-Add sub-packages only when there's a genuine sub-domain requiring isolation.
+仅在有真正的子域需要隔离时才添加子包。
 
-### Pattern 4: Test File Organization
+### 模式 4：测试文件组织
 
-Choose one approach and apply it consistently throughout the project.
+选择一种方法并在整个项目中一致应用。
 
-**Option A: Colocated Tests**
+**选项 A：共置测试**
 
 ```
 src/
@@ -129,9 +129,9 @@ src/
 └── test_order_service.py
 ```
 
-Benefits: Tests live next to the code they verify. Easy to see coverage gaps.
+优势：测试与它们验证的代码相邻。容易看到覆盖差距。
 
-**Option B: Parallel Test Directory**
+**选项 B：并行测试目录**
 
 ```
 src/
@@ -144,13 +144,13 @@ tests/
 │   └── test_order_service.py
 ```
 
-Benefits: Clean separation between production and test code. Standard for larger projects.
+优势：生产代码和测试代码之间的清晰分离。适用于较大项目的标准。
 
-## Advanced Patterns
+## 高级模式
 
-### Pattern 5: Package Initialization
+### 模式 5：包初始化
 
-Use `__init__.py` to provide a clean public interface for package consumers.
+使用 `__init__.py` 为包使用者提供干净的公共接口。
 
 ```python
 # mypackage/__init__.py
@@ -171,15 +171,15 @@ __all__ = [
 __version__ = "1.0.0"
 ```
 
-Consumers can then import directly from the package:
+使用者可以直接从包导入：
 
 ```python
 from mypackage import MainClass, Settings
 ```
 
-### Pattern 6: Layered Architecture
+### 模式 6：分层架构
 
-Organize code by architectural layer for clear separation of concerns.
+按架构层组织代码以实现清晰的关注点分离。
 
 ```
 myapp/
@@ -193,11 +193,11 @@ myapp/
 └── config/        # Configuration
 ```
 
-Each layer should only depend on layers below it, never above.
+每层应仅依赖其下层，永远不要向上依赖。
 
-### Pattern 7: Domain-Driven Structure
+### 模式 7：领域驱动结构
 
-For complex applications, organize by business domain rather than technical layer.
+对于复杂应用程序，按业务领域而非技术层组织。
 
 ```
 ecommerce/
@@ -216,17 +216,17 @@ ecommerce/
     └── exceptions.py
 ```
 
-## File and Module Naming
+## 文件和模块命名
 
-### Conventions
+### 规范
 
-- Use `snake_case` for all file and module names: `user_repository.py`
-- Avoid abbreviations that obscure meaning: `user_repository.py` not `usr_repo.py`
-- Match class names to file names: `UserService` in `user_service.py`
+- 所有文件和模块名使用 `snake_case`：`user_repository.py`
+- 避免模糊含义的缩写：`user_repository.py` 而不是 `usr_repo.py`
+- 类名与文件名匹配：`UserService` 在 `user_service.py` 中
 
-### Import Style
+### 导入风格
 
-Use absolute imports for clarity and reliability:
+使用绝对导入以提高清晰度和可靠性：
 
 ```python
 # Preferred: Absolute imports
@@ -238,15 +238,15 @@ from ..services import UserService
 from . import models
 ```
 
-Relative imports can break when modules are moved or reorganized.
+当模块被移动或重组时，相对导入可能会中断。
 
-## Best Practices Summary
+## 最佳实践总结
 
-1. **Keep files focused** - One concept per file, consider splitting at 300-500 lines (varies by complexity)
-2. **Define `__all__` explicitly** - Make public interfaces clear
-3. **Prefer flat structures** - Add depth only for genuine sub-domains
-4. **Use absolute imports** - More reliable and clearer
-5. **Be consistent** - Apply patterns uniformly across the project
-6. **Match names to content** - File names should describe their purpose
-7. **Separate concerns** - Keep layers distinct and dependencies flowing one direction
-8. **Document your structure** - Include a README explaining the organization
+1. **保持文件专注** - 每个文件一个概念，在 300-500 行时考虑拆分（因复杂性而异）
+2. **显式定义 `__all__`** - 使公共接口清晰
+3. **优先使用扁平结构** - 仅在真正的子域时增加深度
+4. **使用绝对导入** - 更可靠、更清晰
+5. **保持一致** - 在整个项目中统一应用模式
+6. **名称与内容匹配** - 文件名应描述其目的
+7. **分离关注点** - 保持层清晰，依赖单向流动
+8. **记录结构** - 包含解释组织的 README

@@ -1,67 +1,67 @@
 ---
 name: wiki
-description: LLM Wiki — persistent markdown knowledge base that compounds across sessions (Karpathy model)
+description: LLM Wiki — 跨会话累积的持久化 markdown 知识库（Karpathy 模型）
 triggers: ["wiki", "wiki this", "wiki add", "wiki lint", "wiki query"]
 ---
 
 # Wiki
 
-Persistent, self-maintained markdown knowledge base for project and session knowledge. Inspired by Karpathy's LLM Wiki concept.
+持久化的、自维护的 markdown 知识库，用于项目和会话知识。受 Karpathy 的 LLM Wiki 概念启发。
 
-## Operations
+## 操作
 
-### Ingest
-Process knowledge into wiki pages. A single ingest can touch multiple pages.
+### 导入
+将知识处理为 wiki 页面。一次导入可以涉及多个页面。
 
 ```
 wiki_ingest({ title: "Auth Architecture", content: "...", tags: ["auth", "architecture"], category: "architecture" })
 ```
 
-### Query
-Search across all wiki pages by keywords and tags. Returns matching pages with snippets — YOU (the LLM) synthesize answers with citations from the results.
+### 查询
+按关键词和标签搜索所有 wiki 页面。返回带有摘要的匹配页面——你（LLM）从结果中综合答案并引用。
 
 ```
 wiki_query({ query: "authentication", tags: ["auth"], category: "architecture" })
 ```
 
-### Lint
-Run health checks on the wiki. Detects orphan pages, stale content, broken cross-references, oversized pages, and structural contradictions.
+### 检查
+对 wiki 运行健康检查。检测孤立页面、过期内容、损坏的交叉引用、超大页面和结构性矛盾。
 
 ```
 wiki_lint()
 ```
 
-### Quick Add
-Add a single page quickly (simpler than ingest).
+### 快速添加
+快速添加单个页面（比导入更简单）。
 
 ```
 wiki_add({ title: "Page Title", content: "...", tags: ["tag1"], category: "decision" })
 ```
 
-### List / Read / Delete
+### 列出 / 读取 / 删除
 ```
-wiki_list()           # Show all pages (reads index.md)
-wiki_read({ page: "auth-architecture" })  # Read specific page
-wiki_delete({ page: "outdated-page" })    # Delete a page
+wiki_list()           # 显示所有页面（读取 index.md）
+wiki_read({ page: "auth-architecture" })  # 读取特定页面
+wiki_delete({ page: "outdated-page" })    # 删除页面
 ```
 
-### Log
-View wiki operation history by reading `.omc/wiki/log.md`.
+### 日志
+通过读取 `.omc/wiki/log.md` 查看 wiki 操作历史。
 
-## Categories
-Pages are organized by category: `architecture`, `decision`, `pattern`, `debugging`, `environment`, `session-log`
+## 分类
+页面按类别组织：`architecture`、`decision`、`pattern`、`debugging`、`environment`、`session-log`
 
-## Storage
-- Pages: `.omc/wiki/*.md` (markdown with YAML frontmatter)
-- Index: `.omc/wiki/index.md` (auto-maintained catalog)
-- Log: `.omc/wiki/log.md` (append-only operation chronicle)
+## 存储
+- 页面：`.omc/wiki/*.md`（带 YAML frontmatter 的 markdown）
+- 索引：`.omc/wiki/index.md`（自动维护的目录）
+- 日志：`.omc/wiki/log.md`（仅追加的操作记录）
 
-## Cross-References
-Use `[[page-name]]` wiki-link syntax to create cross-references between pages.
+## 交叉引用
+使用 `[[page-name]]` wiki-link 语法在页面之间创建交叉引用。
 
-## Auto-Capture
-At session end, significant discoveries are automatically captured as session-log pages. Configure via `wiki.autoCapture` in `.omc-config.json` (default: enabled).
+## 自动捕获
+会话结束时，重要的发现会自动捕获为 session-log 页面。通过 `.omc-config.json` 中的 `wiki.autoCapture` 配置（默认：启用）。
 
-## Hard Constraints
-- NO vector embeddings — query uses keyword + tag matching only
-- Wiki pages are git-ignored by default (`.omc/wiki/` is project-local)
+## 硬约束
+- 无向量嵌入——查询仅使用关键词 + 标签匹配
+- Wiki 页面默认被 git 忽略（`.omc/wiki/` 是项目本地的）

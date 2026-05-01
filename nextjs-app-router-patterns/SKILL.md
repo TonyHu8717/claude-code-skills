@@ -1,49 +1,49 @@
 ---
 name: nextjs-app-router-patterns
-description: Master Next.js 14+ App Router with Server Components, streaming, parallel routes, and advanced data fetching. Use when building Next.js applications, implementing SSR/SSG, or optimizing React Server Components.
+description: 掌握 Next.js 14+ App Router，包括服务器组件、流式传输、并行路由和高级数据获取。在构建 Next.js 应用、实现 SSR/SSG 或优化 React 服务器组件时使用。
 ---
 
-# Next.js App Router Patterns
+# Next.js App Router 模式
 
-Comprehensive patterns for Next.js 14+ App Router architecture, Server Components, and modern full-stack React development.
+Next.js 14+ App Router 架构、服务器组件和现代全栈 React 开发的综合模式。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Building new Next.js applications with App Router
-- Migrating from Pages Router to App Router
-- Implementing Server Components and streaming
-- Setting up parallel and intercepting routes
-- Optimizing data fetching and caching
-- Building full-stack features with Server Actions
+- 使用 App Router 构建新的 Next.js 应用
+- 从 Pages Router 迁移到 App Router
+- 实现服务器组件和流式传输
+- 设置并行和拦截路由
+- 优化数据获取和缓存
+- 使用 Server Actions 构建全栈功能
 
-## Core Concepts
+## 核心概念
 
-### 1. Rendering Modes
+### 1. 渲染模式
 
-| Mode                  | Where        | When to Use                               |
-| --------------------- | ------------ | ----------------------------------------- |
-| **Server Components** | Server only  | Data fetching, heavy computation, secrets |
-| **Client Components** | Browser      | Interactivity, hooks, browser APIs        |
-| **Static**            | Build time   | Content that rarely changes               |
-| **Dynamic**           | Request time | Personalized or real-time data            |
-| **Streaming**         | Progressive  | Large pages, slow data sources            |
+| 模式             | 位置         | 何时使用                               |
+| ---------------- | ------------ | -------------------------------------- |
+| **服务器组件**   | 仅服务器     | 数据获取、重计算、密钥                 |
+| **客户端组件**   | 浏览器       | 交互性、hooks、浏览器 API              |
+| **静态**         | 构建时       | 很少变化的内容                         |
+| **动态**         | 请求时       | 个性化或实时数据                       |
+| **流式传输**     | 渐进式       | 大页面、慢数据源                       |
 
-### 2. File Conventions
+### 2. 文件约定
 
 ```
 app/
-├── layout.tsx       # Shared UI wrapper
-├── page.tsx         # Route UI
-├── loading.tsx      # Loading UI (Suspense)
-├── error.tsx        # Error boundary
+├── layout.tsx       # 共享 UI 包装器
+├── page.tsx         # 路由 UI
+├── loading.tsx      # 加载 UI（Suspense）
+├── error.tsx        # 错误边界
 ├── not-found.tsx    # 404 UI
-├── route.ts         # API endpoint
-├── template.tsx     # Re-mounted layout
-├── default.tsx      # Parallel route fallback
-└── opengraph-image.tsx  # OG image generation
+├── route.ts         # API 端点
+├── template.tsx     # 重新挂载的布局
+├── default.tsx      # 并行路由回退
+└── opengraph-image.tsx  # OG 图片生成
 ```
 
-## Quick Start
+## 快速开始
 
 ```typescript
 // app/layout.tsx
@@ -71,10 +71,10 @@ export default function RootLayout({
   )
 }
 
-// app/page.tsx - Server Component by default
+// app/page.tsx - 默认为服务器组件
 async function getProducts() {
   const res = await fetch('https://api.example.com/products', {
-    next: { revalidate: 3600 }, // ISR: revalidate every hour
+    next: { revalidate: 3600 }, // ISR：每小时重新验证
   })
   return res.json()
 }
@@ -91,9 +91,9 @@ export default async function HomePage() {
 }
 ```
 
-## Patterns
+## 模式
 
-### Pattern 1: Server Components with Data Fetching
+### 模式 1：带数据获取的服务器组件
 
 ```typescript
 // app/products/page.tsx
@@ -131,7 +131,7 @@ export default async function ProductsPage({
   )
 }
 
-// components/products/ProductList.tsx - Server Component
+// components/products/ProductList.tsx - 服务器组件
 async function getProducts(filters: ProductFilters) {
   const res = await fetch(
     `${process.env.API_URL}/products?${new URLSearchParams(filters)}`,
@@ -157,7 +157,7 @@ export async function ProductList({ category, sort, page }: ProductFilters) {
 }
 ```
 
-### Pattern 2: Client Components with 'use client'
+### 模式 2：带 'use client' 的客户端组件
 
 ```typescript
 // components/products/AddToCartButton.tsx
@@ -195,7 +195,7 @@ export function AddToCartButton({ productId }: { productId: string }) {
 }
 ```
 
-### Pattern 3: Server Actions
+### 模式 3：Server Actions
 
 ```typescript
 // app/actions/cart.ts
@@ -231,20 +231,20 @@ export async function checkout(formData: FormData) {
   const address = formData.get("address") as string;
   const payment = formData.get("payment") as string;
 
-  // Validate
+  // 验证
   if (!address || !payment) {
     return { error: "Missing required fields" };
   }
 
-  // Process order
+  // 处理订单
   const order = await processOrder({ address, payment });
 
-  // Redirect to confirmation
+  // 重定向到确认页
   redirect(`/orders/${order.id}/confirmation`);
 }
 ```
 
-### Pattern 4: Parallel Routes
+### 模式 4：并行路由
 
 ```typescript
 // app/dashboard/layout.tsx
@@ -284,16 +284,16 @@ export default async function TeamSlot() {
 }
 ```
 
-### Pattern 5: Intercepting Routes (Modal Pattern)
+### 模式 5：拦截路由（模态框模式）
 
 ```typescript
-// File structure for photo modal
+// 照片模态框的文件结构
 // app/
 // ├── @modal/
-// │   ├── (.)photos/[id]/page.tsx  # Intercept
+// │   ├── (.)photos/[id]/page.tsx  # 拦截
 // │   └── default.tsx
 // ├── photos/
-// │   └── [id]/page.tsx            # Full page
+// │   └── [id]/page.tsx            # 完整页面
 // └── layout.tsx
 
 // app/@modal/(.)photos/[id]/page.tsx
@@ -315,7 +315,7 @@ export default async function PhotoModal({
   )
 }
 
-// app/photos/[id]/page.tsx - Full page version
+// app/photos/[id]/page.tsx - 完整页面版本
 export default async function PhotoPage({
   params,
 }: {
@@ -351,7 +351,7 @@ export default function RootLayout({
 }
 ```
 
-### Pattern 6: Streaming with Suspense
+### 模式 6：使用 Suspense 的流式传输
 
 ```typescript
 // app/product/[id]/page.tsx
@@ -364,20 +364,20 @@ export default async function ProductPage({
 }) {
   const { id } = await params
 
-  // This data loads first (blocking)
+  // 此数据首先加载（阻塞）
   const product = await getProduct(id)
 
   return (
     <div>
-      {/* Immediate render */}
+      {/* 立即渲染 */}
       <ProductHeader product={product} />
 
-      {/* Stream in reviews */}
+      {/* 流式加载评论 */}
       <Suspense fallback={<ReviewsSkeleton />}>
         <Reviews productId={id} />
       </Suspense>
 
-      {/* Stream in recommendations */}
+      {/* 流式加载推荐 */}
       <Suspense fallback={<RecommendationsSkeleton />}>
         <Recommendations productId={id} />
       </Suspense>
@@ -385,19 +385,19 @@ export default async function ProductPage({
   )
 }
 
-// These components fetch their own data
+// 这些组件获取自己的数据
 async function Reviews({ productId }: { productId: string }) {
-  const reviews = await getReviews(productId) // Slow API
+  const reviews = await getReviews(productId) // 慢 API
   return <ReviewList reviews={reviews} />
 }
 
 async function Recommendations({ productId }: { productId: string }) {
-  const products = await getRecommendations(productId) // ML-based, slow
+  const products = await getRecommendations(productId) // 基于 ML，慢
   return <ProductCarousel products={products} />
 }
 ```
 
-### Pattern 7: Route Handlers (API Routes)
+### 模式 7：路由处理器（API 路由）
 
 ```typescript
 // app/api/products/route.ts
@@ -441,7 +441,7 @@ export async function GET(
 }
 ```
 
-### Pattern 8: Metadata and SEO
+### 模式 8：元数据和 SEO
 
 ```typescript
 // app/products/[slug]/page.tsx
@@ -490,24 +490,24 @@ export default async function ProductPage({ params }: Props) {
 }
 ```
 
-## Caching Strategies
+## 缓存策略
 
-### Data Cache
+### 数据缓存
 
 ```typescript
-// No cache (always fresh)
+// 不缓存（始终最新）
 fetch(url, { cache: "no-store" });
 
-// Cache forever (static)
+// 永久缓存（静态）
 fetch(url, { cache: "force-cache" });
 
-// ISR - revalidate after 60 seconds
+// ISR - 60 秒后重新验证
 fetch(url, { next: { revalidate: 60 } });
 
-// Tag-based invalidation
+// 基于标签的失效
 fetch(url, { next: { tags: ["products"] } });
 
-// Invalidate via Server Action
+// 通过 Server Action 失效
 ("use server");
 import { revalidateTag, revalidatePath } from "next/cache";
 
@@ -518,20 +518,20 @@ export async function updateProduct(id: string, data: ProductData) {
 }
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 推荐做法
 
-- **Start with Server Components** - Add 'use client' only when needed
-- **Colocate data fetching** - Fetch data where it's used
-- **Use Suspense boundaries** - Enable streaming for slow data
-- **Leverage parallel routes** - Independent loading states
-- **Use Server Actions** - For mutations with progressive enhancement
+- **从服务器组件开始** - 仅在需要时添加 'use client'
+- **就近获取数据** - 在使用数据的地方获取
+- **使用 Suspense 边界** - 为慢数据启用流式传输
+- **利用并行路由** - 独立的加载状态
+- **使用 Server Actions** - 用于带渐进增强的变更
 
-### Don'ts
+### 避免做法
 
-- **Don't pass serializable data** - Server → Client boundary limitations
-- **Don't use hooks in Server Components** - No useState, useEffect
-- **Don't fetch in Client Components** - Use Server Components or React Query
-- **Don't over-nest layouts** - Each layout adds to the component tree
-- **Don't ignore loading states** - Always provide loading.tsx or Suspense
+- **不要传递可序列化数据** - 服务器 → 客户端边界限制
+- **不要在服务器组件中使用 hooks** - 没有 useState、useEffect
+- **不要在客户端组件中获取数据** - 使用服务器组件或 React Query
+- **不要过度嵌套布局** - 每个布局都增加组件树
+- **不要忽略加载状态** - 始终提供 loading.tsx 或 Suspense

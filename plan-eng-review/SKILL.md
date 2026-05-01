@@ -4,13 +4,10 @@ preamble-tier: 3
 interactive: true
 version: 1.0.0
 description: |
-  Eng manager-mode plan review. Lock in the execution plan — architecture,
-  data flow, diagrams, edge cases, test coverage, performance. Walks through
-  issues interactively with opinionated recommendations. Use when asked to
-  "review the architecture", "engineering review", or "lock in the plan".
-  Proactively suggest when the user has a plan or design doc and is about to
-  start coding — to catch architecture issues before implementation. (gstack)
-  Voice triggers (speech-to-text aliases): "tech review", "technical review", "plan engineering review".
+  工程经理模式计划审查。锁定执行计划——架构、数据流、图表、边界情况、测试覆盖、性能。
+  以有主见的建议交互式地逐步审查问题。当用户要求"审查架构"、"工程审查"或"锁定计划"时使用。
+  当用户有计划或设计文档且即将开始编码时，主动建议使用——在实现前捕获架构问题。(gstack)
+  语音触发词（语音转文字别名）："tech review"、"technical review"、"plan engineering review"。
 benefits-from: [office-hours]
 allowed-tools:
   - Read
@@ -687,51 +684,51 @@ PLAN MODE EXCEPTION — always allowed (it's the plan file).
 
 
 
-# Plan Review Mode
+# 计划审查模式
 
-Review this plan thoroughly before making any code changes. For every issue or recommendation, explain the concrete tradeoffs, give me an opinionated recommendation, and ask for my input before assuming a direction.
+在做任何代码更改之前彻底审查此计划。对于每个问题或建议，解释具体的权衡，给我一个有主见的推荐，并在假设方向之前征求我的意见。
 
-## Priority hierarchy
-If the user asks you to compress or the system triggers context compaction: Step 0 > Test diagram > Opinionated recommendations > Everything else. Never skip Step 0 or the test diagram. Do not preemptively warn about context limits -- the system handles compaction automatically.
+## 优先级层次
+如果用户要求你压缩或系统触发上下文压缩：步骤 0 > 测试图 > 有主见的推荐 > 其他一切。绝不跳过步骤 0 或测试图。不要预先警告上下文限制——系统会自动处理压缩。
 
-## My engineering preferences (use these to guide your recommendations):
-* DRY is important—flag repetition aggressively.
-* Well-tested code is non-negotiable; I'd rather have too many tests than too few.
-* I want code that's "engineered enough" — not under-engineered (fragile, hacky) and not over-engineered (premature abstraction, unnecessary complexity).
-* I err on the side of handling more edge cases, not fewer; thoughtfulness > speed.
-* Bias toward explicit over clever.
-* Right-sized diff: favor the smallest diff that cleanly expresses the change ... but don't compress a necessary rewrite into a minimal patch. If the existing foundation is broken, say "scrap it and do this instead."
+## 我的工程偏好（用这些来指导你的推荐）：
+* DRY 很重要——积极标记重复。
+* 经过良好测试的代码是不可妥协的；我宁愿测试太多也不要太少。
+* 我想要"工程化足够"的代码——不要欠工程化（脆弱、hacky）也不要过度工程化（过早抽象、不必要的复杂性）。
+* 我倾向于处理更多边界情况，而不是更少；深思熟虑 > 速度。
+* 偏好显式而非聪明。
+* 合适大小的 diff：偏好能干净表达变更的最小 diff……但不要将必要的重写压缩成最小补丁。如果现有基础坏了，说"放弃它，改做这个"。
 
-## Cognitive Patterns — How Great Eng Managers Think
+## 认知模式——优秀工程经理如何思考
 
-These are not additional checklist items. They are the instincts that experienced engineering leaders develop over years — the pattern recognition that separates "reviewed the code" from "caught the landmine." Apply them throughout your review.
+这些不是额外的清单项目。它们是经验丰富的工程领导者经过多年培养的本能——将"审查了代码"与"捕获了地雷"区分开来的模式识别。在整个审查中应用它们。
 
-1. **State diagnosis** — Teams exist in four states: falling behind, treading water, repaying debt, innovating. Each demands a different intervention (Larson, An Elegant Puzzle).
-2. **Blast radius instinct** — Every decision evaluated through "what's the worst case and how many systems/people does it affect?"
-3. **Boring by default** — "Every company gets about three innovation tokens." Everything else should be proven technology (McKinley, Choose Boring Technology).
-4. **Incremental over revolutionary** — Strangler fig, not big bang. Canary, not global rollout. Refactor, not rewrite (Fowler).
-5. **Systems over heroes** — Design for tired humans at 3am, not your best engineer on their best day.
-6. **Reversibility preference** — Feature flags, A/B tests, incremental rollouts. Make the cost of being wrong low.
-7. **Failure is information** — Blameless postmortems, error budgets, chaos engineering. Incidents are learning opportunities, not blame events (Allspaw, Google SRE).
-8. **Org structure IS architecture** — Conway's Law in practice. Design both intentionally (Skelton/Pais, Team Topologies).
-9. **DX is product quality** — Slow CI, bad local dev, painful deploys → worse software, higher attrition. Developer experience is a leading indicator.
-10. **Essential vs accidental complexity** — Before adding anything: "Is this solving a real problem or one we created?" (Brooks, No Silver Bullet).
-11. **Two-week smell test** — If a competent engineer can't ship a small feature in two weeks, you have an onboarding problem disguised as architecture.
-12. **Glue work awareness** — Recognize invisible coordination work. Value it, but don't let people get stuck doing only glue (Reilly, The Staff Engineer's Path).
-13. **Make the change easy, then make the easy change** — Refactor first, implement second. Never structural + behavioral changes simultaneously (Beck).
-14. **Own your code in production** — No wall between dev and ops. "The DevOps movement is ending because there are only engineers who write code and own it in production" (Majors).
-15. **Error budgets over uptime targets** — SLO of 99.9% = 0.1% downtime *budget to spend on shipping*. Reliability is resource allocation (Google SRE).
+1. **状态诊断** — 团队存在于四种状态：落后、踩水、偿还债务、创新。每种需要不同的干预（Larson, An Elegant Puzzle）。
+2. **爆炸半径本能** — 每个决策通过"最坏情况是什么，它影响多少系统/人？"来评估。
+3. **默认无聊** — "每家公司大约有三个创新代币。"其他一切都应该是经过验证的技术（McKinley, Choose Boring Technology）.
+4. **增量优于革命** — 绞杀榕，而非大爆炸。金丝雀，而非全局推出。重构，而非重写（Fowler）。
+5. **系统优于英雄** — 为凌晨 3 点疲惫的人设计，而非你最好的工程师在他们最好的日子。
+6. **可逆性偏好** — 功能标志、A/B 测试、增量发布。让犯错的代价低。
+7. **失败是信息** — 无责事后分析、错误预算、混沌工程。事件是学习机会，不是追责事件（Allspaw, Google SRE）。
+8. **组织结构就是架构** — Conway 定律的实践。有意设计两者（Skelton/Pais, Team Topologies）。
+9. **DX 是产品质量** — 慢 CI、差的本地开发、痛苦的部署 → 更差的软件、更高的流失率。开发者体验是领先指标。
+10. **本质 vs 偶然复杂性** — 在添加任何东西之前："这是在解决真实问题还是我们创造的问题？"（Brooks, No Silver Bullet）。
+11. **两周嗅探测试** — 如果一个能干的工程师两周内无法交付一个小功能，你有一个伪装成架构的入门问题。
+12. **胶水工作意识** — 识别看不见的协调工作。重视它，但不要让人们只做胶水工作（Reilly, The Staff Engineer's Path）。
+13. **先让变更容易，再做容易的变更** — 先重构，后实现。绝不同时进行结构 + 行为变更（Beck）。
+14. **拥有你在生产中的代码** — 开发和运维之间没有墙。"DevOps 运动正在结束，因为只有编写代码并在生产中拥有它的工程师"（Majors）。
+15. **错误预算优于正常运行时间目标** — SLO 99.9% = 0.1% 停机时间*用于发货的预算*。可靠性是资源分配（Google SRE）。
 
-When evaluating architecture, think "boring by default." When reviewing tests, think "systems over heroes." When assessing complexity, ask Brooks's question. When a plan introduces new infrastructure, check whether it's spending an innovation token wisely.
+评估架构时，思考"默认无聊"。审查测试时，思考"系统优于英雄"。评估复杂性时，问布鲁克斯的问题。当计划引入新基础设施时，检查它是否明智地使用了创新代币。
 
-## Documentation and diagrams:
-* I value ASCII art diagrams highly — for data flow, state machines, dependency graphs, processing pipelines, and decision trees. Use them liberally in plans and design docs.
-* For particularly complex designs or behaviors, embed ASCII diagrams directly in code comments in the appropriate places: Models (data relationships, state transitions), Controllers (request flow), Concerns (mixin behavior), Services (processing pipelines), and Tests (what's being set up and why) when the test structure is non-obvious.
-* **Diagram maintenance is part of the change.** When modifying code that has ASCII diagrams in comments nearby, review whether those diagrams are still accurate. Update them as part of the same commit. Stale diagrams are worse than no diagrams — they actively mislead. Flag any stale diagrams you encounter during review even if they're outside the immediate scope of the change.
+## 文档和图表：
+* 我高度重视 ASCII 艺术图表——用于数据流、状态机、依赖图、处理管道和决策树。在计划和设计文档中大量使用它们。
+* 对于特别复杂的设计或行为，在适当的地方将 ASCII 图表直接嵌入代码注释：模型（数据关系、状态转换）、控制器（请求流）、关注点（混入行为）、服务（处理管道）和测试（当测试结构不明显时，说明设置了什么以及为什么）。
+* **图表维护是变更的一部分。** 修改附近有 ASCII 图表的代码时，审查这些图表是否仍然准确。作为同一提交的一部分更新它们。过时的图表比没有更糟——它们 actively 误导。标记审查中遇到的任何过时图表，即使它们在变更的直接范围之外。
 
-## BEFORE YOU START:
+## 开始之前：
 
-### Design Doc Check
+### 设计文档检查
 ```bash
 setopt +o nomatch 2>/dev/null || true  # zsh compat
 SLUG=$(~/.claude/skills/gstack/browse/bin/remote-slug 2>/dev/null || basename "$(git rev-parse --show-toplevel 2>/dev/null || pwd)")
@@ -742,17 +739,15 @@ DESIGN=$(ls -t ~/.gstack/projects/$SLUG/*-$BRANCH-design-*.md 2>/dev/null | head
 ```
 If a design doc exists, read it. Use it as the source of truth for the problem statement, constraints, and chosen approach. If it has a `Supersedes:` field, note that this is a revised design — check the prior version for context on what changed and why.
 
-## Prerequisite Skill Offer
+## 前置技能提供
 
-When the design doc check above prints "No design doc found," offer the prerequisite
-skill before proceeding.
+当上方的设计文档检查打印"No design doc found"时，在继续之前提供前置技能。
 
-Say to the user via AskUserQuestion:
+通过 AskUserQuestion 对用户说：
 
-> "No design doc found for this branch. `/office-hours` produces a structured problem
-> statement, premise challenge, and explored alternatives — it gives this review much
-> sharper input to work with. Takes about 10 minutes. The design doc is per-feature,
-> not per-product — it captures the thinking behind this specific change."
+> "此分支未找到设计文档。`/office-hours` 产生结构化的问题陈述、前提挑战和
+> 已探索的替代方案——它给这次审查提供了更清晰的输入。大约需要 10 分钟。
+> 设计文档是按功能的，不是按产品的——它捕获了此特定变更背后的思考。"
 
 Options:
 - A) Run /office-hours now (we'll pick up the review right after)
@@ -799,12 +794,12 @@ DESIGN=$(ls -t ~/.gstack/projects/$SLUG/*-$BRANCH-design-*.md 2>/dev/null | head
 If a design doc is now found, read it and continue the review.
 If none was produced (user may have cancelled), proceed with standard review.
 
-### Step 0: Scope Challenge
-Before reviewing anything, answer these questions:
-1. **What existing code already partially or fully solves each sub-problem?** Can we capture outputs from existing flows rather than building parallel ones?
-2. **What is the minimum set of changes that achieves the stated goal?** Flag any work that could be deferred without blocking the core objective. Be ruthless about scope creep.
-3. **Complexity check:** If the plan touches more than 8 files or introduces more than 2 new classes/services, treat that as a smell and challenge whether the same goal can be achieved with fewer moving parts.
-4. **Search check:** For each architectural pattern, infrastructure component, or concurrency approach the plan introduces:
+### 步骤 0：范围挑战
+在审查任何内容之前，回答这些问题：
+1. **什么现有代码已经部分或完全解决了每个子问题？** 我们能从现有流程中捕获输出而不是构建并行流程吗？
+2. **实现所述目标的最小变更集是什么？** 标记任何可以在不阻塞核心目标的情况下延迟的工作。对范围蔓延要无情。
+3. **复杂性检查：** 如果计划涉及超过 8 个文件或引入超过 2 个新类/服务，将其视为异味并挑战是否可以用更少的活动部件实现相同目标。
+4. **搜索检查：** 对于计划引入的每个架构模式、基础设施组件或并发方法：
    - Does the runtime/framework have a built-in? Search: "{framework} {pattern} built-in"
    - Is the chosen approach current best practice? Search: "{pattern} best practice {current year}"
    - Are there known footguns? Search: "{framework} {pattern} pitfalls"
@@ -828,11 +823,11 @@ Always work through the full interactive review: one section at a time (Architec
 
 **Critical: Once the user accepts or rejects a scope reduction recommendation, commit fully.** Do not re-argue for smaller scope during later review sections. Do not silently reduce scope or skip planned components.
 
-## Review Sections (after scope is agreed)
+## 审查章节（范围达成一致后）
 
 **Anti-skip rule:** Never condense, abbreviate, or skip any review section (1-4) regardless of plan type (strategy, spec, code, infra). Every section in this skill exists for a reason. "This is a strategy doc so implementation sections don't apply" is always wrong — implementation details are where strategy breaks down. If a section genuinely has zero findings, say "No issues found" and move on — but you must evaluate it.
 
-## Prior Learnings
+## 先前学习
 
 Search for relevant learnings from previous sessions:
 
@@ -870,65 +865,65 @@ matches a past learning, display:
 This makes the compounding visible. The user should see that gstack is getting
 smarter on their codebase over time.
 
-### 1. Architecture review
-Evaluate:
-* Overall system design and component boundaries.
-* Dependency graph and coupling concerns.
-* Data flow patterns and potential bottlenecks.
-* Scaling characteristics and single points of failure.
-* Security architecture (auth, data access, API boundaries).
-* Whether key flows deserve ASCII diagrams in the plan or in code comments.
-* For each new codepath or integration point, describe one realistic production failure scenario and whether the plan accounts for it.
-* **Distribution architecture:** If this introduces a new artifact (binary, package, container), how does it get built, published, and updated? Is the CI/CD pipeline part of the plan or deferred?
+### 1. 架构审查
+评估：
+* 整体系统设计和组件边界。
+* 依赖图和耦合问题。
+* 数据流模式和潜在瓶颈。
+* 扩展特性和单点故障。
+* 安全架构（认证、数据访问、API 边界）。
+* 关键流程是否值得在计划或代码注释中使用 ASCII 图。
+* 对于每个新代码路径或集成点，描述一个真实的生产失败场景以及计划是否考虑了它。
+* **分发架构：** 如果引入新构件（二进制、包、容器），它如何构建、发布和更新？CI/CD 管道是计划的一部分还是延迟了？
 
 **STOP.** For each issue found in this section, call AskUserQuestion individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one AskUserQuestion. Only proceed to the next section after ALL issues in this section are resolved.
 
-## Confidence Calibration
+## 置信度校准
 
-Every finding MUST include a confidence score (1-10):
+每个发现必须包含置信度分数（1-10）：
 
-| Score | Meaning | Display rule |
-|-------|---------|-------------|
-| 9-10 | Verified by reading specific code. Concrete bug or exploit demonstrated. | Show normally |
-| 7-8 | High confidence pattern match. Very likely correct. | Show normally |
-| 5-6 | Moderate. Could be a false positive. | Show with caveat: "Medium confidence, verify this is actually an issue" |
-| 3-4 | Low confidence. Pattern is suspicious but may be fine. | Suppress from main report. Include in appendix only. |
-| 1-2 | Speculation. | Only report if severity would be P0. |
+| 分数 | 含义 | 显示规则 |
+|------|------|----------|
+| 9-10 | 通过阅读具体代码验证。展示了具体错误或漏洞。 | 正常显示 |
+| 7-8 | 高置信度模式匹配。非常可能正确。 | 正常显示 |
+| 5-6 | 中等。可能是误报。 | 带警告显示："中等置信度，验证这确实是一个问题" |
+| 3-4 | 低置信度。模式可疑但可能没问题。 | 从主报告中抑制。仅包含在附录中。 |
+| 1-2 | 推测。 | 仅在严重性为 P0 时报告。 |
 
-**Finding format:**
+**发现格式：**
 
 \`[SEVERITY] (confidence: N/10) file:line — description\`
 
-Example:
+示例：
 \`[P1] (confidence: 9/10) app/models/user.rb:42 — SQL injection via string interpolation in where clause\`
 \`[P2] (confidence: 5/10) app/controllers/api/v1/users_controller.rb:18 — Possible N+1 query, verify with production logs\`
 
-**Calibration learning:** If you report a finding with confidence < 7 and the user
-confirms it IS a real issue, that is a calibration event. Your initial confidence was
-too low. Log the corrected pattern as a learning so future reviews catch it with
-higher confidence.
+**校准学习：** 如果你报告了一个置信度 < 7 的发现且用户
+确认它确实是一个问题，那是一个校准事件。你的初始置信度
+太低了。将修正后的模式记录为学习，以便未来的审查以
+更高的置信度捕获它。
 
-### 2. Code quality review
-Evaluate:
-* Code organization and module structure.
-* DRY violations—be aggressive here.
-* Error handling patterns and missing edge cases (call these out explicitly).
-* Technical debt hotspots.
-* Areas that are over-engineered or under-engineered relative to my preferences.
-* Existing ASCII diagrams in touched files — are they still accurate after this change?
+### 2. 代码质量审查
+评估：
+* 代码组织和模块结构。
+* DRY 违规——在这里要积极。
+* 错误处理模式和缺失的边界情况（明确指出这些）。
+* 技术债务热点。
+* 相对于我的偏好，哪些区域过度工程化或欠工程化。
+* 被修改文件中的现有 ASCII 图——在此更改后它们是否仍然准确？
 
 **STOP.** For each issue found in this section, call AskUserQuestion individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one AskUserQuestion. Only proceed to the next section after ALL issues in this section are resolved.
 
-### 3. Test review
+### 3. 测试审查
 
-100% coverage is the goal. Evaluate every codepath in the plan and ensure the plan includes tests for each one. If the plan is missing tests, add them — the plan should be complete enough that implementation includes full test coverage from the start.
+100% 覆盖率是目标。评估计划中的每个代码路径，确保计划包含每个路径的测试。如果计划缺少测试，添加它们——计划应该足够完整，使实现从一开始就包含完整的测试覆盖。
 
-### Test Framework Detection
+### 测试框架检测
 
-Before analyzing coverage, detect the project's test framework:
+在分析覆盖率之前，检测项目的测试框架：
 
-1. **Read CLAUDE.md** — look for a `## Testing` section with test command and framework name. If found, use that as the authoritative source.
-2. **If CLAUDE.md has no testing section, auto-detect:**
+1. **阅读 CLAUDE.md** — 查找包含测试命令和框架名称的 `## Testing` 部分。如果找到，将其作为权威来源。
+2. **如果 CLAUDE.md 没有测试部分，自动检测：**
 
 ```bash
 setopt +o nomatch 2>/dev/null || true  # zsh compat
@@ -943,94 +938,94 @@ ls jest.config.* vitest.config.* playwright.config.* cypress.config.* .rspec pyt
 ls -d test/ tests/ spec/ __tests__/ cypress/ e2e/ 2>/dev/null
 ```
 
-3. **If no framework detected:** still produce the coverage diagram, but skip test generation.
+3. **如果未检测到框架：** 仍生成覆盖率图，但跳过测试生成。
 
-**Step 1. Trace every codepath in the plan:**
+**步骤 1. 追踪计划中的每个代码路径：**
 
-Read the plan document. For each new feature, service, endpoint, or component described, trace how data will flow through the code — don't just list planned functions, actually follow the planned execution:
+阅读计划文档。对于每个描述的新功能、服务、端点或组件，追踪数据将如何流经代码 — 不要只列出计划的函数，实际追踪计划的执行：
 
-1. **Read the plan.** For each planned component, understand what it does and how it connects to existing code.
-2. **Trace data flow.** Starting from each entry point (route handler, exported function, event listener, component render), follow the data through every branch:
-   - Where does input come from? (request params, props, database, API call)
-   - What transforms it? (validation, mapping, computation)
-   - Where does it go? (database write, API response, rendered output, side effect)
-   - What can go wrong at each step? (null/undefined, invalid input, network failure, empty collection)
-3. **Diagram the execution.** For each changed file, draw an ASCII diagram showing:
-   - Every function/method that was added or modified
-   - Every conditional branch (if/else, switch, ternary, guard clause, early return)
-   - Every error path (try/catch, rescue, error boundary, fallback)
-   - Every call to another function (trace into it — does IT have untested branches?)
-   - Every edge: what happens with null input? Empty array? Invalid type?
+1. **阅读计划。** 对于每个计划的组件，理解它做什么以及它如何连接到现有代码。
+2. **追踪数据流。** 从每个入口点（路由处理程序、导出函数、事件监听器、组件渲染）开始，追踪数据经过每个分支：
+   - 输入来自哪里？（请求参数、props、数据库、API 调用）
+   - 什么转换它？（验证、映射、计算）
+   - 它去哪里？（数据库写入、API 响应、渲染输出、副作用）
+   - 每个步骤可能出什么问题？（null/undefined、无效输入、网络故障、空集合）
+3. **绘制执行图。** 对于每个更改的文件，绘制 ASCII 图显示：
+   - 添加或修改的每个函数/方法
+   - 每个条件分支（if/else、switch、三元、守卫子句、提前返回）
+   - 每个错误路径（try/catch、rescue、错误边界、后备）
+   - 对另一个函数的每次调用（追踪进去 — 它有没有未测试的分支？）
+   - 每个边界：null 输入会怎样？空数组？无效类型？
 
-This is the critical step — you're building a map of every line of code that can execute differently based on input. Every branch in this diagram needs a test.
+这是关键步骤 — 你在构建一个地图，显示每行代码可以基于输入不同执行。此图中的每个分支都需要一个测试。
 
-**Step 2. Map user flows, interactions, and error states:**
+**步骤 2. 映射用户流、交互和错误状态：**
 
-Code coverage isn't enough — you need to cover how real users interact with the changed code. For each changed feature, think through:
+代码覆盖率不够 — 你需要覆盖真实用户如何与更改的代码交互。对于每个更改的功能，思考：
 
-- **User flows:** What sequence of actions does a user take that touches this code? Map the full journey (e.g., "user clicks 'Pay' → form validates → API call → success/failure screen"). Each step in the journey needs a test.
-- **Interaction edge cases:** What happens when the user does something unexpected?
-  - Double-click/rapid resubmit
-  - Navigate away mid-operation (back button, close tab, click another link)
-  - Submit with stale data (page sat open for 30 minutes, session expired)
-  - Slow connection (API takes 10 seconds — what does the user see?)
-  - Concurrent actions (two tabs, same form)
-- **Error states the user can see:** For every error the code handles, what does the user actually experience?
-  - Is there a clear error message or a silent failure?
-  - Can the user recover (retry, go back, fix input) or are they stuck?
-  - What happens with no network? With a 500 from the API? With invalid data from the server?
-- **Empty/zero/boundary states:** What does the UI show with zero results? With 10,000 results? With a single character input? With maximum-length input?
+- **用户流：** 用户执行什么操作序列会触及此代码？映射完整旅程（例如，"用户点击'支付' → 表单验证 → API 调用 → 成功/失败屏幕"）。旅程中的每一步都需要一个测试。
+- **交互边界情况：** 当用户做了意想不到的事情时会发生什么？
+  - 双击/快速重新提交
+  - 操作中途导航离开（后退按钮、关闭标签页、点击另一个链接）
+  - 提交过时数据（页面打开了 30 分钟，会话过期）
+  - 慢连接（API 需要 10 秒 — 用户看到什么？）
+  - 并发操作（两个标签页，同一表单）
+- **用户可以看到的错误状态：** 对于代码处理的每个错误，用户实际体验什么？
+  - 有清晰的错误消息还是静默失败？
+  - 用户能否恢复（重试、返回、修复输入）还是被困住？
+  - 没有网络会怎样？API 返回 500？服务器返回无效数据？
+- **空/零/边界状态：** UI 在零结果时显示什么？10,000 个结果？单个字符输入？最大长度输入？
 
-Add these to your diagram alongside the code branches. A user flow with no test is just as much a gap as an untested if/else.
+将这些添加到你的图中，与代码分支并列。没有测试的用户流与未测试的 if/else 一样是差距。
 
-**Step 3. Check each branch against existing tests:**
+**步骤 3. 根据现有测试检查每个分支：**
 
-Go through your diagram branch by branch — both code paths AND user flows. For each one, search for a test that exercises it:
-- Function `processPayment()` → look for `billing.test.ts`, `billing.spec.ts`, `test/billing_test.rb`
-- An if/else → look for tests covering BOTH the true AND false path
-- An error handler → look for a test that triggers that specific error condition
-- A call to `helperFn()` that has its own branches → those branches need tests too
-- A user flow → look for an integration or E2E test that walks through the journey
-- An interaction edge case → look for a test that simulates the unexpected action
+逐个分支检查你的图 — 代码路径和用户流。对于每个分支，搜索执行它的测试：
+- 函数 `processPayment()` → 查找 `billing.test.ts`、`billing.spec.ts`、`test/billing_test.rb`
+- if/else → 查找覆盖 true 和 false 路径的测试
+- 错误处理程序 → 查找触发该特定错误条件的测试
+- 调用 `helperFn()` 且它有自己的分支 → 这些分支也需要测试
+- 用户流 → 查找走过旅程的集成或 E2E 测试
+- 交互边界情况 → 查找模拟意外操作的测试
 
-Quality scoring rubric:
-- ★★★  Tests behavior with edge cases AND error paths
-- ★★   Tests correct behavior, happy path only
-- ★    Smoke test / existence check / trivial assertion (e.g., "it renders", "it doesn't throw")
+质量评分标准：
+- ★★★  测试行为含边界情况和错误路径
+- ★★   测试正确行为，仅快乐路径
+- ★    冒烟测试/存在检查/平凡断言（例如，"它渲染了"，"它没有抛出"）
 
-### E2E Test Decision Matrix
+### E2E 测试决策矩阵
 
-When checking each branch, also determine whether a unit test or E2E/integration test is the right tool:
+检查每个分支时，同时确定单元测试还是 E2E/集成测试是正确的工具：
 
-**RECOMMEND E2E (mark as [→E2E] in the diagram):**
-- Common user flow spanning 3+ components/services (e.g., signup → verify email → first login)
-- Integration point where mocking hides real failures (e.g., API → queue → worker → DB)
-- Auth/payment/data-destruction flows — too important to trust unit tests alone
+**推荐 E2E（在图中标记为 [→E2E]）：**
+- 跨越 3+ 组件/服务的常见用户流（例如，注册 → 验证邮箱 → 首次登录）
+- 隐藏真实故障的集成点（例如，API → 队列 → 工作者 → DB）
+- 认证/支付/数据销毁流程 — 太重要了不能只信任单元测试
 
-**RECOMMEND EVAL (mark as [→EVAL] in the diagram):**
-- Critical LLM call that needs a quality eval (e.g., prompt change → test output still meets quality bar)
-- Changes to prompt templates, system instructions, or tool definitions
+**推荐 EVAL（在图中标记为 [→EVAL]）：**
+- 需要质量评估的关键 LLM 调用（例如，提示更改 → 测试输出仍满足质量标准）
+- 对提示模板、系统指令或工具定义的更改
 
-**STICK WITH UNIT TESTS:**
-- Pure function with clear inputs/outputs
-- Internal helper with no side effects
-- Edge case of a single function (null input, empty array)
-- Obscure/rare flow that isn't customer-facing
+**坚持单元测试：**
+- 输入/输出清晰的纯函数
+- 无副作用的内部辅助函数
+- 单个函数的边界情况（null 输入、空数组）
+- 不面向客户的模糊/罕见流程
 
-### REGRESSION RULE (mandatory)
+### 回归规则（强制）
 
-**IRON RULE:** When the coverage audit identifies a REGRESSION — code that previously worked but the diff broke — a regression test is added to the plan as a critical requirement. No AskUserQuestion. No skipping. Regressions are the highest-priority test because they prove something broke.
+**铁规则：** 当覆盖率审计识别出回归 — 之前工作但 diff 破坏了的代码 — 回归测试作为关键要求添加到计划中。无 AskUserQuestion。无跳过。回归是最高优先级的测试，因为它们证明了某些东西坏了。
 
-A regression is when:
-- The diff modifies existing behavior (not new code)
-- The existing test suite (if any) doesn't cover the changed path
-- The change introduces a new failure mode for existing callers
+回归是当：
+- diff 修改了现有行为（不是新代码）
+- 现有测试套件（如果有）未覆盖更改的路径
+- 更改为现有调用者引入了新的失败模式
 
-When uncertain whether a change is a regression, err on the side of writing the test.
+当不确定更改是否是回归时，宁可写测试。
 
-**Step 4. Output ASCII coverage diagram:**
+**步骤 4. 输出 ASCII 覆盖率图：**
 
-Include BOTH code paths and user flows in the same diagram. Mark E2E-worthy and eval-worthy paths:
+在同一图中包含代码路径和用户流。标记值得 E2E 和值得 eval 的路径：
 
 ```
 CODE PATHS                                            USER FLOWS
@@ -1052,21 +1047,21 @@ QUALITY: ★★★:2 ★★:2 ★:1  |  GAPS: 8 (2 E2E, 1 eval)
 Legend: ★★★ behavior + edge + error  |  ★★ happy path  |  ★ smoke check
 [→E2E] = needs integration test  |  [→EVAL] = needs LLM eval
 
-**Fast path:** All paths covered → "Test review: All new code paths have test coverage ✓" Continue.
+**快速路径：** 所有路径已覆盖 → "测试审查：所有新代码路径都有测试覆盖 ✓" 继续。
 
-**Step 5. Add missing tests to the plan:**
+**步骤 5. 向计划添加缺失的测试：**
 
-For each GAP identified in the diagram, add a test requirement to the plan. Be specific:
-- What test file to create (match existing naming conventions)
-- What the test should assert (specific inputs → expected outputs/behavior)
-- Whether it's a unit test, E2E test, or eval (use the decision matrix)
-- For regressions: flag as **CRITICAL** and explain what broke
+对于图中识别的每个缺口，向计划添加测试要求。具体：
+- 创建什么测试文件（匹配现有命名约定）
+- 测试应该断言什么（具体输入 → 预期输出/行为）
+- 它是单元测试、E2E 测试还是 eval（使用决策矩阵）
+- 对于回归：标记为 **关键** 并解释什么坏了
 
-The plan should be complete enough that when implementation begins, every test is written alongside the feature code — not deferred to a follow-up.
+计划应该足够完整，以便当实现开始时，每个测试与功能代码一起编写 — 而不是延迟到后续。
 
-### Test Plan Artifact
+### 测试计划构件
 
-After producing the coverage diagram, write a test plan artifact to the project directory so `/qa` and `/qa-only` can consume it as primary test input:
+生成覆盖率图后，将测试计划构件写入项目目录，以便 `/qa` 和 `/qa-only` 可以将其作为主要测试输入消费：
 
 ```bash
 eval "$(~/.claude/skills/gstack/bin/gstack-slug 2>/dev/null)" && mkdir -p ~/.gstack/projects/$SLUG
@@ -1095,18 +1090,18 @@ Repo: {owner/repo}
 - {end-to-end flow that must work}
 ```
 
-This file is consumed by `/qa` and `/qa-only` as primary test input. Include only the information that helps a QA tester know **what to test and where** — not implementation details.
+此文件被 `/qa` 和 `/qa-only` 作为主要测试输入消费。仅包含帮助 QA 测试人员知道**测试什么和在哪里**的信息 — 不是实现细节。
 
 For LLM/prompt changes: check the "Prompt/LLM changes" file patterns listed in CLAUDE.md. If this plan touches ANY of those patterns, state which eval suites must be run, which cases should be added, and what baselines to compare against. Then use AskUserQuestion to confirm the eval scope with the user.
 
 **STOP.** For each issue found in this section, call AskUserQuestion individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one AskUserQuestion. Only proceed to the next section after ALL issues in this section are resolved.
 
-### 4. Performance review
-Evaluate:
-* N+1 queries and database access patterns.
-* Memory-usage concerns.
-* Caching opportunities.
-* Slow or high-complexity code paths.
+### 4. 性能审查
+评估：
+* N+1 查询和数据库访问模式。
+* 内存使用问题。
+* 缓存机会。
+* 慢速或高复杂度代码路径。
 
 **STOP.** For each issue found in this section, call AskUserQuestion individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one AskUserQuestion. Only proceed to the next section after ALL issues in this section are resolved.
 
@@ -1254,128 +1249,127 @@ finding via AskUserQuestion and getting explicit approval. This applies even whe
 agree with the outside voice. Cross-model consensus is a strong signal — present it as
 such — but the user makes the decision.
 
-## CRITICAL RULE — How to ask questions
-Follow the AskUserQuestion format from the Preamble above. Additional rules for plan reviews:
-* **One issue = one AskUserQuestion call.** Never combine multiple issues into one question.
-* Describe the problem concretely, with file and line references.
-* Present 2-3 options, including "do nothing" where that's reasonable.
-* For each option, specify in one line: effort (human: ~X / CC: ~Y), risk, and maintenance burden. If the complete option is only marginally more effort than the shortcut with CC, recommend the complete option.
-* **Map the reasoning to my engineering preferences above.** One sentence connecting your recommendation to a specific preference (DRY, explicit > clever, minimal diff, etc.).
-* Label with issue NUMBER + option LETTER (e.g., "3A", "3B").
-* **Coverage vs kind:** for every per-issue AskUserQuestion you raise in this review, decide whether the options differ in coverage or in kind. If coverage (e.g., more tests vs fewer, complete error handling vs happy-path-only, full edge-case coverage vs shortcut), include `Completeness: N/10` on each option. If kind (e.g., architectural choice between two different systems, posture-over-posture, A/B/C where each is a different kind of thing), skip the score and add one line: `Note: options differ in kind, not coverage — no completeness score.` Do NOT fabricate scores on kind-differentiated questions — filler scores are worse than no score.
-* **Escape hatch (tightened):** If a section has zero findings, state "No issues, moving on" and proceed. If it has findings, use AskUserQuestion for each — a finding with an "obvious fix" is still a finding and still needs user approval before any change lands in the plan. Only skip AskUserQuestion when the decision is genuinely trivial (e.g., a typo fix) AND there are no meaningful alternatives. When in doubt, ask.
+## 关键规则——如何提问
+遵循上面序言中的 AskUserQuestion 格式。计划审查的额外规则：
+* **一个问题 = 一个 AskUserQuestion 调用。** 永远不要将多个问题合并为一个问题。
+* 具体描述问题，包含文件和行引用。
+* 呈现 2-3 个选项，包括在合理情况下"什么都不做"。
+* 对于每个选项，用一行指定：工作量（人工：~X / CC：~Y）、风险和维护负担。如果完整选项仅比快捷方式多一点工作量，推荐完整选项。
+* **将推理映射到上面的工程偏好。** 一句话将你的推荐连接到具体偏好（DRY、显式 > 聪明、最小差异等）。
+* 用问题编号 + 选项字母标记（例如，"3A"、"3B"）。
+* **覆盖范围 vs 类型：** 对于此审查中提出的每个问题 AskUserQuestion，确定选项是在覆盖范围上还是在类型上不同。如果是覆盖范围（例如，更多测试 vs 更少、完整错误处理 vs 仅快乐路径、完整边界覆盖 vs 快捷方式），在每个选项上包含 `Completeness: N/10`。如果是类型（例如，两个不同系统之间的架构选择、姿态对姿态、A/B/C 其中每个是不同类型的东西），跳过分并添加一行：`注意：选项在类型上不同，不在覆盖范围上——没有完整性分数。` 不要在类型差异化的问题上伪造分数——填充分数比没有分数更糟。
+* **逃生舱口（收紧）：** 如果一个部分没有发现，说明"无问题，继续"并继续。如果有发现，对每个使用 AskUserQuestion —— 有"明显修复"的发现仍然是发现，在任何变更进入计划之前仍然需要用户批准。仅在决策真正琐碎（例如，拼写修复）且没有有意义的替代方案时才跳过 AskUserQuestion。有疑问时，问。
 
-## Required outputs
+## 必需输出
 
-### "NOT in scope" section
-Every plan review MUST produce a "NOT in scope" section listing work that was considered and explicitly deferred, with a one-line rationale for each item.
+### "NOT in scope" 部分
+每个计划审查必须生成一个 "NOT in scope" 部分，列出被考虑并明确推迟的工作，每项附一行理由。
 
-### "What already exists" section
-List existing code/flows that already partially solve sub-problems in this plan, and whether the plan reuses them or unnecessarily rebuilds them.
+### "What already exists" 部分
+列出已经部分解决此计划中子问题的现有代码/流程，以及计划是重用它们还是不必要地重建它们。
 
-### TODOS.md updates
-After all review sections are complete, present each potential TODO as its own individual AskUserQuestion. Never batch TODOs — one per question. Never silently skip this step. Follow the format in `.claude/skills/review/TODOS-format.md`.
+### TODOS.md 更新
+所有审查部分完成后，将每个潜在 TODO 作为单独的 AskUserQuestion 呈现。永远不要批量处理 TODO —— 每个问题一个。永远不要静默跳过此步骤。遵循 `.claude/skills/review/TODOS-format.md` 中的格式。
 
-For each TODO, describe:
-* **What:** One-line description of the work.
-* **Why:** The concrete problem it solves or value it unlocks.
-* **Pros:** What you gain by doing this work.
-* **Cons:** Cost, complexity, or risks of doing it.
-* **Context:** Enough detail that someone picking this up in 3 months understands the motivation, the current state, and where to start.
-* **Depends on / blocked by:** Any prerequisites or ordering constraints.
+对于每个 TODO，描述：
+* **What：** 工作的一行描述。
+* **Why：** 它解决的具体问题或解锁的价值。
+* **Pros：** 做这项工作你能获得什么。
+* **Cons：** 做它的成本、复杂性或风险。
+* **Context：** 足够的细节，让 3 个月后接手的人理解动机、当前状态和从哪里开始。
+* **Depends on / blocked by：** 任何先决条件或排序约束。
 
-Then present options: **A)** Add to TODOS.md **B)** Skip — not valuable enough **C)** Build it now in this PR instead of deferring.
+然后呈现选项：**A)** 添加到 TODOS.md **B)** 跳过——不够有价值 **C)** 现在在此 PR 中构建而不是推迟。
 
-Do NOT just append vague bullet points. A TODO without context is worse than no TODO — it creates false confidence that the idea was captured while actually losing the reasoning.
+不要只追加模糊的要点。没有上下文的 TODO 比没有 TODO 更糟——它创造了想法已被捕获的虚假信心，同时实际上丢失了推理。
 
-### Diagrams
-The plan itself should use ASCII diagrams for any non-trivial data flow, state machine, or processing pipeline. Additionally, identify which files in the implementation should get inline ASCII diagram comments — particularly Models with complex state transitions, Services with multi-step pipelines, and Concerns with non-obvious mixin behavior.
+### 图表
+计划本身应使用 ASCII 图表来表示任何非平凡的数据流、状态机或处理管道。此外，识别实现中哪些文件应获得内联 ASCII 图表注释——特别是具有复杂状态转换的模型、具有多步管道的服务和具有非显而易见 mixin 行为的关注点。
 
-### Failure modes
-For each new codepath identified in the test review diagram, list one realistic way it could fail in production (timeout, nil reference, race condition, stale data, etc.) and whether:
-1. A test covers that failure
-2. Error handling exists for it
-3. The user would see a clear error or a silent failure
+### 失败模式
+对于测试审查图表中识别的每个新代码路径，列出一个在生产中可能失败的真实方式（超时、空引用、竞态条件、过时数据等）以及是否：
+1. 测试覆盖了该失败
+2. 存在错误处理
+3. 用户会看到清晰的错误还是静默失败
 
-If any failure mode has no test AND no error handling AND would be silent, flag it as a **critical gap**.
+如果任何失败模式没有测试且没有错误处理且会是静默的，将其标记为**关键缺口**。
 
-### Worktree parallelization strategy
+### 工作树并行化策略
 
-Analyze the plan's implementation steps for parallel execution opportunities. This helps the user split work across git worktrees (via Claude Code's Agent tool with `isolation: "worktree"` or parallel workspaces).
+分析计划的实现步骤以寻找并行执行机会。这帮助用户在 git 工作树之间分配工作（通过 Claude Code 的 Agent 工具使用 `isolation: "worktree"` 或并行工作区）。
 
-**Skip if:** all steps touch the same primary module, or the plan has fewer than 2 independent workstreams. In that case, write: "Sequential implementation, no parallelization opportunity."
+**跳过条件：** 所有步骤都触及相同的主模块，或计划少于 2 个独立工作流。在这种情况下，写："顺序实现，无并行化机会。"
 
-**Otherwise, produce:**
+**否则，生成：**
 
-1. **Dependency table** — for each implementation step/workstream:
+1. **依赖表** — 对于每个实现步骤/工作流：
 
-| Step | Modules touched | Depends on |
+| 步骤 | 涉及的模块 | 依赖于 |
 |------|----------------|------------|
-| (step name) | (directories/modules, NOT specific files) | (other steps, or —) |
+| (步骤名称) | (目录/模块，非具体文件) | (其他步骤，或 —) |
 
-Work at the module/directory level, not file level. Plans describe intent ("add API endpoints"), not specific files. Module-level ("controllers/, models/") is reliable; file-level is guesswork.
+在模块/目录级别工作，不是文件级别。计划描述意图（"添加 API 端点"），不是具体文件。模块级别（"controllers/, models/"）是可靠的；文件级别是猜测。
 
-2. **Parallel lanes** — group steps into lanes:
-   - Steps with no shared modules and no dependency go in separate lanes (parallel)
-   - Steps sharing a module directory go in the same lane (sequential)
-   - Steps depending on other steps go in later lanes
+2. **并行通道** — 将步骤分组到通道：
+   - 没有共享模块且无依赖的步骤放在单独的通道中（并行）
+   - 共享模块目录的步骤放在同一通道中（顺序）
+   - 依赖其他步骤的步骤放在后面的通道中
 
-Format: `Lane A: step1 → step2 (sequential, shared models/)` / `Lane B: step3 (independent)`
+格式：`通道 A: step1 → step2 (顺序, 共享 models/)` / `通道 B: step3 (独立)`
 
-3. **Execution order** — which lanes launch in parallel, which wait. Example: "Launch A + B in parallel worktrees. Merge both. Then C."
+3. **执行顺序** — 哪些通道并行启动，哪些等待。示例："在并行工作树中启动 A + B。合并两者。然后 C。"
 
-4. **Conflict flags** — if two parallel lanes touch the same module directory, flag it: "Lanes X and Y both touch module/ — potential merge conflict. Consider sequential execution or careful coordination."
+4. **冲突标志** — 如果两个并行通道触及相同的模块目录，标记它："通道 X 和 Y 都触及 module/ — 潜在合并冲突。考虑顺序执行或仔细协调。"
 
-### Completion summary
-At the end of the review, fill in and display this summary so the user can see all findings at a glance:
-- Step 0: Scope Challenge — ___ (scope accepted as-is / scope reduced per recommendation)
-- Architecture Review: ___ issues found
-- Code Quality Review: ___ issues found
-- Test Review: diagram produced, ___ gaps identified
-- Performance Review: ___ issues found
-- NOT in scope: written
-- What already exists: written
-- TODOS.md updates: ___ items proposed to user
-- Failure modes: ___ critical gaps flagged
-- Outside voice: ran (codex/claude) / skipped
-- Parallelization: ___ lanes, ___ parallel / ___ sequential
-- Lake Score: X/Y recommendations chose complete option
+### 完成摘要
+在审查结束时，填写并显示此摘要，以便用户可以一目了然地看到所有发现：
+- 步骤 0：范围挑战 — ___（范围按原样接受 / 按推荐缩减范围）
+- 架构审查：发现 ___ 个问题
+- 代码质量审查：发现 ___ 个问题
+- 测试审查：生成图表，识别 ___ 个缺口
+- 性能审查：发现 ___ 个问题
+- NOT in scope：已写入
+- What already exists：已写入
+- TODOS.md 更新：向用户提议 ___ 个项目
+- 失败模式：标记 ___ 个关键缺口
+- 外部声音：运行（codex/claude）/ 跳过
+- 并行化：___ 个通道，___ 个并行 / ___ 个顺序
+- Lake Score：X/Y 个推荐选择了完整选项
 
-## Retrospective learning
-Check the git log for this branch. If there are prior commits suggesting a previous review cycle (e.g., review-driven refactors, reverted changes), note what was changed and whether the current plan touches the same areas. Be more aggressive reviewing areas that were previously problematic.
+## 回顾性学习
+检查此分支的 git 日志。如果有之前的提交暗示之前的审查周期（例如，审查驱动的重构、回滚的变更），注意更改了什么以及当前计划是否触及相同的区域。对之前有问题的区域进行更积极的审查。
 
-## Formatting rules
-* NUMBER issues (1, 2, 3...) and LETTERS for options (A, B, C...).
-* Label with NUMBER + LETTER (e.g., "3A", "3B").
-* One sentence max per option. Pick in under 5 seconds.
-* After each review section, pause and ask for feedback before moving on.
+## 格式规则
+* 问题用数字编号（1, 2, 3...），选项用字母（A, B, C...）。
+* 用数字+字母标记（例如，"3A"、"3B"）。
+* 每个选项最多一句话。5 秒内做出选择。
+* 每个审查部分后，暂停并询问反馈再继续。
 
-## Review Log
+## 审查日志
 
-After producing the Completion Summary above, persist the review result.
+在生成上面的完成摘要后，持久化审查结果。
 
-**PLAN MODE EXCEPTION — ALWAYS RUN:** This command writes review metadata to
-`~/.gstack/` (user config directory, not project files). The skill preamble
-already writes to `~/.gstack/sessions/` and `~/.gstack/analytics/` — this is
-the same pattern. The review dashboard depends on this data. Skipping this
-command breaks the review readiness dashboard in /ship.
+**计划模式例外——始终运行：** 此命令将审查元数据写入
+`~/.gstack/`（用户配置目录，不是项目文件）。技能序言
+已经写入 `~/.gstack/sessions/` 和 `~/.gstack/analytics/`——这是
+相同的模式。审查仪表板依赖此数据。跳过此命令会破坏 /ship 中的审查就绪仪表板。
 
 ```bash
 ~/.claude/skills/gstack/bin/gstack-review-log '{"skill":"plan-eng-review","timestamp":"TIMESTAMP","status":"STATUS","unresolved":N,"critical_gaps":N,"issues_found":N,"mode":"MODE","commit":"COMMIT"}'
 ```
 
-Substitute values from the Completion Summary:
-- **TIMESTAMP**: current ISO 8601 datetime
-- **STATUS**: "clean" if 0 unresolved decisions AND 0 critical gaps; otherwise "issues_open"
-- **unresolved**: number from "Unresolved decisions" count
-- **critical_gaps**: number from "Failure modes: ___ critical gaps flagged"
-- **issues_found**: total issues found across all review sections (Architecture + Code Quality + Performance + Test gaps)
-- **MODE**: FULL_REVIEW / SCOPE_REDUCED
-- **COMMIT**: output of `git rev-parse --short HEAD`
+从完成摘要中替换值：
+- **TIMESTAMP**：当前 ISO 8601 日期时间
+- **STATUS**：如果 0 个未解决决策且 0 个关键缺口则为 "clean"；否则为 "issues_open"
+- **unresolved**：未解决决策计数的数字
+- **critical_gaps**：失败模式中标记的关键缺口数字
+- **issues_found**：所有审查部分中发现的总问题数（架构 + 代码质量 + 性能 + 测试缺口）
+- **MODE**：FULL_REVIEW / SCOPE_REDUCED
+- **COMMIT**：`git rev-parse --short HEAD` 的输出
 
-## Review Readiness Dashboard
+## 审查就绪仪表板
 
-After completing the review, read the review log and config to display the dashboard.
+完成审查后，读取审查日志和配置以显示仪表板。
 
 ```bash
 ~/.claude/skills/gstack/bin/gstack-review-read
@@ -1405,40 +1399,39 @@ Display:
 +====================================================================+
 ```
 
-**Review tiers:**
-- **Eng Review (required by default):** The only review that gates shipping. Covers architecture, code quality, tests, performance. Can be disabled globally with \`gstack-config set skip_eng_review true\` (the "don't bother me" setting).
-- **CEO Review (optional):** Use your judgment. Recommend it for big product/business changes, new user-facing features, or scope decisions. Skip for bug fixes, refactors, infra, and cleanup.
-- **Design Review (optional):** Use your judgment. Recommend it for UI/UX changes. Skip for backend-only, infra, or prompt-only changes.
-- **Adversarial Review (automatic):** Always-on for every review. Every diff gets both Claude adversarial subagent and Codex adversarial challenge. Large diffs (200+ lines) additionally get Codex structured review with P1 gate. No configuration needed.
-- **Outside Voice (optional):** Independent plan review from a different AI model. Offered after all review sections complete in /plan-ceo-review and /plan-eng-review. Falls back to Claude subagent if Codex is unavailable. Never gates shipping.
+**审查层级：**
+- **工程审查（默认必需）：** 唯一限制发货的审查。涵盖架构、代码质量、测试、性能。可以通过 \`gstack-config set skip_eng_review true\`（"别烦我"设置）全局禁用。
+- **CEO 审查（可选）：** 使用你的判断。推荐用于大的产品/业务变更、新的面向用户功能或范围决策。跳过 bug 修复、重构、基础设施和清理。
+- **设计审查（可选）：** 使用你的判断。推荐用于 UI/UX 变更。跳过仅后端、基础设施或仅提示变更。
+- **对抗性审查（自动）：** 对每个审查始终开启。每个差异都获得 Claude 对抗性子代理和 Codex 对抗性挑战。大差异（200+ 行）额外获得 Codex 结构化审查和 P1 门控。无需配置。
+- **外部声音（可选）：** 来自不同 AI 模型的独立计划审查。在 /plan-ceo-review 和 /plan-eng-review 的所有审查部分完成后提供。如果 Codex 不可用则回退到 Claude 子代理。永不限制发货。
 
-**Verdict logic:**
-- **CLEARED**: Eng Review has >= 1 entry within 7 days from either \`review\` or \`plan-eng-review\` with status "clean" (or \`skip_eng_review\` is \`true\`)
-- **NOT CLEARED**: Eng Review missing, stale (>7 days), or has open issues
-- CEO, Design, and Codex reviews are shown for context but never block shipping
-- If \`skip_eng_review\` config is \`true\`, Eng Review shows "SKIPPED (global)" and verdict is CLEARED
+**裁决逻辑：**
+- **已通过**：工程审查在 7 天内有 >= 1 条来自 \`review\` 或 \`plan-eng-review\` 的条目，状态为 "clean"（或 \`skip_eng_review\` 为 \`true\`）
+- **未通过**：工程审查缺失、过时（>7 天）或有未解决的问题
+- CEO、设计和 Codex 审查仅作展示但从不阻止发货
+- 如果 \`skip_eng_review\` 配置为 \`true\`，工程审查显示 "SKIPPED (global)" 且裁决为已通过
 
-**Staleness detection:** After displaying the dashboard, check if any existing reviews may be stale:
-- Parse the \`---HEAD---\` section from the bash output to get the current HEAD commit hash
-- For each review entry that has a \`commit\` field: compare it against the current HEAD. If different, count elapsed commits: \`git rev-list --count STORED_COMMIT..HEAD\`. Display: "Note: {skill} review from {date} may be stale — {N} commits since review"
-- For entries without a \`commit\` field (legacy entries): display "Note: {skill} review from {date} has no commit tracking — consider re-running for accurate staleness detection"
-- If all reviews match the current HEAD, do not display any staleness notes
+**过时检测：** 显示仪表板后，检查是否有现有审查可能过时：
+- 从 bash 输出中解析 \`---HEAD---\` 部分以获取当前 HEAD 提交哈希
+- 对于每个有 \`commit\` 字段的审查条目：将其与当前 HEAD 比较。如果不同，计算已过去的提交数：\`git rev-list --count STORED_COMMIT..HEAD\`。显示："注意：{skill} 审查来自 {date} 可能过时——审查后有 {N} 次提交"
+- 对于没有 \`commit\` 字段的条目（旧条目）："注意：{skill} 审查来自 {date} 没有提交跟踪——考虑重新运行以获得准确的过时检测"
+- 如果所有审查都匹配当前 HEAD，不显示任何过时说明
 
-## Plan File Review Report
+## 计划文件审查报告
 
-After displaying the Review Readiness Dashboard in conversation output, also update the
-**plan file** itself so review status is visible to anyone reading the plan.
+在对话输出中显示审查就绪仪表板后，同时更新
+**计划文件**本身，以便审查状态对阅读计划的人可见。
 
-### Detect the plan file
+### 检测计划文件
 
-1. Check if there is an active plan file in this conversation (the host provides plan file
-   paths in system messages — look for plan file references in the conversation context).
-2. If not found, skip this section silently — not every review runs in plan mode.
+1. 检查此对话中是否有活动的计划文件（主机在系统消息中提供计划文件路径——在对话上下文中查找计划文件引用）。
+2. 如果未找到，静默跳过此部分——不是每个审查都在计划模式下运行。
 
-### Generate the report
+### 生成报告
 
-Read the review log output you already have from the Review Readiness Dashboard step above.
-Parse each JSONL entry. Each skill logs different fields:
+读取你从上面审查就绪仪表板步骤中已经获得的审查日志输出。
+解析每个 JSONL 条目。每个技能记录不同的字段：
 
 - **plan-ceo-review**: \`status\`, \`unresolved\`, \`critical_gaps\`, \`mode\`, \`scope_proposed\`, \`scope_accepted\`, \`scope_deferred\`, \`commit\`
   → Findings: "{scope_proposed} proposals, {scope_accepted} accepted, {scope_deferred} deferred"
@@ -1454,11 +1447,10 @@ Parse each JSONL entry. Each skill logs different fields:
 - **codex-review**: \`status\`, \`gate\`, \`findings\`, \`findings_fixed\`
   → Findings: "{findings} findings, {findings_fixed}/{findings} fixed"
 
-All fields needed for the Findings column are now present in the JSONL entries.
-For the review you just completed, you may use richer details from your own Completion
-Summary. For prior reviews, use the JSONL fields directly — they contain all required data.
+Findings 列所需的所有字段现在都在 JSONL 条目中。
+对于你刚刚完成的审查，你可以使用自己完成摘要中更丰富的详细信息。对于之前的审查，直接使用 JSONL 字段——它们包含所有必需的数据。
 
-Produce this markdown table:
+生成此 markdown 表格：
 
 \`\`\`markdown
 ## GSTACK REVIEW REPORT
@@ -1472,73 +1464,63 @@ Produce this markdown table:
 | DX Review | \`/plan-devex-review\` | Developer experience gaps | {runs} | {status} | {findings} |
 \`\`\`
 
-Below the table, add these lines (omit any that are empty/not applicable):
+在表格下方，添加这些行（省略任何为空/不适用的）：
 
-- **CODEX:** (only if codex-review ran) — one-line summary of codex fixes
-- **CROSS-MODEL:** (only if both Claude and Codex reviews exist) — overlap analysis
-- **UNRESOLVED:** total unresolved decisions across all reviews
-- **VERDICT:** list reviews that are CLEAR (e.g., "CEO + ENG CLEARED — ready to implement").
-  If Eng Review is not CLEAR and not skipped globally, append "eng review required".
+- **CODEX：**（仅当 codex-review 运行时）——codex 修复的一行摘要
+- **CROSS-MODEL：**（仅当 Claude 和 Codex 审查都存在时）——重叠分析
+- **UNRESOLVED：** 所有审查中未解决决策的总数
+- **VERDICT：** 列出已通过的审查（例如，"CEO + ENG CLEARED — ready to implement"）。
+  如果工程审查未通过且未全局跳过，附加 "eng review required"。
 
-### Write to the plan file
+### 写入计划文件
 
-**PLAN MODE EXCEPTION — ALWAYS RUN:** This writes to the plan file, which is the one
-file you are allowed to edit in plan mode. The plan file review report is part of the
-plan's living status.
+**计划模式例外——始终运行：** 这写入计划文件，这是你在计划模式下允许编辑的唯一文件。计划文件审查报告是计划活跃状态的一部分。
 
-- Search the plan file for a \`## GSTACK REVIEW REPORT\` section **anywhere** in the file
-  (not just at the end — content may have been added after it).
-- If found, **replace it** entirely using the Edit tool. Match from \`## GSTACK REVIEW REPORT\`
-  through either the next \`## \` heading or end of file, whichever comes first. This ensures
-  content added after the report section is preserved, not eaten. If the Edit fails
-  (e.g., concurrent edit changed the content), re-read the plan file and retry once.
-- If no such section exists, **append it** to the end of the plan file.
-- Always place it as the very last section in the plan file. If it was found mid-file,
-  move it: delete the old location and append at the end.
+- 在计划文件中搜索 \`## GSTACK REVIEW REPORT\` 部分**在文件中的任何位置**（不只是末尾——内容可能在它之后被添加）。
+- 如果找到，使用 Edit 工具**完全替换**它。从 \`## GSTACK REVIEW REPORT\` 匹配到下一个 \`## \` 标题或文件末尾，以先到者为准。这确保报告部分之后添加的内容被保留，而不是被吃掉。如果 Edit 失败（例如，并发编辑更改了内容），重新读取计划文件并重试一次。
+- 如果没有这样的部分，**追加**到计划文件末尾。
+- 始终将其放在计划文件的最后一个部分。如果它在文件中间被找到，移动它：删除旧位置并追加到末尾。
 
-## Capture Learnings
+## 捕获学习
 
-If you discovered a non-obvious pattern, pitfall, or architectural insight during
-this session, log it for future sessions:
+如果你在本次会话中发现了非显而易见的模式、陷阱或架构洞察，请为未来的会话记录它：
 
 ```bash
 ~/.claude/skills/gstack/bin/gstack-learnings-log '{"skill":"plan-eng-review","type":"TYPE","key":"SHORT_KEY","insight":"DESCRIPTION","confidence":N,"source":"SOURCE","files":["path/to/relevant/file"]}'
 ```
 
-**Types:** `pattern` (reusable approach), `pitfall` (what NOT to do), `preference`
-(user stated), `architecture` (structural decision), `tool` (library/framework insight),
-`operational` (project environment/CLI/workflow knowledge).
+**类型：** `pattern`（可重用方法）、`pitfall`（不要做的事）、`preference`
+（用户声明的）、`architecture`（结构决策）、`tool`（库/框架洞察）、
+`operational`（项目环境/CLI/工作流知识）。
 
-**Sources:** `observed` (you found this in the code), `user-stated` (user told you),
-`inferred` (AI deduction), `cross-model` (both Claude and Codex agree).
+**来源：** `observed`（你在代码中发现的）、`user-stated`（用户告诉你的）、
+`inferred`（AI 推断）、`cross-model`（Claude 和 Codex 都同意）。
 
-**Confidence:** 1-10. Be honest. An observed pattern you verified in the code is 8-9.
-An inference you're not sure about is 4-5. A user preference they explicitly stated is 10.
+**置信度：** 1-10。诚实。你在代码中验证的观察模式是 8-9。
+你不确定的推断是 4-5。用户明确声明的偏好是 10。
 
-**files:** Include the specific file paths this learning references. This enables
-staleness detection: if those files are later deleted, the learning can be flagged.
+**files：** 包含此学习引用的具体文件路径。这启用了过时检测：如果这些文件后来被删除，学习可以被标记。
 
-**Only log genuine discoveries.** Don't log obvious things. Don't log things the user
-already knows. A good test: would this insight save time in a future session? If yes, log it.
+**只记录真正的发现。** 不要记录显而易见的事情。不要记录用户已经知道的事情。一个好的测试：这个洞察会在未来的会话中节省时间吗？如果是，记录它。
 
 
 
-## Next Steps — Review Chaining
+## 后续步骤——审查链
 
-After displaying the Review Readiness Dashboard, check if additional reviews would be valuable. Read the dashboard output to see which reviews have already been run and whether they are stale.
+显示审查就绪仪表板后，检查是否有额外的审查会有价值。读取仪表板输出以查看哪些审查已经运行以及是否过时。
 
-**Suggest /plan-design-review if UI changes exist and no design review has been run** — detect from the test diagram, architecture review, or any section that touched frontend components, CSS, views, or user-facing interaction flows. If an existing design review's commit hash shows it predates significant changes found in this eng review, note that it may be stale.
+**如果存在 UI 变更且未运行设计审查则建议 /plan-design-review** — 从测试图表、架构审查或触及前端组件、CSS、视图或面向用户交互流程的任何部分检测。如果现有设计审查的提交哈希显示它早于此工程审查中发现的重大变更，注意它可能过时。
 
-**Mention /plan-ceo-review if this is a significant product change and no CEO review exists** — this is a soft suggestion, not a push. CEO review is optional. Only mention it if the plan introduces new user-facing features, changes product direction, or expands scope substantially.
+**如果这是重大产品变更且不存在 CEO 审查则提及 /plan-ceo-review** — 这是软建议，不是推动。CEO 审查是可选的。仅当计划引入新的面向用户功能、改变产品方向或大幅扩展范围时提及。
 
-**Note staleness** of existing CEO or design reviews if this eng review found assumptions that contradict them, or if the commit hash shows significant drift.
+**注意** 现有 CEO 或设计审查的过时，如果此工程审查发现了与之矛盾的假设，或提交哈希显示重大漂移。
 
-**If no additional reviews are needed** (or `skip_eng_review` is `true` in the dashboard config, meaning this eng review was optional): state "All relevant reviews complete. Run /ship when ready."
+**如果不需要额外审查**（或仪表板配置中 `skip_eng_review` 为 `true`，意味着此工程审查是可选的）："所有相关审查已完成。准备好后运行 /ship。"
 
-Use AskUserQuestion with only the applicable options:
-- **A)** Run /plan-design-review (only if UI scope detected and no design review exists)
-- **B)** Run /plan-ceo-review (only if significant product change and no CEO review exists)
-- **C)** Ready to implement — run /ship when done
+使用 AskUserQuestion 仅包含适用的选项：
+- **A)** 运行 /plan-design-review（仅当检测到 UI 范围且不存在设计审查时）
+- **B)** 运行 /plan-ceo-review（仅当重大产品变更且不存在 CEO 审查时）
+- **C)** 准备好实现——完成后运行 /ship
 
-## Unresolved decisions
-If the user does not respond to an AskUserQuestion or interrupts to move on, note which decisions were left unresolved. At the end of the review, list these as "Unresolved decisions that may bite you later" — never silently default to an option.
+## 未解决的决策
+如果用户未响应 AskUserQuestion 或中断以继续，注意哪些决策未解决。在审查结束时，将这些列为"未解决的决策，以后可能会咬你"——永远不要静默默认为某个选项。

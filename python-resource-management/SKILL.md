@@ -1,40 +1,40 @@
 ---
 name: python-resource-management
-description: Python resource management with context managers, cleanup patterns, and streaming. Use when managing connections, file handles, implementing cleanup logic, or building streaming responses with accumulated state.
+description: 使用上下文管理器、清理模式和流式传输进行 Python 资源管理。在管理连接、文件句柄、实现清理逻辑或构建带累积状态的流式响应时使用。
 ---
 
-# Python Resource Management
+# Python 资源管理
 
-Manage resources deterministically using context managers. Resources like database connections, file handles, and network sockets should be released reliably, even when exceptions occur.
+使用上下文管理器确定性地管理资源。数据库连接、文件句柄和网络套接字等资源应可靠释放，即使发生异常也是如此。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Managing database connections and connection pools
-- Working with file handles and I/O
-- Implementing custom context managers
-- Building streaming responses with state
-- Handling nested resource cleanup
-- Creating async context managers
+- 管理数据库连接和连接池
+- 处理文件句柄和 I/O
+- 实现自定义上下文管理器
+- 构建带状态的流式响应
+- 处理嵌套资源清理
+- 创建异步上下文管理器
 
-## Core Concepts
+## 核心概念
 
-### 1. Context Managers
+### 1. 上下文管理器
 
-The `with` statement ensures resources are released automatically, even on exceptions.
+`with` 语句确保资源自动释放，即使发生异常也是如此。
 
-### 2. Protocol Methods
+### 2. 协议方法
 
-`__enter__`/`__exit__` for sync, `__aenter__`/`__aexit__` for async resource management.
+`__enter__`/`__exit__` 用于同步，`__aenter__`/`__aexit__` 用于异步资源管理。
 
-### 3. Unconditional Cleanup
+### 3. 无条件清理
 
-`__exit__` always runs, regardless of whether an exception occurred.
+`__exit__` 始终运行，无论是否发生异常。
 
-### 4. Exception Handling
+### 4. 异常处理
 
-Return `True` from `__exit__` to suppress exceptions, `False` to propagate them.
+从 `__exit__` 返回 `True` 以抑制异常，返回 `False` 以传播它们。
 
-## Quick Start
+## 快速开始
 
 ```python
 from contextlib import contextmanager
@@ -51,11 +51,11 @@ with managed_resource() as r:
     r.do_work()
 ```
 
-## Fundamental Patterns
+## 基础模式
 
-### Pattern 1: Class-Based Context Manager
+### 模式 1：基于类的上下文管理器
 
-Implement the context manager protocol for complex resources.
+为复杂资源实现上下文管理器协议。
 
 ```python
 class DatabaseConnection:
@@ -102,9 +102,9 @@ finally:
     db.close()
 ```
 
-### Pattern 2: Async Context Manager
+### 模式 2：异步上下文管理器
 
-For async resources, implement the async protocol.
+对于异步资源，实现异步协议。
 
 ```python
 class AsyncDatabasePool:
@@ -145,9 +145,9 @@ async with AsyncDatabasePool(dsn) as pool:
     users = await pool.execute("SELECT * FROM users WHERE active = $1", True)
 ```
 
-### Pattern 3: Using @contextmanager Decorator
+### 模式 3：使用 @contextmanager 装饰器
 
-Simplify context managers with the decorator for straightforward cases.
+对于简单情况，使用装饰器简化上下文管理器。
 
 ```python
 from contextlib import contextmanager, asynccontextmanager
@@ -187,9 +187,9 @@ async with database_transaction(conn) as tx:
     await tx.execute("INSERT INTO audit_log ...")
 ```
 
-### Pattern 4: Unconditional Resource Release
+### 模式 4：无条件资源释放
 
-Always clean up resources in `__exit__`, regardless of exceptions.
+无论是否发生异常，始终在 `__exit__` 中清理资源。
 
 ```python
 class FileProcessor:
@@ -225,11 +225,11 @@ class FileProcessor:
         # Return None/False to propagate any exception
 ```
 
-## Advanced Patterns
+## 高级模式
 
-### Pattern 5: Selective Exception Suppression
+### 模式 5：选择性异常抑制
 
-Only suppress specific, documented exceptions.
+仅抑制特定的、已记录的异常。
 
 ```python
 class StreamWriter:
@@ -258,9 +258,9 @@ class StreamWriter:
         return False  # Propagate all other exceptions
 ```
 
-### Pattern 6: Streaming with Accumulated State
+### 模式 6：带累积状态的流式传输
 
-Maintain both incremental chunks and accumulated state during streaming.
+在流式传输期间维护增量块和累积状态。
 
 ```python
 from collections.abc import Generator
@@ -309,9 +309,9 @@ def stream_with_accumulation(
     return result.finalize()
 ```
 
-### Pattern 7: Efficient String Accumulation
+### 模式 7：高效的字符串累积
 
-Avoid O(n²) string concatenation when accumulating.
+避免累积时的 O(n^2) 字符串拼接。
 
 ```python
 def accumulate_stream(stream) -> str:
@@ -328,9 +328,9 @@ def accumulate_stream(stream) -> str:
     return "".join(chunks)  # Single allocation
 ```
 
-### Pattern 8: Tracking Stream Metrics
+### 模式 8：跟踪流式指标
 
-Measure time-to-first-byte and total streaming time.
+测量首字节时间和总流式传输时间。
 
 ```python
 import time
@@ -370,9 +370,9 @@ def stream_with_metrics(
     }
 ```
 
-### Pattern 9: Managing Multiple Resources with ExitStack
+### 模式 9：使用 ExitStack 管理多个资源
 
-Handle a dynamic number of resources cleanly.
+干净地处理动态数量的资源。
 
 ```python
 from contextlib import ExitStack, AsyncExitStack
@@ -407,15 +407,15 @@ async def process_connections(hosts: list[str]) -> list[dict]:
     return results
 ```
 
-## Best Practices Summary
+## 最佳实践总结
 
-1. **Always use context managers** - For any resource that needs cleanup
-2. **Clean up unconditionally** - `__exit__` runs even on exception
-3. **Don't suppress unexpectedly** - Return `False` unless suppression is intentional
-4. **Use @contextmanager** - For simple resource patterns
-5. **Implement both protocols** - Support `with` and manual management
-6. **Use ExitStack** - For dynamic numbers of resources
-7. **Accumulate efficiently** - List + join, not string concatenation
-8. **Track metrics** - Time-to-first-byte matters for streaming
-9. **Document behavior** - Especially exception suppression
-10. **Test cleanup paths** - Verify resources are released on errors
+1. **始终使用上下文管理器** - 对于任何需要清理的资源
+2. **无条件清理** - 即使发生异常 `__exit__` 也会运行
+3. **不要意外抑制** - 除非有意抑制，否则返回 `False`
+4. **使用 @contextmanager** - 用于简单的资源模式
+5. **实现两种协议** - 支持 `with` 和手动管理
+6. **使用 ExitStack** - 用于动态数量的资源
+7. **高效累积** - 列表 + join，而不是字符串拼接
+8. **跟踪指标** - 首字节时间对流式传输很重要
+9. **记录行为** - 特别是异常抑制
+10. **测试清理路径** - 验证错误时资源是否被释放

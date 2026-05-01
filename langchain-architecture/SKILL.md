@@ -1,70 +1,70 @@
 ---
 name: langchain-architecture
-description: Design LLM applications using LangChain 1.x and LangGraph for agents, memory, and tool integration. Use when building LangChain applications, implementing AI agents, or creating complex LLM workflows.
+description: 使用 LangChain 1.x 和 LangGraph 设计 LLM 应用，支持代理、记忆和工具集成。在构建 LangChain 应用、实现 AI 代理或创建复杂 LLM 工作流时使用。
 ---
 
-# LangChain & LangGraph Architecture
+# LangChain & LangGraph 架构
 
-Master modern LangChain 1.x and LangGraph for building sophisticated LLM applications with agents, state management, memory, and tool integration.
+掌握现代 LangChain 1.x 和 LangGraph，用于构建具有代理、状态管理、记忆和工具集成的复杂 LLM 应用。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Building autonomous AI agents with tool access
-- Implementing complex multi-step LLM workflows
-- Managing conversation memory and state
-- Integrating LLMs with external data sources and APIs
-- Creating modular, reusable LLM application components
-- Implementing document processing pipelines
-- Building production-grade LLM applications
+- 构建具有工具访问能力的自主 AI 代理
+- 实现复杂的多步骤 LLM 工作流
+- 管理对话记忆和状态
+- 将 LLM 与外部数据源和 API 集成
+- 创建模块化、可复用的 LLM 应用组件
+- 实现文档处理管道
+- 构建生产级 LLM 应用
 
-## Package Structure (LangChain 1.x)
+## 包结构（LangChain 1.x）
 
 ```
-langchain (1.2.x)         # High-level orchestration
-langchain-core (1.2.x)    # Core abstractions (messages, prompts, tools)
-langchain-community       # Third-party integrations
-langgraph                 # Agent orchestration and state management
-langchain-openai          # OpenAI integrations
-langchain-anthropic       # Anthropic/Claude integrations
-langchain-voyageai        # Voyage AI embeddings
-langchain-pinecone        # Pinecone vector store
+langchain (1.2.x)         # 高级编排
+langchain-core (1.2.x)    # 核心抽象（消息、提示、工具）
+langchain-community       # 第三方集成
+langgraph                 # 代理编排和状态管理
+langchain-openai          # OpenAI 集成
+langchain-anthropic       # Anthropic/Claude 集成
+langchain-voyageai        # Voyage AI 嵌入
+langchain-pinecone        # Pinecone 向量存储
 ```
 
-## Core Concepts
+## 核心概念
 
-### 1. LangGraph Agents
+### 1. LangGraph 代理
 
-LangGraph is the standard for building agents in 2026. It provides:
+LangGraph 是 2026 年构建代理的标准。它提供：
 
-**Key Features:**
+**关键特性：**
 
-- **StateGraph**: Explicit state management with typed state
-- **Durable Execution**: Agents persist through failures
-- **Human-in-the-Loop**: Inspect and modify state at any point
-- **Memory**: Short-term and long-term memory across sessions
-- **Checkpointing**: Save and resume agent state
+- **StateGraph**：带类型化状态的显式状态管理
+- **持久执行**：代理在故障中持久化
+- **人机协同**：在任意点检查和修改状态
+- **记忆**：跨会话的短期和长期记忆
+- **检查点**：保存和恢复代理状态
 
-**Agent Patterns:**
+**代理模式：**
 
-- **ReAct**: Reasoning + Acting with `create_react_agent`
-- **Plan-and-Execute**: Separate planning and execution nodes
-- **Multi-Agent**: Supervisor routing between specialized agents
-- **Tool-Calling**: Structured tool invocation with Pydantic schemas
+- **ReAct**：使用 `create_react_agent` 的推理 + 行动
+- **计划与执行**：分离的规划和执行节点
+- **多代理**：在专业代理之间路由的监督者
+- **工具调用**：使用 Pydantic 模式的结构化工具调用
 
-### 2. State Management
+### 2. 状态管理
 
-LangGraph uses TypedDict for explicit state:
+LangGraph 使用 TypedDict 进行显式状态管理：
 
 ```python
 from typing import Annotated, TypedDict
 from langgraph.graph import MessagesState
 
-# Simple message-based state
+# 简单的基于消息的状态
 class AgentState(MessagesState):
-    """Extends MessagesState with custom fields."""
+    """扩展 MessagesState 添加自定义字段。"""
     context: Annotated[list, "retrieved documents"]
 
-# Custom state for complex agents
+# 复杂代理的自定义状态
 class CustomState(TypedDict):
     messages: Annotated[list, "conversation history"]
     context: Annotated[dict, "retrieved context"]
@@ -72,40 +72,40 @@ class CustomState(TypedDict):
     results: list
 ```
 
-### 3. Memory Systems
+### 3. 记忆系统
 
-Modern memory implementations:
+现代记忆实现：
 
-- **ConversationBufferMemory**: Stores all messages (short conversations)
-- **ConversationSummaryMemory**: Summarizes older messages (long conversations)
-- **ConversationTokenBufferMemory**: Token-based windowing
-- **VectorStoreRetrieverMemory**: Semantic similarity retrieval
-- **LangGraph Checkpointers**: Persistent state across sessions
+- **ConversationBufferMemory**：存储所有消息（短对话）
+- **ConversationSummaryMemory**：总结旧消息（长对话）
+- **ConversationTokenBufferMemory**：基于 token 的窗口
+- **VectorStoreRetrieverMemory**：语义相似性检索
+- **LangGraph Checkpointer**：跨会话的持久状态
 
-### 4. Document Processing
+### 4. 文档处理
 
-Loading, transforming, and storing documents:
+加载、转换和存储文档：
 
-**Components:**
+**组件：**
 
-- **Document Loaders**: Load from various sources
-- **Text Splitters**: Chunk documents intelligently
-- **Vector Stores**: Store and retrieve embeddings
-- **Retrievers**: Fetch relevant documents
+- **文档加载器**：从各种来源加载
+- **文本分割器**：智能分块文档
+- **向量存储**：存储和检索嵌入
+- **检索器**：获取相关文档
 
-### 5. Callbacks & Tracing
+### 5. 回调和追踪
 
-LangSmith is the standard for observability:
+LangSmith 是可观测性标准：
 
-- Request/response logging
-- Token usage tracking
-- Latency monitoring
-- Error tracking
-- Trace visualization
+- 请求/响应日志
+- token 使用跟踪
+- 延迟监控
+- 错误跟踪
+- 追踪可视化
 
-## Quick Start
+## 快速开始
 
-### Modern ReAct Agent with LangGraph
+### 使用 LangGraph 的现代 ReAct 代理
 
 ```python
 from langgraph.prebuilt import create_react_agent
@@ -115,24 +115,24 @@ from langchain_core.tools import tool
 import ast
 import operator
 
-# Initialize LLM (Claude Sonnet 4.6 recommended)
+# 初始化 LLM（推荐 Claude Sonnet 4.6）
 llm = ChatAnthropic(model="claude-sonnet-4-6", temperature=0)
 
-# Define tools with Pydantic schemas
+# 使用 Pydantic 模式定义工具
 @tool
 def search_database(query: str) -> str:
-    """Search internal database for information."""
-    # Your database search logic
+    """搜索内部数据库获取信息。"""
+    # 你的数据库搜索逻辑
     return f"Results for: {query}"
 
 @tool
 def calculate(expression: str) -> str:
-    """Safely evaluate a mathematical expression.
+    """安全评估数学表达式。
 
-    Supports: +, -, *, /, **, %, parentheses
-    Example: '(2 + 3) * 4' returns '20'
+    支持：+、-、*、/、**、%、括号
+    示例：'(2 + 3) * 4' 返回 '20'
     """
-    # Safe math evaluation using ast
+    # 使用 ast 进行安全数学评估
     allowed_operators = {
         ast.Add: operator.add,
         ast.Sub: operator.sub,
@@ -164,17 +164,17 @@ def calculate(expression: str) -> str:
 
 tools = [search_database, calculate]
 
-# Create checkpointer for memory persistence
+# 创建用于记忆持久化的检查点
 checkpointer = MemorySaver()
 
-# Create ReAct agent
+# 创建 ReAct 代理
 agent = create_react_agent(
     llm,
     tools,
     checkpointer=checkpointer
 )
 
-# Run agent with thread ID for memory
+# 使用线程 ID 运行代理以实现记忆
 config = {"configurable": {"thread_id": "user-123"}}
 result = await agent.ainvoke(
     {"messages": [("user", "Search for Python tutorials and calculate 25 * 4")]},
@@ -182,9 +182,9 @@ result = await agent.ainvoke(
 )
 ```
 
-## Architecture Patterns
+## 架构模式
 
-### Pattern 1: RAG with LangGraph
+### 模式 1：使用 LangGraph 的 RAG
 
 ```python
 from langgraph.graph import StateGraph, START, END
@@ -200,28 +200,28 @@ class RAGState(TypedDict):
     context: Annotated[list[Document], "retrieved documents"]
     answer: str
 
-# Initialize components
+# 初始化组件
 llm = ChatAnthropic(model="claude-sonnet-4-6")
 embeddings = VoyageAIEmbeddings(model="voyage-3-large")
 vectorstore = PineconeVectorStore(index_name="docs", embedding=embeddings)
 retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
 
-# Define nodes
+# 定义节点
 async def retrieve(state: RAGState) -> RAGState:
-    """Retrieve relevant documents."""
+    """检索相关文档。"""
     docs = await retriever.ainvoke(state["question"])
     return {"context": docs}
 
 async def generate(state: RAGState) -> RAGState:
-    """Generate answer from context."""
+    """从上下文生成答案。"""
     prompt = ChatPromptTemplate.from_template(
-        """Answer based on the context below. If you cannot answer, say so.
+        """基于以下上下文回答。如果无法回答，请说明。
 
-        Context: {context}
+        上下文：{context}
 
-        Question: {question}
+        问题：{question}
 
-        Answer:"""
+        答案："""
     )
     context_text = "\n\n".join(doc.page_content for doc in state["context"])
     response = await llm.ainvoke(
@@ -229,7 +229,7 @@ async def generate(state: RAGState) -> RAGState:
     )
     return {"answer": response.content}
 
-# Build graph
+# 构建图
 builder = StateGraph(RAGState)
 builder.add_node("retrieve", retrieve)
 builder.add_node("generate", generate)
@@ -239,48 +239,48 @@ builder.add_edge("generate", END)
 
 rag_chain = builder.compile()
 
-# Use the chain
-result = await rag_chain.ainvoke({"question": "What is the main topic?"})
+# 使用链
+result = await rag_chain.ainvoke({"question": "主要话题是什么？"})
 ```
 
-### Pattern 2: Custom Agent with Structured Tools
+### 模式 2：带结构化工具的自定义代理
 
 ```python
 from langchain_core.tools import StructuredTool
 from pydantic import BaseModel, Field
 
 class SearchInput(BaseModel):
-    """Input for database search."""
-    query: str = Field(description="Search query")
-    filters: dict = Field(default={}, description="Optional filters")
+    """数据库搜索输入。"""
+    query: str = Field(description="搜索查询")
+    filters: dict = Field(default={}, description="可选过滤器")
 
 class EmailInput(BaseModel):
-    """Input for sending email."""
-    recipient: str = Field(description="Email recipient")
-    subject: str = Field(description="Email subject")
-    content: str = Field(description="Email body")
+    """发送邮件输入。"""
+    recipient: str = Field(description="邮件收件人")
+    subject: str = Field(description="邮件主题")
+    content: str = Field(description="邮件正文")
 
 async def search_database(query: str, filters: dict = {}) -> str:
-    """Search internal database for information."""
-    # Your database search logic
+    """搜索内部数据库获取信息。"""
+    # 你的数据库搜索逻辑
     return f"Results for '{query}' with filters {filters}"
 
 async def send_email(recipient: str, subject: str, content: str) -> str:
-    """Send an email to specified recipient."""
-    # Email sending logic
+    """向指定收件人发送邮件。"""
+    # 邮件发送逻辑
     return f"Email sent to {recipient}"
 
 tools = [
     StructuredTool.from_function(
         coroutine=search_database,
         name="search_database",
-        description="Search internal database",
+        description="搜索内部数据库",
         args_schema=SearchInput
     ),
     StructuredTool.from_function(
         coroutine=send_email,
         name="send_email",
-        description="Send an email",
+        description="发送邮件",
         args_schema=EmailInput
     )
 ]
@@ -288,7 +288,7 @@ tools = [
 agent = create_react_agent(llm, tools)
 ```
 
-### Pattern 3: Multi-Step Workflow with StateGraph
+### 模式 3：使用 StateGraph 的多步骤工作流
 
 ```python
 from langgraph.graph import StateGraph, START, END
@@ -302,29 +302,29 @@ class WorkflowState(TypedDict):
     current_step: str
 
 async def extract_entities(state: WorkflowState) -> WorkflowState:
-    """Extract key entities from text."""
-    prompt = f"Extract key entities from: {state['text']}\n\nReturn as JSON list."
+    """从文本中提取关键实体。"""
+    prompt = f"从以下文本提取关键实体：{state['text']}\n\n以 JSON 列表返回。"
     response = await llm.ainvoke(prompt)
     return {"entities": response.content, "current_step": "analyze"}
 
 async def analyze_entities(state: WorkflowState) -> WorkflowState:
-    """Analyze extracted entities."""
-    prompt = f"Analyze these entities: {state['entities']}\n\nProvide insights."
+    """分析提取的实体。"""
+    prompt = f"分析这些实体：{state['entities']}\n\n提供洞察。"
     response = await llm.ainvoke(prompt)
     return {"analysis": response.content, "current_step": "summarize"}
 
 async def generate_summary(state: WorkflowState) -> WorkflowState:
-    """Generate final summary."""
-    prompt = f"""Summarize:
-    Entities: {state['entities']}
-    Analysis: {state['analysis']}
+    """生成最终摘要。"""
+    prompt = f"""总结：
+    实体：{state['entities']}
+    分析：{state['analysis']}
 
-    Provide a concise summary."""
+    提供简洁的摘要。"""
     response = await llm.ainvoke(prompt)
     return {"summary": response.content, "current_step": "complete"}
 
 def route_step(state: WorkflowState) -> Literal["analyze", "summarize", "end"]:
-    """Route to next step based on current state."""
+    """根据当前状态路由到下一步。"""
     step = state.get("current_step", "extract")
     if step == "analyze":
         return "analyze"
@@ -332,7 +332,7 @@ def route_step(state: WorkflowState) -> Literal["analyze", "summarize", "end"]:
         return "summarize"
     return "end"
 
-# Build workflow
+# 构建工作流
 builder = StateGraph(WorkflowState)
 builder.add_node("extract", extract_entities)
 builder.add_node("analyze", analyze_entities)
@@ -353,7 +353,7 @@ builder.add_edge("summarize", END)
 workflow = builder.compile()
 ```
 
-### Pattern 4: Multi-Agent Orchestration
+### 模式 4：多代理编排
 
 ```python
 from langgraph.graph import StateGraph, START, END
@@ -365,36 +365,36 @@ class MultiAgentState(TypedDict):
     messages: list
     next_agent: str
 
-# Create specialized agents
+# 创建专业代理
 researcher = create_react_agent(llm, research_tools)
 writer = create_react_agent(llm, writing_tools)
 reviewer = create_react_agent(llm, review_tools)
 
 async def supervisor(state: MultiAgentState) -> MultiAgentState:
-    """Route to appropriate agent based on task."""
-    prompt = f"""Based on the conversation, which agent should handle this?
+    """根据任务路由到适当的代理。"""
+    prompt = f"""根据对话，哪个代理应该处理此任务？
 
-    Options:
-    - researcher: For finding information
-    - writer: For creating content
-    - reviewer: For reviewing and editing
-    - FINISH: Task is complete
+    选项：
+    - researcher：用于查找信息
+    - writer：用于创建内容
+    - reviewer：用于审查和编辑
+    - FINISH：任务已完成
 
-    Messages: {state['messages']}
+    消息：{state['messages']}
 
-    Respond with just the agent name."""
+    只回复代理名称。"""
 
     response = await llm.ainvoke(prompt)
     return {"next_agent": response.content.strip().lower()}
 
 def route_to_agent(state: MultiAgentState) -> Literal["researcher", "writer", "reviewer", "end"]:
-    """Route based on supervisor decision."""
+    """根据监督者决策路由。"""
     next_agent = state.get("next_agent", "").lower()
     if next_agent == "finish":
         return "end"
     return next_agent if next_agent in ["researcher", "writer", "reviewer"] else "end"
 
-# Build multi-agent graph
+# 构建多代理图
 builder = StateGraph(MultiAgentState)
 builder.add_node("supervisor", supervisor)
 builder.add_node("researcher", researcher)
@@ -409,42 +409,42 @@ builder.add_conditional_edges("supervisor", route_to_agent, {
     "end": END
 })
 
-# Each agent returns to supervisor
+# 每个代理返回监督者
 for agent in ["researcher", "writer", "reviewer"]:
     builder.add_edge(agent, "supervisor")
 
 multi_agent = builder.compile()
 ```
 
-## Memory Management
+## 记忆管理
 
-### Token-Based Memory with LangGraph
+### 使用 LangGraph 的基于 Token 的记忆
 
 ```python
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent
 
-# In-memory checkpointer (development)
+# 内存检查点（开发环境）
 checkpointer = MemorySaver()
 
-# Create agent with persistent memory
+# 创建带持久记忆的代理
 agent = create_react_agent(llm, tools, checkpointer=checkpointer)
 
-# Each thread_id maintains separate conversation
+# 每个 thread_id 维护独立对话
 config = {"configurable": {"thread_id": "session-abc123"}}
 
-# Messages persist across invocations with same thread_id
+# 使用相同 thread_id 的消息在调用间持久化
 result1 = await agent.ainvoke({"messages": [("user", "My name is Alice")]}, config)
 result2 = await agent.ainvoke({"messages": [("user", "What's my name?")]}, config)
-# Agent remembers: "Your name is Alice"
+# 代理记住："Your name is Alice"
 ```
 
-### Production Memory with PostgreSQL
+### 使用 PostgreSQL 的生产记忆
 
 ```python
 from langgraph.checkpoint.postgres import PostgresSaver
 
-# Production checkpointer
+# 生产检查点
 checkpointer = PostgresSaver.from_conn_string(
     "postgresql://user:pass@localhost/langgraph"
 )
@@ -452,7 +452,7 @@ checkpointer = PostgresSaver.from_conn_string(
 agent = create_react_agent(llm, tools, checkpointer=checkpointer)
 ```
 
-### Vector Store Memory for Long-Term Context
+### 用于长期上下文的向量存储记忆
 
 ```python
 from langchain_community.vectorstores import Chroma
@@ -466,33 +466,33 @@ memory_store = Chroma(
 )
 
 async def retrieve_relevant_memory(query: str, k: int = 5) -> list:
-    """Retrieve relevant past conversations."""
+    """检索相关的过去对话。"""
     docs = await memory_store.asimilarity_search(query, k=k)
     return [doc.page_content for doc in docs]
 
 async def store_memory(content: str, metadata: dict = {}):
-    """Store conversation in long-term memory."""
+    """将对话存储到长期记忆中。"""
     await memory_store.aadd_texts([content], metadatas=[metadata])
 ```
 
-## Callback System & LangSmith
+## 回调系统和 LangSmith
 
-### LangSmith Tracing
+### LangSmith 追踪
 
 ```python
 import os
 from langchain_anthropic import ChatAnthropic
 
-# Enable LangSmith tracing
+# 启用 LangSmith 追踪
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
 os.environ["LANGCHAIN_API_KEY"] = "your-api-key"
 os.environ["LANGCHAIN_PROJECT"] = "my-project"
 
-# All LangChain/LangGraph operations are automatically traced
+# 所有 LangChain/LangGraph 操作自动追踪
 llm = ChatAnthropic(model="claude-sonnet-4-6")
 ```
 
-### Custom Callback Handler
+### 自定义回调处理器
 
 ```python
 from langchain_core.callbacks import BaseCallbackHandler
@@ -518,25 +518,25 @@ class CustomCallbackHandler(BaseCallbackHandler):
     def on_tool_end(self, output: str, **kwargs) -> None:
         print(f"Tool completed: {output[:100]}...")
 
-# Use callbacks
+# 使用回调
 result = await agent.ainvoke(
     {"messages": [("user", "query")]},
     config={"callbacks": [CustomCallbackHandler()]}
 )
 ```
 
-## Streaming Responses
+## 流式响应
 
 ```python
 from langchain_anthropic import ChatAnthropic
 
 llm = ChatAnthropic(model="claude-sonnet-4-6", streaming=True)
 
-# Stream tokens
+# 流式 token
 async for chunk in llm.astream("Tell me a story"):
     print(chunk.content, end="", flush=True)
 
-# Stream agent events
+# 流式代理事件
 async for event in agent.astream_events(
     {"messages": [("user", "Search and summarize")]},
     version="v2"
@@ -547,7 +547,7 @@ async for event in agent.astream_events(
         print(f"\n[Using tool: {event['name']}]")
 ```
 
-## Testing Strategies
+## 测试策略
 
 ```python
 import pytest
@@ -555,7 +555,7 @@ from unittest.mock import AsyncMock, patch
 
 @pytest.mark.asyncio
 async def test_agent_tool_selection():
-    """Test agent selects correct tool."""
+    """测试代理选择正确的工具。"""
     with patch.object(llm, 'ainvoke') as mock_llm:
         mock_llm.return_value = AsyncMock(content="Using search_database")
 
@@ -563,21 +563,21 @@ async def test_agent_tool_selection():
             "messages": [("user", "search for documents")]
         })
 
-        # Verify tool was called
+        # 验证工具被调用
         assert "search_database" in str(result)
 
 @pytest.mark.asyncio
 async def test_memory_persistence():
-    """Test memory persists across invocations."""
+    """测试记忆在调用间持久化。"""
     config = {"configurable": {"thread_id": "test-thread"}}
 
-    # First message
+    # 第一条消息
     await agent.ainvoke(
         {"messages": [("user", "Remember: the code is 12345")]},
         config
     )
 
-    # Second message should remember
+    # 第二条消息应记住
     result = await agent.ainvoke(
         {"messages": [("user", "What was the code?")]},
         config
@@ -586,9 +586,9 @@ async def test_memory_persistence():
     assert "12345" in result["messages"][-1].content
 ```
 
-## Performance Optimization
+## 性能优化
 
-### 1. Caching with Redis
+### 1. 使用 Redis 缓存
 
 ```python
 from langchain_community.cache import RedisCache
@@ -599,19 +599,19 @@ redis_client = redis.Redis.from_url("redis://localhost:6379")
 set_llm_cache(RedisCache(redis_client))
 ```
 
-### 2. Async Batch Processing
+### 2. 异步批处理
 
 ```python
 import asyncio
 from langchain_core.documents import Document
 
 async def process_documents(documents: list[Document]) -> list:
-    """Process documents in parallel."""
+    """并行处理文档。"""
     tasks = [process_single(doc) for doc in documents]
     return await asyncio.gather(*tasks)
 
 async def process_single(doc: Document) -> dict:
-    """Process a single document."""
+    """处理单个文档。"""
     chunks = text_splitter.split_documents([doc])
     embeddings = await embeddings_model.aembed_documents(
         [c.page_content for c in chunks]
@@ -619,16 +619,16 @@ async def process_single(doc: Document) -> dict:
     return {"doc_id": doc.metadata.get("id"), "embeddings": embeddings}
 ```
 
-### 3. Connection Pooling
+### 3. 连接池
 
 ```python
 from langchain_pinecone import PineconeVectorStore
 from pinecone import Pinecone
 
-# Reuse Pinecone client
+# 复用 Pinecone 客户端
 pc = Pinecone(api_key=os.environ["PINECONE_API_KEY"])
 index = pc.Index("my-index")
 
-# Create vector store with existing index
+# 使用现有索引创建向量存储
 vectorstore = PineconeVectorStore(index=index, embedding=embeddings)
 ```

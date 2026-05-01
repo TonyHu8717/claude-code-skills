@@ -1,339 +1,339 @@
 ---
 name: track-management
-description: Use this skill when creating, managing, or working with Conductor tracks - the logical work units for features, bugs, and refactors. Applies to spec.md, plan.md, and track lifecycle operations.
+description: 在创建、管理或使用 Conductor 轨道时使用此技能 — 轨道是功能、缺陷和重构的逻辑工作单元。适用于 spec.md、plan.md 和轨道生命周期操作。
 version: 1.0.0
 ---
 
-# Track Management
+# 轨道管理
 
-Guide for creating, managing, and completing Conductor tracks - the logical work units that organize features, bugs, and refactors through specification, planning, and implementation phases.
+创建、管理和完成 Conductor 轨道的指南 — 轨道是通过规范、规划和实现阶段组织功能、缺陷和重构的逻辑工作单元。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Creating new feature, bug, or refactor tracks
-- Writing or reviewing spec.md files
-- Creating or updating plan.md files
-- Managing track lifecycle from creation to completion
-- Understanding track status markers and conventions
-- Working with the tracks.md registry
-- Interpreting or updating track metadata
+- 创建新的功能、缺陷或重构轨道
+- 撰写或审查 spec.md 文件
+- 创建或更新 plan.md 文件
+- 管理从创建到完成的轨道生命周期
+- 理解轨道状态标记和约定
+- 使用 tracks.md 注册表
+- 解释或更新轨道元数据
 
-## Track Concept
+## 轨道概念
 
-A track is a logical work unit that encapsulates a complete piece of work. Each track has:
+轨道是封装完整工作单元的逻辑工作单元。每个轨道有：
 
-- A unique identifier
-- A specification defining requirements
-- A phased plan breaking work into tasks
-- Metadata tracking status and progress
+- 唯一标识符
+- 定义需求的规范
+- 将工作分解为任务的分阶段计划
+- 跟踪状态和进度的元数据
 
-Tracks provide semantic organization for work, enabling:
+轨道为工作提供语义组织，使得：
 
-- Clear scope boundaries
-- Progress tracking
-- Git-aware operations (revert by track)
-- Team coordination
+- 清晰的范围边界
+- 进度跟踪
+- Git 感知操作（按轨道回滚）
+- 团队协调
 
-## Track Types
+## 轨道类型
 
-### feature
+### feature（功能）
 
-New functionality or capabilities. Use for:
+新功能或能力。用于：
 
-- New user-facing features
-- New API endpoints
-- New integrations
-- Significant enhancements
+- 新的面向用户功能
+- 新 API 端点
+- 新集成
+- 重大增强
 
-### bug
+### bug（缺陷）
 
-Defect fixes. Use for:
+缺陷修复。用于：
 
-- Incorrect behavior
-- Error conditions
-- Performance regressions
-- Security vulnerabilities
+- 错误行为
+- 错误条件
+- 性能回归
+- 安全漏洞
 
-### chore
+### chore（杂务）
 
-Maintenance and housekeeping. Use for:
+维护和清理。用于：
 
-- Dependency updates
-- Configuration changes
-- Documentation updates
-- Cleanup tasks
+- 依赖更新
+- 配置变更
+- 文档更新
+- 清理任务
 
-### refactor
+### refactor（重构）
 
-Code improvement without behavior change. Use for:
+不改变行为的代码改进。用于：
 
-- Code restructuring
-- Pattern adoption
-- Technical debt reduction
-- Performance optimization (same behavior, better performance)
+- 代码重组
+- 模式采用
+- 技术债务减少
+- 性能优化（相同行为，更好性能）
 
-## Track ID Format
+## 轨道 ID 格式
 
-Track IDs follow the pattern: `{shortname}_{YYYYMMDD}`
+轨道 ID 遵循模式：`{shortname}_{YYYYMMDD}`
 
-- **shortname**: 2-4 word kebab-case description (e.g., `user-auth`, `api-rate-limit`)
-- **YYYYMMDD**: Creation date in ISO format
+- **shortname**：2-4 个词的 kebab-case 描述（如 `user-auth`、`api-rate-limit`）
+- **YYYYMMDD**：ISO 格式的创建日期
 
-Examples:
+示例：
 
 - `user-auth_20250115`
 - `fix-login-error_20250115`
 - `upgrade-deps_20250115`
 - `refactor-api-client_20250115`
 
-## Track Lifecycle
+## 轨道生命周期
 
-### 1. Creation (newTrack)
+### 1. 创建（newTrack）
 
-**Define Requirements**
+**定义需求**
 
-1. Gather requirements through interactive Q&A
-2. Identify acceptance criteria
-3. Determine scope boundaries
-4. Identify dependencies
+1. 通过交互式问答收集需求
+2. 确定验收标准
+3. 确定范围边界
+4. 识别依赖
 
-**Generate Specification**
+**生成规范**
 
-1. Create `spec.md` with structured requirements
-2. Document functional and non-functional requirements
-3. Define acceptance criteria
-4. List dependencies and constraints
+1. 创建包含结构化需求的 `spec.md`
+2. 记录功能和非功能需求
+3. 定义验收标准
+4. 列出依赖和约束
 
-**Generate Plan**
+**生成计划**
 
-1. Create `plan.md` with phased task breakdown
-2. Organize tasks into logical phases
-3. Add verification tasks after phases
-4. Estimate effort and complexity
+1. 创建包含分阶段任务分解的 `plan.md`
+2. 将任务组织为逻辑阶段
+3. 在阶段后添加验证任务
+4. 估算工作量和复杂度
 
-**Register Track**
+**注册轨道**
 
-1. Add entry to `tracks.md` registry
-2. Create track directory structure
-3. Generate `metadata.json`
-4. Create track `index.md`
+1. 向 `tracks.md` 注册表添加条目
+2. 创建轨道目录结构
+3. 生成 `metadata.json`
+4. 创建轨道 `index.md`
 
-### 2. Implementation
+### 2. 实现
 
-**Execute Tasks**
+**执行任务**
 
-1. Select next pending task from plan
-2. Mark task as in-progress
-3. Implement following workflow (TDD)
-4. Mark task complete with commit SHA
+1. 从计划中选择下一个待处理任务
+2. 标记任务为进行中
+3. 按工作流实现（TDD）
+4. 标记任务完成并附带 commit SHA
 
-**Update Status**
+**更新状态**
 
-1. Update task markers in plan.md
-2. Record commit SHAs for traceability
-3. Update phase progress
-4. Update track status in tracks.md
+1. 更新 plan.md 中的任务标记
+2. 记录 commit SHA 用于可追溯性
+3. 更新阶段进度
+4. 更新 tracks.md 中的轨道状态
 
-**Verify Progress**
+**验证进度**
 
-1. Complete verification tasks
-2. Wait for checkpoint approval
-3. Record checkpoint commits
+1. 完成验证任务
+2. 等待检查点批准
+3. 记录检查点 commit
 
-### 3. Completion
+### 3. 完成
 
-**Sync Documentation**
+**同步文档**
 
-1. Update product.md if features added
-2. Update tech-stack.md if dependencies changed
-3. Verify all acceptance criteria met
+1. 如添加了功能则更新 product.md
+2. 如变更了依赖则更新 tech-stack.md
+3. 验证所有验收标准已满足
 
-**Archive or Delete**
+**归档或删除**
 
-1. Mark track as completed in tracks.md
-2. Record completion date
-3. Archive or retain track directory
+1. 在 tracks.md 中标记轨道为已完成
+2. 记录完成日期
+3. 归档或保留轨道目录
 
-## Specification (spec.md) Structure
+## 规范（spec.md）结构
 
 ```markdown
-# {Track Title}
+# {轨道标题}
 
-## Overview
+## 概述
 
-Brief description of what this track accomplishes and why.
+简要描述此轨道完成什么以及为什么。
 
-## Functional Requirements
+## 功能需求
 
-### FR-1: {Requirement Name}
+### FR-1：{需求名称}
 
-Description of the functional requirement.
+功能需求的描述。
 
-- Acceptance: How to verify this requirement is met
+- 验收：如何验证此需求已满足
 
-### FR-2: {Requirement Name}
+### FR-2：{需求名称}
 
 ...
 
-## Non-Functional Requirements
+## 非功能需求
 
-### NFR-1: {Requirement Name}
+### NFR-1：{需求名称}
 
-Description of the non-functional requirement (performance, security, etc.)
+非功能需求的描述（性能、安全等）
 
-- Target: Specific measurable target
-- Verification: How to test
+- 目标：具体可测量的目标
+- 验证：如何测试
 
-## Acceptance Criteria
+## 验收标准
 
-- [ ] Criterion 1: Specific, testable condition
-- [ ] Criterion 2: Specific, testable condition
-- [ ] Criterion 3: Specific, testable condition
+- [ ] 标准 1：具体、可测试的条件
+- [ ] 标准 2：具体、可测试的条件
+- [ ] 标准 3：具体、可测试的条件
 
-## Scope
+## 范围
 
-### In Scope
+### 范围内
 
-- Explicitly included items
-- Features to implement
-- Components to modify
+- 明确包含的项目
+- 要实现的功能
+- 要修改的组件
 
-### Out of Scope
+### 范围外
 
-- Explicitly excluded items
-- Future considerations
-- Related but separate work
+- 明确排除的项目
+- 未来考虑
+- 相关但独立的工作
 
-## Dependencies
+## 依赖
 
-### Internal
+### 内部
 
-- Other tracks or components this depends on
-- Required context artifacts
+- 此轨道依赖的其他轨道或组件
+- 所需的上下文产物
 
-### External
+### 外部
 
-- Third-party services or APIs
-- External dependencies
+- 第三方服务或 API
+- 外部依赖
 
-## Risks and Mitigations
+## 风险和缓解
 
-| Risk             | Impact          | Mitigation          |
-| ---------------- | --------------- | ------------------- |
-| Risk description | High/Medium/Low | Mitigation strategy |
+| 风险 | 影响 | 缓解 |
+|------|------|------|
+| 风险描述 | 高/中/低 | 缓解策略 |
 
-## Open Questions
+## 开放问题
 
-- [ ] Question that needs resolution
-- [x] Resolved question - Answer
+- [ ] 需要解决的问题
+- [x] 已解决的问题 - 答案
 ```
 
-## Plan (plan.md) Structure
+## 计划（plan.md）结构
 
 ```markdown
-# Implementation Plan: {Track Title}
+# 实现计划：{轨道标题}
 
-Track ID: `{track-id}`
-Created: YYYY-MM-DD
-Status: pending | in-progress | completed
+轨道 ID：`{track-id}`
+创建日期：YYYY-MM-DD
+状态：pending | in-progress | completed
 
-## Overview
+## 概述
 
-Brief description of implementation approach.
+实现方法的简要描述。
 
-## Phase 1: {Phase Name}
+## 阶段 1：{阶段名称}
 
-### Tasks
+### 任务
 
-- [ ] **Task 1.1**: Task description
-  - Sub-task or detail
-  - Sub-task or detail
-- [ ] **Task 1.2**: Task description
-- [ ] **Task 1.3**: Task description
+- [ ] **任务 1.1**：任务描述
+  - 子任务或详情
+  - 子任务或详情
+- [ ] **任务 1.2**：任务描述
+- [ ] **任务 1.3**：任务描述
 
-### Verification
+### 验证
 
-- [ ] **Verify 1.1**: Verification step for phase
+- [ ] **验证 1.1**：阶段的验证步骤
 
-## Phase 2: {Phase Name}
+## 阶段 2：{阶段名称}
 
-### Tasks
+### 任务
 
-- [ ] **Task 2.1**: Task description
-- [ ] **Task 2.2**: Task description
+- [ ] **任务 2.1**：任务描述
+- [ ] **任务 2.2**：任务描述
 
-### Verification
+### 验证
 
-- [ ] **Verify 2.1**: Verification step for phase
+- [ ] **验证 2.1**：阶段的验证步骤
 
-## Phase 3: Finalization
+## 阶段 3：最终化
 
-### Tasks
+### 任务
 
-- [ ] **Task 3.1**: Update documentation
-- [ ] **Task 3.2**: Final integration test
+- [ ] **任务 3.1**：更新文档
+- [ ] **任务 3.2**：最终集成测试
 
-### Verification
+### 验证
 
-- [ ] **Verify 3.1**: All acceptance criteria met
+- [ ] **验证 3.1**：所有验收标准已满足
 
-## Checkpoints
+## 检查点
 
-| Phase   | Checkpoint SHA | Date | Status  |
-| ------- | -------------- | ---- | ------- |
-| Phase 1 |                |      | pending |
-| Phase 2 |                |      | pending |
-| Phase 3 |                |      | pending |
+| 阶段 | 检查点 SHA | 日期 | 状态 |
+|------|-----------|------|------|
+| 阶段 1 | | | pending |
+| 阶段 2 | | | pending |
+| 阶段 3 | | | pending |
 ```
 
-## Status Marker Conventions
+## 状态标记约定
 
-Use consistent markers in plan.md:
+在 plan.md 中使用一致的标记：
 
-| Marker | Meaning     | Usage                       |
-| ------ | ----------- | --------------------------- |
-| `[ ]`  | Pending     | Task not started            |
-| `[~]`  | In Progress | Currently being worked      |
-| `[x]`  | Complete    | Task finished (include SHA) |
-| `[-]`  | Skipped     | Intentionally not done      |
-| `[!]`  | Blocked     | Waiting on dependency       |
+| 标记 | 含义 | 用法 |
+|------|------|------|
+| `[ ]` | 待处理 | 任务未开始 |
+| `[~]` | 进行中 | 正在处理 |
+| `[x]` | 完成 | 任务完成（包含 SHA） |
+| `[-]` | 跳过 | 刻意不做 |
+| `[!]` | 阻塞 | 等待依赖 |
 
-Example:
+示例：
 
 ```markdown
-- [x] **Task 1.1**: Set up database schema `abc1234`
-- [~] **Task 1.2**: Implement user model
-- [ ] **Task 1.3**: Add validation logic
-- [!] **Task 1.4**: Integrate auth service (blocked: waiting for API key)
-- [-] **Task 1.5**: Legacy migration (skipped: not needed)
+- [x] **任务 1.1**：设置数据库架构 `abc1234`
+- [~] **任务 1.2**：实现用户模型
+- [ ] **任务 1.3**：添加验证逻辑
+- [!] **任务 1.4**：集成 auth 服务（阻塞：等待 API 密钥）
+- [-] **任务 1.5**：旧版迁移（跳过：不需要）
 ```
 
-## Track Registry (tracks.md) Format
+## 轨道注册表（tracks.md）格式
 
 ```markdown
-# Track Registry
+# 轨道注册表
 
-## Active Tracks
+## 活跃轨道
 
-| Track ID                                         | Type    | Status      | Phase | Started    | Assignee   |
-| ------------------------------------------------ | ------- | ----------- | ----- | ---------- | ---------- |
-| [user-auth_20250115](tracks/user-auth_20250115/) | feature | in-progress | 2/3   | 2025-01-15 | @developer |
-| [fix-login_20250114](tracks/fix-login_20250114/) | bug     | pending     | 0/2   | 2025-01-14 | -          |
+| 轨道 ID | 类型 | 状态 | 阶段 | 开始日期 | 负责人 |
+|---------|------|------|------|---------|--------|
+| [user-auth_20250115](tracks/user-auth_20250115/) | feature | in-progress | 2/3 | 2025-01-15 | @developer |
+| [fix-login_20250114](tracks/fix-login_20250114/) | bug | pending | 0/2 | 2025-01-14 | - |
 
-## Completed Tracks
+## 已完成轨道
 
-| Track ID                                       | Type  | Completed  | Duration |
-| ---------------------------------------------- | ----- | ---------- | -------- |
-| [setup-ci_20250110](tracks/setup-ci_20250110/) | chore | 2025-01-12 | 2 days   |
+| 轨道 ID | 类型 | 完成日期 | 持续时间 |
+|---------|------|---------|---------|
+| [setup-ci_20250110](tracks/setup-ci_20250110/) | chore | 2025-01-12 | 2 天 |
 
-## Archived Tracks
+## 已归档轨道
 
-| Track ID                                             | Reason     | Archived   |
-| ---------------------------------------------------- | ---------- | ---------- |
-| [old-feature_20241201](tracks/old-feature_20241201/) | Superseded | 2025-01-05 |
+| 轨道 ID | 原因 | 归档日期 |
+|---------|------|---------|
+| [old-feature_20241201](tracks/old-feature_20241201/) | 被取代 | 2025-01-05 |
 ```
 
-## Metadata (metadata.json) Fields
+## 元数据（metadata.json）字段
 
 ```json
 {
@@ -370,224 +370,224 @@ Example:
 }
 ```
 
-## Track Operations
+## 轨道操作
 
-### Creating a Track
+### 创建轨道
 
-1. Run `/conductor:new-track`
-2. Answer interactive questions
-3. Review generated spec.md
-4. Review generated plan.md
-5. Confirm track creation
+1. 运行 `/conductor:new-track`
+2. 回答交互式问题
+3. 审查生成的 spec.md
+4. 审查生成的 plan.md
+5. 确认轨道创建
 
-### Starting Implementation
+### 开始实现
 
-1. Read spec.md and plan.md
-2. Verify context artifacts are current
-3. Mark first task as `[~]`
-4. Begin TDD workflow
+1. 读取 spec.md 和 plan.md
+2. 验证上下文产物是最新的
+3. 标记第一个任务为 `[~]`
+4. 开始 TDD 工作流
 
-### Completing a Phase
+### 完成阶段
 
-1. Ensure all phase tasks are `[x]`
-2. Complete verification tasks
-3. Wait for checkpoint approval
-4. Record checkpoint SHA
-5. Proceed to next phase
+1. 确保所有阶段任务为 `[x]`
+2. 完成验证任务
+3. 等待检查点批准
+4. 记录检查点 SHA
+5. 进入下一阶段
 
-### Completing a Track
+### 完成轨道
 
-1. Verify all phases complete
-2. Verify all acceptance criteria met
-3. Update product.md if needed
-4. Mark track completed in tracks.md
-5. Update metadata.json
+1. 验证所有阶段完成
+2. 验证所有验收标准已满足
+3. 如需要更新 product.md
+4. 在 tracks.md 中标记轨道完成
+5. 更新 metadata.json
 
-### Reverting a Track
+### 回滚轨道
 
-1. Run `/conductor:revert`
-2. Select track to revert
-3. Choose granularity (track/phase/task)
-4. Confirm revert operation
-5. Update status markers
+1. 运行 `/conductor:revert`
+2. 选择要回滚的轨道
+3. 选择粒度（轨道/阶段/任务）
+4. 确认回滚操作
+5. 更新状态标记
 
-## Handling Track Dependencies
+## 处理轨道依赖
 
-### Identifying Dependencies
+### 识别依赖
 
-During track creation, identify:
+在轨道创建期间，识别：
 
-- **Hard dependencies**: Must complete before this track can start
-- **Soft dependencies**: Can proceed in parallel but may affect integration
-- **External dependencies**: Third-party services, APIs, or team decisions
+- **硬依赖**：必须在此轨道开始前完成
+- **软依赖**：可以并行进行但可能影响集成
+- **外部依赖**：第三方服务、API 或团队决策
 
-### Documenting Dependencies
+### 记录依赖
 
-In spec.md, list dependencies with:
+在 spec.md 中，列出依赖及：
 
-- Dependency type (hard/soft/external)
-- Current status (available/pending/blocked)
-- Resolution path (what needs to happen)
+- 依赖类型（硬/软/外部）
+- 当前状态（可用/待处理/阻塞）
+- 解决路径（需要发生什么）
 
-### Managing Blocked Tracks
+### 管理阻塞轨道
 
-When a track is blocked:
+当轨道被阻塞时：
 
-1. Mark blocked tasks with `[!]` and reason
-2. Update tracks.md status
-3. Document blocker in metadata.json
-4. Consider creating dependency track if needed
+1. 用 `[!]` 标记阻塞任务并注明原因
+2. 更新 tracks.md 状态
+3. 在 metadata.json 中记录阻塞者
+4. 如需要考虑创建依赖轨道
 
-## Track Sizing Guidelines
+## 轨道规模指南
 
-### Right-Sized Tracks
+### 合适规模的轨道
 
-Aim for tracks that:
+目标轨道：
 
-- Complete in 1-5 days of work
-- Have 2-4 phases
-- Contain 8-20 tasks total
-- Deliver a coherent, testable unit
+- 1-5 天工作完成
+- 2-4 个阶段
+- 总共 8-20 个任务
+- 交付连贯、可测试的单元
 
-### Too Large
+### 过大
 
-Signs a track is too large:
+轨道过大的信号：
 
-- More than 5 phases
-- More than 25 tasks
-- Multiple unrelated features
-- Estimated duration > 1 week
+- 超过 5 个阶段
+- 超过 25 个任务
+- 多个不相关功能
+- 预计持续时间 > 1 周
 
-Solution: Split into multiple tracks with clear boundaries.
+解决方案：拆分为多个有清晰边界的轨道。
 
-### Too Small
+### 过小
 
-Signs a track is too small:
+轨道过小的信号：
 
-- Single phase with 1-2 tasks
-- No meaningful verification needed
-- Could be a sub-task of another track
-- Less than a few hours of work
+- 单阶段仅 1-2 个任务
+- 无需有意义的验证
+- 可以是另一个轨道的子任务
+- 不到几小时的工作
 
-Solution: Combine with related work or handle as part of existing track.
+解决方案：与相关工作合并或作为现有轨道的一部分处理。
 
-## Specification Quality Checklist
+## 规范质量清单
 
-Before finalizing spec.md, verify:
+最终确定 spec.md 前，验证：
 
-### Requirements Quality
+### 需求质量
 
-- [ ] Each requirement has clear acceptance criteria
-- [ ] Requirements are testable
-- [ ] Requirements are independent (can verify separately)
-- [ ] No ambiguous language ("should be fast" → "response < 200ms")
+- [ ] 每个需求有清晰的验收标准
+- [ ] 需求是可测试的
+- [ ] 需求是独立的（可单独验证）
+- [ ] 无模糊语言（"应该快" → "响应 < 200ms"）
 
-### Scope Clarity
+### 范围清晰度
 
-- [ ] In-scope items are specific
-- [ ] Out-of-scope items prevent scope creep
-- [ ] Boundaries are clear to implementer
+- [ ] 范围内项目是具体的
+- [ ] 范围外项目防止范围蔓延
+- [ ] 边界对实现者清晰
 
-### Dependencies Identified
+### 依赖已识别
 
-- [ ] All internal dependencies listed
-- [ ] External dependencies have owners/contacts
-- [ ] Dependency status is current
+- [ ] 所有内部依赖已列出
+- [ ] 外部依赖有所有者/联系人
+- [ ] 依赖状态是最新的
 
-### Risks Addressed
+### 风险已处理
 
-- [ ] Major risks identified
-- [ ] Impact assessment realistic
-- [ ] Mitigations are actionable
+- [ ] 主要风险已识别
+- [ ] 影响评估现实
+- [ ] 缓解措施可操作
 
-## Plan Quality Checklist
+## 计划质量清单
 
-Before starting implementation, verify plan.md:
+开始实现前，验证 plan.md：
 
-### Task Quality
+### 任务质量
 
-- [ ] Tasks are atomic (one logical action)
-- [ ] Tasks are independently verifiable
-- [ ] Task descriptions are clear
-- [ ] Sub-tasks provide helpful detail
+- [ ] 任务是原子的（一个逻辑操作）
+- [ ] 任务可独立验证
+- [ ] 任务描述清晰
+- [ ] 子任务提供有用的详情
 
-### Phase Organization
+### 阶段组织
 
-- [ ] Phases group related tasks
-- [ ] Each phase delivers something testable
-- [ ] Verification tasks after each phase
-- [ ] Phases build on each other logically
+- [ ] 阶段分组相关任务
+- [ ] 每个阶段交付可测试的内容
+- [ ] 每个阶段后有验证任务
+- [ ] 阶段逻辑上相互构建
 
-### Completeness
+### 完整性
 
-- [ ] All spec requirements have corresponding tasks
-- [ ] Documentation tasks included
-- [ ] Testing tasks included
-- [ ] Integration tasks included
+- [ ] 所有规范需求有对应任务
+- [ ] 包含文档任务
+- [ ] 包含测试任务
+- [ ] 包含集成任务
 
-## Common Track Patterns
+## 常见轨道模式
 
-### Feature Track Pattern
-
-```
-Phase 1: Foundation
-- Data models
-- Database migrations
-- Basic API structure
-
-Phase 2: Core Logic
-- Business logic implementation
-- Input validation
-- Error handling
-
-Phase 3: Integration
-- UI integration
-- API documentation
-- End-to-end tests
-```
-
-### Bug Fix Track Pattern
+### 功能轨道模式
 
 ```
-Phase 1: Reproduction
-- Write failing test capturing bug
-- Document reproduction steps
+阶段 1：基础
+- 数据模型
+- 数据库迁移
+- 基本 API 结构
 
-Phase 2: Fix
-- Implement fix
-- Verify test passes
-- Check for regressions
+阶段 2：核心逻辑
+- 业务逻辑实现
+- 输入验证
+- 错误处理
 
-Phase 3: Verification
-- Manual verification
-- Update documentation if needed
+阶段 3：集成
+- UI 集成
+- API 文档
+- 端到端测试
 ```
 
-### Refactor Track Pattern
+### 缺陷修复轨道模式
 
 ```
-Phase 1: Preparation
-- Add characterization tests
-- Document current behavior
+阶段 1：复现
+- 编写捕获缺陷的失败测试
+- 记录复现步骤
 
-Phase 2: Refactoring
-- Apply changes incrementally
-- Maintain green tests throughout
+阶段 2：修复
+- 实现修复
+- 验证测试通过
+- 检查回归
 
-Phase 3: Cleanup
-- Remove dead code
-- Update documentation
+阶段 3：验证
+- 手动验证
+- 如需要更新文档
 ```
 
-## Best Practices
+### 重构轨道模式
 
-1. **One track, one concern**: Keep tracks focused on a single logical change
-2. **Small phases**: Break work into phases of 3-5 tasks maximum
-3. **Verification after phases**: Always include verification tasks
-4. **Update markers immediately**: Mark task status as you work
-5. **Record SHAs**: Always note commit SHAs for completed tasks
-6. **Review specs before planning**: Ensure spec is complete before creating plan
-7. **Link dependencies**: Explicitly note track dependencies
-8. **Archive, don't delete**: Preserve completed tracks for reference
-9. **Size appropriately**: Keep tracks between 1-5 days of work
-10. **Clear acceptance criteria**: Every requirement must be testable
+```
+阶段 1：准备
+- 添加表征测试
+- 记录当前行为
+
+阶段 2：重构
+- 增量应用变更
+- 全程保持绿色测试
+
+阶段 3：清理
+- 删除死代码
+- 更新文档
+```
+
+## 最佳实践
+
+1. **一个轨道，一个关注点**：保持轨道聚焦于单一逻辑变更
+2. **小阶段**：将工作分解为最多 3-5 个任务的阶段
+3. **阶段后验证**：始终包含验证任务
+4. **立即更新标记**：工作时标记任务状态
+5. **记录 SHA**：始终记录已完成任务的 commit SHA
+6. **规划前审查规范**：创建计划前确保规范完整
+7. **链接依赖**：明确注明轨道依赖
+8. **归档而非删除**：保留已完成轨道以供参考
+9. **适当规模**：保持轨道在 1-5 天工作量
+10. **清晰的验收标准**：每个需求必须是可测试的

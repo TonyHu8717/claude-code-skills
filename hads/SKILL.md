@@ -1,189 +1,189 @@
 ---
 name: hads
-description: Use when writing technical documentation that needs to be readable by both humans and AI models, converting existing docs to HADS format, validating a HADS document, or optimizing documentation for token-efficient AI consumption.
+description: 在编写需要同时被人类和 AI 模型阅读的技术文档时使用，将现有文档转换为 HADS 格式，验证 HADS 文档，或优化文档以实现 token 高效的 AI 消费。
 ---
 
-# HADS Claude Skill
-**Version 1.0.0** · Human-AI Document Standard · 2026 · HADS 1.0.0
-
----
-
-## AI READING INSTRUCTION
-
-This skill teaches Claude how to read, generate, and validate HADS documents.
-Read all `[SPEC]` blocks before responding to any HADS-related request.
-Read `[NOTE]` blocks if you need context on intent or edge cases.
+# HADS Claude 技能
+**版本 1.0.0** · 人-AI 文档标准 · 2026 · HADS 1.0.0
 
 ---
 
-## 1. WHAT IS HADS
+## AI 阅读指令
+
+此技能教 Claude 如何阅读、生成和验证 HADS 文档。
+在响应任何 HADS 相关请求之前，先阅读所有 `[SPEC]` 块。
+如果需要了解意图或边缘情况的上下文，请阅读 `[NOTE]` 块。
+
+---
+
+## 1. 什么是 HADS
 
 **[SPEC]**
-- HADS = Human-AI Document Standard
-- Convention for Markdown technical documentation
-- Four block types: `**[SPEC]**`, `**[NOTE]**`, `**[BUG]**`, `**[?]**`
-- Every HADS document requires: H1 title, version declaration, AI manifest
-- AI manifest appears before first content section, tells AI what to read/skip
-- File extension: `.md` — standard Markdown, no tooling required
+- HADS = 人-AI 文档标准（Human-AI Document Standard）
+- Markdown 技术文档的约定
+- 四种块类型：`**[SPEC]**`、`**[NOTE]**`、`**[BUG]**`、`**[?]**`
+- 每个 HADS 文档需要：H1 标题、版本声明、AI 清单
+- AI 清单出现在第一个内容节之前，告诉 AI 读什么/跳过什么
+- 文件扩展名：`.md` — 标准 Markdown，无需工具
 
 ---
 
-## 2. BLOCK TYPES
+## 2. 块类型
 
 **[SPEC]**
 ```
-**[SPEC]**   Authoritative fact. Terse. Bullet lists, tables, code. AI reads always.
-**[NOTE]**   Human context, history, examples. AI may skip.
-**[BUG]**    Verified failure + fix. Required fields: symptom, cause, fix. Always read.
-**[?]**      Unverified / inferred. Lower confidence. Always flagged.
+**[SPEC]**   权威事实。简洁。项目符号列表、表格、代码。AI 始终阅读。
+**[NOTE]**   人类上下文、历史、示例。AI 可跳过。
+**[BUG]**    已验证的故障 + 修复。必需字段：症状、原因、修复。始终阅读。
+**[?]**      未验证/推断。置信度较低。始终标记。
 ```
 
-Block tag rules:
-- Bold, on its own line: `**[SPEC]**`
-- Content follows immediately (no blank line between tag and content)
-- Multiple blocks of different types allowed per section
-- Titled BUG blocks allowed: `**[BUG] Short description**`
-- No nesting of blocks inside blocks
+块标签规则：
+- 粗体，独占一行：`**[SPEC]**`
+- 内容紧跟其后（标签和内容之间无空行）
+- 每节允许多个不同类型的块
+- 允许带标题的 BUG 块：`**[BUG] 简短描述**`
+- 不允许块内嵌套块
 
 ---
 
-## 3. REQUIRED DOCUMENT STRUCTURE
+## 3. 必需的文档结构
 
 **[SPEC]**
 ```markdown
-# Document Title
-**Version X.Y.Z** · Author · Date · [metadata]
+# 文档标题
+**版本 X.Y.Z** · 作者 · 日期 · [元数据]
 
 ---
 
-## AI READING INSTRUCTION
+## AI 阅读指令
 
-Read `[SPEC]` and `[BUG]` blocks for authoritative facts.
-Read `[NOTE]` only if additional context is needed.
-`[?]` blocks are unverified — treat with lower confidence.
+阅读 `[SPEC]` 和 `[BUG]` 块获取权威事实。
+仅在需要额外上下文时阅读 `[NOTE]`。
+`[?]` 块未验证 — 以较低置信度对待。
 
 ---
 
-## 1. First Section
+## 1. 第一节
 
 **[SPEC]**
 ...
 ```
 
-Required elements in order:
-1. H1 title
-2. `**Version X.Y.Z**` in header (first 20 lines)
-3. AI manifest section before first content section
-4. Content sections (H2), subsections (H3)
+必需元素（按顺序）：
+1. H1 标题
+2. 头部中的 `**Version X.Y.Z**`（前 20 行内）
+3. AI 清单节在第一个内容节之前
+4. 内容节（H2）、子节（H3）
 
 ---
 
-## 4. HOW CLAUDE READS HADS
+## 4. Claude 如何阅读 HADS
 
 **[SPEC]**
-When encountering a HADS document:
-1. Find and read the AI manifest first
-2. Read all `[SPEC]` blocks — these are ground truth
-3. Read all `[BUG]` blocks — always, before generating any code or config
-4. Read `[NOTE]` blocks only if `[SPEC]` is insufficient to answer the query
-5. Treat `[?]` content as hypothesis — note uncertainty in response
+遇到 HADS 文档时：
+1. 先找到并阅读 AI 清单
+2. 阅读所有 `[SPEC]` 块 — 这些是基本事实
+3. 阅读所有 `[BUG]` 块 — 始终阅读，在生成任何代码或配置之前
+4. 仅在 `[SPEC]` 不足以回答查询时才阅读 `[NOTE]` 块
+5. 将 `[?]` 内容视为假设 — 在响应中注明不确定性
 
-Token optimization: for large documents, scan section headings first, then read only `[SPEC]` and `[BUG]` blocks in relevant sections.
+Token 优化：对于大型文档，先扫描节标题，然后只阅读相关节中的 `[SPEC]` 和 `[BUG]` 块。
 
 ---
 
-## 5. HOW CLAUDE GENERATES HADS
+## 5. Claude 如何生成 HADS
 
 **[SPEC]**
-When asked to write documentation in HADS format:
+当被要求以 HADS 格式编写文档时：
 
-1. Start with header block (title, version, metadata)
-2. Add AI manifest — always include, never skip
-3. Organize content into numbered H2 sections
-4. For each fact: write as `[SPEC]` — terse, bullet or table or code
-5. For each "why" or context: write as `[NOTE]`
-6. For each known failure mode with confirmed fix: write as `[BUG]`
-7. For each unverified claim: write as `[?]`
-8. End with changelog section
+1. 从头部块开始（标题、版本、元数据）
+2. 添加 AI 清单 — 始终包含，永不跳过
+3. 将内容组织为编号的 H2 节
+4. 对于每个事实：写为 `[SPEC]` — 简洁，项目符号或表格或代码
+5. 对于每个"为什么"或上下文：写为 `[NOTE]`
+6. 对于每个已确认修复的已知故障模式：写为 `[BUG]`
+7. 对于每个未验证的说法：写为 `[?]`
+8. 以变更日志节结束
 
-Content rules for `[SPEC]`:
-- Prefer bullet lists over prose
-- Prefer tables for multi-field facts
-- Prefer code blocks for syntax, formats, examples
-- Maximum 2 sentences of prose — if more needed, move to `[NOTE]`
+`[SPEC]` 的内容规则：
+- 优先使用项目符号列表而非散文
+- 对于多字段事实优先使用表格
+- 对于语法、格式、示例优先使用代码块
+- 最多 2 句散文 — 如果需要更多，移至 `[NOTE]`
 
-Content rules for `[BUG]`:
-- Always include: symptom, cause, fix
-- Optional: affected versions, workaround
-- Title on same line: `**[BUG] Short description**`
+`[BUG]` 的内容规则：
+- 始终包含：症状、原因、修复
+- 可选：受影响版本、变通方法
+- 标题在同一行：`**[BUG] 简短描述**`
 
 **[NOTE]**
-When converting existing documentation to HADS: extract facts into `[SPEC]`, move narrative and history to `[NOTE]`, surface all known issues as `[BUG]`. Do not duplicate content between block types.
+将现有文档转换为 HADS 时：将事实提取到 `[SPEC]`，将叙述和历史移至 `[NOTE]`，将所有已知问题作为 `[BUG]` 呈现。不要在块类型之间重复内容。
 
 ---
 
-## 6. VALIDATION RULES
+## 6. 验证规则
 
 **[SPEC]**
-A valid HADS document must have:
-- H1 title
-- `**Version X.Y.Z**` in first 20 lines
-- AI manifest before first content section
-- All block tags bold: `**[SPEC]**` not `[SPEC]` not *[SPEC]*
-- `[BUG]` blocks contain at minimum symptom + fix
+有效的 HADS 文档必须具有：
+- H1 标题
+- 前 20 行内的 `**Version X.Y.Z**`
+- AI 清单在第一个内容节之前
+- 所有块标签为粗体：`**[SPEC]**` 而非 `[SPEC]` 也非 *[SPEC]*
+- `[BUG]` 块至少包含症状 + 修复
 
-Validator: *(planned — not yet included in this release)*
+验证器：*（计划中 — 尚未包含在此版本中）*
 
 ---
 
-## 7. EXAMPLE INTERACTIONS
+## 7. 示例交互
 
 **[SPEC]**
 
-User: *"Write HADS documentation for this REST API"*
-→ Generate full HADS document: header, manifest, sections with [SPEC]/[NOTE]/[BUG] blocks
+用户：*"为此 REST API 编写 HADS 文档"*
+→ 生成完整的 HADS 文档：头部、清单、包含 [SPEC]/[NOTE]/[BUG] 块的节
 
-User: *"Convert this README to HADS format"*
-→ Restructure existing content into HADS blocks, preserve all facts, add manifest
+用户：*"将此 README 转换为 HADS 格式"*
+→ 将现有内容重组为 HADS 块，保留所有事实，添加清单
 
-User: *"Is this document valid HADS?"*
-→ Check: H1 title, version, manifest, block tag formatting, BUG block completeness
+用户：*"此文档是有效的 HADS 吗？"*
+→ 检查：H1 标题、版本、清单、块标签格式、BUG 块完整性
 
-User: *"Summarize this HADS document"*
-→ Read only [SPEC] and [BUG] blocks, return structured summary
+用户：*"总结此 HADS 文档"*
+→ 只阅读 [SPEC] 和 [BUG] 块，返回结构化摘要
 
-User: *"What does this API do?"* (HADS doc provided)
-→ Read manifest, read [SPEC] blocks in relevant sections, answer directly
+用户：*"此 API 做什么？"*（提供 HADS 文档）
+→ 阅读清单，阅读相关节中的 [SPEC] 块，直接回答
 
 ---
 
-## 8. DESIGN INTENT
+## 8. 设计意图
 
 **[NOTE]**
-HADS exists because AI models increasingly read documentation before humans do. The format optimizes for this reality without sacrificing human readability.
+HADS 的存在是因为 AI 模型越来越多地在人类之前阅读文档。该格式针对这一现实进行了优化，同时不牺牲人类可读性。
 
-Key insight: the AI manifest is the core innovation. It lets even small (7B) models know what to read and what to skip — without requiring them to reason about document structure. Explicit is better than implicit for model consumption.
+关键洞察：AI 清单是核心创新。它让即使是小型（7B）模型也能知道读什么和跳过什么 — 而无需它们推理文档结构。对于模型消费来说，显式优于隐式。
 
-When generating HADS, think of `[SPEC]` as the API surface and `[NOTE]` as the comments. `[BUG]` blocks are the most valuable content — they represent hard-won knowledge that saves others from hitting the same wall.
+生成 HADS 时，将 `[SPEC]` 视为 API 接口，将 `[NOTE]` 视为注释。`[BUG]` 块是最有价值的内容 — 它们代表了来之不易的知识，可以避免他人重蹈覆辙。
 
 ---
 
-## 9. QUICK REFERENCE
+## 9. 快速参考
 
 **[SPEC]**
 ```
-Tag       | Bold format    | Reader  | Required content
+标签       | 粗体格式       | 读者    | 必需内容
 ----------|----------------|---------|------------------
-[SPEC]    | **[SPEC]**     | AI      | Facts, terse
-[NOTE]    | **[NOTE]**     | Human   | Context, narrative
-[BUG]     | **[BUG] ...**  | Both    | Symptom + fix
-[?]       | **[?]**        | Both    | Unverified claims
+[SPEC]    | **[SPEC]**     | AI      | 事实，简洁
+[NOTE]    | **[NOTE]**     | 人类    | 上下文，叙述
+[BUG]     | **[BUG] ...**  | 两者    | 症状 + 修复
+[?]       | **[?]**        | 两者    | 未验证的说法
 ```
 
-Manifest minimum:
+清单最低要求：
 ```markdown
-## AI READING INSTRUCTION
-Read `[SPEC]` and `[BUG]` blocks for authoritative facts.
-Read `[NOTE]` only if additional context is needed.
-`[?]` blocks are unverified.
+## AI 阅读指令
+阅读 `[SPEC]` 和 `[BUG]` 块获取权威事实。
+仅在需要额外上下文时阅读 `[NOTE]`。
+`[?]` 块未验证。
 ```

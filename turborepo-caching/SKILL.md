@@ -1,24 +1,24 @@
 ---
 name: turborepo-caching
-description: Configure Turborepo for efficient monorepo builds with local and remote caching. Use when setting up Turborepo, optimizing build pipelines, or implementing distributed caching.
+description: 配置 Turborepo 以实现高效的 monorepo 构建，支持本地和远程缓存。适用于设置 Turborepo、优化构建管道或实现分布式缓存。
 ---
 
-# Turborepo Caching
+# Turborepo 缓存
 
-Production patterns for Turborepo build optimization.
+Turborepo 构建优化的生产级模式。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Setting up new Turborepo projects
-- Configuring build pipelines
-- Implementing remote caching
-- Optimizing CI/CD performance
-- Migrating from other monorepo tools
-- Debugging cache misses
+- 设置新的 Turborepo 项目
+- 配置构建管道
+- 实现远程缓存
+- 优化 CI/CD 性能
+- 从其他 monorepo 工具迁移
+- 调试缓存未命中
 
-## Core Concepts
+## 核心概念
 
-### 1. Turborepo Architecture
+### 1. Turborepo 架构
 
 ```
 Workspace Root/
@@ -36,19 +36,19 @@ Workspace Root/
 └── package.json
 ```
 
-### 2. Pipeline Concepts
+### 2. 管道概念
 
-| Concept        | Description                      |
-| -------------- | -------------------------------- |
-| **dependsOn**  | Tasks that must complete first   |
-| **cache**      | Whether to cache outputs         |
-| **outputs**    | Files to cache                   |
-| **inputs**     | Files that affect cache key      |
-| **persistent** | Long-running tasks (dev servers) |
+| 概念          | 描述                                 |
+| ------------- | ------------------------------------ |
+| **dependsOn** | 必须先完成的任务                     |
+| **cache**     | 是否缓存输出                         |
+| **outputs**   | 要缓存的文件                         |
+| **inputs**    | 影响缓存键的文件                     |
+| **persistent**| 长期运行的任务（开发服务器）         |
 
-## Templates
+## 模板
 
-### Template 1: turbo.json Configuration
+### 模板 1：turbo.json 配置
 
 ```json
 {
@@ -85,7 +85,7 @@ Workspace Root/
 }
 ```
 
-### Template 2: Package-Specific Pipeline
+### 模板 2：包特定管道
 
 ```json
 // apps/web/turbo.json
@@ -105,19 +105,19 @@ Workspace Root/
 }
 ```
 
-### Template 3: Remote Caching with Vercel
+### 模板 3：使用 Vercel 的远程缓存
 
 ```bash
-# Login to Vercel
+# 登录 Vercel
 npx turbo login
 
-# Link to Vercel project
+# 链接到 Vercel 项目
 npx turbo link
 
-# Run with remote cache
+# 使用远程缓存运行
 turbo build --remote-only
 
-# CI environment variables
+# CI 环境变量
 TURBO_TOKEN=your-token
 TURBO_TEAM=your-team
 ```
@@ -156,10 +156,10 @@ jobs:
         run: npx turbo test --filter='...[origin/main]'
 ```
 
-### Template 4: Self-Hosted Remote Cache
+### 模板 4：自托管远程缓存
 
 ```typescript
-// Custom remote cache server (Express)
+// 自定义远程缓存服务器（Express）
 import express from "express";
 import { createReadStream, createWriteStream } from "fs";
 import { mkdir } from "fs/promises";
@@ -168,7 +168,7 @@ import { join } from "path";
 const app = express();
 const CACHE_DIR = "./cache";
 
-// Get artifact
+// 获取产物
 app.get("/v8/artifacts/:hash", async (req, res) => {
   const { hash } = req.params;
   const team = req.query.teamId || "default";
@@ -182,7 +182,7 @@ app.get("/v8/artifacts/:hash", async (req, res) => {
   }
 });
 
-// Put artifact
+// 存储产物
 app.put("/v8/artifacts/:hash", async (req, res) => {
   const { hash } = req.params;
   const team = req.query.teamId || "default";
@@ -201,7 +201,7 @@ app.put("/v8/artifacts/:hash", async (req, res) => {
   });
 });
 
-// Check artifact exists
+// 检查产物是否存在
 app.head("/v8/artifacts/:hash", async (req, res) => {
   const { hash } = req.params;
   const team = req.query.teamId || "default";
@@ -219,7 +219,7 @@ app.listen(3000);
 ```
 
 ```json
-// turbo.json for self-hosted cache
+// 自托管缓存的 turbo.json
 {
   "remoteCache": {
     "signature": false
@@ -228,39 +228,39 @@ app.listen(3000);
 ```
 
 ```bash
-# Use self-hosted cache
+# 使用自托管缓存
 turbo build --api="http://localhost:3000" --token="my-token" --team="my-team"
 ```
 
-### Template 5: Filtering and Scoping
+### 模板 5：过滤和范围限定
 
 ```bash
-# Build specific package
+# 构建特定包
 turbo build --filter=@myorg/web
 
-# Build package and its dependencies
+# 构建包及其依赖
 turbo build --filter=@myorg/web...
 
-# Build package and its dependents
+# 构建包及其依赖方
 turbo build --filter=...@myorg/ui
 
-# Build changed packages since main
+# 构建自 main 以来变更的包
 turbo build --filter='...[origin/main]'
 
-# Build packages in directory
+# 构建目录中的包
 turbo build --filter='./apps/*'
 
-# Combine filters
+# 组合过滤器
 turbo build --filter=@myorg/web --filter=@myorg/docs
 
-# Exclude package
+# 排除包
 turbo build --filter='!@myorg/docs'
 
-# Include dependencies of changed
+# 包含变更的依赖
 turbo build --filter='...[HEAD^1]...'
 ```
 
-### Template 6: Advanced Pipeline Configuration
+### 模板 6：高级管道配置
 
 ```json
 {
@@ -303,7 +303,7 @@ turbo build --filter='...[HEAD^1]...'
 }
 ```
 
-### Template 7: Root package.json Setup
+### 模板 7：根 package.json 设置
 
 ```json
 {
@@ -330,41 +330,41 @@ turbo build --filter='...[HEAD^1]...'
 }
 ```
 
-## Debugging Cache
+## 调试缓存
 
 ```bash
-# Dry run to see what would run
+# 干运行查看哪些会执行
 turbo build --dry-run
 
-# Verbose output with hashes
+# 带哈希的详细输出
 turbo build --verbosity=2
 
-# Show task graph
+# 显示任务图
 turbo build --graph
 
-# Force no cache
+# 强制不使用缓存
 turbo build --force
 
-# Show cache status
+# 显示缓存状态
 turbo build --summarize
 
-# Debug specific task
+# 调试特定任务
 TURBO_LOG_VERBOSITY=debug turbo build --filter=@myorg/web
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该做的
 
-- **Define explicit inputs** - Avoid cache invalidation
-- **Use workspace protocol** - `"@myorg/ui": "workspace:*"`
-- **Enable remote caching** - Share across CI and local
-- **Filter in CI** - Build only affected packages
-- **Cache build outputs** - Not source files
+- **定义明确的 inputs** — 避免缓存失效
+- **使用 workspace 协议** — `"@myorg/ui": "workspace:*"`
+- **启用远程缓存** — 在 CI 和本地之间共享
+- **在 CI 中过滤** — 仅构建受影响的包
+- **缓存构建输出** — 而非源文件
 
-### Don'ts
+### 不应该做的
 
-- **Don't cache dev servers** - Use `persistent: true`
-- **Don't include secrets in env** - Use runtime env vars
-- **Don't ignore dependsOn** - Causes race conditions
-- **Don't over-filter** - May miss dependencies
+- **不要缓存开发服务器** — 使用 `persistent: true`
+- **不要在 env 中包含密钥** — 使用运行时环境变量
+- **不要忽视 dependsOn** — 会导致竞态条件
+- **不要过度过滤** — 可能遗漏依赖

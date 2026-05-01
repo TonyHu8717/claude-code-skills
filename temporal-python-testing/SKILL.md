@@ -1,90 +1,90 @@
 ---
 name: temporal-python-testing
-description: Test Temporal workflows with pytest, time-skipping, and mocking strategies. Covers unit testing, integration testing, replay testing, and local development setup. Use when implementing Temporal workflow tests or debugging test failures.
+description: 使用 pytest、时间跳过和模拟策略测试 Temporal 工作流。涵盖单元测试、集成测试、重放测试和本地开发环境搭建。适用于实现 Temporal 工作流测试或调试测试失败时使用。
 ---
 
-# Temporal Python Testing Strategies
+# Temporal Python 测试策略
 
-Comprehensive testing approaches for Temporal workflows using pytest, progressive disclosure resources for specific testing scenarios.
+使用 pytest 对 Temporal 工作流进行全面测试的方法，针对特定测试场景提供渐进式资源指引。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- **Unit testing workflows** - Fast tests with time-skipping
-- **Integration testing** - Workflows with mocked activities
-- **Replay testing** - Validate determinism against production histories
-- **Local development** - Set up Temporal server and pytest
-- **CI/CD integration** - Automated testing pipelines
-- **Coverage strategies** - Achieve ≥80% test coverage
+- **单元测试工作流** - 使用时间跳过的快速测试
+- **集成测试** - 带模拟活动的工作流测试
+- **重放测试** - 针对生产历史记录验证确定性
+- **本地开发** - 搭建 Temporal 服务器和 pytest 环境
+- **CI/CD 集成** - 自动化测试流水线
+- **覆盖策略** - 实现 ≥80% 的测试覆盖率
 
-## Testing Philosophy
+## 测试理念
 
-**Recommended Approach** (Source: docs.temporal.io/develop/python/testing-suite):
+**推荐方法**（来源：docs.temporal.io/develop/python/testing-suite）：
 
-- Write majority as integration tests
-- Use pytest with async fixtures
-- Time-skipping enables fast feedback (month-long workflows → seconds)
-- Mock activities to isolate workflow logic
-- Validate determinism with replay testing
+- 以集成测试为主编写测试
+- 使用 pytest 配合异步 fixtures
+- 时间跳过可实现快速反馈（数月长的工作流 → 秒级完成）
+- 模拟活动以隔离工作流逻辑
+- 通过重放测试验证确定性
 
-**Three Test Types**:
+**三种测试类型**：
 
-1. **Unit**: Workflows with time-skipping, activities with ActivityEnvironment
-2. **Integration**: Workers with mocked activities
-3. **End-to-end**: Full Temporal server with real activities (use sparingly)
+1. **单元测试**：使用时间跳过的工作流测试，使用 ActivityEnvironment 的活动测试
+2. **集成测试**：带模拟活动的 Worker 测试
+3. **端到端测试**：完整 Temporal 服务器配合真实活动（谨慎使用）
 
-## Available Resources
+## 可用资源
 
-This skill provides detailed guidance through progressive disclosure. Load specific resources based on your testing needs:
+本技能通过渐进式指引提供详细指导。根据测试需求加载特定资源：
 
-### Unit Testing Resources
+### 单元测试资源
 
-**File**: `resources/unit-testing.md`
-**When to load**: Testing individual workflows or activities in isolation
-**Contains**:
+**文件**：`resources/unit-testing.md`
+**何时加载**：单独测试单个工作流或活动时
+**包含**：
 
-- WorkflowEnvironment with time-skipping
-- ActivityEnvironment for activity testing
-- Fast execution of long-running workflows
-- Manual time advancement patterns
-- pytest fixtures and patterns
+- 使用时间跳过的 WorkflowEnvironment
+- 用于活动测试的 ActivityEnvironment
+- 长时间运行工作流的快速执行
+- 手动时间推进模式
+- pytest fixtures 和模式
 
-### Integration Testing Resources
+### 集成测试资源
 
-**File**: `resources/integration-testing.md`
-**When to load**: Testing workflows with mocked external dependencies
-**Contains**:
+**文件**：`resources/integration-testing.md`
+**何时加载**：测试带有模拟外部依赖的工作流时
+**包含**：
 
-- Activity mocking strategies
-- Error injection patterns
-- Multi-activity workflow testing
-- Signal and query testing
-- Coverage strategies
+- 活动模拟策略
+- 错误注入模式
+- 多活动工作流测试
+- 信号和查询测试
+- 覆盖策略
 
-### Replay Testing Resources
+### 重放测试资源
 
-**File**: `resources/replay-testing.md`
-**When to load**: Validating determinism or deploying workflow changes
-**Contains**:
+**文件**：`resources/replay-testing.md`
+**何时加载**：验证确定性或部署工作流变更时
+**包含**：
 
-- Determinism validation
-- Production history replay
-- CI/CD integration patterns
-- Version compatibility testing
+- 确定性验证
+- 生产历史记录重放
+- CI/CD 集成模式
+- 版本兼容性测试
 
-### Local Development Resources
+### 本地开发资源
 
-**File**: `resources/local-setup.md`
-**When to load**: Setting up development environment
-**Contains**:
+**文件**：`resources/local-setup.md`
+**何时加载**：搭建开发环境时
+**包含**：
 
-- Docker Compose configuration
-- pytest setup and configuration
-- Coverage tool integration
-- Development workflow
+- Docker Compose 配置
+- pytest 设置与配置
+- 覆盖率工具集成
+- 开发工作流
 
-## Quick Start Guide
+## 快速入门指南
 
-### Basic Workflow Test
+### 基本工作流测试
 
 ```python
 import pytest
@@ -114,7 +114,7 @@ async def test_workflow(workflow_env):
         assert result == expected
 ```
 
-### Basic Activity Test
+### 基本活动测试
 
 ```python
 from temporalio.testing import ActivityEnvironment
@@ -125,34 +125,34 @@ async def test_activity():
     assert result == expected_output
 ```
 
-## Coverage Targets
+## 覆盖目标
 
-**Recommended Coverage** (Source: docs.temporal.io best practices):
+**推荐覆盖标准**（来源：docs.temporal.io 最佳实践）：
 
-- **Workflows**: ≥80% logic coverage
-- **Activities**: ≥80% logic coverage
-- **Integration**: Critical paths with mocked activities
-- **Replay**: All workflow versions before deployment
+- **工作流**：≥80% 逻辑覆盖
+- **活动**：≥80% 逻辑覆盖
+- **集成测试**：关键路径配合模拟活动
+- **重放测试**：部署前验证所有工作流版本
 
-## Key Testing Principles
+## 关键测试原则
 
-1. **Time-Skipping** - Month-long workflows test in seconds
-2. **Mock Activities** - Isolate workflow logic from external dependencies
-3. **Replay Testing** - Validate determinism before deployment
-4. **High Coverage** - ≥80% target for production workflows
-5. **Fast Feedback** - Unit tests run in milliseconds
+1. **时间跳过** - 数月长的工作流秒级完成测试
+2. **模拟活动** - 将工作流逻辑与外部依赖隔离
+3. **重放测试** - 部署前验证确定性
+4. **高覆盖率** - 生产工作流目标 ≥80%
+5. **快速反馈** - 单元测试毫秒级运行
 
-## How to Use Resources
+## 如何使用资源
 
-**Load specific resource when needed**:
+**按需加载特定资源**：
 
-- "Show me unit testing patterns" → Load `resources/unit-testing.md`
-- "How do I mock activities?" → Load `resources/integration-testing.md`
-- "Setup local Temporal server" → Load `resources/local-setup.md`
-- "Validate determinism" → Load `resources/replay-testing.md`
+- "展示单元测试模式" → 加载 `resources/unit-testing.md`
+- "如何模拟活动？" → 加载 `resources/integration-testing.md`
+- "搭建本地 Temporal 服务器" → 加载 `resources/local-setup.md`
+- "验证确定性" → 加载 `resources/replay-testing.md`
 
-## Additional References
+## 补充参考
 
-- Python SDK Testing: docs.temporal.io/develop/python/testing-suite
-- Testing Patterns: github.com/temporalio/temporal/blob/main/docs/development/testing.md
-- Python Samples: github.com/temporalio/samples-python
+- Python SDK 测试：docs.temporal.io/develop/python/testing-suite
+- 测试模式：github.com/temporalio/temporal/blob/main/docs/development/testing.md
+- Python 示例：github.com/temporalio/samples-python

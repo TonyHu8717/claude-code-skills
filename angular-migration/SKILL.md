@@ -1,49 +1,49 @@
 ---
 name: angular-migration
-description: Migrate from AngularJS to Angular using hybrid mode, incremental component rewriting, and dependency injection updates. Use when upgrading AngularJS applications, planning framework migrations, or modernizing legacy Angular code.
+description: 使用混合模式、增量组件重写和依赖注入更新从 AngularJS 迁移到 Angular。在升级 AngularJS 应用、规划框架迁移或现代化旧版 Angular 代码时使用。
 ---
 
-# Angular Migration
+# Angular 迁移
 
-Master AngularJS to Angular migration, including hybrid apps, component conversion, dependency injection changes, and routing migration.
+掌握 AngularJS 到 Angular 的迁移，包括混合应用、组件转换、依赖注入变更和路由迁移。
 
-## When to Use This Skill
+## 使用场景
 
-- Migrating AngularJS (1.x) applications to Angular (2+)
-- Running hybrid AngularJS/Angular applications
-- Converting directives to components
-- Modernizing dependency injection
-- Migrating routing systems
-- Updating to latest Angular versions
-- Implementing Angular best practices
+- 将 AngularJS（1.x）应用迁移到 Angular（2+）
+- 运行混合 AngularJS/Angular 应用
+- 将指令转换为组件
+- 现代化依赖注入
+- 迁移路由系统
+- 更新到最新 Angular 版本
+- 实现 Angular 最佳实践
 
-## Migration Strategies
+## 迁移策略
 
-### 1. Big Bang (Complete Rewrite)
+### 1. 大爆炸（完全重写）
 
-- Rewrite entire app in Angular
-- Parallel development
-- Switch over at once
-- **Best for:** Small apps, green field projects
+- 用 Angular 重写整个应用
+- 并行开发
+- 一次性切换
+- **最适合**：小型应用、绿地项目
 
-### 2. Incremental (Hybrid Approach)
+### 2. 增量（混合方式）
 
-- Run AngularJS and Angular side-by-side
-- Migrate feature by feature
-- ngUpgrade for interop
-- **Best for:** Large apps, continuous delivery
+- 并行运行 AngularJS 和 Angular
+- 逐功能迁移
+- ngUpgrade 用于互操作
+- **最适合**：大型应用、持续交付
 
-### 3. Vertical Slice
+### 3. 垂直切片
 
-- Migrate one feature completely
-- New features in Angular, maintain old in AngularJS
-- Gradually replace
-- **Best for:** Medium apps, distinct features
+- 完全迁移一个功能
+- 新功能用 Angular，旧功能维护在 AngularJS
+- 逐步替换
+- **最适合**：中型应用、独立功能
 
-## Hybrid App Setup
+## 混合应用设置
 
 ```typescript
-// main.ts - Bootstrap hybrid app
+// main.ts - 引导混合应用
 import { platformBrowserDynamic } from "@angular/platform-browser-dynamic";
 import { UpgradeModule } from "@angular/upgrade/static";
 import { AppModule } from "./app/app.module";
@@ -52,7 +52,7 @@ platformBrowserDynamic()
   .bootstrapModule(AppModule)
   .then((platformRef) => {
     const upgrade = platformRef.injector.get(UpgradeModule);
-    // Bootstrap AngularJS
+    // 引导 AngularJS
     upgrade.bootstrap(document.body, ["myAngularJSApp"], { strictDi: true });
   });
 ```
@@ -70,17 +70,17 @@ export class AppModule {
   constructor(private upgrade: UpgradeModule) {}
 
   ngDoBootstrap() {
-    // Bootstrapped manually in main.ts
+    // 在 main.ts 中手动引导
   }
 }
 ```
 
-## Component Migration
+## 组件迁移
 
-### AngularJS Controller → Angular Component
+### AngularJS 控制器 → Angular 组件
 
 ```javascript
-// Before: AngularJS controller
+// 之前：AngularJS 控制器
 angular
   .module("myApp")
   .controller("UserController", function ($scope, UserService) {
@@ -99,7 +99,7 @@ angular
 ```
 
 ```typescript
-// After: Angular component
+// 之后：Angular 组件
 import { Component, OnInit } from "@angular/core";
 import { UserService } from "./user.service";
 
@@ -133,10 +133,10 @@ export class UserComponent implements OnInit {
 }
 ```
 
-### AngularJS Directive → Angular Component
+### AngularJS 指令 → Angular 组件
 
 ```javascript
-// Before: AngularJS directive
+// 之前：AngularJS 指令
 angular.module("myApp").directive("userCard", function () {
   return {
     restrict: "E",
@@ -155,7 +155,7 @@ angular.module("myApp").directive("userCard", function () {
 ```
 
 ```typescript
-// After: Angular component
+// 之后：Angular 组件
 import { Component, Input, Output, EventEmitter } from "@angular/core";
 
 @Component({
@@ -172,13 +172,13 @@ export class UserCardComponent {
   @Output() delete = new EventEmitter<void>();
 }
 
-// Usage: <app-user-card [user]="user" (delete)="handleDelete()"></app-user-card>
+// 用法：<app-user-card [user]="user" (delete)="handleDelete()"></app-user-card>
 ```
 
-## Service Migration
+## 服务迁移
 
 ```javascript
-// Before: AngularJS service
+// 之前：AngularJS 服务
 angular.module("myApp").factory("UserService", function ($http) {
   return {
     getUser: function (id) {
@@ -192,7 +192,7 @@ angular.module("myApp").factory("UserService", function ($http) {
 ```
 
 ```typescript
-// After: Angular service
+// 之后：Angular 服务
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
@@ -213,12 +213,12 @@ export class UserService {
 }
 ```
 
-## Dependency Injection Changes
+## 依赖注入变更
 
-### Downgrading Angular → AngularJS
+### 降级 Angular → AngularJS
 
 ```typescript
-// Angular service
+// Angular 服务
 import { Injectable } from "@angular/core";
 
 @Injectable({ providedIn: "root" })
@@ -228,21 +228,21 @@ export class NewService {
   }
 }
 
-// Make available to AngularJS
+// 使 AngularJS 可用
 import { downgradeInjectable } from "@angular/upgrade/static";
 
 angular.module("myApp").factory("newService", downgradeInjectable(NewService));
 
-// Use in AngularJS
+// 在 AngularJS 中使用
 angular.module("myApp").controller("OldController", function (newService) {
   console.log(newService.getData());
 });
 ```
 
-### Upgrading AngularJS → Angular
+### 升级 AngularJS → Angular
 
 ```typescript
-// AngularJS service
+// AngularJS 服务
 angular.module('myApp').factory('oldService', function() {
   return {
     getData: function() {
@@ -251,7 +251,7 @@ angular.module('myApp').factory('oldService', function() {
   };
 });
 
-// Make available to Angular
+// 使 Angular 可用
 import { InjectionToken } from '@angular/core';
 
 export const OLD_SERVICE = new InjectionToken<any>('oldService');
@@ -266,7 +266,7 @@ export const OLD_SERVICE = new InjectionToken<any>('oldService');
   ]
 })
 
-// Use in Angular
+// 在 Angular 中使用
 @Component({...})
 export class NewComponent {
   constructor(@Inject(OLD_SERVICE) private oldService: any) {
@@ -275,10 +275,10 @@ export class NewComponent {
 }
 ```
 
-## Routing Migration
+## 路由迁移
 
 ```javascript
-// Before: AngularJS routing
+// 之前：AngularJS 路由
 angular.module("myApp").config(function ($routeProvider) {
   $routeProvider
     .when("/users", {
@@ -291,7 +291,7 @@ angular.module("myApp").config(function ($routeProvider) {
 ```
 
 ```typescript
-// After: Angular routing
+// 之后：Angular 路由
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
@@ -307,10 +307,10 @@ const routes: Routes = [
 export class AppRoutingModule {}
 ```
 
-## Forms Migration
+## 表单迁移
 
 ```html
-<!-- Before: AngularJS -->
+<!-- 之前：AngularJS -->
 <form name="userForm" ng-submit="saveUser()">
   <input type="text" ng-model="user.name" required />
   <input type="email" ng-model="user.email" required />
@@ -319,7 +319,7 @@ export class AppRoutingModule {}
 ```
 
 ```typescript
-// After: Angular (Template-driven)
+// 之后：Angular（模板驱动）
 @Component({
   template: `
     <form #userForm="ngForm" (ngSubmit)="saveUser()">
@@ -330,7 +330,7 @@ export class AppRoutingModule {}
   `
 })
 
-// Or Reactive Forms (preferred)
+// 或响应式表单（推荐）
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
@@ -358,29 +358,29 @@ export class UserFormComponent {
 }
 ```
 
-## Migration Timeline
+## 迁移时间线
 
 ```
-Phase 1: Setup (1-2 weeks)
-- Install Angular CLI
-- Set up hybrid app
-- Configure build tools
-- Set up testing
+阶段 1：设置（1-2 周）
+- 安装 Angular CLI
+- 设置混合应用
+- 配置构建工具
+- 设置测试
 
-Phase 2: Infrastructure (2-4 weeks)
-- Migrate services
-- Migrate utilities
-- Set up routing
-- Migrate shared components
+阶段 2：基础设施（2-4 周）
+- 迁移服务
+- 迁移工具
+- 设置路由
+- 迁移共享组件
 
-Phase 3: Feature Migration (varies)
-- Migrate feature by feature
-- Test thoroughly
-- Deploy incrementally
+阶段 3：功能迁移（时间不定）
+- 逐功能迁移
+- 彻底测试
+- 增量部署
 
-Phase 4: Cleanup (1-2 weeks)
-- Remove AngularJS code
-- Remove ngUpgrade
-- Optimize bundle
-- Final testing
+阶段 4：清理（1-2 周）
+- 移除 AngularJS 代码
+- 移除 ngUpgrade
+- 优化打包
+- 最终测试
 ```

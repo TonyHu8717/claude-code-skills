@@ -1,26 +1,26 @@
 ---
 name: parallel-feature-development
-description: Coordinate parallel feature development with file ownership strategies, conflict avoidance rules, and integration patterns for multi-agent implementation. Use this skill when decomposing a large feature into independent work streams, when two or more agents need to implement different layers of the same system simultaneously, when establishing file ownership to prevent merge conflicts in a shared codebase, when designing interface contracts so parallel implementers can build against each other's APIs before they are ready, or when deciding whether to use vertical slices versus horizontal layers for a full-stack feature.
+description: 通过文件所有权策略、冲突避免规则和多代理实现的集成模式来协调并行功能开发。在将大型功能分解为独立工作流、两个或更多代理需要同时实现同一系统的不同层、建立文件所有权以防止共享代码库中的合并冲突、设计接口契约以便并行实现者可以在 API 准备好之前针对其构建、或决定是使用垂直切片还是水平层来实现全栈功能时使用此技能。
 version: 1.0.2
 ---
 
-# Parallel Feature Development
+# 并行功能开发
 
-Strategies for decomposing features into parallel work streams, establishing file ownership boundaries, avoiding conflicts, and integrating results from multiple implementer agents.
+将功能分解为并行工作流、建立文件所有权边界、避免冲突以及集成多个实现者代理结果的策略。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Decomposing a feature for parallel implementation
-- Establishing file ownership boundaries between agents
-- Designing interface contracts between parallel work streams
-- Choosing integration strategies (vertical slice vs horizontal layer)
-- Managing branch and merge workflows for parallel development
+- 分解功能以进行并行实现
+- 在代理之间建立文件所有权边界
+- 设计并行工作流之间的接口契约
+- 选择集成策略（垂直切片 vs 水平层）
+- 管理并行开发的分支和合并工作流
 
-## File Ownership Strategies
+## 文件所有权策略
 
-### By Directory
+### 按目录
 
-Assign each implementer ownership of specific directories:
+分配每个实现者对特定目录的所有权：
 
 ```
 implementer-1: src/components/auth/
@@ -28,22 +28,22 @@ implementer-2: src/api/auth/
 implementer-3: tests/auth/
 ```
 
-**Best for**: Well-organized codebases with clear directory boundaries.
+**最适合**：具有清晰目录边界的组织良好的代码库。
 
-### By Module
+### 按模块
 
-Assign ownership of logical modules (which may span directories):
+分配逻辑模块的所有权（可能跨越目录）：
 
 ```
 implementer-1: Authentication module (login, register, logout)
 implementer-2: Authorization module (roles, permissions, guards)
 ```
 
-**Best for**: Feature-oriented architectures, domain-driven design.
+**最适合**：面向功能的架构、领域驱动设计。
 
-### By Layer
+### 按层
 
-Assign ownership of architectural layers:
+分配架构层的所有权：
 
 ```
 implementer-1: UI layer (components, styles, layouts)
@@ -51,26 +51,26 @@ implementer-2: Business logic layer (services, validators)
 implementer-3: Data layer (models, repositories, migrations)
 ```
 
-**Best for**: Traditional MVC/layered architectures.
+**最适合**：传统的 MVC/分层架构。
 
-## Conflict Avoidance Rules
+## 冲突避免规则
 
-### The Cardinal Rule
+### 基本规则
 
-**One owner per file.** No file should be assigned to multiple implementers.
+**每个文件一个所有者。** 不应将任何文件分配给多个实现者。
 
-### When Files Must Be Shared
+### 当文件必须共享时
 
-If a file genuinely needs changes from multiple implementers:
+如果文件确实需要多个实现者的更改：
 
-1. **Designate a single owner** — One implementer owns the file
-2. **Other implementers request changes** — Message the owner with specific change requests
-3. **Owner applies changes sequentially** — Prevents merge conflicts
-4. **Alternative: Extract interfaces** — Create a separate interface file that the non-owner can import without modifying
+1. **指定单一所有者** — 一个实现者拥有该文件
+2. **其他实现者请求更改** — 向所有者发送具体的更改请求
+3. **所有者顺序应用更改** — 防止合并冲突
+4. **替代方案：提取接口** — 创建单独的接口文件，非所有者可以导入而无需修改
 
-### Interface Contracts
+### 接口契约
 
-When implementers need to coordinate at boundaries:
+当实现者需要在边界处协调时：
 
 ```typescript
 // src/types/auth-contract.ts (owned by team-lead, read-only for implementers)
@@ -86,25 +86,25 @@ export interface AuthService {
 }
 ```
 
-Both implementers import from the contract file but neither modifies it.
+两个实现者都从契约文件导入，但都不修改它。
 
-## Integration Patterns
+## 集成模式
 
-### Vertical Slice
+### 垂直切片
 
-Each implementer builds a complete feature slice (UI + API + tests):
+每个实现者构建一个完整的功能切片（UI + API + 测试）：
 
 ```
 implementer-1: Login feature (login form + login API + login tests)
 implementer-2: Register feature (register form + register API + register tests)
 ```
 
-**Pros**: Each slice is independently testable, minimal integration needed.
-**Cons**: May duplicate shared utilities, harder with tightly coupled features.
+**优点**：每个切片可独立测试，需要最少的集成。
+**缺点**：可能重复共享工具，对于紧耦合功能更困难。
 
-### Horizontal Layer
+### 水平层
 
-Each implementer builds one layer across all features:
+每个实现者构建跨所有功能的一层：
 
 ```
 implementer-1: All UI components (login form, register form, profile page)
@@ -112,33 +112,33 @@ implementer-2: All API endpoints (login, register, profile)
 implementer-3: All tests (unit, integration, e2e)
 ```
 
-**Pros**: Consistent patterns within each layer, natural specialization.
-**Cons**: More integration points, layer 3 depends on layers 1 and 2.
+**优点**：每层内模式一致，自然专业化。
+**缺点**：更多集成点，第 3 层依赖第 1 和第 2 层。
 
-### Hybrid
+### 混合
 
-Mix vertical and horizontal based on coupling:
+根据耦合度混合垂直和水平：
 
 ```
 implementer-1: Login feature (vertical slice — UI + API + tests)
 implementer-2: Shared auth infrastructure (horizontal — middleware, JWT utils, types)
 ```
 
-**Best for**: Most real-world features with some shared infrastructure.
+**最适合**：大多数具有共享基础设施的真实世界功能。
 
-## Branch Management
+## 分支管理
 
-### Single Branch Strategy
+### 单分支策略
 
-All implementers work on the same feature branch:
+所有实现者在同一功能分支上工作：
 
-- Simple setup, no merge overhead
-- Requires strict file ownership to avoid conflicts
-- Best for: small teams (2-3), well-defined boundaries
+- 设置简单，无合并开销
+- 需要严格的文件所有权以避免冲突
+- 最适合：小团队（2-3人），明确定义的边界
 
-### Multi-Branch Strategy
+### 多分支策略
 
-Each implementer works on a sub-branch:
+每个实现者在子分支上工作：
 
 ```
 feature/auth
@@ -147,28 +147,28 @@ feature/auth
   └── feature/auth-tests       (implementer-3)
 ```
 
-- More isolation, explicit merge points
-- Higher overhead, merge conflicts still possible in shared files
-- Best for: larger teams (4+), complex features
+- 更多隔离，明确的合并点
+- 更高开销，共享文件中仍可能出现合并冲突
+- 最适合：较大团队（4+人），复杂功能
 
-## Troubleshooting
+## 故障排除
 
-**Implementers are blocking each other waiting for shared code.**
-Extract the shared piece into its own interface contract file owned by the team-lead and have implementers import from it. Neither implementer modifies the contract — they only implement against it.
+**实现者互相阻塞等待共享代码。**
+将共享部分提取到自己的接口契约文件中，由团队负责人拥有，实现者从中导入。两个实现者都不修改契约 — 他们只针对其实现。
 
-**Merge conflicts appear even with clear ownership rules.**
-A file was assigned to two agents, or a config/index file (e.g., `index.ts`, `__init__.py`) that auto-imports everything was modified by both. Designate one owner for all barrel/index files, or have the lead merge them at the end.
+**即使有明确的所有权规则也出现合并冲突。**
+文件被分配给两个代理，或自动导入所有内容的配置/索引文件（如 `index.ts`、`__init__.py`）被双方修改。为所有 barrel/index 文件指定一个所有者，或让负责人最后合并它们。
 
-**An implementer finishes early but the integration step is blocked.**
-Use a staging interface: the finished implementer writes a stub or mock of the downstream dependency so the other implementer can continue working. Replace with the real implementation at integration time.
+**实现者提前完成但集成步骤被阻塞。**
+使用暂存接口：完成的实现者编写下游依赖的桩或模拟，以便其他实现者可以继续工作。在集成时替换为真实实现。
 
-**The feature decomposition turned out wrong mid-stream.**
-Stop new work, have the lead redistribute files, and communicate the change via broadcast. Sunk cost on partially written code is acceptable — continuing with the wrong split is worse.
+**功能分解在中途被证明是错误的。**
+停止新工作，让负责人重新分配文件，并通过广播传达更改。部分编写代码的沉没成本是可以接受的 — 继续错误的拆分更糟。
 
-**Tests written by one implementer fail against code written by another.**
-Interface contracts drifted: the implementer who owns the API changed a signature without notifying the test implementer. Enforce the rule that contract files require a broadcast before modification.
+**一个实现者编写的测试针对另一个实现者编写的代码失败。**
+接口契约发生了漂移：拥有 API 的实现者在未通知测试实现者的情况下更改了签名。强制执行规则：契约文件在修改前需要广播。
 
-## Related Skills
+## 相关技能
 
-- [team-composition-patterns](../team-composition-patterns/SKILL.md) — Choose the right team size and agent types before decomposing work
-- [team-communication-protocols](../team-communication-protocols/SKILL.md) — Coordinate integration handoffs and plan approvals between implementers
+- [team-composition-patterns](../team-composition-patterns/SKILL.md) — 在分解工作之前选择正确的团队规模和代理类型
+- [team-communication-protocols](../team-communication-protocols/SKILL.md) — 协调实现者之间的集成交接和计划审批

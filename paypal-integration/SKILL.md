@@ -1,64 +1,64 @@
 ---
 name: paypal-integration
-description: Integrate PayPal payment processing with support for express checkout, subscriptions, and refund management. Use when implementing PayPal payments, processing online transactions, or building e-commerce checkout flows.
+description: 集成 PayPal 支付处理，支持快速结账、订阅和退款管理。在实现 PayPal 支付、处理在线交易或构建电子商务结账流程时使用。
 ---
 
-# PayPal Integration
+# PayPal 集成
 
-Master PayPal payment integration including Express Checkout, IPN handling, recurring billing, and refund workflows.
+掌握 PayPal 支付集成，包括快速结账、IPN 处理、定期计费和退款工作流。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Integrating PayPal as a payment option
-- Implementing express checkout flows
-- Setting up recurring billing with PayPal
-- Processing refunds and payment disputes
-- Handling PayPal webhooks (IPN)
-- Supporting international payments
-- Implementing PayPal subscriptions
+- 将 PayPal 集成为支付选项
+- 实现快速结账流程
+- 使用 PayPal 设置定期计费
+- 处理退款和支付争议
+- 处理 PayPal webhook（IPN）
+- 支持国际支付
+- 实现 PayPal 订阅
 
-## Core Concepts
+## 核心概念
 
-### 1. Payment Products
+### 1. 支付产品
 
 **PayPal Checkout**
 
-- One-time payments
-- Express checkout experience
-- Guest and PayPal account payments
+- 一次性支付
+- 快速结账体验
+- 访客和 PayPal 账户支付
 
 **PayPal Subscriptions**
 
-- Recurring billing
-- Subscription plans
-- Automatic renewals
+- 定期计费
+- 订阅计划
+- 自动续订
 
 **PayPal Payouts**
 
-- Send money to multiple recipients
-- Marketplace and platform payments
+- 向多个收款人发送资金
+- 市场和平台支付
 
-### 2. Integration Methods
+### 2. 集成方法
 
-**Client-Side (JavaScript SDK)**
+**客户端（JavaScript SDK）**
 
-- Smart Payment Buttons
-- Hosted payment flow
-- Minimal backend code
+- 智能支付按钮
+- 托管支付流程
+- 最少的后端代码
 
-**Server-Side (REST API)**
+**服务端（REST API）**
 
-- Full control over payment flow
-- Custom checkout UI
-- Advanced features
+- 完全控制支付流程
+- 自定义结账 UI
+- 高级功能
 
-### 3. IPN (Instant Payment Notification)
+### 3. IPN（即时支付通知）
 
-- Webhook-like payment notifications
-- Asynchronous payment updates
-- Verification required
+- 类似 Webhook 的支付通知
+- 异步支付更新
+- 需要验证
 
-## Quick Start
+## 快速开始
 
 ```javascript
 // Frontend - PayPal Smart Buttons
@@ -123,9 +123,9 @@ def capture_paypal_order(order_id):
         }
 ```
 
-## Express Checkout Implementation
+## 快速结账实现
 
-### Server-Side Order Creation
+### 服务端订单创建
 
 ```python
 import requests
@@ -195,9 +195,9 @@ class PayPalClient:
         return response.json()
 ```
 
-## IPN (Instant Payment Notification) Handling
+## IPN（即时支付通知）处理
 
-### IPN Verification and Processing
+### IPN 验证和处理
 
 ```python
 from flask import Flask, request
@@ -275,9 +275,9 @@ def handle_chargeback(ipn_data):
     print(f"Chargeback: {txn_id}, Reason: {reason_code}")
 ```
 
-## Subscription/Recurring Billing
+## 订阅/定期计费
 
-### Create Subscription Plan
+### 创建订阅计划
 
 ```python
 def create_subscription_plan(name, amount, interval='MONTH'):
@@ -355,7 +355,7 @@ def create_subscription(plan_id, subscriber_email):
             }
 ```
 
-## Refund Workflows
+## 退款工作流
 
 ```python
 def create_refund(capture_id, amount=None, note=None):
@@ -394,7 +394,7 @@ def get_refund_details(refund_id):
     return response.json()
 ```
 
-## Error Handling
+## 错误处理
 
 ```python
 class PayPalError(Exception):
@@ -421,7 +421,7 @@ except PayPalError as e:
     log_error(e)
 ```
 
-## Testing
+## 测试
 
 ```python
 # Use sandbox credentials

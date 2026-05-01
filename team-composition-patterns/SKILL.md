@@ -1,100 +1,100 @@
 ---
 name: team-composition-patterns
-description: Design optimal agent team compositions with sizing heuristics, preset configurations, and agent type selection. Use this skill when deciding how many agents to spawn for a task, when choosing between a review team versus a feature team versus a debug team, when selecting the correct subagent_type for each role to ensure agents have the tools they need, when configuring display modes (tmux, iTerm2, in-process) for a CI or local environment, or when building a custom team composition for a non-standard workflow such as a migration or security audit.
+description: 设计最优的智能体团队组成，包括规模启发式规则、预设配置和智能体类型选择。适用于决定为任务生成多少智能体、选择审查团队/功能团队/调试团队、为每个角色选择正确的 subagent_type 以确保智能体拥有所需工具、为 CI 或本地环境配置显示模式（tmux、iTterm2、in-process），或为非标准工作流（如迁移或安全审计）构建自定义团队组成时使用。
 version: 1.0.2
 ---
 
-# Team Composition Patterns
+# 团队组成模式
 
-Best practices for composing multi-agent teams, selecting team sizes, choosing agent types, and configuring display modes for Claude Code's Agent Teams feature.
+为 Claude Code 的智能体团队功能组建多智能体团队、选择团队规模、选择智能体类型和配置显示模式的最佳实践。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Deciding how many teammates to spawn for a task
-- Choosing between preset team configurations
-- Selecting the right agent type (subagent_type) for each role
-- Configuring teammate display modes (tmux, iTerm2, in-process)
-- Building custom team compositions for non-standard workflows
+- 决定为任务生成多少队友
+- 选择预设团队配置
+- 为每个角色选择正确的智能体类型（subagent_type）
+- 配置队友显示模式（tmux、iTerm2、in-process）
+- 为非标准工作流构建自定义团队组成
 
-## Team Sizing Heuristics
+## 团队规模启发式规则
 
-| Complexity   | Team Size | When to Use                                                 |
-| ------------ | --------- | ----------------------------------------------------------- |
-| Simple       | 1-2       | Single-dimension review, isolated bug, small feature        |
-| Moderate     | 2-3       | Multi-file changes, 2-3 concerns, medium features           |
-| Complex      | 3-4       | Cross-cutting concerns, large features, deep debugging      |
-| Very Complex | 4-5       | Full-stack features, comprehensive reviews, systemic issues |
+| 复杂度   | 团队规模 | 适用场景                                             |
+| -------- | -------- | ---------------------------------------------------- |
+| 简单     | 1-2      | 单维度审查、孤立的小 bug、小型功能                  |
+| 中等     | 2-3      | 多文件变更、2-3 个关注点、中型功能                  |
+| 复杂     | 3-4      | 跨领域关注点、大型功能、深度调试                    |
+| 非常复杂 | 4-5      | 全栈功能、全面审查、系统性问题                      |
 
-**Rule of thumb**: Start with the smallest team that covers all required dimensions. Adding teammates increases coordination overhead.
+**经验法则**：从能覆盖所有必要维度的最小团队开始。增加队友会增加协调开销。
 
-## Preset Team Compositions
+## 预设团队组成
 
-### Review Team
+### 审查团队
 
-- **Size**: 3 reviewers
-- **Agents**: 3x `team-reviewer`
-- **Default dimensions**: security, performance, architecture
-- **Use when**: Code changes need multi-dimensional quality assessment
+- **规模**：3 名审查员
+- **智能体**：3x `team-reviewer`
+- **默认维度**：安全、性能、架构
+- **适用场景**：代码变更需要多维度质量评估
 
-### Debug Team
+### 调试团队
 
-- **Size**: 3 investigators
-- **Agents**: 3x `team-debugger`
-- **Default hypotheses**: 3 competing hypotheses
-- **Use when**: Bug has multiple plausible root causes
+- **规模**：3 名调查员
+- **智能体**：3x `team-debugger`
+- **默认假设**：3 个竞争性假设
+- **适用场景**：Bug 有多个可能的根本原因
 
-### Feature Team
+### 功能团队
 
-- **Size**: 3 (1 lead + 2 implementers)
-- **Agents**: 1x `team-lead` + 2x `team-implementer`
-- **Use when**: Feature can be decomposed into parallel work streams
+- **规模**：3 人（1 名负责人 + 2 名实现者）
+- **智能体**：1x `team-lead` + 2x `team-implementer`
+- **适用场景**：功能可分解为并行工作流
 
-### Fullstack Team
+### 全栈团队
 
-- **Size**: 4 (1 lead + 3 implementers)
-- **Agents**: 1x `team-lead` + 1x frontend `team-implementer` + 1x backend `team-implementer` + 1x test `team-implementer`
-- **Use when**: Feature spans frontend, backend, and test layers
+- **规模**：4 人（1 名负责人 + 3 名实现者）
+- **智能体**：1x `team-lead` + 1x 前端 `team-implementer` + 1x 后端 `team-implementer` + 1x 测试 `team-implementer`
+- **适用场景**：功能跨越前端、后端和测试层
 
-### Research Team
+### 研究团队
 
-- **Size**: 3 researchers
-- **Agents**: 3x `general-purpose`
-- **Default areas**: Each assigned a different research question, module, or topic
-- **Capabilities**: Codebase search (Grep, Glob, Read), web search (WebSearch, WebFetch)
-- **Use when**: Need to understand a codebase, research libraries, compare approaches, or gather information from code and web sources in parallel
+- **规模**：3 名研究员
+- **智能体**：3x `general-purpose`
+- **默认领域**：每人分配不同的研究问题、模块或主题
+- **能力**：代码库搜索（Grep、Glob、Read）、网络搜索（WebSearch、WebFetch）
+- **适用场景**：需要理解代码库、研究库、比较方案，或从代码和网络来源并行收集信息
 
-### Security Team
+### 安全团队
 
-- **Size**: 4 reviewers
-- **Agents**: 4x `team-reviewer`
-- **Default dimensions**: OWASP/vulnerabilities, auth/access control, dependencies/supply chain, secrets/configuration
-- **Use when**: Comprehensive security audit covering multiple attack surfaces
+- **规模**：4 名审查员
+- **智能体**：4x `team-reviewer`
+- **默认维度**：OWASP/漏洞、认证/访问控制、依赖/供应链、密钥/配置
+- **适用场景**：覆盖多个攻击面的全面安全审计
 
-### Migration Team
+### 迁移团队
 
-- **Size**: 4 (1 lead + 2 implementers + 1 reviewer)
-- **Agents**: 1x `team-lead` + 2x `team-implementer` + 1x `team-reviewer`
-- **Use when**: Large codebase migration (framework upgrade, language port, API version bump) requiring parallel work with correctness verification
+- **规模**：4 人（1 名负责人 + 2 名实现者 + 1 名审查员）
+- **智能体**：1x `team-lead` + 2x `team-implementer` + 1x `team-reviewer`
+- **适用场景**：大型代码库迁移（框架升级、语言移植、API 版本升级），需要并行工作并验证正确性
 
-## Agent Type Selection
+## 智能体类型选择
 
-When spawning teammates with the `Agent` tool, choose `subagent_type` based on what tools the teammate needs:
+使用 `Agent` 工具生成队友时，根据队友所需的工具选择 `subagent_type`：
 
-| Agent Type                     | Tools Available                           | Use For                                                    |
-| ------------------------------ | ----------------------------------------- | ---------------------------------------------------------- |
-| `general-purpose`              | All tools (Read, Write, Edit, Bash, etc.) | Implementation, debugging, any task requiring file changes |
-| `Explore`                      | Read-only tools (Read, Grep, Glob)        | Research, code exploration, analysis                       |
-| `Plan`                         | Read-only tools                           | Architecture planning, task decomposition                  |
-| `agent-teams:team-reviewer`    | All tools                                 | Code review with structured findings                       |
-| `agent-teams:team-debugger`    | All tools                                 | Hypothesis-driven investigation                            |
-| `agent-teams:team-implementer` | All tools                                 | Building features within file ownership boundaries         |
-| `agent-teams:team-lead`        | All tools                                 | Team orchestration and coordination                        |
+| 智能体类型                     | 可用工具                                   | 适用场景                                              |
+| ------------------------------ | ------------------------------------------ | ----------------------------------------------------- |
+| `general-purpose`              | 所有工具（Read、Write、Edit、Bash 等）     | 实现、调试、任何需要修改文件的任务                    |
+| `Explore`                      | 只读工具（Read、Grep、Glob）               | 研究、代码探索、分析                                  |
+| `Plan`                         | 只读工具                                   | 架构规划、任务分解                                    |
+| `agent-teams:team-reviewer`    | 所有工具                                   | 带结构化发现报告的代码审查                            |
+| `agent-teams:team-debugger`    | 所有工具                                   | 假设驱动的调查                                        |
+| `agent-teams:team-implementer` | 所有工具                                   | 在文件所有权边界内构建功能                            |
+| `agent-teams:team-lead`        | 所有工具                                   | 团队编排和协调                                        |
 
-**Key distinction**: Read-only agents (Explore, Plan) cannot modify files. Never assign implementation tasks to read-only agents.
+**关键区别**：只读智能体（Explore、Plan）无法修改文件。切勿将实现任务分配给只读智能体。
 
-## Display Mode Configuration
+## 显示模式配置
 
-Configure in `~/.claude/settings.json`:
+在 `~/.claude/settings.json` 中配置：
 
 ```json
 {
@@ -102,40 +102,40 @@ Configure in `~/.claude/settings.json`:
 }
 ```
 
-| Mode           | Behavior                       | Best For                                          |
-| -------------- | ------------------------------ | ------------------------------------------------- |
-| `"tmux"`       | Each teammate in a tmux pane   | Development workflows, monitoring multiple agents |
-| `"iterm2"`     | Each teammate in an iTerm2 tab | macOS users who prefer iTerm2                     |
-| `"in-process"` | All teammates in same process  | Simple tasks, CI/CD environments                  |
+| 模式           | 行为                           | 最适用于                                      |
+| -------------- | ------------------------------ | --------------------------------------------- |
+| `"tmux"`       | 每个队友在单独的 tmux 窗格中   | 开发工作流、监控多个智能体                    |
+| `"iterm2"`     | 每个队友在单独的 iTerm2 标签中 | 偏好 iTerm2 的 macOS 用户                     |
+| `"in-process"` | 所有队友在同一进程中           | 简单任务、CI/CD 环境                          |
 
-## Custom Team Guidelines
+## 自定义团队指南
 
-When building custom teams:
+构建自定义团队时：
 
-1. **Every team needs a coordinator** — Either designate a `team-lead` or have the user coordinate directly
-2. **Match roles to agent types** — Use specialized agents (reviewer, debugger, implementer) when available
-3. **Avoid duplicate roles** — Two agents doing the same thing wastes resources
-4. **Define boundaries upfront** — Each teammate needs clear ownership of files or responsibilities
-5. **Keep it small** — 2-4 teammates is the sweet spot; 5+ requires significant coordination overhead
+1. **每个团队需要一个协调者** — 要么指定一个 `team-lead`，要么由用户直接协调
+2. **角色与智能体类型匹配** — 有专用智能体（审查员、调试员、实现者）时优先使用
+3. **避免重复角色** — 两个做同样事情的智能体会浪费资源
+4. **预先定义边界** — 每个队友需要明确的文件或职责所有权
+5. **保持精简** — 2-4 个队友是最佳规模；5 个以上需要大量协调开销
 
-## Troubleshooting
+## 故障排除
 
-**A teammate was spawned as `Explore` but needs to write files.**
-`Explore` and `Plan` are read-only agents. Change the `subagent_type` to `general-purpose` or an appropriate specialized agent type. Never assign implementation tasks to read-only agents.
+**队友以 `Explore` 类型生成但需要写入文件。**
+`Explore` 和 `Plan` 是只读智能体。将 `subagent_type` 更改为 `general-purpose` 或适当的专业智能体类型。切勿将实现任务分配给只读智能体。
 
-**The team is growing too large and coordination is slowing everything down.**
-Each additional teammate adds communication overhead. Consolidate roles: can one agent cover two dimensions? A 4-person team doing 6 independent tasks is usually better served by 3 agents covering 2 tasks each.
+**团队规模过大，协调拖慢了所有进度。**
+每增加一个队友都会增加沟通开销。合并角色：一个智能体能否覆盖两个维度？一个 4 人团队执行 6 个独立任务，通常不如 3 个智能体各负责 2 个任务效果好。
 
-**tmux mode is not showing panes.**
-Ensure tmux is installed and a session is already running before spawning teammates. The `in-process` mode works without tmux and is suitable for CI or scripted environments.
+**tmux 模式没有显示窗格。**
+确保 tmux 已安装且在生成队友之前已有会话在运行。`in-process` 模式无需 tmux 即可工作，适合 CI 或脚本化环境。
 
-**Two reviewers are flagging the same issues.**
-The review dimensions overlap. Redefine each reviewer's focus area: one on correctness/logic, one on security, one on performance/scalability. Overlapping coverage wastes tokens and produces duplicate findings.
+**两名审查员标记了相同的问题。**
+审查维度有重叠。重新定义每个审查员的关注领域：一个关注正确性/逻辑，一个关注安全，一个关注性能/可扩展性。重叠覆盖会浪费 token 并产生重复发现。
 
-**A `team-lead` is spawning teammates but they are not receiving tasks.**
-Verify that the lead is using the `Agent` tool to spawn teammates and passing complete context in the prompt. Teammates start fresh with no prior conversation history — they need all relevant information in their initial prompt.
+**`team-lead` 生成了队友但队友没有收到任务。**
+验证负责人是否使用 `Agent` 工具生成队友，并在提示词中传递了完整上下文。队友从零开始启动，没有之前的对话历史 — 他们需要在初始提示词中获得所有相关信息。
 
-## Related Skills
+## 相关技能
 
-- [parallel-feature-development](../parallel-feature-development/SKILL.md) — Decompose work streams and assign file ownership once the team is composed
-- [team-communication-protocols](../team-communication-protocols/SKILL.md) — Establish messaging norms and shutdown procedures for the assembled team
+- [parallel-feature-development](../parallel-feature-development/SKILL.md) — 团队组成后拆分工作流并分配文件所有权
+- [team-communication-protocols](../team-communication-protocols/SKILL.md) — 为已组建的团队建立消息规范和关闭流程

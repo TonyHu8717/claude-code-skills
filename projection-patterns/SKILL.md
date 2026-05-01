@@ -1,24 +1,24 @@
 ---
 name: projection-patterns
-description: Build read models and projections from event streams. Use when implementing CQRS read sides, building materialized views, or optimizing query performance in event-sourced systems.
+description: 从事件流构建读模型和投影。在实现 CQRS 读端、构建物化视图或优化事件溯源系统中的查询性能时使用。
 ---
 
-# Projection Patterns
+# 投影模式
 
-Comprehensive guide to building projections and read models for event-sourced systems.
+为事件溯源系统构建投影和读模型的综合指南。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Building CQRS read models
-- Creating materialized views from events
-- Optimizing query performance
-- Implementing real-time dashboards
-- Building search indexes from events
-- Aggregating data across streams
+- 构建 CQRS 读模型
+- 从事件创建物化视图
+- 优化查询性能
+- 实现实时仪表板
+- 从事件构建搜索索引
+- 跨流聚合数据
 
-## Core Concepts
+## 核心概念
 
-### 1. Projection Architecture
+### 1. 投影架构
 
 ```
 ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
@@ -31,18 +31,18 @@ Comprehensive guide to building projections and read models for event-sourced sy
 └─────────────┘     └─────────────┘     └─────────────┘
 ```
 
-### 2. Projection Types
+### 2. 投影类型
 
-| Type           | Description                 | Use Case               |
+| 类型           | 描述                 | 用例               |
 | -------------- | --------------------------- | ---------------------- |
-| **Live**       | Real-time from subscription | Current state queries  |
-| **Catchup**    | Process historical events   | Rebuilding read models |
-| **Persistent** | Stores checkpoint           | Resume after restart   |
-| **Inline**     | Same transaction as write   | Strong consistency     |
+| **实时**       | 从订阅实时获取 | 当前状态查询  |
+| **追赶**    | 处理历史事件   | 重建读模型 |
+| **持久** | 存储检查点           | 重启后恢复   |
+| **内联**     | 与写入同一事务   | 强一致性     |
 
-## Templates
+## 模板
 
-### Template 1: Basic Projector
+### 模板 1：基本投影器
 
 ```python
 from abc import ABC, abstractmethod
@@ -119,7 +119,7 @@ class Projector:
         await self._run_projection(projection, batch_size=1000)
 ```
 
-### Template 2: Order Summary Projection
+### 模板 2：订单摘要投影
 
 ```python
 class OrderSummaryProjection(Projection):
@@ -245,7 +245,7 @@ class OrderSummaryProjection(Projection):
             )
 ```
 
-### Template 3: Elasticsearch Search Projection
+### 模板 3：Elasticsearch 搜索投影
 
 ```python
 from elasticsearch import AsyncElasticsearch
@@ -314,7 +314,7 @@ class ProductSearchProjection(Projection):
             )
 ```
 
-### Template 4: Aggregating Projection
+### 模板 4：聚合投影
 
 ```python
 class DailySalesProjection(Projection):
@@ -371,7 +371,7 @@ class DailySalesProjection(Projection):
             )
 ```
 
-### Template 5: Multi-Table Projection
+### 模板 5：多表投影
 
 ```python
 class CustomerActivityProjection(Projection):
@@ -467,19 +467,19 @@ class CustomerActivityProjection(Projection):
                     )
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应做
 
-- **Make projections idempotent** - Safe to replay
-- **Use transactions** - For multi-table updates
-- **Store checkpoints** - Resume after failures
-- **Monitor lag** - Alert on projection delays
-- **Plan for rebuilds** - Design for reconstruction
+- **使投影幂等** - 安全重放
+- **使用事务** - 用于多表更新
+- **存储检查点** - 失败后恢复
+- **监控延迟** - 投影延迟时告警
+- **规划重建** - 为重建而设计
 
-### Don'ts
+### 不应做
 
-- **Don't couple projections** - Each is independent
-- **Don't skip error handling** - Log and alert on failures
-- **Don't ignore ordering** - Events must be processed in order
-- **Don't over-normalize** - Denormalize for query patterns
+- **不要耦合投影** - 每个都是独立的
+- **不要跳过错误处理** - 记录失败并告警
+- **不要忽略排序** - 事件必须按顺序处理
+- **不要过度规范化** - 为查询模式反规范化

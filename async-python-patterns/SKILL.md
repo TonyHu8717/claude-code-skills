@@ -1,55 +1,55 @@
 ---
 name: async-python-patterns
-description: Master Python asyncio, concurrent programming, and async/await patterns for high-performance applications. Use when building async APIs, concurrent systems, or I/O-bound applications requiring non-blocking operations.
+description: 掌握 Python asyncio、并发编程和 async/await 模式，用于高性能应用。在构建异步 API、并发系统或需要非阻塞操作的 I/O 密集型应用时使用。
 ---
 
-# Async Python Patterns
+# 异步 Python 模式
 
-Comprehensive guidance for implementing asynchronous Python applications using asyncio, concurrent programming patterns, and async/await for building high-performance, non-blocking systems.
+使用 asyncio、并发编程模式和 async/await 构建高性能、非阻塞系统的综合指导。
 
-## When to Use This Skill
+## 使用场景
 
-- Building async web APIs (FastAPI, aiohttp, Sanic)
-- Implementing concurrent I/O operations (database, file, network)
-- Creating web scrapers with concurrent requests
-- Developing real-time applications (WebSocket servers, chat systems)
-- Processing multiple independent tasks simultaneously
-- Building microservices with async communication
-- Optimizing I/O-bound workloads
-- Implementing async background tasks and queues
+- 构建异步 Web API（FastAPI、aiohttp、Sanic）
+- 实现并发 I/O 操作（数据库、文件、网络）
+- 创建带有并发请求的网页爬虫
+- 开发实时应用（WebSocket 服务器、聊天系统）
+- 同时处理多个独立任务
+- 构建带有异步通信的微服务
+- 优化 I/O 密集型工作负载
+- 实现异步后台任务和队列
 
-## Sync vs Async Decision Guide
+## 同步 vs 异步决策指南
 
-Before adopting async, consider whether it's the right choice for your use case.
+在采用异步之前，考虑它是否适合你的用例。
 
-| Use Case | Recommended Approach |
-|----------|---------------------|
-| Many concurrent network/DB calls | `asyncio` |
-| CPU-bound computation | `multiprocessing` or thread pool |
-| Mixed I/O + CPU | Offload CPU work with `asyncio.to_thread()` |
-| Simple scripts, few connections | Sync (simpler, easier to debug) |
-| Web APIs with high concurrency | Async frameworks (FastAPI, aiohttp) |
+| 用例 | 推荐方式 |
+|------|----------|
+| 大量并发网络/DB 调用 | `asyncio` |
+| CPU 密集型计算 | `multiprocessing` 或线程池 |
+| 混合 I/O + CPU | 用 `asyncio.to_thread()` 卸载 CPU 工作 |
+| 简单脚本，少量连接 | 同步（更简单，更易调试） |
+| 高并发 Web API | 异步框架（FastAPI、aiohttp） |
 
-**Key Rule:** Stay fully sync or fully async within a call path. Mixing creates hidden blocking and complexity.
+**关键规则：** 在调用路径中保持完全同步或完全异步。混合会创建隐藏的阻塞和复杂性。
 
-## Core Concepts
+## 核心概念
 
-### 1. Event Loop
+### 1. 事件循环
 
-The event loop is the heart of asyncio, managing and scheduling asynchronous tasks.
+事件循环是 asyncio 的核心，管理和调度异步任务。
 
-**Key characteristics:**
+**关键特征：**
 
-- Single-threaded cooperative multitasking
-- Schedules coroutines for execution
-- Handles I/O operations without blocking
-- Manages callbacks and futures
+- 单线程协作式多任务
+- 调度协程执行
+- 处理 I/O 操作而不阻塞
+- 管理回调和 future
 
-### 2. Coroutines
+### 2. 协程
 
-Functions defined with `async def` that can be paused and resumed.
+用 `async def` 定义的函数，可以暂停和恢复。
 
-**Syntax:**
+**语法：**
 
 ```python
 async def my_coroutine():
@@ -57,23 +57,23 @@ async def my_coroutine():
     return result
 ```
 
-### 3. Tasks
+### 3. 任务
 
-Scheduled coroutines that run concurrently on the event loop.
+在事件循环上并发运行的已调度协程。
 
-### 4. Futures
+### 4. Future
 
-Low-level objects representing eventual results of async operations.
+表示异步操作最终结果的底层对象。
 
-### 5. Async Context Managers
+### 5. 异步上下文管理器
 
-Resources that support `async with` for proper cleanup.
+支持 `async with` 以进行正确清理的资源。
 
-### 6. Async Iterators
+### 6. 异步迭代器
 
-Objects that support `async for` for iterating over async data sources.
+支持 `async for` 以迭代异步数据源的对象。
 
-## Quick Start
+## 快速开始
 
 ```python
 import asyncio
@@ -87,9 +87,9 @@ async def main():
 asyncio.run(main())
 ```
 
-## Fundamental Patterns
+## 基础模式
 
-### Pattern 1: Basic Async/Await
+### 模式 1：基本 Async/Await
 
 ```python
 import asyncio
@@ -106,7 +106,7 @@ async def main():
 asyncio.run(main())
 ```
 
-### Pattern 2: Concurrent Execution with gather()
+### 模式 2：使用 gather() 并发执行
 
 ```python
 import asyncio
@@ -131,7 +131,7 @@ async def main():
 asyncio.run(main())
 ```
 
-### Pattern 3: Task Creation and Management
+### 模式 3：任务创建和管理
 
 ```python
 import asyncio
@@ -161,7 +161,7 @@ async def main():
 asyncio.run(main())
 ```
 
-### Pattern 4: Error Handling in Async Code
+### 模式 4：异步代码中的错误处理
 
 ```python
 import asyncio
@@ -197,7 +197,7 @@ async def process_items(item_ids: List[int]):
 asyncio.run(process_items([1, 2, 3, 4, 5, 6]))
 ```
 
-### Pattern 5: Timeout Handling
+### 模式 5：超时处理
 
 ```python
 import asyncio
@@ -218,9 +218,9 @@ async def with_timeout():
 asyncio.run(with_timeout())
 ```
 
-## Advanced Patterns
+## 高级模式
 
-### Pattern 6: Async Context Managers
+### 模式 6：异步上下文管理器
 
 ```python
 import asyncio
@@ -254,7 +254,7 @@ async def query_database():
 asyncio.run(query_database())
 ```
 
-### Pattern 7: Async Iterators and Generators
+### 模式 7：异步迭代器和生成器
 
 ```python
 import asyncio
@@ -288,7 +288,7 @@ async def consume_async_iterator():
 asyncio.run(consume_async_iterator())
 ```
 
-### Pattern 8: Producer-Consumer Pattern
+### 模式 8：生产者-消费者模式
 
 ```python
 import asyncio
@@ -344,7 +344,7 @@ async def producer_consumer_example():
 asyncio.run(producer_consumer_example())
 ```
 
-### Pattern 9: Semaphore for Rate Limiting
+### 模式 9：信号量限流
 
 ```python
 import asyncio
@@ -372,7 +372,7 @@ async def main():
 asyncio.run(main())
 ```
 
-### Pattern 10: Async Locks and Synchronization
+### 模式 10：异步锁和同步
 
 ```python
 import asyncio
@@ -415,9 +415,9 @@ async def test_counter():
 asyncio.run(test_counter())
 ```
 
-## Real-World Applications
+## 实际应用
 
-### Web Scraping with aiohttp
+### 使用 aiohttp 的网页爬虫
 
 ```python
 import asyncio
@@ -458,7 +458,7 @@ async def main():
 asyncio.run(main())
 ```
 
-### Async Database Operations
+### 异步数据库操作
 
 ```python
 import asyncio
@@ -500,7 +500,7 @@ async def main():
 asyncio.run(main())
 ```
 
-### WebSocket Server
+### WebSocket 服务器
 
 ```python
 import asyncio
@@ -560,9 +560,9 @@ class WebSocketServer:
             yield await websocket.recv()
 ```
 
-## Performance Best Practices
+## 性能最佳实践
 
-### 1. Use Connection Pools
+### 1. 使用连接池
 
 ```python
 import asyncio
@@ -578,7 +578,7 @@ async def with_connection_pool():
         return responses
 ```
 
-### 2. Batch Operations
+### 2. 批量操作
 
 ```python
 async def batch_process(items: List[str], batch_size: int = 10):
@@ -595,9 +595,9 @@ async def process_item(item: str):
     return f"Processed: {item}"
 ```
 
-### 3. Avoid Blocking Operations
+### 3. 避免阻塞操作
 
-Never block the event loop with synchronous operations. A single blocking call stalls all concurrent tasks.
+切勿用同步操作阻塞事件循环。单个阻塞调用会阻塞所有并发任务。
 
 ```python
 # BAD - blocks the entire event loop
@@ -616,9 +616,9 @@ async def fetch_data_good(url: str):
         response = await client.get(url)
 ```
 
-**Wrapping Blocking Code with `asyncio.to_thread()` (Python 3.9+):**
+**使用 `asyncio.to_thread()` 包装阻塞代码（Python 3.9+）：**
 
-When you must use synchronous libraries, offload to a thread pool:
+当你必须使用同步库时，卸载到线程池：
 
 ```python
 import asyncio
@@ -635,7 +635,7 @@ async def call_sync_library(data: dict) -> dict:
     return await asyncio.to_thread(sync_library.process, data)
 ```
 
-**Lower-level approach with `run_in_executor()`:**
+**使用 `run_in_executor()` 的底层方式：**
 
 ```python
 import asyncio
@@ -662,9 +662,9 @@ async def main():
 asyncio.run(main())
 ```
 
-## Common Pitfalls
+## 常见陷阱
 
-### 1. Forgetting await
+### 1. 忘记 await
 
 ```python
 # Wrong - returns coroutine object, doesn't execute
@@ -674,7 +674,7 @@ result = async_function()
 result = await async_function()
 ```
 
-### 2. Blocking the Event Loop
+### 2. 阻塞事件循环
 
 ```python
 # Wrong - blocks event loop
@@ -687,7 +687,7 @@ async def good():
     await asyncio.sleep(1)  # Non-blocking
 ```
 
-### 3. Not Handling Cancellation
+### 3. 不处理取消
 
 ```python
 async def cancelable_task():
@@ -702,7 +702,7 @@ async def cancelable_task():
         raise  # Re-raise to propagate cancellation
 ```
 
-### 4. Mixing Sync and Async Code
+### 4. 混合同步和异步代码
 
 ```python
 # Wrong - can't call async from sync directly
@@ -714,7 +714,7 @@ def sync_function():
     result = asyncio.run(async_function())
 ```
 
-## Testing Async Code
+## 测试异步代码
 
 ```python
 import asyncio

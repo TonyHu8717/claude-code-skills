@@ -1,69 +1,69 @@
 ---
 name: event-store-design
-description: Design and implement event stores for event-sourced systems. Use when building event sourcing infrastructure, choosing event store technologies, or implementing event persistence patterns.
+description: 为事件溯源系统设计和实现事件存储。在构建事件溯源基础设施、选择事件存储技术或实现事件持久化模式时使用。
 ---
 
-# Event Store Design
+# 事件存储设计
 
-Comprehensive guide to designing event stores for event-sourced applications.
+事件溯源应用程序事件存储设计的综合指南。
 
-## When to Use This Skill
+## 何时使用此技能
 
-- Designing event sourcing infrastructure
-- Choosing between event store technologies
-- Implementing custom event stores
-- Optimizing event storage and retrieval
-- Setting up event store schemas
-- Planning for event store scaling
+- 设计事件溯源基础设施
+- 选择事件存储技术
+- 实现自定义事件存储
+- 优化事件存储和检索
+- 设置事件存储模式
+- 规划事件存储扩展
 
-## Core Concepts
+## 核心概念
 
-### 1. Event Store Architecture
+### 1. 事件存储架构
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                    Event Store                       │
+│                    事件存储                           │
 ├─────────────────────────────────────────────────────┤
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐ │
-│  │   Stream 1   │  │   Stream 2   │  │   Stream 3   │ │
-│  │ (Aggregate)  │  │ (Aggregate)  │  │ (Aggregate)  │ │
+│  │   流 1       │  │   流 2       │  │   流 3       │ │
+│  │ (聚合)       │  │ (聚合)       │  │ (聚合)       │ │
 │  ├─────────────┤  ├─────────────┤  ├─────────────┤ │
-│  │ Event 1     │  │ Event 1     │  │ Event 1     │ │
-│  │ Event 2     │  │ Event 2     │  │ Event 2     │ │
-│  │ Event 3     │  │ ...         │  │ Event 3     │ │
-│  │ ...         │  │             │  │ Event 4     │ │
+│  │ 事件 1      │  │ 事件 1      │  │ 事件 1      │ │
+│  │ 事件 2      │  │ 事件 2      │  │ 事件 2      │ │
+│  │ 事件 3      │  │ ...         │  │ 事件 3      │ │
+│  │ ...         │  │             │  │ 事件 4      │ │
 │  └─────────────┘  └─────────────┘  └─────────────┘ │
 ├─────────────────────────────────────────────────────┤
-│  Global Position: 1 → 2 → 3 → 4 → 5 → 6 → ...     │
+│  全局位置: 1 → 2 → 3 → 4 → 5 → 6 → ...             │
 └─────────────────────────────────────────────────────┘
 ```
 
-### 2. Event Store Requirements
+### 2. 事件存储要求
 
-| Requirement       | Description                        |
+| 要求       | 描述                        |
 | ----------------- | ---------------------------------- |
-| **Append-only**   | Events are immutable, only appends |
-| **Ordered**       | Per-stream and global ordering     |
-| **Versioned**     | Optimistic concurrency control     |
-| **Subscriptions** | Real-time event notifications      |
-| **Idempotent**    | Handle duplicate writes safely     |
+| **仅追加**   | 事件不可变，只能追加 |
+| **有序**       | 按流和全局排序     |
+| **版本化**     | 乐观并发控制     |
+| **订阅** | 实时事件通知      |
+| **幂等**    | 安全处理重复写入     |
 
-## Technology Comparison
+## 技术比较
 
-| Technology       | Best For                  | Limitations                      |
+| 技术       | 最适合                  | 局限性                      |
 | ---------------- | ------------------------- | -------------------------------- |
-| **EventStoreDB** | Pure event sourcing       | Single-purpose                   |
-| **PostgreSQL**   | Existing Postgres stack   | Manual implementation            |
-| **Kafka**        | High-throughput streaming | Not ideal for per-stream queries |
-| **DynamoDB**     | Serverless, AWS-native    | Query limitations                |
-| **Marten**       | .NET ecosystems           | .NET specific                    |
+| **EventStoreDB** | 纯事件溯源       | 单一用途                   |
+| **PostgreSQL**   | 现有 Postgres 技术栈   | 手动实现            |
+| **Kafka**        | 高吞吐量流处理 | 不适合按流查询 |
+| **DynamoDB**     | 无服务器，AWS 原生    | 查询局限性                |
+| **Marten**       | .NET 生态系统           | .NET 特定                    |
 
-## Templates
+## 模板
 
-### Template 1: PostgreSQL Event Store Schema
+### 模板 1：PostgreSQL 事件存储模式
 
 ```sql
--- Events table
+-- 事件表
 CREATE TABLE events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     stream_id VARCHAR(255) NOT NULL,
@@ -78,19 +78,19 @@ CREATE TABLE events (
     CONSTRAINT unique_stream_version UNIQUE (stream_id, version)
 );
 
--- Index for stream queries
+-- 流查询索引
 CREATE INDEX idx_events_stream_id ON events(stream_id, version);
 
--- Index for global subscription
+-- 全局订阅索引
 CREATE INDEX idx_events_global_position ON events(global_position);
 
--- Index for event type queries
+-- 事件类型查询索引
 CREATE INDEX idx_events_event_type ON events(event_type);
 
--- Index for time-based queries
+-- 时间查询索引
 CREATE INDEX idx_events_created_at ON events(created_at);
 
--- Snapshots table
+-- 快照表
 CREATE TABLE snapshots (
     stream_id VARCHAR(255) PRIMARY KEY,
     stream_type VARCHAR(255) NOT NULL,
@@ -99,7 +99,7 @@ CREATE TABLE snapshots (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Subscriptions checkpoint table
+-- 订阅检查点表
 CREATE TABLE subscription_checkpoints (
     subscription_id VARCHAR(255) PRIMARY KEY,
     last_position BIGINT NOT NULL DEFAULT 0,
@@ -107,7 +107,7 @@ CREATE TABLE subscription_checkpoints (
 );
 ```
 
-### Template 2: Python Event Store Implementation
+### 模板 2：Python 事件存储实现
 
 ```python
 from dataclasses import dataclass, field
@@ -140,10 +140,10 @@ class EventStore:
         events: List[Event],
         expected_version: Optional[int] = None
     ) -> List[Event]:
-        """Append events to a stream with optimistic concurrency."""
+        """追加事件到流，带乐观并发控制。"""
         async with self.pool.acquire() as conn:
             async with conn.transaction():
-                # Check expected version
+                # 检查预期版本
                 if expected_version is not None:
                     current = await conn.fetchval(
                         "SELECT MAX(version) FROM events WHERE stream_id = $1",
@@ -155,13 +155,13 @@ class EventStore:
                             f"Expected version {expected_version}, got {current}"
                         )
 
-                # Get starting version
+                # 获取起始版本
                 start_version = await conn.fetchval(
                     "SELECT COALESCE(MAX(version), 0) + 1 FROM events WHERE stream_id = $1",
                     stream_id
                 )
 
-                # Insert events
+                # 插入事件
                 saved_events = []
                 for i, event in enumerate(events):
                     event.version = start_version + i
@@ -192,7 +192,7 @@ class EventStore:
         from_version: int = 0,
         limit: int = 1000
     ) -> List[Event]:
-        """Read events from a stream."""
+        """从流中读取事件。"""
         async with self.pool.acquire() as conn:
             rows = await conn.fetch(
                 """
@@ -212,7 +212,7 @@ class EventStore:
         from_position: int = 0,
         limit: int = 1000
     ) -> List[Event]:
-        """Read all events globally."""
+        """全局读取所有事件。"""
         async with self.pool.acquire() as conn:
             rows = await conn.fetch(
                 """
@@ -234,8 +234,8 @@ class EventStore:
         from_position: int = 0,
         batch_size: int = 100
     ):
-        """Subscribe to all events from a position."""
-        # Get checkpoint
+        """从位置开始订阅所有事件。"""
+        # 获取检查点
         async with self.pool.acquire() as conn:
             checkpoint = await conn.fetchval(
                 """
@@ -249,14 +249,14 @@ class EventStore:
         while True:
             events = await self.read_all(position, batch_size)
             if not events:
-                await asyncio.sleep(1)  # Poll interval
+                await asyncio.sleep(1)  # 轮询间隔
                 continue
 
             for event in events:
                 await handler(event)
                 position = event.global_position
 
-            # Save checkpoint
+            # 保存检查点
             async with self.pool.acquire() as conn:
                 await conn.execute(
                     """
@@ -282,20 +282,20 @@ class EventStore:
 
 
 class ConcurrencyError(Exception):
-    """Raised when optimistic concurrency check fails."""
+    """当乐观并发检查失败时引发。"""
     pass
 ```
 
-### Template 3: EventStoreDB Usage
+### 模板 3：EventStoreDB 用法
 
 ```python
 from esdbclient import EventStoreDBClient, NewEvent, StreamState
 import json
 
-# Connect
+# 连接
 client = EventStoreDBClient(uri="esdb://localhost:2113?tls=false")
 
-# Append events
+# 追加事件
 def append_events(stream_name: str, events: list, expected_revision=None):
     new_events = [
         NewEvent(
@@ -319,7 +319,7 @@ def append_events(stream_name: str, events: list, expected_revision=None):
         current_version=state
     )
 
-# Read stream
+# 读取流
 def read_stream(stream_name: str, from_revision: int = 0):
     events = client.get_stream(
         stream_name=stream_name,
@@ -336,7 +336,7 @@ def read_stream(stream_name: str, from_revision: int = 0):
         for event in events
     ]
 
-# Subscribe to all
+# 订阅所有
 async def subscribe_to_all(handler, from_position: int = 0):
     subscription = client.subscribe_to_all(commit_position=from_position)
     async for event in subscription:
@@ -347,13 +347,13 @@ async def subscribe_to_all(handler, from_position: int = 0):
             'position': event.commit_position
         })
 
-# Category projection ($ce-Category)
+# 类别投影（$ce-Category）
 def read_category(category: str):
-    """Read all events for a category using system projection."""
+    """使用系统投影读取类别所有事件。"""
     return read_stream(f"$ce-{category}")
 ```
 
-### Template 4: DynamoDB Event Store
+### 模板 4：DynamoDB 事件存储
 
 ```python
 import boto3
@@ -368,7 +368,7 @@ class DynamoEventStore:
         self.table = self.dynamodb.Table(table_name)
 
     def append_events(self, stream_id: str, events: list, expected_version: int = None):
-        """Append events with conditional write for concurrency."""
+        """带条件写入的并发追加事件。"""
         with self.table.batch_writer() as batch:
             for i, event in enumerate(events):
                 version = (expected_version or 0) + i + 1
@@ -388,7 +388,7 @@ class DynamoEventStore:
         return events
 
     def read_stream(self, stream_id: str, from_version: int = 0):
-        """Read events from a stream."""
+        """从流中读取事件。"""
         response = self.table.query(
             KeyConditionExpression=Key('PK').eq(f"STREAM#{stream_id}") &
                                   Key('SK').gte(f"VERSION#{from_version:020d}")
@@ -402,30 +402,30 @@ class DynamoEventStore:
             for item in response['Items']
         ]
 
-# Table definition (CloudFormation/Terraform)
+# 表定义（CloudFormation/Terraform）
 """
-DynamoDB Table:
-  - PK (Partition Key): String
-  - SK (Sort Key): String
-  - GSI1PK, GSI1SK for global ordering
+DynamoDB 表:
+  - PK（分区键）: String
+  - SK（排序键）: String
+  - GSI1PK、GSI1SK 用于全局排序
 
-Capacity: On-demand or provisioned based on throughput needs
+容量: 基于吞吐量需求的按需或预置容量
 """
 ```
 
-## Best Practices
+## 最佳实践
 
-### Do's
+### 应该做
 
-- **Use stream IDs that include aggregate type** - `Order-{uuid}`
-- **Include correlation/causation IDs** - For tracing
-- **Version events from day one** - Plan for schema evolution
-- **Implement idempotency** - Use event IDs for deduplication
-- **Index appropriately** - For your query patterns
+- **在流 ID 中包含聚合类型** - `Order-{uuid}`
+- **包含关联/因果 ID** - 用于追踪
+- **从第一天开始版本化事件** - 为模式演进做规划
+- **实现幂等性** - 使用事件 ID 进行去重
+- **适当建立索引** - 根据查询模式
 
-### Don'ts
+### 不应该做
 
-- **Don't update or delete events** - They're immutable facts
-- **Don't store large payloads** - Keep events small
-- **Don't skip optimistic concurrency** - Prevents data corruption
-- **Don't ignore backpressure** - Handle slow consumers
+- **不要更新或删除事件** - 它们是不可变的事实
+- **不要存储大负载** - 保持事件小
+- **不要跳过乐观并发** - 防止数据损坏
+- **不要忽视背压** - 处理慢消费者
