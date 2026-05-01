@@ -36,7 +36,7 @@ git add . && git commit -m "init" && git push -u origin main
 1. `git add -A` — 暂存所有变更（新增、修改、删除）
 2. `git status` — 显示将要上传的变更，让用户确认
 3. 用户确认后，`git commit -m "sync: upload skills"` 提交
-4. `git push --force-with-lease origin main` — 强制推送覆盖远程
+4. `git push --force-with-lease origin master` — 强制推送覆盖远程
 
 **安全措施：**
 - 推送前显示变更列表，用户确认后才执行
@@ -51,9 +51,9 @@ git add . && git commit -m "init" && git push -u origin main
 
 **执行流程：**
 1. `git fetch origin` — 获取远程最新内容
-2. `git log HEAD..origin/main --oneline` — 显示远程有而本地没有的提交
-3. `git diff HEAD origin/main --stat` — 显示文件差异
-4. 用户确认后，`git reset --hard origin/main` — 本地强制对齐远程
+2. `git log HEAD..origin/master --oneline` — 显示远程有而本地没有的提交
+3. `git diff HEAD origin/master --stat` — 显示文件差异
+4. 用户确认后，`git reset --hard origin/master` — 本地强制对齐远程
 
 **安全措施：**
 - 覆盖前显示差异，用户确认后才执行
@@ -71,10 +71,10 @@ git add . && git commit -m "init" && git push -u origin main
 2. `git status` — 检查本地是否有未提交的修改
 3. 如果有未提交的修改：
    - `git stash` — 暂存本地修改
-   - `git pull --rebase origin main` — 拉取远程并变基
+   - `git pull --rebase origin master` — 拉取远程并变基
    - `git stash pop` — 恢复本地修改
 4. 如果没有未提交的修改：
-   - `git pull --rebase origin main` — 直接拉取并变基
+   - `git pull --rebase origin master` — 直接拉取并变基
 
 **冲突处理：**
 如果 rebase 过程中出现冲突：
@@ -83,7 +83,7 @@ git add . && git commit -m "init" && git push -u origin main
 
    **分析维度：**
    - **内容对比**：统计本地/远程版本的行数、功能描述数量、触发条件覆盖范围
-   - **更新时间**：`git log -1 --format="%ai" -- <file>` 获取本地最后修改时间，`git log -1 --format="%ai" origin/main -- <file>` 获取远程最后修改时间
+   - **更新时间**：`git log -1 --format="%ai" -- <file>` 获取本地最后修改时间，`git log -1 --format="%ai" origin/master -- <file>` 获取远程最后修改时间
    - **功能丰富度**：对比 description 字段长度、SKILL.md 正文段落数、引用的参考文件数量
 
    **呈现格式：**
@@ -109,12 +109,12 @@ git add . && git commit -m "init" && git push -u origin main
    - **保留远程**：`git checkout --theirs <file>`
    - **手动合并**：提示用户编辑文件后 `git add <file>`
 4. 所有冲突解决后：`git rebase --continue`
-5. `git push origin main` — 推送合并结果到 GitHub
+5. `git push origin master` — 推送合并结果到 GitHub
 
 ## 通用规则
 
 - **工作目录**：所有 git 命令在 `.agents/skills/` 目录下执行
-- **分支**：统一使用 `main` 分支
+- **分支**：统一使用 `master` 分支
 - **提交信息格式**：`sync: {mode} — {brief description}`
 - **备份**：upload 和 download 操作前自动创建备份分支
 - **确认**：任何覆盖操作前必须显示差异并获得用户确认
