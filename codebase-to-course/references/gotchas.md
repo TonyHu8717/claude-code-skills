@@ -1,32 +1,41 @@
 # Gotchas — Common Failure Points
 
-> **When to read this:** During Phase 3 (writing module HTML) and Phase 4 (review). Check every one of these before considering a course complete.
+> This section applies during Phase 3 (module HTML writing) and Phase 4 (review). Every item below must be checked before declaring a course complete.
 
-These are real problems encountered when building courses. Check every one before considering a course complete.
+These represent genuine issues that arise during course construction. All must be verified before a course is considered done.
 
 ### Tooltip Clipping
-Translation blocks use `overflow: hidden` for code wrapping. If tooltips use `position: absolute` inside the term element, they get clipped by the container. **Fix:** Tooltips must use `position: fixed` and be appended to `document.body`. Calculate position from `getBoundingClientRect()`. This is already handled by `main.js` but is the #1 bug that appears in every build.
+
+Translation blocks rely on `overflow: hidden` for wrapping. Tooltips using `position: absolute` inside the term element get clipped by the container. **Fix:** Tooltips should use `position: fixed` and attach to `document.body`, computing position via `getBoundingClientRect()`. `main.js` already handles this, yet it remains the most frequent bug across every build.
 
 ### Not Enough Tooltips
-The most common failure is under-tooltipping. Non-technical learners don't know terms like REPL, JSON, flag, entry point, PATH, pip, namespace, function, class, module, PR, E2E, or even software names like Blender/GIMP. **Rule of thumb:** if a term wouldn't appear in everyday conversation with a non-technical friend, tooltip it. Err heavily on the side of too many. BUT: don't tooltip terms the user already knows well from their domain (e.g., AI/ML concepts for someone in AI).
+
+Under-tooltiping is the most prevalent failure. Learners without technical backgrounds won't recognize terms such as REPL, JSON, flag, entry point, PATH, pip, namespace, function, class, module, PR, E2E, or software names like Blender/GIMP. **Guideline:** if a term wouldn't come up in casual conversation with a non-technical friend, add a tooltip. Over-tip rather than under-tip. However, avoid tooltiping domain-specific terms the learner already understands (e.g., AI/ML terminology for someone working in AI).
 
 ### Walls of Text
-The course looks like a textbook instead of an infographic. This happens when you write more than 2-3 sentences in a row without a visual break. Every screen must be at least 50% visual. Convert any list of 3+ items into cards, any sequence into step cards or flow diagrams, any code explanation into a code↔English translation block.
+
+The course ends up resembling a textbook rather than an infographic — typically caused by writing more than two to three consecutive sentences without a visual break. Each screen should be at least half visual. Lists of three or more items should become cards, sequences should become step cards or flow diagrams, and code explanations should use code↔English translation blocks.
 
 ### Recycled Metaphors
-Using "restaurant" or "kitchen" for everything. Every module needs its own metaphor that feels inevitable for that specific concept. If you catch yourself reaching for the same metaphor twice, stop and find one that fits the concept organically.
+
+Reusing a single metaphor (like "restaurant" or "kitchen") repeatedly. Each module demands its own metaphor that feels naturally suited to that particular concept. If the same metaphor comes up twice, pause and find one that organically fits instead.
 
 ### Code Modifications
-Trimming, simplifying, or "cleaning up" code snippets from the codebase. The learner should be able to open the real file and see the exact same code. Instead of editing code to be shorter, *choose* naturally short snippets (5-10 lines) from the codebase that illustrate the point.
+
+Trimming, simplifying, or "cleaning up" snippets from the actual codebase. Learners should be able to open the real file and find identical code. Rather than editing for brevity, *select* naturally concise snippets (5–10 lines) from the codebase that demonstrate the concept.
 
 ### Quiz Questions That Test Memory
-Asking "What does API stand for?" or "Which file handles X?" — those test recall, not understanding. Every quiz question should present a new scenario the learner hasn't seen and ask them to *apply* what they learned.
+
+Questions like "What does API stand for?" or "Which file handles X?" test recall rather than comprehension. Each quiz question should present a novel scenario and require the learner to *apply* what they've learned.
 
 ### Scroll-Snap Mandatory
-Using `scroll-snap-type: y mandatory` traps users inside long modules. Always use `proximity`.
+
+Setting `scroll-snap-type: y mandatory` can trap users inside lengthy modules. Use `proximity` instead.
 
 ### Module Quality Degradation
-Trying to write all modules in one pass causes later modules to be thin and rushed. Build one module at a time and verify each before moving on. For complex codebases, use the parallel path with module briefs.
+
+Writing all modules in a single pass leads to later modules being thin and underdeveloped. Build and verify one module at a time. For complex codebases, leverage the parallel path with module briefs.
 
 ### Missing Interactive Elements
-A module with only text and code blocks, no interactivity. Every module needs at least one of: quiz, data flow animation, group chat, architecture diagram, drag-and-drop. These aren't decorations — they're how non-technical learners actually process information.
+
+Modules containing only text and code blocks with no interactivity. Each module must include at least one of: quiz, data flow animation, group chat, architecture diagram, or drag-and-drop. These are not decorative — they serve as the primary way non-technical learners process and retain information.

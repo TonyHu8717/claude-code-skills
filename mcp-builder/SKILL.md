@@ -1,213 +1,236 @@
 ---
 name: mcp-builder
-description: 构建 MCP（模型上下文协议）服务器，为 Claude 提供新能力。当用户想要创建 MCP 服务器、为 Claude 添加工具或集成外部服务时使用。
+description: Guide for creating high-quality MCP (Model Context Protocol) servers that enable LLMs to interact with external services through well-designed tools. Use when building MCP servers to integrate external APIs or services, whether in Python (FastMCP) or Node/TypeScript (MCP SDK).
+license: Complete terms in LICENSE.txt
 ---
 
-# MCP 服务器构建技能
+# MCP Server Development Guide
 
-你现在拥有构建 MCP（模型上下文协议）服务器的专业知识。MCP 使 Claude 能够通过标准化协议与外部服务交互。
+## Overview
 
-## 什么是 MCP？
+Create MCP (Model Context Protocol) servers that enable LLMs to interact with external services through well-designed tools. The quality of an MCP server is measured by how well it enables LLMs to accomplish real-world tasks.
 
-MCP 服务器暴露：
-- **工具（Tools）**：Claude 可以调用的函数（类似 API 端点）
-- **资源（Resources）**：Claude 可以读取的数据（如文件或数据库记录）
-- **提示（Prompts）**：预构建的提示模板
+---
 
-## 快速开始：Python MCP 服务器
+# Process
 
-### 1. 项目设置
+## 🚀 High-Level Workflow
 
-```bash
-# 创建项目
-mkdir my-mcp-server && cd my-mcp-server
-python3 -m venv venv && source venv/bin/activate
+Creating a high-quality MCP server involves four main phases:
 
-# 安装 MCP SDK
-pip install mcp
+### Phase 1: Deep Research and Planning
+
+#### 1.1 Understand Modern MCP Design
+
+**API Coverage vs. Workflow Tools:**
+Balance comprehensive API endpoint coverage with specialized workflow tools. Workflow tools can be more convenient for specific tasks, while comprehensive coverage gives agents flexibility to compose operations. Performance varies by client—some clients benefit from code execution that combines basic tools, while others work better with higher-level workflows. When uncertain, prioritize comprehensive API coverage.
+
+**Tool Naming and Discoverability:**
+Clear, descriptive tool names help agents find the right tools quickly. Use consistent prefixes (e.g., `github_create_issue`, `github_list_repos`) and action-oriented naming.
+
+**Context Management:**
+Agents benefit from concise tool descriptions and the ability to filter/paginate results. Design tools that return focused, relevant data. Some clients support code execution which can help agents filter and process data efficiently.
+
+**Actionable Error Messages:**
+Error messages should guide agents toward solutions with specific suggestions and next steps.
+
+#### 1.2 Study MCP Protocol Documentation
+
+**Navigate the MCP specification:**
+
+Start with the sitemap to find relevant pages: `https://modelcontextprotocol.io/sitemap.xml`
+
+Then fetch specific pages with `.md` suffix for markdown format (e.g., `https://modelcontextprotocol.io/specification/draft.md`).
+
+Key pages to review:
+- Specification overview and architecture
+- Transport mechanisms (streamable HTTP, stdio)
+- Tool, resource, and prompt definitions
+
+#### 1.3 Study Framework Documentation
+
+**Recommended stack:**
+- **Language**: TypeScript (high-quality SDK support and good compatibility in many execution environments e.g. MCPB. Plus AI models are good at generating TypeScript code, benefiting from its broad usage, static typing and good linting tools)
+- **Transport**: Streamable HTTP for remote servers, using stateless JSON (simpler to scale and maintain, as opposed to stateful sessions and streaming responses). stdio for local servers.
+
+**Load framework documentation:**
+
+- **MCP Best Practices**: [📋 View Best Practices](./reference/mcp_best_practices.md) - Core guidelines
+
+**For TypeScript (recommended):**
+- **TypeScript SDK**: Use WebFetch to load `https://raw.githubusercontent.com/modelcontextprotocol/typescript-sdk/main/README.md`
+- [⚡ TypeScript Guide](./reference/node_mcp_server.md) - TypeScript patterns and examples
+
+**For Python:**
+- **Python SDK**: Use WebFetch to load `https://raw.githubusercontent.com/modelcontextprotocol/python-sdk/main/README.md`
+- [🐍 Python Guide](./reference/python_mcp_server.md) - Python patterns and examples
+
+#### 1.4 Plan Your Implementation
+
+**Understand the API:**
+Review the service's API documentation to identify key endpoints, authentication requirements, and data models. Use web search and WebFetch as needed.
+
+**Tool Selection:**
+Prioritize comprehensive API coverage. List endpoints to implement, starting with the most common operations.
+
+---
+
+### Phase 2: Implementation
+
+#### 2.1 Set Up Project Structure
+
+See language-specific guides for project setup:
+- [⚡ TypeScript Guide](./reference/node_mcp_server.md) - Project structure, package.json, tsconfig.json
+- [🐍 Python Guide](./reference/python_mcp_server.md) - Module organization, dependencies
+
+#### 2.2 Implement Core Infrastructure
+
+Create shared utilities:
+- API client with authentication
+- Error handling helpers
+- Response formatting (JSON/Markdown)
+- Pagination support
+
+#### 2.3 Implement Tools
+
+For each tool:
+
+**Input Schema:**
+- Use Zod (TypeScript) or Pydantic (Python)
+- Include constraints and clear descriptions
+- Add examples in field descriptions
+
+**Output Schema:**
+- Define `outputSchema` where possible for structured data
+- Use `structuredContent` in tool responses (TypeScript SDK feature)
+- Helps clients understand and process tool outputs
+
+**Tool Description:**
+- Concise summary of functionality
+- Parameter descriptions
+- Return type schema
+
+**Implementation:**
+- Async/await for I/O operations
+- Proper error handling with actionable messages
+- Support pagination where applicable
+- Return both text content and structured data when using modern SDKs
+
+**Annotations:**
+- `readOnlyHint`: true/false
+- `destructiveHint`: true/false
+- `idempotentHint`: true/false
+- `openWorldHint`: true/false
+
+---
+
+### Phase 3: Review and Test
+
+#### 3.1 Code Quality
+
+Review for:
+- No duplicated code (DRY principle)
+- Consistent error handling
+- Full type coverage
+- Clear tool descriptions
+
+#### 3.2 Build and Test
+
+**TypeScript:**
+- Run `npm run build` to verify compilation
+- Test with MCP Inspector: `npx @modelcontextprotocol/inspector`
+
+**Python:**
+- Verify syntax: `python -m py_compile your_server.py`
+- Test with MCP Inspector
+
+See language-specific guides for detailed testing approaches and quality checklists.
+
+---
+
+### Phase 4: Create Evaluations
+
+After implementing your MCP server, create comprehensive evaluations to test its effectiveness.
+
+**Load [✅ Evaluation Guide](./reference/evaluation.md) for complete evaluation guidelines.**
+
+#### 4.1 Understand Evaluation Purpose
+
+Use evaluations to test whether LLMs can effectively use your MCP server to answer realistic, complex questions.
+
+#### 4.2 Create 10 Evaluation Questions
+
+To create effective evaluations, follow the process outlined in the evaluation guide:
+
+1. **Tool Inspection**: List available tools and understand their capabilities
+2. **Content Exploration**: Use READ-ONLY operations to explore available data
+3. **Question Generation**: Create 10 complex, realistic questions
+4. **Answer Verification**: Solve each question yourself to verify answers
+
+#### 4.3 Evaluation Requirements
+
+Ensure each question is:
+- **Independent**: Not dependent on other questions
+- **Read-only**: Only non-destructive operations required
+- **Complex**: Requiring multiple tool calls and deep exploration
+- **Realistic**: Based on real use cases humans would care about
+- **Verifiable**: Single, clear answer that can be verified by string comparison
+- **Stable**: Answer won't change over time
+
+#### 4.4 Output Format
+
+Create an XML file with this structure:
+
+```xml
+<evaluation>
+  <qa_pair>
+    <question>Find discussions about AI model launches with animal codenames. One model needed a specific safety designation that uses the format ASL-X. What number X was being determined for the model named after a spotted wild cat?</question>
+    <answer>3</answer>
+  </qa_pair>
+<!-- More qa_pairs... -->
+</evaluation>
 ```
 
-### 2. 基本服务器模板
+---
 
-```python
-#!/usr/bin/env python3
-"""my_server.py - 一个简单的 MCP 服务器"""
+# Reference Files
 
-from mcp.server import Server
-from mcp.server.stdio import stdio_server
-from mcp.types import Tool, TextContent
+## 📚 Documentation Library
 
-# 创建服务器实例
-server = Server("my-server")
+Load these resources as needed during development:
 
-# 定义工具
-@server.tool()
-async def hello(name: str) -> str:
-    """向某人问好。
+### Core MCP Documentation (Load First)
+- **MCP Protocol**: Start with sitemap at `https://modelcontextprotocol.io/sitemap.xml`, then fetch specific pages with `.md` suffix
+- [📋 MCP Best Practices](./reference/mcp_best_practices.md) - Universal MCP guidelines including:
+  - Server and tool naming conventions
+  - Response format guidelines (JSON vs Markdown)
+  - Pagination best practices
+  - Transport selection (streamable HTTP vs stdio)
+  - Security and error handling standards
 
-    Args:
-        name: 要问候的名字
-    """
-    return f"Hello, {name}!"
+### SDK Documentation (Load During Phase 1/2)
+- **Python SDK**: Fetch from `https://raw.githubusercontent.com/modelcontextprotocol/python-sdk/main/README.md`
+- **TypeScript SDK**: Fetch from `https://raw.githubusercontent.com/modelcontextprotocol/typescript-sdk/main/README.md`
 
-@server.tool()
-async def add_numbers(a: int, b: int) -> str:
-    """将两个数字相加。
+### Language-Specific Implementation Guides (Load During Phase 2)
+- [🐍 Python Implementation Guide](./reference/python_mcp_server.md) - Complete Python/FastMCP guide with:
+  - Server initialization patterns
+  - Pydantic model examples
+  - Tool registration with `@mcp.tool`
+  - Complete working examples
+  - Quality checklist
 
-    Args:
-        a: 第一个数字
-        b: 第二个数字
-    """
-    return str(a + b)
+- [⚡ TypeScript Implementation Guide](./reference/node_mcp_server.md) - Complete TypeScript guide with:
+  - Project structure
+  - Zod schema patterns
+  - Tool registration with `server.registerTool`
+  - Complete working examples
+  - Quality checklist
 
-# 运行服务器
-async def main():
-    async with stdio_server() as (read, write):
-        await server.run(read, write)
-
-if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())
-```
-
-### 3. 注册到 Claude
-
-添加到 `~/.claude/mcp.json`：
-```json
-{
-  "mcpServers": {
-    "my-server": {
-      "command": "python3",
-      "args": ["/path/to/my_server.py"]
-    }
-  }
-}
-```
-
-## TypeScript MCP 服务器
-
-### 1. 设置
-
-```bash
-mkdir my-mcp-server && cd my-mcp-server
-npm init -y
-npm install @modelcontextprotocol/sdk
-```
-
-### 2. 模板
-
-```typescript
-// src/index.ts
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-
-const server = new Server({
-  name: "my-server",
-  version: "1.0.0",
-});
-
-// 定义工具
-server.setRequestHandler("tools/list", async () => ({
-  tools: [
-    {
-      name: "hello",
-      description: "Say hello to someone",
-      inputSchema: {
-        type: "object",
-        properties: {
-          name: { type: "string", description: "Name to greet" },
-        },
-        required: ["name"],
-      },
-    },
-  ],
-}));
-
-server.setRequestHandler("tools/call", async (request) => {
-  if (request.params.name === "hello") {
-    const name = request.params.arguments.name;
-    return { content: [{ type: "text", text: `Hello, ${name}!` }] };
-  }
-  throw new Error("Unknown tool");
-});
-
-// 启动服务器
-const transport = new StdioServerTransport();
-server.connect(transport);
-```
-
-## 高级模式
-
-### 外部 API 集成
-
-```python
-import httpx
-from mcp.server import Server
-
-server = Server("weather-server")
-
-@server.tool()
-async def get_weather(city: str) -> str:
-    """获取城市的当前天气。"""
-    async with httpx.AsyncClient() as client:
-        resp = await client.get(
-            f"https://api.weatherapi.com/v1/current.json",
-            params={"key": "YOUR_API_KEY", "q": city}
-        )
-        data = resp.json()
-        return f"{city}: {data['current']['temp_c']}C, {data['current']['condition']['text']}"
-```
-
-### 数据库访问
-
-```python
-import sqlite3
-from mcp.server import Server
-
-server = Server("db-server")
-
-@server.tool()
-async def query_db(sql: str) -> str:
-    """执行只读 SQL 查询。"""
-    if not sql.strip().upper().startswith("SELECT"):
-        return "Error: Only SELECT queries allowed"
-
-    conn = sqlite3.connect("data.db")
-    cursor = conn.execute(sql)
-    rows = cursor.fetchall()
-    conn.close()
-    return str(rows)
-```
-
-### 资源（只读数据）
-
-```python
-@server.resource("config://settings")
-async def get_settings() -> str:
-    """应用程序设置。"""
-    return open("settings.json").read()
-
-@server.resource("file://{path}")
-async def read_file(path: str) -> str:
-    """从工作区读取文件。"""
-    return open(path).read()
-```
-
-## 测试
-
-```bash
-# 使用 MCP Inspector 测试
-npx @anthropics/mcp-inspector python3 my_server.py
-
-# 或直接发送测试消息
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | python3 my_server.py
-```
-
-## 最佳实践
-
-1. **清晰的工具描述**：Claude 使用这些来决定何时调用工具
-2. **输入验证**：始终验证和清理输入
-3. **错误处理**：返回有意义的错误消息
-4. **默认异步**：对 I/O 操作使用 async/await
-5. **安全性**：不要在没有认证的情况下暴露敏感操作
-6. **幂等性**：工具应该可以安全重试
+### Evaluation Guide (Load During Phase 4)
+- [✅ Evaluation Guide](./reference/evaluation.md) - Complete evaluation creation guide with:
+  - Question creation guidelines
+  - Answer verification strategies
+  - XML format specifications
+  - Example questions and answers
+  - Running an evaluation with the provided scripts

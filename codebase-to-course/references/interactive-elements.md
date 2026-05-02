@@ -53,59 +53,6 @@ The most important teaching element. Shows real code from the project on the lef
 </div>
 ```
 
-**CSS:**
-```css
-.translation-block {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  box-shadow: var(--shadow-md);
-  margin: var(--space-8) 0;
-}
-.translation-code {
-  background: var(--color-bg-code);
-  color: #CDD6F4;
-  padding: var(--space-6);
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  line-height: 1.7;
-  position: relative;
-  overflow-x: hidden;  /* NO horizontal scrollbar — ever */
-}
-.translation-code pre,
-.translation-code code {
-  white-space: pre-wrap;       /* wrap long lines instead of scrolling */
-  word-break: break-word;      /* break mid-word if needed */
-  overflow-x: hidden;
-}
-.translation-english {
-  background: var(--color-surface-warm);
-  padding: var(--space-6);
-  font-size: var(--text-sm);
-  line-height: 1.7;
-  border-left: 3px solid var(--color-accent);
-}
-.translation-label {
-  position: absolute;
-  top: var(--space-2);
-  right: var(--space-3);
-  font-size: var(--text-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  opacity: 0.5;
-}
-.translation-english .translation-label {
-  color: var(--color-text-muted);
-}
-/* Responsive: stack vertically on mobile */
-@media (max-width: 768px) {
-  .translation-block { grid-template-columns: 1fr; }
-  .translation-english { border-left: none; border-top: 3px solid var(--color-accent); }
-}
-```
-
 **Rules:**
 - Each English line should correspond to 1-2 code lines
 - Use conversational language, not technical jargon
@@ -149,40 +96,6 @@ For testing understanding with instant feedback. Each question has options, one 
 </div>
 ```
 
-**CSS for quiz states:**
-```css
-.quiz-option {
-  display: flex; align-items: center; gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface);
-  cursor: pointer; width: 100%;
-  transition: border-color var(--duration-fast), background var(--duration-fast);
-}
-.quiz-option:hover { border-color: var(--color-accent-muted); }
-.quiz-option.selected { border-color: var(--color-accent); background: var(--color-accent-light); }
-.quiz-option.correct { border-color: var(--color-success); background: var(--color-success-light); }
-.quiz-option.incorrect { border-color: var(--color-error); background: var(--color-error-light); }
-.quiz-option-radio {
-  width: 18px; height: 18px; border-radius: 50%;
-  border: 2px solid var(--color-border);
-  transition: all var(--duration-fast);
-}
-.quiz-option.selected .quiz-option-radio {
-  border-color: var(--color-accent);
-  background: var(--color-accent);
-  box-shadow: inset 0 0 0 3px white;
-}
-.quiz-feedback {
-  max-height: 0; overflow: hidden; opacity: 0;
-  transition: max-height var(--duration-normal), opacity var(--duration-normal);
-}
-.quiz-feedback.show { max-height: 200px; opacity: 1; padding: var(--space-3); margin-top: var(--space-2); border-radius: var(--radius-sm); }
-.quiz-feedback.success { background: var(--color-success-light); color: var(--color-success); }
-.quiz-feedback.error { background: var(--color-error-light); color: var(--color-error); }
-```
-
 ---
 
 ## Drag-and-Drop Matching
@@ -191,7 +104,7 @@ For matching concepts to descriptions. Supports both mouse (HTML5 Drag API) and 
 
 **HTML:**
 ```html
-<div class="dnd-container">
+<div class="dnd-container" id="dnd-module2">
   <div class="dnd-chips">
     <div class="dnd-chip" draggable="true" data-answer="actor-a">Actor A</div>
     <div class="dnd-chip" draggable="true" data-answer="actor-b">Actor B</div>
@@ -204,78 +117,9 @@ For matching concepts to descriptions. Supports both mouse (HTML5 Drag API) and 
     </div>
     <!-- more zones -->
   </div>
-  <button onclick="checkDnD()">Check Matches</button>
-  <button onclick="resetDnD()">Reset</button>
+  <button onclick="checkDnD('dnd-module2')">Check Matches</button>
+  <button onclick="resetDnD('dnd-module2')">Reset</button>
 </div>
-```
-
-**JS (mouse + touch):**
-```javascript
-// MOUSE: HTML5 Drag API
-chips.forEach(chip => {
-  chip.addEventListener('dragstart', (e) => {
-    e.dataTransfer.setData('text/plain', chip.dataset.answer);
-    chip.classList.add('dragging');
-  });
-  chip.addEventListener('dragend', () => chip.classList.remove('dragging'));
-});
-
-zones.forEach(zone => {
-  const target = zone.querySelector('.dnd-zone-target');
-  target.addEventListener('dragover', (e) => { e.preventDefault(); target.classList.add('drag-over'); });
-  target.addEventListener('dragleave', () => target.classList.remove('drag-over'));
-  target.addEventListener('drop', (e) => {
-    e.preventDefault();
-    target.classList.remove('drag-over');
-    const answer = e.dataTransfer.getData('text/plain');
-    const chip = document.querySelector(`[data-answer="${answer}"]`);
-    target.textContent = chip.textContent;
-    target.dataset.placed = answer;
-    chip.classList.add('placed');
-  });
-});
-
-// TOUCH: Custom implementation (HTML5 drag doesn't work on mobile)
-chips.forEach(chip => {
-  chip.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    const touch = e.touches[0];
-    const clone = chip.cloneNode(true);
-    clone.classList.add('touch-ghost');
-    clone.style.cssText = `position:fixed; z-index:1000; pointer-events:none;
-      left:${touch.clientX - 40}px; top:${touch.clientY - 20}px;`;
-    document.body.appendChild(clone);
-    chip._ghost = clone;
-    chip._answer = chip.dataset.answer;
-  }, { passive: false });
-
-  chip.addEventListener('touchmove', (e) => {
-    e.preventDefault();
-    const touch = e.touches[0];
-    if (chip._ghost) {
-      chip._ghost.style.left = (touch.clientX - 40) + 'px';
-      chip._ghost.style.top = (touch.clientY - 20) + 'px';
-    }
-    // Highlight zone under finger
-    const el = document.elementFromPoint(touch.clientX, touch.clientY);
-    zones.forEach(z => z.querySelector('.dnd-zone-target').classList.remove('drag-over'));
-    if (el && el.closest('.dnd-zone-target')) {
-      el.closest('.dnd-zone-target').classList.add('drag-over');
-    }
-  }, { passive: false });
-
-  chip.addEventListener('touchend', (e) => {
-    if (chip._ghost) { chip._ghost.remove(); chip._ghost = null; }
-    const touch = e.changedTouches[0];
-    const el = document.elementFromPoint(touch.clientX, touch.clientY);
-    if (el && el.closest('.dnd-zone-target')) {
-      const target = el.closest('.dnd-zone-target');
-      target.textContent = chip.textContent;
-      target.dataset.placed = chip._answer;
-      chip.classList.add('placed');
-    }
-  });
-});
 ```
 
 ---
@@ -316,21 +160,6 @@ iMessage/WeChat-style chat showing components "talking" to each other. Messages 
     <span class="chat-progress"></span>
   </div>
 </div>
-```
-
-**CSS for typing dots:**
-```css
-.typing-dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: var(--color-text-muted);
-  animation: typingBounce 1.4s infinite;
-}
-.typing-dot:nth-child(2) { animation-delay: 0.2s; }
-.typing-dot:nth-child(3) { animation-delay: 0.4s; }
-@keyframes typingBounce {
-  0%, 60%, 100% { transform: translateY(0); }
-  30% { transform: translateY(-6px); }
-}
 ```
 
 ---
@@ -377,15 +206,6 @@ Step-by-step visualization of data moving between components. User clicks "Next 
 </div>
 ```
 
-**CSS for active actor glow:**
-```css
-.flow-actor.active {
-  box-shadow: 0 0 0 3px var(--color-accent), 0 0 20px rgba(217, 79, 48, 0.2);
-  transform: scale(1.05);
-  transition: all var(--duration-normal) var(--ease-out);
-}
-```
-
 ---
 
 ## Interactive Architecture Diagram
@@ -422,9 +242,9 @@ Shows how different layers (e.g., HTML/CSS/JS, or data/logic/UI) build on each o
 ```html
 <div class="layer-demo">
   <div class="layer-tabs">
-    <button class="layer-tab active" onclick="showLayer('html')">HTML</button>
-    <button class="layer-tab" onclick="showLayer('css')">+ CSS</button>
-    <button class="layer-tab" onclick="showLayer('js')">+ JS</button>
+    <button class="layer-tab active" onclick="showLayer('html', this)">HTML</button>
+    <button class="layer-tab" onclick="showLayer('css', this)">+ CSS</button>
+    <button class="layer-tab" onclick="showLayer('js', this)">+ JS</button>
   </div>
   <div class="layer-viewport">
     <div class="layer" id="layer-html" style="display:block">
@@ -460,7 +280,8 @@ Show code with a deliberate bug. User clicks the buggy line. Reveal explains the
       <span class="line-num">2</span>
       <code>  if (msg.action === 'fetchData') {</code>
     </div>
-    <div class="bug-line bug-target" data-line="3" onclick="checkBugLine(this, true)">
+    <div class="bug-line bug-target" data-line="3" onclick="checkBugLine(this, true)"
+         data-explanation="The listener uses an async operation (fetch) but doesn't return true. Chrome closes the message channel before the response can be sent.">
       <span class="line-num">3</span>
       <code>    fetch(url).then(r => r.json()).then(data => sendResponse(data));</code>
     </div>
@@ -475,23 +296,6 @@ Show code with a deliberate bug. User clicks the buggy line. Reveal explains the
   </div>
   <div class="bug-feedback" id="bug-feedback"></div>
 </div>
-```
-
-**JS:**
-```javascript
-window.checkBugLine = function(el, isCorrect) {
-  const feedback = el.closest('.bug-challenge').querySelector('.bug-feedback');
-  if (isCorrect) {
-    el.classList.add('correct');
-    feedback.innerHTML = '<strong>Found it!</strong> The listener uses an async operation (fetch) but doesn\'t return true. Chrome closes the message channel before the response can be sent. Fix: add <code>return true;</code> at the end.';
-    feedback.className = 'bug-feedback show success';
-  } else {
-    el.classList.add('incorrect');
-    feedback.innerHTML = 'Not this line — look for where the async timing might cause problems...';
-    feedback.className = 'bug-feedback show error';
-    setTimeout(() => { el.classList.remove('incorrect'); feedback.className = 'bug-feedback'; }, 2000);
-  }
-};
 ```
 
 ---
@@ -550,25 +354,6 @@ Grid of cards highlighting engineering patterns, tech stack components, or key c
 </div>
 ```
 
-```css
-.pattern-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: var(--space-4);
-}
-.pattern-card {
-  background: var(--color-surface);
-  border-radius: var(--radius-md);
-  padding: var(--space-6);
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--duration-normal) var(--ease-out), box-shadow var(--duration-normal);
-}
-.pattern-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
-}
-```
-
 ---
 
 ## Flow Diagrams
@@ -611,26 +396,6 @@ For annotating config files, permissions, or settings:
 </div>
 ```
 
-```css
-.badge-item {
-  display: flex; align-items: center; gap: var(--space-4);
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-sm);
-  transition: border-color var(--duration-fast);
-}
-.badge-item:hover { border-color: var(--color-accent-muted); }
-.badge-code {
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  background: var(--color-bg-code);
-  color: #CBA6F7;
-  padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-sm);
-  white-space: nowrap;
-}
-```
-
 ---
 
 ## Glossary Tooltips
@@ -643,144 +408,6 @@ The most important accessibility feature for non-technical learners. Any technic
   <span class="term" data-definition="A service worker is a background script that runs independently of the web page — like a behind-the-scenes assistant that's always on, even when you're not looking at the page.">service worker</span>
   to handle API calls.
 </p>
-```
-
-**CSS:**
-```css
-.term {
-  border-bottom: 1.5px dashed var(--color-accent-muted);
-  cursor: pointer;    /* NOT cursor: help — pointer feels clickable and inviting */
-  position: relative;
-}
-.term:hover, .term.active {
-  border-bottom-color: var(--color-accent);
-  color: var(--color-accent);
-}
-
-/* The tooltip bubble — uses position: fixed and is appended to document.body
-   via JS so it is NEVER clipped by ancestor overflow: hidden containers
-   (like translation blocks). See JS section below for positioning logic. */
-.term-tooltip {
-  position: fixed;        /* CRITICAL: fixed, not absolute — prevents clipping */
-  background: var(--color-bg-code);
-  color: #CDD6F4;
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-sm);
-  font-family: var(--font-body);
-  line-height: var(--leading-normal);
-  width: max(200px, min(320px, 80vw));
-  box-shadow: var(--shadow-lg);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--duration-fast);
-  z-index: 10000;        /* Above everything, including nav */
-}
-/* Arrow pointing down */
-.term-tooltip::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-top-color: var(--color-bg-code);
-}
-.term-tooltip.visible {
-  opacity: 1;
-}
-
-/* If tooltip goes off-screen top, flip to below */
-.term-tooltip.flip {
-  bottom: auto;
-  top: calc(100% + 8px);
-}
-.term-tooltip.flip::after {
-  top: auto;
-  bottom: 100%;
-  border-top-color: transparent;
-  border-bottom-color: var(--color-bg-code);
-}
-```
-
-**JS — position: fixed tooltips appended to body (never clipped by overflow):**
-```javascript
-// Tooltip container — appended to body so it's never clipped
-let activeTooltip = null;
-
-function positionTooltip(term, tip) {
-  const rect = term.getBoundingClientRect();
-  const tipWidth = 300; // approximate
-  let left = rect.left + rect.width / 2 - tipWidth / 2;
-  // Clamp to viewport
-  left = Math.max(8, Math.min(left, window.innerWidth - tipWidth - 8));
-
-  // Try above first
-  let top = rect.top - 8;
-  tip.style.left = left + 'px';
-
-  // Position above by default, flip below if no room
-  document.body.appendChild(tip);
-  const tipHeight = tip.offsetHeight;
-  if (rect.top - tipHeight - 8 < 0) {
-    // Flip below
-    tip.style.top = (rect.bottom + 8) + 'px';
-    tip.classList.add('flip');
-  } else {
-    tip.style.top = (rect.top - tipHeight - 8) + 'px';
-    tip.classList.remove('flip');
-  }
-}
-
-document.querySelectorAll('.term').forEach(term => {
-  const tip = document.createElement('span');
-  tip.className = 'term-tooltip';
-  tip.textContent = term.dataset.definition;
-
-  // Hover for desktop
-  term.addEventListener('mouseenter', () => {
-    if (activeTooltip && activeTooltip !== tip) {
-      activeTooltip.classList.remove('visible');
-      activeTooltip.remove();
-    }
-    positionTooltip(term, tip);
-    requestAnimationFrame(() => tip.classList.add('visible'));
-    activeTooltip = tip;
-  });
-
-  term.addEventListener('mouseleave', () => {
-    tip.classList.remove('visible');
-    setTimeout(() => { if (!tip.classList.contains('visible')) tip.remove(); }, 150);
-    activeTooltip = null;
-  });
-
-  // Tap for mobile
-  term.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (activeTooltip && activeTooltip !== tip) {
-      activeTooltip.classList.remove('visible');
-      activeTooltip.remove();
-    }
-    if (tip.classList.contains('visible')) {
-      tip.classList.remove('visible');
-      tip.remove();
-      activeTooltip = null;
-    } else {
-      positionTooltip(term, tip);
-      requestAnimationFrame(() => tip.classList.add('visible'));
-      activeTooltip = tip;
-    }
-  });
-});
-
-// Close tooltips when clicking elsewhere
-document.addEventListener('click', () => {
-  if (activeTooltip) {
-    activeTooltip.classList.remove('visible');
-    activeTooltip.remove();
-    activeTooltip = null;
-  }
-});
 ```
 
 **Rules:**
@@ -823,25 +450,6 @@ Use instead of paragraphs listing "this folder does X, that folder does Y." Much
 </div>
 ```
 
-```css
-.file-tree { font-family: var(--font-mono); font-size: var(--text-sm); }
-.ft-folder, .ft-file {
-  padding: var(--space-2) var(--space-3);
-  border-left: 2px solid var(--color-border-light);
-  margin-left: var(--space-4);
-}
-.ft-folder > .ft-name { color: var(--color-accent); font-weight: 600; }
-.ft-folder > .ft-name::before { content: '📁 '; }
-.ft-file > .ft-name::before { content: '📄 '; }
-.ft-desc {
-  color: var(--color-text-secondary);
-  font-family: var(--font-body);
-  margin-left: var(--space-2);
-  font-size: var(--text-xs);
-}
-.ft-children { margin-left: var(--space-4); }
-```
-
 ---
 
 ## Icon-Label Rows
@@ -874,23 +482,6 @@ For listing components, features, or concepts visually. Replaces bullet-point pa
 </div>
 ```
 
-```css
-.icon-rows { display: flex; flex-direction: column; gap: var(--space-4); }
-.icon-row {
-  display: flex; align-items: center; gap: var(--space-4);
-  padding: var(--space-4);
-  background: var(--color-surface);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-}
-.icon-row p { margin: 0; color: var(--color-text-secondary); font-size: var(--text-sm); }
-.icon-circle {
-  width: 48px; height: 48px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.25rem; flex-shrink: 0;
-}
-```
-
 ---
 
 ## Numbered Step Cards
@@ -921,25 +512,4 @@ For sequences that would otherwise be a numbered paragraph list. Visual, scannab
     </div>
   </div>
 </div>
-```
-
-```css
-.step-cards { display: flex; flex-direction: column; gap: var(--space-3); }
-.step-card {
-  display: flex; align-items: flex-start; gap: var(--space-4);
-  padding: var(--space-4) var(--space-5);
-  background: var(--color-surface);
-  border-radius: var(--radius-md);
-  border-left: 3px solid var(--color-accent);
-  box-shadow: var(--shadow-sm);
-}
-.step-num {
-  width: 32px; height: 32px; border-radius: 50%;
-  background: var(--color-accent);
-  color: white; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-display);
-  flex-shrink: 0;
-}
-.step-body p { margin: var(--space-1) 0 0; color: var(--color-text-secondary); font-size: var(--text-sm); }
 ```

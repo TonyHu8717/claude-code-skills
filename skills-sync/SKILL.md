@@ -6,22 +6,22 @@ description: |
 
 # Skills Sync — 技能目录同步
 
-将 `.claude/skills/` 目录与 GitHub 仓库进行双向同步。
+将 `.agents/skills/` 目录与 GitHub 仓库进行双向同步。
 
 ## 配置
 
-同步基于 `.claude/skills/` 目录内的 git 仓库。首次使用前需确保：
+同步基于 `.agents/skills/` 目录内的 git 仓库。首次使用前需确保：
 
-1. `.claude/skills/` 已初始化为 git 仓库（`git init`）
+1. `.agents/skills/` 已初始化为 git 仓库（`git init`）
 2. 已配置远程仓库（`git remote add origin <url>`）
-3. 已完成首次推送（`git push -u origin master`）
+3. 已完成首次推送（`git push -u origin main`）
 
 如果未配置，引导用户完成初始化：
 ```
-cd .claude/skills
+cd .agents/skills
 git init
 git remote add origin https://github.com/<user>/<repo>.git
-git add . && git commit -m "init" && git push -u origin master
+git add . && git commit -m "init" && git push -u origin main
 ```
 
 ## 三种模式
@@ -30,35 +30,24 @@ git add . && git commit -m "init" && git push -u origin master
 
 **触发关键词**：`upload`、`上传`、`push`
 
-本地内容覆盖远程仓库。适用于本地有修改，要推送到 GitHub 的场景。
+本地内容覆盖远程仓库。适用于本地有修改、要推送到 GitHub 的场景。
 
 **执行流程：**
-1. **更新 REGISTRY.md** — 扫描所有技能目录，自动更新 `REGISTRY.md` 中的技能列表
-   ```bash
-   # 扫描所有 SKILL.md，提取 name 和 description
-   # 更新 REGISTRY.md 中的技能索引表
-   ```
-2. `git add -A` — 暂存所有变更（新增、修改、删除）
-3. `git status` — 显示将要上传的变更，让用户确认
-4. 用户确认后，`git commit -m "sync: upload skills"` 提交
-5. `git push --force-with-lease origin master` — 强制推送覆盖远程
-
-**REGISTRY.md 更新规则：**
-- 每次 Upload 前**必须**执行
-- 提取所有 `*/SKILL.md` 的 `name` 和 `description` 字段
-- 更新 `REGISTRY.md` 中的技能索引表
-- 确保新增技能和修改的技能都已记录
+1. `git add -A` — 暂存所有变更（新增、修改、删除）
+2. `git status` — 显示将要上传的变更，让用户确认
+3. 用户确认后，`git commit -m "sync: upload skills"` 提交
+4. `git push --force-with-lease origin master` — 强制推送覆盖远程
 
 **安全措施：**
 - 推送前显示变更列表，用户确认后才执行
 - 使用 `--force-with-lease`（而非 `--force`），防止覆盖他人的并发提交
-- 推送前自动创建备份分支：`git branch backup/master-$(date +%Y%m%d%H%M%S)`
+- 推送前自动创建备份分支：`git branch backup/main-$(date +%Y%m%d%H%M%S)`
 
 ### 2. Download（远程 → 本地）
 
 **触发关键词**：`download`、`下载`、`pull`
 
-远程内容覆盖本地。适用于在其他设备修改了技能，要同步到本地的场景。
+远程内容覆盖本地。适用于在其他设备修改了技能、要同步到本地的场景。
 
 **执行流程：**
 1. `git fetch origin` — 获取远程最新内容
@@ -124,33 +113,13 @@ git add . && git commit -m "init" && git push -u origin master
 
 ## 通用规则
 
-- **工作目录**：所有 git 命令在 `.claude/skills/` 目录下执行
+- **工作目录**：所有 git 命令在 `.agents/skills/` 目录下执行
 - **分支**：统一使用 `master` 分支
 - **提交信息格式**：`sync: {mode} — {brief description}`
 - **备份**：upload 和 download 操作前自动创建备份分支
 - **确认**：任何覆盖操作前必须显示差异并获得用户确认
 - **错误处理**：git 命令失败时，显示错误信息并建议恢复步骤，不自动执行 `git reset --hard` 等破坏性操作
-- **REGISTRY.md**：
-  - **Upload 模式**：必须先更新 REGISTRY.md 再推送
-  - **Download/Merge 模式**：操作完成后提示用户检查 REGISTRY.md 是否需要更新
-
-## REGISTRY.md 自动更新流程
-
-Upload 执行前自动运行：
-
-```bash
-# 1. 扫描所有技能目录
-for dir in */; do
-  if [ -f "${dir}SKILL.md" ]; then
-    # 2. 提取 name 和 description
-    name=$(grep "^name:" "${dir}SKILL.md" | cut -d: -f2 | tr -d ' ')
-    desc=$(grep "^description:" "${dir}SKILL.md" | cut -d: -f2- | head -1)
-    # 3. 更新 REGISTRY.md
-    echo "- [$name]($dir) — $desc" >> /tmp/registry_new.md
-  fi
-done
-# 4. 替换旧的 REGISTRY.md 技能列表部分
-```
+- **REGISTRY.md**：upload 模式下，确保 `REGISTRY.md` 已更新后再推送；download/merge 后提示用户检查 `REGISTRY.md` 是否需要更新
 
 ## 使用示例
 
@@ -158,7 +127,7 @@ done
 # 日常同步（默认 merge）
 /skills-sync
 
-# 明确上传（会先更新 REGISTRY.md）
+# 明确上传
 /skills-sync upload
 
 # 明确下载

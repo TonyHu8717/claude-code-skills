@@ -98,9 +98,9 @@ Shortcut 是对常用操作的高级封装（`lark-cli vc +<verb> [flags]`）。
 
 | Shortcut | 说明 |
 |----------|------|
-| [`+search`](references/lark-vc-search.md) | 搜索会议记录（至少需要一个筛选条件） |
-| [`+notes`](references/lark-vc-notes.md) | 查询会议纪要（通过 meeting-ids、minute-tokens 或 calendar-event-ids） |
-| [`+recording`](references/lark-vc-recording.md) | 通过 meeting-ids 或 calendar-event-ids 查询 minute_token |
+| [`+search`](references/lark-vc-search.md) | Search meeting records (requires at least one filter) |
+| [`+notes`](references/lark-vc-notes.md) | Query meeting notes (via meeting-ids, minute-tokens, or calendar-event-ids) |
+| [`+recording`](references/lark-vc-recording.md) | Query minute_token from meeting-ids or calendar-event-ids |
 
 - 使用 `+search` 命令时，必须阅读 [references/lark-vc-search.md](references/lark-vc-search.md)，了解搜索参数和返回值结构。
 - 使用 `+notes` 命令时，必须阅读 [references/lark-vc-notes.md](references/lark-vc-notes.md)，了解查询参数、产物类型和返回值结构。

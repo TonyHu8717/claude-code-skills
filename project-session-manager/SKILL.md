@@ -288,9 +288,9 @@ Jira CLI 与 PSM 分开处理认证。
 3. **创建功能分支**：
    ```bash
    cd "$local_path"
-   git fetch origin master
+   git fetch origin main
    branch_name="fix/$issue_number-$(echo "$title" | tr ' ' '-' | tr '[:upper:]' '[:lower:]' | head -c 30)"
-   git checkout -b "$branch_name" origin/master
+   git checkout -b "$branch_name" origin/main
    ```
 
 4. **创建工作树**：
@@ -321,9 +321,9 @@ Jira CLI 与 PSM 分开处理认证。
 2. **创建功能分支**：
    ```bash
    cd "$local_path"
-   git fetch origin master
+   git fetch origin main
    branch_name="feature/$feature_name"
-   git checkout -b "$branch_name" origin/master
+   git checkout -b "$branch_name" origin/main
    ```
 
 3. **创建工作树**：

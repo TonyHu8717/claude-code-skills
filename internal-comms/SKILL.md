@@ -1,32 +1,32 @@
 ---
 name: internal-comms
-description: 一套帮助撰写各类内部沟通文档的资源，使用公司偏好的格式。当被要求撰写某种内部沟通文档（状态报告、领导层更新、三方更新、公司简报、FAQ、事故报告、项目更新等）时，应使用此技能。
+description: A set of resources to help me write all kinds of internal communications, using the formats that my company likes to use. Claude should use this skill whenever asked to write some sort of internal communications (status reports, leadership updates, 3P updates, company newsletters, FAQs, incident reports, project updates, etc.).
 license: Complete terms in LICENSE.txt
 ---
 
-## 何时使用此技能
-撰写内部沟通文档时，请使用此技能：
-- 三方更新（进展、计划、问题）
-- 公司简报
-- FAQ 回复
-- 状态报告
-- 领导层更新
-- 项目更新
-- 事故报告
+## When to use this skill
+To write internal communications, use this skill for:
+- 3P updates (Progress, Plans, Problems)
+- Company newsletters
+- FAQ responses
+- Status reports
+- Leadership updates
+- Project updates
+- Incident reports
 
-## 如何使用此技能
+## How to use this skill
 
-撰写任何内部沟通文档：
+To write any internal communication:
 
-1. **识别沟通类型**，根据请求确定
-2. **加载相应的指导文件**，从 `examples/` 目录中选取：
-    - `examples/3p-updates.md` - 用于进展/计划/问题团队更新
-    - `examples/company-newsletter.md` - 用于公司全员简报
-    - `examples/faq-answers.md` - 用于回答常见问题
-    - `examples/general-comms.md` - 用于不明确匹配上述类型的其他内容
-3. **遵循该文件中的具体说明**，包括格式、语气和内容收集要求
+1. **Identify the communication type** from the request
+2. **Load the appropriate guideline file** from the `examples/` directory:
+    - `examples/3p-updates.md` - For Progress/Plans/Problems team updates
+    - `examples/company-newsletter.md` - For company-wide newsletters
+    - `examples/faq-answers.md` - For answering frequently asked questions
+    - `examples/general-comms.md` - For anything else that doesn't explicitly match one of the above
+3. **Follow the specific instructions** in that file for formatting, tone, and content gathering
 
-如果沟通类型不匹配任何现有指导，请要求澄清或获取更多关于期望格式的上下文。
+If the communication type doesn't match any existing guideline, ask for clarification or more context about the desired format.
 
-## 关键词
-三方更新、公司简报、公司沟通、周报、FAQ、常见问题、更新、内部沟通
+## Keywords
+3P updates, company newsletter, company comms, weekly update, faqs, common questions, updates, internal comms
