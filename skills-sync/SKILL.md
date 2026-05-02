@@ -6,19 +6,19 @@ description: |
 
 # Skills Sync — 技能目录同步
 
-将 `.agents/skills/` 目录与 GitHub 仓库进行双向同步。
+将 `.claude/skills/` 目录与 GitHub 仓库进行双向同步。
 
 ## 配置
 
-同步基于 `.agents/skills/` 目录内的 git 仓库。首次使用前需确保：
+同步基于 `.claude/skills/` 目录内的 git 仓库。首次使用前需确保：
 
-1. `.agents/skills/` 已初始化为 git 仓库（`git init`）
+1. `.claude/skills/` 已初始化为 git 仓库（`git init`）
 2. 已配置远程仓库（`git remote add origin <url>`）
 3. 已完成首次推送（`git push -u origin master`）
 
 如果未配置，引导用户完成初始化：
 ```
-cd .agents/skills
+cd .claude/skills
 git init
 git remote add origin https://github.com/<user>/<repo>.git
 git add . && git commit -m "init" && git push -u origin master
@@ -41,7 +41,7 @@ git add . && git commit -m "init" && git push -u origin master
 **安全措施：**
 - 推送前显示变更列表，用户确认后才执行
 - 使用 `--force-with-lease`（而非 `--force`），防止覆盖他人的并发提交
-- 推送前自动创建备份分支：`git branch backup/main-$(date +%Y%m%d%H%M%S)`
+- 推送前自动创建备份分支：`git branch backup/master-$(date +%Y%m%d%H%M%S)`
 
 ### 2. Download（远程 → 本地）
 
@@ -113,7 +113,7 @@ git add . && git commit -m "init" && git push -u origin master
 
 ## 通用规则
 
-- **工作目录**：所有 git 命令在 `.agents/skills/` 目录下执行
+- **工作目录**：所有 git 命令在 `.claude/skills/` 目录下执行
 - **分支**：统一使用 `master` 分支
 - **提交信息格式**：`sync: {mode} — {brief description}`
 - **备份**：upload 和 download 操作前自动创建备份分支
