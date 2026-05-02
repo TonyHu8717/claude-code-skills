@@ -309,7 +309,7 @@ jobs:
         run: npx standard-version --release-as ${{ inputs.release_type }}
 
       - name: Push changes
-        run: git push --follow-tags origin main
+        run: git push --follow-tags origin master
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
