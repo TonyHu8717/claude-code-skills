@@ -14,14 +14,14 @@ description: |
 
 1. `.claude/skills/` 已初始化为 git 仓库（`git init`）
 2. 已配置远程仓库（`git remote add origin <url>`）
-3. 已完成首次推送（`git push -u origin main`）
+3. 已完成首次推送（`git push -u origin master`）
 
 如果未配置，引导用户完成初始化：
 ```
 cd .claude/skills
 git init
 git remote add origin https://github.com/<user>/<repo>.git
-git add . && git commit -m "init" && git push -u origin main
+git add . && git commit -m "init" && git push -u origin master
 ```
 
 ## 三种模式
@@ -52,7 +52,7 @@ git add . && git commit -m "init" && git push -u origin main
 **安全措施：**
 - 推送前显示变更列表，用户确认后才执行
 - 使用 `--force-with-lease`（而非 `--force`），防止覆盖他人的并发提交
-- 推送前自动创建备份分支：`git branch backup/main-$(date +%Y%m%d%H%M%S)`
+- 推送前自动创建备份分支：`git branch backup/master-$(date +%Y%m%d%H%M%S)`
 
 ### 2. Download（远程 → 本地）
 
