@@ -1,6 +1,6 @@
 # Claude Code Skills Registry
 
-> 统一技能目录 - 共 329 个技能，分类管理，同步至 GitHub 进行版本控制。
+> 统一技能目录 - 共 330 个技能，分类管理，同步至 GitHub 进行版本控制。
 
 ## 目录结构
 
@@ -117,6 +117,7 @@
 | 技能名 | 说明 |
 |--------|------|
 | [angular-migration](angular-migration/SKILL.md) | 使用混合模式、增量组件重写和依赖注入更新从 AngularJS 迁移到 Angular。在升级 AngularJS 应用、规划框架迁移或现代化旧版 Angular 代码时使用。 |
+| [aaos-reader](aaos-reader/SKILL.md) | 阅读 AAOS (Android Automotive OS) 本地代码目录，生成交互式 HTML 教程并保存到 aaos 目录下。适用于用户给出本地绝对路径要求生成教程的场景。触发词：aaos reader, aaos 教程, aaos 代码阅读。 |
 | [bash-defensive-patterns](bash-defensive-patterns/SKILL.md) | 掌握生产级脚本的防御性 Bash 编程技术。用于编写健壮的 Shell 脚本、CI/CD 流水线或需要容错和安全性的系统工具时使用。 |
 | [build-mcp-app](build-mcp-app/SKILL.md) | 当用户想要构建"MCP 应用"、为 MCP 服务器添加"交互式 UI"或"组件"、"在聊天中渲染组件"、构建"MCP UI 资源"、制作在对话中内联显示"表单"、"选择器"、"仪表板"或"确认对话框" |
 | [build-mcp-server](build-mcp-server/SKILL.md) | 当用户要求"构建 MCP 服务器"、"创建 MCP"、"制作 MCP 集成"、"为 Claude 封装 API"、"向 Claude 暴露工具"、"制作 MCP 应用"或讨论使用模型上下文协议构建内容 |
