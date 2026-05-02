@@ -14,14 +14,14 @@ description: |
 
 1. `.agents/skills/` 已初始化为 git 仓库（`git init`）
 2. 已配置远程仓库（`git remote add origin <url>`）
-3. 已完成首次推送（`git push -u origin main`）
+3. 已完成首次推送（`git push -u origin master`）
 
 如果未配置，引导用户完成初始化：
 ```
 cd .agents/skills
 git init
 git remote add origin https://github.com/<user>/<repo>.git
-git add . && git commit -m "init" && git push -u origin main
+git add . && git commit -m "init" && git push -u origin master
 ```
 
 ## 三种模式

@@ -41,7 +41,7 @@ echo '{"skill":"careful","ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","repo":"'$(base
 | `rm -rf` / `rm -r` / `rm --recursive` | `rm -rf /var/data` | 递归删除 |
 | `DROP TABLE` / `DROP DATABASE` | `DROP TABLE users;` | 数据丢失 |
 | `TRUNCATE` | `TRUNCATE orders;` | 数据丢失 |
-| `git push --force` / `-f` | `git push -f origin main` | 历史重写 |
+| `git push --force` / `-f` | `git push -f origin master` | 历史重写 |
 | `git reset --hard` | `git reset --hard HEAD~3` | 未提交工作丢失 |
 | `git checkout .` / `git restore .` | `git checkout .` | 未提交工作丢失 |
 | `kubectl delete` | `kubectl delete pod` | 生产影响 |
