@@ -205,6 +205,8 @@
 | [project-session-manager](project-session-manager/SKILL.md) | 以工作树为先的开发环境管理器，用于 issues、PRs 和功能，可选 tmux 会话 |
 | [task-coordination-strategies](task-coordination-strategies/SKILL.md) | 分解复杂任务、设计依赖图、协调多智能体工作，包括任务描述编写和工作负载平衡。适用于为智能体团队拆分任务、管理任务依赖或监控团队进度时使用。 |
 | [team](team/SKILL.md) | N 个协调代理在共享任务列表上协作，使用 Claude Code 原生团队功能 |
+| [council](council/SKILL.md) | 召开四声部议会处理模糊决策、利弊权衡和决策判断。当存在多条有效路径、需要结构化分歧呈现或需要多方观点对抗时使用。 |
+| [continuous-agent-loop](continuous-agent-loop/SKILL.md) | 持续自主 Agent 循环模式，包含质量门控、评估与恢复控制。适用于无人值守的开发工作流、并行内容生成和 RFC 驱动的多智能体 DAG 系统。 |
 | [team-communication-protocols](team-communication-protocols/SKILL.md) | 智能体团队通信的结构化消息协议，包括消息类型选择、计划审批、关闭流程和应避免的反模式。适用于为新生成的团队建立通信规范、决定发送直接消息还是广播、团队负责人需要在工作开始前审查和批准实现者的计划、在所 |
 | [team-composition-analysis](team-composition-analysis/SKILL.md) | 为从种子前到 A 轮的早期创业公司设计最优团队结构、招聘计划、薪酬策略和股权分配。在规划人员编制、确定下一个招聘角色、设定薪酬或股权范围、设计组织架构或构建与融资里程碑对齐的招聘预算时使用此技能。 |
 
@@ -463,4 +465,4 @@
 
 ---
 
-*总计：329 个技能*
+*总计：331 个技能*
