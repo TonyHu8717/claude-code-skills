@@ -187,8 +187,17 @@ cd 中文教程/course-name && bash build.sh
 - 模块文件只包含 `<section>` 内容——没有样板文件
 - 使用 CSS `scroll-snap-type: y proximity`（不是 `mandatory`）
 - 在 `.module` 上使用 `min-height: 100dvh` 和 `100vh` 后备
-- 互动元素 JS 在 `main.js` 中；通过 `data-*` 属性和 CSS 类名连接，如 `references/interactive-elements.md` 中所示
+- 互动元素 JS 在 `main.js` 中；**严格**按照 `references/interactive-elements.md` 中的模式使用 `data-*` 属性和 CSS 类名
 - 聊天容器需要 `id` 属性；流动画需要在 `.flow-animation` 上使用 `data-steps='[...]'` JSON
+
+**关键 — HTML/JS 契约：** `main.js` 引擎完全通过扫描特定的 CSS 类名和 `data-*` 属性来初始化。每个互动元素的 HTML 必须在结构属性上与参考模式逐字节匹配。这是互动功能失效的第一大原因：
+
+- **测验：** 选项必须使用 `data-value`（不是 `data-answer`）和 `onclick="selectOption(this)"`。`.quiz-question-block` 必须有 `data-correct`、`data-explanation-right`、`data-explanation-wrong`。
+- **聊天窗口：** 消息必须有 `data-sender` 和 `style="display:none"`。控制按钮必须使用类 `.chat-next-btn`、`.chat-all-btn`、`.chat-reset-btn`（不是自定义 `id` 值）。
+- **流动画：** 按钮必须使用类 `.flow-next-btn` 和 `.flow-reset-btn`（不是自定义 `id` 值）。需要 `.flow-packet` 元素才能实现数据包移动动画。
+- **Bug 挑战：** 使用带有 `onclick="checkBugLine(this, true/false)"` 的独立 `.bug-line` 元素——纯 `<pre>` 代码块不是互动的。
+
+**在编写任何模块 HTML 之前阅读 `references/gotchas.md`**——它记录了真实课程构建中发现的失败模式。最常见的失败列在"HTML 元素不匹配 JS 引擎约定"下。
 
 ### 阶段 4：审阅和打开
 

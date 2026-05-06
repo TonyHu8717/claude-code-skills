@@ -187,8 +187,17 @@ This produces `index.html`. Open it in the browser.
 - Module files contain only `<section>` content — no boilerplate
 - Use CSS `scroll-snap-type: y proximity` (NOT `mandatory`)
 - Use `min-height: 100dvh` with `100vh` fallback on `.module`
-- Interactive element JS is in `main.js`; wire up via `data-*` attributes and CSS class names as shown in `references/interactive-elements.md`
+- Interactive element JS is in `main.js`; wire up via `data-*` attributes and CSS class names **exactly** as shown in `references/interactive-elements.md`
 - Chat containers need `id` attributes; flow animations need `data-steps='[...]'` JSON on `.flow-animation`
+
+**CRITICAL — HTML/JS Contract:** The `main.js` engine initializes entirely by scanning for specific CSS class names and `data-*` attributes. Every interactive element's HTML must match the reference patterns byte-for-byte in its structural attributes. This is the #1 cause of broken interactivity:
+
+- **Quizzes:** Options must have `data-value` (NOT `data-answer`) and `onclick="selectOption(this)"`. The `.quiz-question-block` must have `data-correct`, `data-explanation-right`, `data-explanation-wrong`.
+- **Chat windows:** Messages must have `data-sender` and `style="display:none"`. Control buttons must use classes `.chat-next-btn`, `.chat-all-btn`, `.chat-reset-btn` (NOT custom `id` values).
+- **Flow animations:** Buttons must use classes `.flow-next-btn` and `.flow-reset-btn` (NOT custom `id` values). A `.flow-packet` element is required for packet movement animations to work.
+- **Bug challenges:** Use individual `.bug-line` elements with `onclick="checkBugLine(this, true/false)"` — plain `<pre>` code blocks are NOT interactive.
+
+**Read `references/gotchas.md` before writing any module HTML** — it documents failure modes discovered from real course builds. The most frequent failures are listed under "HTML Elements Not Matching JS Engine Conventions."
 
 ### Phase 4: Review and Open
 

@@ -150,7 +150,7 @@
   $$('.term').forEach(term => {
     const tip = document.createElement('span');
     tip.className = 'term-tooltip';
-    tip.textContent = term.dataset.definition;
+    tip.textContent = term.dataset.definition || '';
 
     term.addEventListener('mouseenter', () => showTooltip(term, tip));
     term.addEventListener('mouseleave', () => hideTooltip(tip));
@@ -167,6 +167,7 @@
   /* ── QUIZ ENGINE ───────────────────────────────────────────── */
   window.selectOption = function (btn) {
     const block = btn.closest('.quiz-question-block');
+    if (!block) return;
     $$('.quiz-option', block).forEach(o => o.classList.remove('selected'));
     btn.classList.add('selected');
   };
@@ -194,7 +195,7 @@
         feedback.className = 'quiz-feedback show success';
       } else {
         selected.classList.add('incorrect');
-        const correctBtn = $(`.quiz-option[data-value="${correct}"]`, q);
+        const correctBtn = $(`.quiz-option[data-value="${CSS.escape(correct)}"]`, q);
         if (correctBtn) correctBtn.classList.add('correct');
         feedback.innerHTML = '<strong>Not quite.</strong> ' + wrongExp;
         feedback.className = 'quiz-feedback show error';
@@ -282,6 +283,11 @@
         }
         zones.forEach(z => { const t = $('.dnd-zone-target', z); if (t) t.classList.remove('drag-over'); });
       });
+
+      chip.addEventListener('touchcancel', () => {
+        if (chip._ghost) { chip._ghost.remove(); chip._ghost = null; }
+        zones.forEach(z => { const t = $('.dnd-zone-target', z); if (t) t.classList.remove('drag-over'); });
+      });
     });
   }
 
@@ -303,7 +309,7 @@
     const container = $('#' + containerId);
     if (!container) return;
     $$('.dnd-zone-target', container).forEach(t => {
-      t.textContent = 'Drop here';
+      t.textContent = '拖放到此处';
       delete t.dataset.placed;
       t.classList.remove('correct-placed', 'incorrect-placed');
     });
@@ -321,6 +327,7 @@
     const typingAvEl  = $('#' + containerEl.id + '-typing-avatar') || $('.chat-avatar', typingEl);
     const progressEl  = $('.chat-progress', containerEl);
     let index = 0;
+    let playInterval = null;
 
     // Build actor map from messages
     const actors = {};
@@ -337,9 +344,13 @@
     }
 
     function showNext() {
-      if (index >= messages.length) return;
+      if (index >= messages.length) {
+        if (playInterval) { clearInterval(playInterval); playInterval = null; }
+        return;
+      }
       const msg    = messages[index];
       const sender = msg.dataset.sender;
+      index++;
 
       if (typingEl && actors[sender]) {
         if (typingAvEl) {
@@ -353,19 +364,20 @@
         if (typingEl) typingEl.style.display = 'none';
         msg.style.display = 'flex';
         msg.style.animation = 'fadeSlideUp 0.3s var(--ease-out)';
-        index++;
         updateProgress();
       }, 800);
     }
 
     function showAll() {
-      const iv = setInterval(() => {
-        if (index >= messages.length) { clearInterval(iv); return; }
+      if (playInterval) return; // prevent concurrent intervals
+      playInterval = setInterval(() => {
+        if (index >= messages.length) { clearInterval(playInterval); playInterval = null; return; }
         showNext();
       }, 1200);
     }
 
     function reset() {
+      if (playInterval) { clearInterval(playInterval); playInterval = null; }
       index = 0;
       messages.forEach(m => { m.style.display = 'none'; m.style.animation = ''; });
       if (typingEl) typingEl.style.display = 'none';
@@ -395,14 +407,11 @@
     let step = 0;
 
     function updateProgress() {
-      if (progressEl) progressEl.textContent = 'Step ' + step + ' / ' + stepsData.length;
+      if (progressEl) progressEl.textContent = step + ' / ' + stepsData.length + ' steps';
     }
 
-    function animatePacket(fromId, toId) {
-      if (!packet) return;
-      const fromEl = $('#' + fromId);
-      const toEl   = $('#' + toId);
-      if (!fromEl || !toEl) return;
+    function animatePacket(fromEl, toEl) {
+      if (!packet || !fromEl || !toEl) return;
       const fromR = fromEl.getBoundingClientRect();
       const toR   = toEl.getBoundingClientRect();
       const contR = containerEl.getBoundingClientRect();
@@ -426,10 +435,16 @@
       const s = stepsData[step];
       $$('.flow-actor', containerEl).forEach(a => a.classList.remove('active'));
       if (s.highlight) {
-        const hEl = $('#' + s.highlight, containerEl) || $('#flow-' + s.highlight);
+        const hEl = document.getElementById(s.highlight) || $(`#${s.highlight}`, containerEl);
         if (hEl) hEl.classList.add('active');
       }
-      if (s.packet && s.from && s.to) animatePacket('flow-' + s.from, 'flow-' + s.to);
+      if (s.packet && s.from && s.to) {
+        const fromEl = document.getElementById('flow-' + s.from) || document.getElementById(s.from);
+        const toEl   = document.getElementById('flow-' + s.to) || document.getElementById(s.to);
+        if (fromEl && toEl) {
+          animatePacket(fromEl, toEl);
+        }
+      }
       if (labelEl) labelEl.textContent = s.label || '';
       step++;
       updateProgress();
@@ -438,7 +453,7 @@
     function reset() {
       step = 0;
       $$('.flow-actor', containerEl).forEach(a => a.classList.remove('active'));
-      if (labelEl) labelEl.textContent = 'Click "Next Step" to begin';
+      if (labelEl) labelEl.textContent = '点击"下一步"开始';
       if (packet)  packet.style.display = 'none';
       updateProgress();
     }
@@ -467,7 +482,9 @@
   /* ── BUG CHALLENGE ─────────────────────────────────────────── */
   window.checkBugLine = function (el, isCorrect) {
     const challenge = el.closest('.bug-challenge');
+    if (!challenge) return;
     const feedback  = $('.bug-feedback', challenge);
+    if (!feedback) return;
     if (isCorrect) {
       el.classList.add('correct');
       feedback.innerHTML  = '<strong>Found it!</strong> ' + (el.dataset.explanation || '');
