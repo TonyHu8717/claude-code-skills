@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>中文教程索引</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-accent:       #2A7B9B;
+      --color-accent-hover: #1F6280;
+      --color-accent-light: #E4F2F7;
+      --color-accent-muted: #5A9DB8;
+      --color-bg:           #FAF7F2;
+      --color-bg-alt:       #F3EFE8;
+      --color-fg:           #3D3830;
+      --color-fg-muted:     #6B6560;
+      --color-fg-dim:       #96908A;
+      --color-card-bg:      #FFFFFF;
+      --color-card-shadow:  0 1px 3px rgba(61,56,48,0.08), 0 4px 12px rgba(61,56,48,0.04);
+      --color-card-hover:   0 1px 4px rgba(61,56,48,0.12), 0 8px 24px rgba(61,56,48,0.08);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      background: var(--color-bg);
+      color: var(--color-fg);
+      line-height: 1.6;
+      min-height: 100dvh;
+    }
+
+    /* ── HERO ──────────────────────────────── */
+    .hero {
+      text-align: center;
+      padding: 80px 24px 48px;
+      background: linear-gradient(180deg, var(--color-accent-light) 0%, var(--color-bg) 100%);
+    }
+
+    .hero h1 {
+      font-family: 'Bricolage Grotesque', serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      color: var(--color-accent);
+      letter-spacing: -0.02em;
+    }
+
+    .hero .subtitle {
+      margin-top: 12px;
+      font-size: 1.1rem;
+      color: var(--color-fg-muted);
+      max-width: 560px;
+      margin-inline: auto;
+    }
+
+    /* ── STATS BAR ──────────────────────────── */
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-family: 'Bricolage Grotesque', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--color-fg);
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--color-fg-dim);
+      margin-top: 2px;
+    }
+
+    /* ── MAIN CONTENT ────────────────────────── */
+    .main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    /* ── CATEGORY SECTION ────────────────────── */
+    .category {
+      margin-top: 56px;
+    }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .category-icon {
+      font-size: 1.6rem;
+    }
+
+    .category-name {
+      font-family: 'Bricolage Grotesque', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--color-fg);
+    }
+
+    .category-count {
+      font-size: 0.9rem;
+      color: var(--color-fg-dim);
+      margin-left: 8px;
+    }
+
+    .category-desc {
+      font-size: 0.95rem;
+      color: var(--color-fg-muted);
+      margin-bottom: 24px;
+    }
+
+    /* ── TUTORIAL GRID ───────────────────────── */
+    .tutorial-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .tutorial-card {
+      display: flex;
+      flex-direction: column;
+      background: var(--color-card-bg);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      box-shadow: var(--color-card-shadow);
+      text-decoration: none;
+      color: inherit;
+      transition: box-shadow 0.25s var(--ease-out), transform 0.25s var(--ease-out);
+      border-left: 4px solid transparent;
+      position: relative;
+    }
+
+    .tutorial-card:hover {
+      box-shadow: var(--color-card-hover);
+      transform: translateY(-2px);
+    }
+
+    .tutorial-card .card-accent {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      border-radius: var(--radius-md) 0 0 var(--radius-md);
+    }
+
+    .tutorial-card .card-breadcrumb {
+      font-size: 0.78rem;
+      color: var(--color-fg-dim);
+      margin-bottom: 8px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .tutorial-card .card-title {
+      font-family: 'Bricolage Grotesque', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--color-fg);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .tutorial-card .card-desc {
+      font-size: 0.88rem;
+      color: var(--color-fg-muted);
+      flex: 1;
+      line-height: 1.5;
+    }
+
+    .tutorial-card .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 16px;
+      font-size: 0.8rem;
+      color: var(--color-fg-dim);
+    }
+
+    .card-meta .tag {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      background: var(--color-accent-light);
+      color: var(--color-accent);
+    }
+
+    /* ── FOOTER ──────────────────────────────── */
+    .footer {
+      text-align: center;
+      padding: 40px 24px;
+      color: var(--color-fg-dim);
+      font-size: 0.85rem;
+      border-top: 1px solid rgba(61,56,48,0.08);
+    }
+
+    /* ── SEARCH ──────────────────────────────── */
+    .search-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 24px;
+    }
+
+    .search-input {
+      width: 100%;
+      max-width: 400px;
+      padding: 12px 20px;
+      border: 1.5px solid rgba(61,56,48,0.15);
+      border-radius: 100px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      background: var(--color-card-bg);
+      color: var(--color-fg);
+      outline: none;
+      transition: border-color 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out);
+    }
+
+    .search-input:focus {
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px var(--color-accent-light);
+    }
+
+    .search-input::placeholder {
+      color: var(--color-fg-dim);
+    }
+
+    /* ── EMPTY STATE ─────────────────────────── */
+    .no-results {
+      display: none;
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--color-fg-muted);
+    }
+
+    .no-results.visible { display: block; }
+
+    /* ── RESPONSIVE ──────────────────────────── */
+    @media (max-width: 768px) {
+      .hero { padding: 56px 20px 36px; }
+      .stats-bar { gap: 24px; }
+      .tutorial-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .tutorial-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ HERO ═══ -->
+  <header class="hero">
+    <h1>中文教程索引</h1>
+    <p class="subtitle">交互式源码阅读教程，从零开始理解优秀开源项目的内部设计</p>
+    <div class="stats-bar">
+      <div class="stat">
+        <div class="stat-value" id="stat-total">__STAT_TOTAL__</div>
+        <div class="stat-label">教程总数</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="stat-cats">__STAT_CATS__</div>
+        <div class="stat-label">分类</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="stat-updated">__STAT_UPDATED__</div>
+        <div class="stat-label">最近更新</div>
+      </div>
+    </div>
+    <div class="search-wrap">
+      <input type="text" class="search-input" id="search" placeholder="搜索教程..." aria-label="搜索教程">
+    </div>
+  </header>
+
+  <!-- ═══ MAIN ═══ -->
+  <main class="main" id="main">
+    <!-- __CATEGORIES__ -->
+  </main>
+
+  <!-- ═══ NO RESULTS ═══ -->
+  <div class="no-results" id="no-results">
+    <p>没有找到匹配的教程，试试其他关键词。</p>
+  </div>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="footer">
+    <p>由 Claude Code 自动生成 · 最后更新：__GEN_TIME__</p>
+  </footer>
+
+  <script>
+    (function() {
+      'use strict';
+
+      function $(sel, ctx) { return (ctx || document).querySelector(sel); }
+      function $$(sel, ctx) { return Array.from((ctx || document).querySelectorAll(sel)); }
+
+      /* ── SEARCH ────────────────────────────── */
+      const searchInput = $('#search');
+      const noResults   = $('#no-results');
+
+      if (searchInput) {
+        searchInput.addEventListener('input', function() {
+          const query = this.value.toLowerCase().trim();
+          const cards = $$('.tutorial-card');
+          let visible = 0;
+
+          cards.forEach(card => {
+            const text = (card.querySelector('.card-title')?.textContent || '') + ' ' +
+                         (card.querySelector('.card-desc')?.textContent || '') + ' ' +
+                         (card.querySelector('.card-breadcrumb')?.textContent || '');
+            if (!query || text.toLowerCase().includes(query)) {
+              card.style.display = '';
+              visible++;
+            } else {
+              card.style.display = 'none';
+            }
+          });
+
+          if (noResults) {
+            noResults.classList.toggle('visible', visible === 0 && query.length > 0);
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
