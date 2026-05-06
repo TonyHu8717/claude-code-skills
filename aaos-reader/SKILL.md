@@ -1,7 +1,7 @@
 ---
 name: aaos-reader
 description: |
-  阅读 AAOS (Android Automotive OS) 本地代码目录，生成交互式 HTML 教程并保存到 aaos 目录下。适用于用户给出一个本地绝对路径（如 Y:\GuaMaster\aaos\frameworks\native\services\surfaceflinger），要求阅读代码、生成教程/课程/学习资料的场景。触发词：aaos reader, aaos 教程, aaos 代码阅读, 阅读这个模块, 分析这个代码, 生成教程, 代码教程。当用户提供一个包含 aaos 的绝对路径并要求生成教程时自动触发。
+  阅读 AAOS (Android Automotive OS) 本地代码目录，生成交互式 HTML 教程并保存到 aaos 目录下。适用于用户给出一个本地绝对路径（如 Y:\GuaMaster\aaos\frameworks\native\services\surfaceflinger），要求阅读代码、生成教程/课程/学习资料的场景。触发词：aaos reader, aaos 教程, aaos 代码阅读, 阅读这个模块, 分析这个代码, 生成教程, 代码教程。当用户提供一个包含 aaos 的绝对路径并要求生成教程时自动触发。支持多级子模块、Java 包识别、Android.bp 依赖分析。
 ---
 
 # AAOS Code Reader
@@ -27,17 +27,88 @@ description: |
 
 ### 输出目录结构
 ```
-D:\claude\aaos\{镜像路径}\styles.css
-D:\claude\aaos\{镜像路径}\main.js
-D:\claude\aaos\{镜像路径}\_base.html
-D:\claude\aaos\{镜像路径}\_footer.html
-D:\claude\aaos\{镜像路径}\build.sh
-D:\claude\aaos\{镜像路径}\modules\
-  01-overview.html
-  02-xxx.html
-  ...
-D:\claude\aaos\{镜像路径}\index.html    ← build.sh 组装生成
+D:\claude\aaos\{镜像路径}\
+  styles.css
+  main.js
+  _base.html
+  _footer.html
+  build.sh
+  modules\
+    01-overview.html
+    02-xxx.html
+    ...
+  submodules\                    ← 子模块目录（如果有子目录）
+    CompositionEngine\
+      index.html                 ← 子模块入口
+      modules\...
+      submodules\...             ← 子模块的子模块
+    DisplayHardware\
+      index.html
+      modules\...
+    Scheduler\
+      index.html
+      modules\...
+  index.html                     ← build.sh 组装生成
 ```
+
+### 多级目录支持
+
+如果输入目录包含子目录，每个子目录生成一个子模块教程，形成树状导航结构：
+
+**导航规则：**
+- 父模块的模块索引中包含指向各子模块的链接卡片（子模块入口）
+- 子模块的模块索引中包含指回父模块的链接
+- 子模块如果有子子模块，同样形成三级导航
+- 点击子模块卡片跳转到 `submodules/{子模块名}/index.html`
+
+**子模块生成规则：**
+
+**目录过滤规则（按名称）：**
+- 排除包含 `test` 的目录（不区分大小写，如 `tests`、`Test`、`unit_test` 等）
+- 排除固定目录：`.git`、`fuzzer`、`include`、`generated`、`out`、`obj`
+
+**Java 包识别规则（优先级高于目录）：**
+- 如果目录下有 `Android.bp` 或 `AndroidManifest.xml`，扫描所有 `.java` 文件
+- 按 Java 包名（`package com.android.server.wm`）分组
+- 每个唯一包名生成一个子模块，包名转换为路径：`com/android/server/wm` → `submodules/com_android_server_wm/`
+- 如果 Java 包有对应的 JNI 实现（`com_android_server_wm.cpp/h`），纳入同一子模块
+- 剩余的 C++ 目录按原有规则处理（每个目录一个子模块）
+
+**子模块数量限制：**
+- ≤ 6 个时，全部生成
+- > 6 个时，选择最重要的（文件数量最多的或被其他模块依赖最多的）
+
+### 子模块教程深度要求
+
+**目标**：初学者学完子模块教程后，能够：
+1. 理解该子模块的职责和在整体系统中的位置
+2. 找到需要修改的源代码文件（路径精确到文件名）
+3. 理解关键函数/方法的签名和调用方式
+4. 在指导下完成简单的代码修改（如添加一个状态标志、修改一个返回值、扩展一个分支）
+
+**每个子模块应包含 4-6 个模块**（而非父模块的 3-6 个屏幕），内容覆盖：
+
+| 模块类型 | 内容重点 |
+|----------|----------|
+| **全景模块** | 职责定位、上下游依赖、文件速览（file-tree） |
+| **数据结构模块** | 核心结构体/类的完整定义（带行号）、成员变量含义、常见访问模式 |
+| **核心流程模块** | 关键函数的完整调用链（带行号）、入参/返回值含义、调用者与被调用者 |
+| **扩展修改模块** | 常见扩展点的代码示例、"在这里加新分支"的具体操作步骤 |
+| **测验/练习模块** | 场景题：给出一个需求，问应该改哪个文件的哪一行 |
+
+**每个子模块模块必须包含：**
+- **文件定位图**：精确文件路径 + 行号范围，标明每个文件/方法的职责
+- **完整代码块**：关键函数/类保留完整签名和注释，不做截断
+- **行号标注**：重要代码行前加行号，便于初学者定位
+- **修改点标记**：在代码中用 `// [EDIT HERE]` 注释标注常见扩展点
+- **新手练习题**：至少 1 道"如果要实现 X 功能，你应该修改哪个文件的哪一行"类型的练习
+- **常见错误提醒**：callout 说明初学者常犯的错误（如忘记加 break、参数传错顺序）
+
+**子模块入口设计：**
+子模块入口页面（`index.html`）的模块索引区显示：
+1. 本模块的导航点（模块内章节）
+2. 子模块卡片（点击跳转 `submodules/{name}/index.html`）
+3. 返回父模块链接（如果有父模块）
 
 ## 工作流程
 
@@ -63,6 +134,12 @@ D:\claude\aaos\{镜像路径}\index.html    ← build.sh 组装生成
    - `_footer.html` — 原样复制
    - `build.sh` — 原样复制
 
+5. **扫描子目录** — 检查源目录是否有直接子目录：
+   - 排除目录：`.git`、`tests`、`fuzzer`、`include`、`generated`、`out`、`obj`
+   - 有效子目录列表保存到 `output_path/.submodules`
+   - 每个有效子目录创建 `output_path/submodules/{子模块名}/` 目录结构
+   - 如果有子模块，阶段 3 设计中包含"子模块索引"屏幕
+
 ### 阶段 2：代码深度分析
 
 使用 Agent 并行分析代码目录。根据模块复杂度，启动 2-3 个 Agent 分工分析：
@@ -82,6 +159,13 @@ D:\claude\aaos\{镜像路径}\index.html    ← build.sh 组装生成
 
 **输出：** 将分析结果保存为 `output_path/analysis.md`，供后续模块编写参考。
 
+**Android.bp 依赖分析：**
+- 读取所有 `Android.bp` 文件（每个子模块至少一个）
+- 提取 `shared_libs`、`static_libs`、`header_libs`、`exports` 字段
+- 提取 `srcs` 中引用的本地库（如 `libsurfaceflinger`、`libbinder` 等）
+- 生成依赖图，标注关键依赖
+- 依赖分析结果保存到 `output_path/dependencies.md`
+
 ### 阶段 3：课程设计
 
 根据代码分析结果，设计 4-6 个模块的教学大纲。
@@ -95,7 +179,8 @@ D:\claude\aaos\{镜像路径}\index.html    ← build.sh 组装生成
 | 3 | 关键流程 — 一个核心操作的完整数据流 | "从 App 提交一帧到屏幕显示的完整旅程" |
 | 4 | 通信机制 — 模块如何与其他组件交互 | Binder IPC、VSync 信号、事务处理 |
 | 5 | 设计精妙 — 巧妙的工程设计和优化策略 | 双缓冲/三缓冲、FrameTimeline、HWC 合成策略 |
-| 6 | 调试与排错 — 常见问题和调试方法 | dumpsys、perfetto trace、常见卡顿原因 |
+| 6 | 依赖关系 — 模块引用了哪些其他模块 | Android.bp 中的 shared_libs、static_libs 等 |
+| 7 | 调试与排错 — 常见问题和调试方法 | dumpsys、perfetto trace、常见卡顿原因 |
 
 这是一个菜单而非清单。根据模块复杂度选择 4-6 个最合适的模块。
 
@@ -109,9 +194,11 @@ D:\claude\aaos\{镜像路径}\index.html    ← build.sh 组装生成
 **必须包含的交互元素（整个课程）：**
 - **群聊动画** — 组件间的 iMessage 风格对话（至少 1 个）
 - **数据流动画** — 步骤化的数据包动画（至少 1 个）
-- **代码↔中文翻译块** — 每个模块至少 1 个
+- **代码↔中文翻译块** — 每个模块至少 1 个（带行号）
 - **测验题** — 每个模块至少 1 道（场景题 > 追踪题 > 概念题）
 - **术语工具提示** — 每个模块中首次出现的技术术语
+- **Bug 挑战** — "找 Bug"练习（子模块必须有，初学者修改代码时常犯的错误）
+- **新手练习题** — "如果要实现 X，应该改哪个文件的哪一行"类型的实践题
 
 **不要向用户展示课程大纲征求意见 — 直接构建。** 如果用户想修改，看完结果后会告知。
 

@@ -52,6 +52,48 @@ Every technical term gets a dashed-underline tooltip on first use in each module
 - Use a metaphor in the definition when it helps
 - Don't mark the same term twice within the same screen
 
+## Beginner Modification Guidance (Submodules)
+
+When writing submodule content aimed at enabling simple code modifications:
+
+### Code Block Standards
+- **Show complete functions**, not fragments — include the full function signature, all parameters, and return statement
+- **Include line numbers** in code blocks using `<span class="line-num">N</span>` pattern
+- **Mark extension points** with `// [EDIT HERE]` comments in the code
+- **Include file path + line range** above each code block: `// File: Scheduler.cpp:142-178`
+
+### Modification-Oriented Screens
+Each submodule should have at least one screen structured as:
+1. **The problem**: "How do I add a new VSYNC source type?"
+2. **The context**: What data structure holds the existing types?
+3. **The exact location**: File path and line numbers
+4. **The change**: Complete before/after code comparison
+5. **The verification**: How to test the change
+
+### Spot-the-Bug Pattern
+Use `.bug-challenge` from `interactive-elements.md` to create exercises where beginners identify the buggy line. Common bugs to include:
+- Missing `break` in switch statements
+- Off-by-one errors in buffer indices
+- Wrong parameter order in function calls
+- Forgetting to acquire/release mutex locks
+
+### Practice Exercise Format
+```html
+<div class="callout callout-accent">
+  <div class="callout-icon">✏️</div>
+  <div class="callout-content">
+    <strong class="callout-title">动手练习</strong>
+    <p>如果要支持一种新的合成模式（如 DRM leased 显示），应该在 Scheduler.cpp 的哪个函数中添加分支？提示：看 handleFrameMetadata() 函数。</p>
+  </div>
+</div>
+```
+
+### Common Gotchas to Highlight
+- Binder transactions are one-way: caller doesn't block waiting for reply unless explicitly requested
+- BufferQueue slots are indexed from 0 but slot allocation is ref-counted
+- HWC prepare/commit must be called in pairs — never skip the commit
+- VSync callbacks execute on a different thread than the main SurfaceFlinger thread
+
 ## Quiz Design
 
 Quizzes come at module end (3-5 questions) and prioritize **practical application over memorization**.

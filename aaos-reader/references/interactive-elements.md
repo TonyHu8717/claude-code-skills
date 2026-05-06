@@ -513,3 +513,44 @@ For sequences that would otherwise be a numbered paragraph list. Visual, scannab
   </div>
 </div>
 ```
+
+---
+
+## 18. Submodule Navigation Cards
+
+Links to child modules or back to parent module. Used when a directory has subdirectories that form a hierarchical tutorial structure.
+
+**HTML:**
+```html
+<!-- 子模块卡片：点击跳转 -->
+<a class="submodule-card" href="submodules/CompositionEngine/index.html">
+  <div class="submodule-icon">⚙️</div>
+  <div class="submodule-info">
+    <strong>CompositionEngine</strong>
+    <span>硬件合成引擎</span>
+  </div>
+  <div class="submodule-arrow">→</div>
+</a>
+
+<!-- 返回父模块链接 -->
+<a class="submodule-card parent-link" href="../index.html">
+  <div class="submodule-icon">⬆️</div>
+  <div class="submodule-info">
+    <strong>返回父模块</strong>
+    <span>SurfaceFlinger</span>
+  </div>
+  <div class="submodule-arrow">←</div>
+</a>
+```
+
+**CSS classes:**
+- `.submodule-card` — card container
+- `.submodule-icon` — emoji or icon on the left
+- `.submodule-info` — title and subtitle
+- `.submodule-arrow` — arrow indicator
+- `.parent-link` — modifier for parent link style
+
+**Rules:**
+- Each card is an `<a>` tag linking to the submodule's index.html
+- Parent link uses `.parent-link` modifier and `../index.html` path
+- Cards are typically placed in a grid: `display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));`

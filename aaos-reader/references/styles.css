@@ -1193,3 +1193,62 @@ p:last-child { margin-bottom: 0; }
   80%  { opacity: 1; }
   to   { left: var(--packet-to-x);   top: var(--packet-to-y);   opacity: 0; }
 }
+
+/* ── SUBMODULE NAVIGATION CARDS ─────────────────────────── */
+.submodule-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+  margin: var(--space-6) 0;
+}
+
+.submodule-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
+}
+
+.submodule-card:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+
+.submodule-card.parent-link {
+  border-style: dashed;
+}
+
+.submodule-icon {
+  font-size: 1.75rem;
+  flex-shrink: 0;
+}
+
+.submodule-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.submodule-info strong {
+  font-size: var(--text-base);
+  font-weight: 600;
+}
+
+.submodule-info span {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.submodule-arrow {
+  font-size: var(--text-lg);
+  color: var(--color-accent);
+  font-weight: 600;
+}
