@@ -5,7 +5,7 @@ description: "将任何代码库转换为一个精美的交互式单页 HTML 课
 
 # Codebase-to-Course（代码库转课程）
 
-将任何代码库转换为一门精美、互动的课程。输出是一个**目录**，包含预构建的 `styles.css`、`main.js`、每个模块的 HTML 文件，以及组装好的 `index.html`——可直接在浏览器中打开，无需任何配置（唯一外部依赖：Google Fonts CDN）。课程通过基于滚动导航的模块、动画可视化、嵌入式测验和通俗易懂的代码英文对照来教授代码如何工作。
+将任何代码库转换为一门精美、互动的课程。输出是一个**目录**（默认输出到 `中文教程/` 目录下），包含预构建的 `styles.css`、`main.js`、每个模块的 HTML 文件，以及组装好的 `index.html`——可直接在浏览器中打开，无需任何配置（唯一外部依赖：Google Fonts CDN）。课程通过基于滚动导航的模块、动画可视化、嵌入式测验和通俗易懂的代码英文对照来教授代码如何工作。
 
 ## 首次运行欢迎语
 
@@ -115,7 +115,7 @@ description: "将任何代码库转换为一个精美的交互式单页 HTML 课
 
 阅读 `references/module-brief-template.md` 了解模板结构。阅读 `references/content-philosophy.md` 了解应该指导简报编写的内容规则。
 
-**对于每个模块，将简报写入 `course-name/briefs/0N-slug.md`，包含：**
+**对于每个模块，将简报写入 `中文教程/course-name/briefs/0N-slug.md`，包含：**
 - 教学弧线（隐喻、开场钩子、关键见解）
 - 预提取的代码片段（从代码库复制粘贴，附文件路径和行号）
 - 互动元素检查清单，包含足够构建它们的细节
@@ -126,11 +126,11 @@ description: "将任何代码库转换为一个精美的交互式单页 HTML 课
 
 ### 阶段 3：构建课程
 
-课程输出是一个**目录**，不是单个文件。所有 CSS 和 JS 都是预构建的参考文件——永不重新生成它们。你的工作是只编写 HTML 内容。
+课程输出是一个**目录**（默认在 `中文教程/` 下），不是单个文件。所有 CSS 和 JS 都是预构建的参考文件——永不重新生成它们。你的工作是只编写 HTML 内容。
 
-**输出结构：**
+**默认输出结构：**
 ```
-course-name/
+中文教程/course-name/
   styles.css       ← 从 references/styles.css 原样复制
   main.js          ← 从 references/main.js 原样复制
   _base.html       ← 自定义外壳（标题、强调色、导航点）
@@ -144,13 +144,13 @@ course-name/
   index.html       ← 由 build.sh 组装（不要手动编写）
 ```
 
-**步骤 1（两种路径）：设置** — 创建课程目录。使用读取 + 写入原样复制这四个文件（不要重新生成它们的内容）：
-- `references/styles.css` → `course-name/styles.css`
-- `references/main.js` → `course-name/main.js`
-- `references/_footer.html` → `course-name/_footer.html`
-- `references/build.sh` → `course-name/build.sh`
+**步骤 1（两种路径）：设置** — 在 `中文教程/` 下创建课程目录。使用读取 + 写入原样复制这四个文件（不要重新生成它们的内容）：
+- `references/styles.css` → `中文教程/course-name/styles.css`
+- `references/main.js` → `中文教程/course-name/main.js`
+- `references/_footer.html` → `中文教程/course-name/_footer.html`
+- `references/build.sh` → `中文教程/course-name/build.sh`
 
-**步骤 2（两种路径）：自定义 `_base.html`** — 读取 `references/_base.html`，然后将其写入 `course-name/_base.html`，进行恰好三次替换：
+**步骤 2（两种路径）：自定义 `_base.html`** — 读取 `references/_base.html`，然后将其写入 `中文教程/course-name/_base.html`，进行恰好三次替换：
 - `COURSE_TITLE` 的两处 → 实际课程标题
 - 四个 `ACCENT_*` 占位符 → 选择的强调色值（从 `_base.html` 的注释中选择一个调色板）
 - `NAV_DOTS` → 每个模块一个 `<button class="nav-dot" ...>`
@@ -159,18 +159,18 @@ course-name/
 
 #### 顺序路径（简单代码库）
 
-读取 `references/content-philosophy.md` 和 `references/gotchas.md`。然后一次编写一个模块。对于每个模块，编写 `course-name/modules/0N-slug.html`，只包含 `<section class="module" id="module-N">` 块及其内容。不要包含 `<html>`、`<head>`、`<body>`、`<style>` 或 `<script>` 标签。
+读取 `references/content-philosophy.md` 和 `references/gotchas.md`。然后一次编写一个模块。对于每个模块，编写 `中文教程/course-name/modules/0N-slug.html`，只包含 `<section class="module" id="module-N">` 块及其内容。不要包含 `<html>`、`<head>`、`<body>`、`<style>` 或 `<script>` 标签。
 
 阅读 `references/interactive-elements.md` 了解每种互动元素的 HTML 模式。阅读 `references/design-system.md` 了解视觉约定。
 
 #### 并行路径（复杂代码库）
 
 以最多 3 个一批的方式将模块分派给子代理。每个代理收到：
-- 它的模块简报（来自 `course-name/briefs/`）
+- 它的模块简报（来自 `中文教程/course-name/briefs/`）
 - `references/content-philosophy.md` 和 `references/gotchas.md`
 - `references/interactive-elements.md` 和 `references/design-system.md` 中简报列出的唯一部分
 
-每个代理将其模块文件写入 `course-name/modules/`。短模块（3 个屏幕，一个测验）可以配对——两个简报交给一个代理。
+每个代理将其模块文件写入 `中文教程/course-name/modules/`。短模块（3 个屏幕，一个测验）可以配对——两个简报交给一个代理。
 
 **代理不收到什么：** 完整代码库（片段在简报中）、SKILL.md、其他模块的简报或不需要的参考文件部分。
 
@@ -178,7 +178,7 @@ course-name/
 
 **步骤 4（两种路径）：组装** — 从课程目录运行 `build.sh`：
 ```bash
-cd course-name && bash build.sh
+cd 中文教程/course-name && bash build.sh
 ```
 这会生成 `index.html`。在浏览器中打开它。
 

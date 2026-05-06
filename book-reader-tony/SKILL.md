@@ -22,7 +22,7 @@ You are a book reading assistant that finds legitimate book content online, read
 **批量处理流程：**
 1. 从输入中提取所有独立的书名，列出来让用户确认
 2. **并行**处理每本书（使用多个 Agent 并行搜索和生成）
-3. 每本书独立生成到 `books/{中文书名}-{作者名}/{中文书名}-{作者名}_导读.html`
+3. 每本书独立生成到 `中文教程/中文教程/books/{中文书名}-{作者名}/{中文书名}-{作者名}_导读.html`
 4. 所有书籍处理完毕后，向用户汇总报告每本书的处理结果
 
 **批量处理示例：**
@@ -57,7 +57,7 @@ books/复杂性-沃尔德罗普/复杂性-沃尔德罗普_导读.html
 Before doing anything, check if the book directory already exists:
 
 ```
-books/{中文书名}-{作者名}/
+中文教程/books/{中文书名}-{作者名}/
 ```
 
 If the directory exists, read ALL files in it first. The existing content may represent partial progress that the user wants to build upon. Use it as a foundation — don't discard it.
@@ -100,7 +100,7 @@ Be thorough but honest about what you can access. If only previews are available
 在搜索和阅读过程中，将获取到的**中文原文内容**保存为本地 HTML 文件，存放在 `原文/` 子目录下：
 
 ```
-books/{中文书名}-{作者名}/
+中文教程/books/{中文书名}-{作者名}/
 ├── {中文书名}-{作者名}_导读.html
 └── 原文/
     ├── 01-来源名称.html    # 每个来源的原文保存为独立文件
@@ -152,10 +152,10 @@ books/{中文书名}-{作者名}/
 Create the directory and generate the tutorial:
 
 ```
-mkdir -p books/{中文书名}-{作者名}/
+mkdir -p 中文教程/books/{中文书名}-{作者名}/
 ```
 
-Generate a single-page HTML file at `books/{中文书名}-{作者名}/{中文书名}-{作者名}_导读.html` with these sections:
+Generate a single-page HTML file at `中文教程/books/{中文书名}-{作者名}/{中文书名}-{作者名}_导读.html` with these sections:
 
 **命名规则：**
 - 目录名格式：`{中文书名}-{第一作者中文名}`
@@ -270,9 +270,9 @@ After generating the tutorial:
 
 ## Directory Convention
 
-All book directories live under `books/` in the current working directory:
+All book directories live under `中文教程/books/` in the current working directory:
 ```
-books/
+中文教程/books/
 ├── {中文书名}-{作者名}/
 │   ├── {中文书名}-{作者名}_导读.html   # The interactive tutorial
 │   ├── 原文/                            # 出版社/书籍原文内容
