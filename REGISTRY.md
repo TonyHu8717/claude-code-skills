@@ -370,6 +370,7 @@
 | [k8s-manifest-generator](k8s-manifest-generator/SKILL.md) | 创建生产就绪的 Kubernetes 清单，包括 Deployment、Service、ConfigMap 和 Secret，遵循最佳实践和安全标准。在生成 Kubernetes YAML 清单、创建 |
 | [mcp-integration](mcp-integration/SKILL.md) | 当用户要求"添加 MCP 服务器"、"集成 MCP"、"在插件中配置 MCP"、"使用 .mcp.json"、"设置模型上下文协议"、"连接外部服务"、提到 "${CLAUDE_PLUGIN_ROOT |
 | [mcp-setup](mcp-setup/SKILL.md) | 配置常用的 MCP 服务器以增强代理能力 |
+| [chrome-devtools-mcp](chrome-devtools-mcp/SKILL.md) | 通过 Chrome DevTools MCP 控制 Chrome 浏览器，用于自动化、调试和性能分析。在需要自动化浏览器操作、调试网页应用、分析页面性能、截屏、检查网络请求或测试响应式设计时使用。 |
 | [on-call-handoff-patterns](on-call-handoff-patterns/SKILL.md) | 掌握值班交接，包括上下文传递、升级程序和文档。在工程师之间交接值班职责并确保接班响应者具有完整的态势感知时、在编写捕获活跃事件、持续调查和近期更改的班次摘要时、在事件中途交接以便新工程师可以在不丢失上 |
 | [protect-mcp-setup](protect-mcp-setup/SKILL.md) | 为 Claude Code 工具调用配置 Cedar 策略执行和 Ed25519 签名收据。在设置需要加密审计跟踪、策略门控工具执行或合规就绪的代理操作证据的项目时使用。 |
 
