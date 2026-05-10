@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MODULE_TITLE - 模块导航</title>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --color-accent:       ACCENT_COLOR;
+      --color-accent-hover: ACCENT_HOVER;
+      --color-accent-light: ACCENT_LIGHT;
+      --color-accent-muted: ACCENT_MUTED;
+      --color-bg:           #FAF7F2;
+      --color-bg-alt:       #F3EFE8;
+      --color-fg:           #3D3830;
+      --color-fg-muted:     #6B6560;
+      --color-fg-dim:       #96908A;
+      --color-card-bg:      #FFFFFF;
+      --color-card-shadow:  0 1px 3px rgba(61,56,48,0.08), 0 4px 12px rgba(61,56,48,0.04);
+      --color-card-hover:   0 1px 4px rgba(61,56,48,0.12), 0 8px 24px rgba(61,56,48,0.08);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      background: var(--color-bg);
+      color: var(--color-fg);
+      line-height: 1.6;
+      min-height: 100dvh;
+    }
+
+    /* ── HEADER ──────────────────────────── */
+    .module-header {
+      text-align: center;
+      padding: 80px 24px 40px;
+      background: linear-gradient(180deg, var(--color-accent-light) 0%, var(--color-bg) 100%);
+    }
+
+    .module-header h1 {
+      font-family: 'Bricolage Grotesque', serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      color: var(--color-accent);
+      letter-spacing: -0.02em;
+    }
+
+    .module-header .subtitle {
+      margin-top: 12px;
+      font-size: 1.05rem;
+      color: var(--color-fg-muted);
+      max-width: 520px;
+      margin-inline: auto;
+    }
+
+    /* ── BREADCRUMB ─────────────────────── */
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: var(--color-fg-dim);
+      flex-wrap: wrap;
+    }
+
+    .breadcrumb a {
+      color: var(--color-accent);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .breadcrumb a:hover { color: var(--color-accent-hover); text-decoration: underline; }
+
+    .breadcrumb .sep { color: var(--color-fg-dim); }
+
+    .breadcrumb .current { color: var(--color-fg-muted); font-weight: 500; }
+
+    /* ── PARENT LINK ────────────────────── */
+    .parent-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 16px;
+      padding: 8px 18px;
+      border-radius: 100px;
+      background: var(--color-card-bg);
+      color: var(--color-accent);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      box-shadow: var(--color-card-shadow);
+      transition: box-shadow 0.25s var(--ease-out), transform 0.25s var(--ease-out);
+    }
+
+    .parent-link:hover {
+      box-shadow: var(--color-card-hover);
+      transform: translateY(-1px);
+    }
+
+    /* ── MAIN ───────────────────────────── */
+    .main {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    .section-title {
+      font-family: 'Bricolage Grotesque', serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--color-fg);
+      margin: 48px 0 20px;
+    }
+
+    /* ── MODULE GRID ────────────────────── */
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .module-card {
+      display: flex;
+      flex-direction: column;
+      background: var(--color-card-bg);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      box-shadow: var(--color-card-shadow);
+      text-decoration: none;
+      color: inherit;
+      transition: box-shadow 0.25s var(--ease-out), transform 0.25s var(--ease-out);
+      border-left: 4px solid transparent;
+      position: relative;
+    }
+
+    .module-card:hover {
+      box-shadow: var(--color-card-hover);
+      transform: translateY(-2px);
+    }
+
+    .module-card .card-accent {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      border-radius: var(--radius-md) 0 0 var(--radius-md);
+    }
+
+    .module-card .card-type {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 100px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 10px;
+    }
+
+    .card-type.course {
+      background: var(--color-accent-light);
+      color: var(--color-accent);
+    }
+
+    .card-type.navigation {
+      background: var(--color-bg-alt);
+      color: var(--color-fg-muted);
+    }
+
+    .module-card .card-title {
+      font-family: 'Bricolage Grotesque', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--color-fg);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .module-card .card-desc {
+      font-size: 0.85rem;
+      color: var(--color-fg-muted);
+      flex: 1;
+      line-height: 1.5;
+    }
+
+    .module-card .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+      font-size: 0.78rem;
+      color: var(--color-fg-dim);
+    }
+
+    .card-meta .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 100px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      background: var(--color-accent-light);
+      color: var(--color-accent);
+    }
+
+    /* ── SIBLING NAV ────────────────────── */
+    .sibling-nav {
+      margin-top: 56px;
+      padding-top: 32px;
+      border-top: 1px solid rgba(61,56,48,0.08);
+    }
+
+    .sibling-nav .section-title {
+      margin-top: 0;
+      font-size: 1.1rem;
+    }
+
+    .sibling-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .sibling-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 100px;
+      background: var(--color-bg-alt);
+      color: var(--color-fg-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .sibling-link:hover {
+      background: var(--color-accent-light);
+      color: var(--color-accent);
+    }
+
+    /* ── FOOTER ─────────────────────────── */
+    .footer {
+      text-align: center;
+      padding: 40px 24px;
+      color: var(--color-fg-dim);
+      font-size: 0.85rem;
+      border-top: 1px solid rgba(61,56,48,0.08);
+    }
+
+    /* ── RESPONSIVE ─────────────────────── */
+    @media (max-width: 768px) {
+      .module-header { padding: 56px 20px 32px; }
+      .module-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .module-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="module-header">
+    <h1>MODULE_TITLE</h1>
+    <p class="subtitle">MODULE_DESCRIPTION</p>
+
+    <!-- BREADCRUMB -->
+    <nav class="breadcrumb" aria-label="面包屑导航">
+      BREADCRUMB_ITEMS
+    </nav>
+
+    <!-- PARENT LINK (omit for root module) -->
+    PARENT_LINK
+  </header>
+
+  <!-- ═══ MAIN ═══ -->
+  <main class="main">
+
+    <h2 class="section-title">子模块</h2>
+    <div class="module-grid">
+      <!-- MODULE_CARDS -->
+    </div>
+
+    <!-- SIBLING NAVIGATION (omit if no siblings) -->
+    <div class="sibling-nav">
+      <h2 class="section-title">同级模块</h2>
+      <div class="sibling-links">
+        <!-- SIBLING_LINKS -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="footer">
+    <p>由 Claude Code 自动生成 · MODULE_TITLE 模块导航</p>
+  </footer>
+
+</body>
+</html>
